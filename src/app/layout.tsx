@@ -4,6 +4,7 @@ import { QueryProvider } from "@/modules/shared/ui/providers/react-query";
 import type { Metadata } from "next";
 
 import "@/modules/shared/ui/assets/styles/globals.css";
+import { DirectionProvider } from "@/modules/shared/ui/components/ui/direction";
 
 export const metadata: Metadata = {
   title: "پلتفرم مدل‌سازی معماری",
@@ -20,14 +21,15 @@ export default function RootLayout({
     <html
       lang="fa"
       dir="rtl"
-      data-theme="light"
       suppressHydrationWarning
       className={`${fonts.vazirmatn.variable} h-full antialiased`}
     >
       <body className="min-h-full">
-        <ThemeProvider>
-          <QueryProvider>{children}</QueryProvider>
-        </ThemeProvider>
+        <DirectionProvider dir="rtl">
+          <ThemeProvider>
+            <QueryProvider>{children}</QueryProvider>
+          </ThemeProvider>
+        </DirectionProvider>
       </body>
     </html>
   );

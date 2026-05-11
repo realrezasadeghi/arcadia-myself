@@ -38,131 +38,179 @@
   --font-vazirmatn: var(--font-vazirmatn);
 }
 
-/* ─── Base & Dark Mode Variables ──────────────────────────────────────── */
+/* ─── Base & theme variables ──────────────────────────────────────────── */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    --background: 250 20% 98%;
+    --foreground: 250 25% 12%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 250 25% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 221 83% 53%;
+    --popover-foreground: 250 25% 12%;
+    --primary: 258 85% 58%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 214 32% 91%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 214 32% 95%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 214 32% 91%;
-    --accent-foreground: 222 47% 11%;
+    --secondary: 258 30% 93%;
+    --secondary-foreground: 258 35% 20%;
+    --muted: 250 20% 95%;
+    --muted-foreground: 250 15% 52%;
+    --accent: 258 30% 93%;
+    --accent-foreground: 258 35% 20%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 221 83% 53%;
+    --border: 250 20% 88%;
+    --input: 250 20% 88%;
+    --ring: 258 85% 58%;
     --radius: 0.5rem;
 
-    --layer-oa: 210 79% 72%;
-    --layer-oa-muted: 210 79% 95%;
-    --layer-oa-foreground: 210 79% 25%;
+    /* Arcadia Layer Colors — Light */
+    --layer-oa: 210 79% 62%;
+    --layer-oa-muted: 210 79% 94%;
+    --layer-oa-foreground: 210 70% 28%;
 
-    --layer-sa: 32 93% 68%;
-    --layer-sa-muted: 32 93% 94%;
-    --layer-sa-foreground: 32 93% 25%;
+    --layer-sa: 32 90% 58%;
+    --layer-sa-muted: 32 90% 93%;
+    --layer-sa-foreground: 32 80% 28%;
 
-    --layer-la: 142 69% 62%;
-    --layer-la-muted: 142 69% 92%;
-    --layer-la-foreground: 142 69% 22%;
+    --layer-la: 152 60% 42%;
+    --layer-la-muted: 152 60% 92%;
+    --layer-la-foreground: 152 60% 22%;
 
-    --layer-pa: 270 50% 70%;
-    --layer-pa-muted: 270 50% 94%;
-    --layer-pa-foreground: 270 50% 25%;
+    --layer-pa: 270 55% 58%;
+    --layer-pa-muted: 270 55% 93%;
+    --layer-pa-foreground: 270 50% 28%;
   }
 
   .dark {
-    --background: 222 47% 8%;
-    --foreground: 213 31% 91%;
-    --card: 222 47% 11%;
-    --card-foreground: 213 31% 91%;
-    --popover: 222 47% 11%;
-    --popover-foreground: 213 31% 91%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 222 47% 8%;
-    --secondary: 222 47% 16%;
-    --secondary-foreground: 213 31% 91%;
-    --muted: 222 47% 14%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 222 47% 16%;
-    --accent-foreground: 213 31% 91%;
-    --destructive: 0 63% 51%;
+    --background: 250 22% 7%;
+    --foreground: 250 15% 92%;
+    --card: 250 22% 10%;
+    --card-foreground: 250 15% 92%;
+    --popover: 250 22% 10%;
+    --popover-foreground: 250 15% 92%;
+    --primary: 258 80% 68%;
+    --primary-foreground: 250 22% 7%;
+    --secondary: 250 22% 15%;
+    --secondary-foreground: 250 15% 92%;
+    --muted: 250 22% 13%;
+    --muted-foreground: 250 15% 58%;
+    --accent: 250 22% 16%;
+    --accent-foreground: 250 15% 92%;
+    --destructive: 0 63% 52%;
     --destructive-foreground: 0 0% 100%;
-    --border: 222 47% 18%;
-    --input: 222 47% 18%;
-    --ring: 217 91% 60%;
+    --border: 250 22% 18%;
+    --input: 250 22% 18%;
+    --ring: 258 80% 68%;
 
-    --layer-oa: 210 79% 40%;
-    --layer-oa-muted: 210 79% 15%;
-    --layer-oa-foreground: 210 79% 80%;
+    /* Arcadia Layer Colors — Dark */
+    --layer-oa: 210 75% 42%;
+    --layer-oa-muted: 210 75% 14%;
+    --layer-oa-foreground: 210 75% 78%;
 
-    --layer-sa: 32 93% 45%;
-    --layer-sa-muted: 32 93% 15%;
-    --layer-sa-foreground: 32 93% 80%;
+    --layer-sa: 32 80% 48%;
+    --layer-sa-muted: 32 80% 14%;
+    --layer-sa-foreground: 32 80% 78%;
 
-    --layer-la: 142 69% 35%;
-    --layer-la-muted: 142 69% 13%;
-    --layer-la-foreground: 142 69% 75%;
+    --layer-la: 152 55% 38%;
+    --layer-la-muted: 152 55% 12%;
+    --layer-la-foreground: 152 55% 72%;
 
-    --layer-pa: 270 50% 45%;
-    --layer-pa-muted: 270 50% 15%;
-    --layer-pa-foreground: 270 50% 80%;
+    --layer-pa: 270 55% 48%;
+    --layer-pa-muted: 270 55% 14%;
+    --layer-pa-foreground: 270 55% 78%;
   }
 
   html {
+    direction: rtl;
     scroll-behavior: smooth;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
   }
 
   body {
-    @apply bg-background text-foreground;
-    @apply font-vazirmatn;
+    color: hsl(var(--foreground));
+    background-color: hsl(var(--background));
+    background-image: radial-gradient(
+      ellipse 100% 45% at 50% -5%,
+      hsl(var(--primary) / 0.07),
+      transparent
+    );
     min-height: 100vh;
+    font-family: var(--font-vazirmatn);
   }
 
-  /* Scrollbar */
+  .dark body {
+    background-image: radial-gradient(
+      ellipse 100% 45% at 50% -5%,
+      hsl(var(--primary) / 0.14),
+      transparent
+    );
+  }
+
+  /* Scrollbar styling */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-muted;
+    background: hsl(var(--muted));
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-border rounded-full;
+    background: hsl(var(--primary) / 0.4);
+    border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground;
+    background: hsl(var(--primary) / 0.65);
   }
 }
 
-/* ─── Layer utilities ────────────────────────────────────────────────────── */
-@layer utilities {
-  .layer-oa {
-    background-color: hsl(var(--layer-oa-muted));
-    color: hsl(var(--layer-oa-foreground));
-    border-color: hsl(var(--layer-oa));
-  }
-  .layer-sa {
-    background-color: hsl(var(--layer-sa-muted));
-    color: hsl(var(--layer-sa-foreground));
-    border-color: hsl(var(--layer-sa));
-  }
-  .layer-la {
-    background-color: hsl(var(--layer-la-muted));
-    color: hsl(var(--layer-la-foreground));
-    border-color: hsl(var(--layer-la));
-  }
-  .layer-pa {
-    background-color: hsl(var(--layer-pa-muted));
-    color: hsl(var(--layer-pa-foreground));
-    border-color: hsl(var(--layer-pa));
-  }
+/* ─── React Flow overrides (keep LTR inside the canvas) ───────────────── */
+  .react-flow__renderer {
+  direction: ltr;
+}
+.react-flow__controls {
+  direction: ltr;
+}
+
+/* ─── Custom utilities ─────────────────────────────────────────────────── */
+@utility layer-oa {
+  background-color: hsl(var(--layer-oa-muted));
+  color: hsl(var(--layer-oa-foreground));
+  border-color: hsl(var(--layer-oa) / 0.5);
+}
+@utility layer-sa {
+  background-color: hsl(var(--layer-sa-muted));
+  color: hsl(var(--layer-sa-foreground));
+  border-color: hsl(var(--layer-sa) / 0.5);
+}
+@utility layer-la {
+  background-color: hsl(var(--layer-la-muted));
+  color: hsl(var(--layer-la-foreground));
+  border-color: hsl(var(--layer-la) / 0.5);
+}
+@utility layer-pa {
+  background-color: hsl(var(--layer-pa-muted));
+  color: hsl(var(--layer-pa-foreground));
+  border-color: hsl(var(--layer-pa) / 0.5);
+}
+
+@utility text-gradient {
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(220 85% 65%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility glow-primary {
+  box-shadow:
+    0 0 24px hsl(var(--primary) / 0.35),
+    0 0 8px hsl(var(--primary) / 0.2);
+}
+
+@utility card-accent {
+  border-color: hsl(var(--primary) / 0.2);
+  background: linear-gradient(
+    145deg,
+    hsl(var(--card)) 0%,
+    hsl(var(--primary) / 0.025) 100%
+  );
 }

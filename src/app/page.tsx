@@ -1,11 +1,4 @@
-import {
-  ArrowLeft,
-  ChevronLeft,
-  GitMerge,
-  Layers,
-  Shield,
-  Users,
-} from "lucide-react";
+import { ArrowLeft, GitMerge, Layers, Shield, Users } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "@/modules/shared/ui/components/common/theme-toggle";
 import { Badge } from "@/modules/shared/ui/components/ui/badge";

@@ -23,7 +23,7 @@
  *   </Form>
  */
 
-import type { FieldValues, Path, UseFormReturn } from "react-hook-form";
+import type { FieldPath, FieldValues } from "react-hook-form";
 import {
   FieldInput,
   FieldPassword,
@@ -43,7 +43,7 @@ type FieldType =
   | "select";
 
 export interface FieldDef {
-  name: string;
+  name: FieldPath<FieldValues>;
   label?: string;
   description?: string;
   type?: FieldType;
@@ -54,8 +54,7 @@ export interface FieldDef {
   className?: string;
 }
 
-interface FieldRendererProps<T extends FieldValues> {
-  form: UseFormReturn<T>;
+interface FieldRendererProps {
   fields: FieldDef[];
   /** Wrapper className. Defaults to "flex flex-col gap-4" */
   className?: string;
@@ -63,20 +62,15 @@ interface FieldRendererProps<T extends FieldValues> {
 
 // ─── Component ─────────────────────────────────────────────────────────────────
 
-export function FieldRenderer<T extends FieldValues>({
-  form,
-  fields,
-  className,
-}: FieldRendererProps<T>) {
+export function FieldRenderer({ fields, className }: FieldRendererProps) {
   return (
     <div className={className ?? "flex flex-col gap-4"}>
       {fields.map((field) => {
-        const name = field.name as Path<T>;
+        const name = field.name;
         const common = {
           name,
           key: field.name,
           label: field.label,
-          control: form.control,
           className: field.className,
           description: field.description,
         };

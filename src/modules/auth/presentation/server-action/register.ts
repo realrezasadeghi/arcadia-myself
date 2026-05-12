@@ -1,12 +1,17 @@
 "use server";
 
-import { fail, ok } from "@/modules/shared/utils/response";
-import { RegisterUseCase } from "../../application/use-cases/register";
+import { fail, type IRes, ok } from "@/modules/shared/utils/response";
+import {
+  type RegisterResponse,
+  RegisterUseCase,
+} from "../../application/use-cases/register";
 import { authRepository } from "../../infrastructure/repositories";
 import { tokenService } from "../../infrastructure/services";
 import { RegisterDTO, type RegisterDTOProps } from "../dtos/register";
 
-export async function register(props: RegisterDTOProps) {
+export async function register(
+  props: RegisterDTOProps,
+): Promise<IRes<RegisterResponse>> {
   try {
     const dto = RegisterDTO.create(props);
     const registerUseCase = new RegisterUseCase(authRepository, tokenService);

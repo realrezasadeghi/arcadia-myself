@@ -15,7 +15,7 @@
 import { Eye, EyeOff } from "lucide-react";
 import type * as React from "react";
 import { useState } from "react";
-import type { Control, FieldValues, Path } from "react-hook-form";
+import type { FieldValues, Path } from "react-hook-form";
 import {
   FormControl,
   FormDescription,
@@ -37,7 +37,6 @@ import { Textarea } from "../ui/textarea";
 // ─── Shared types ──────────────────────────────────────────────────────────────
 
 interface BaseFieldProps<T extends FieldValues> {
-  control: Control<T>;
   name: Path<T>;
   label?: string;
   description?: string;
@@ -50,7 +49,6 @@ type FieldInputProps<T extends FieldValues> = BaseFieldProps<T> &
   Omit<React.InputHTMLAttributes<HTMLInputElement>, "name">;
 
 export function FieldInput<T extends FieldValues>({
-  control,
   name,
   label,
   description,
@@ -59,7 +57,6 @@ export function FieldInput<T extends FieldValues>({
 }: FieldInputProps<T>) {
   return (
     <FormField
-      control={control}
       name={name}
       render={({ field, fieldState }) => (
         <FormItem className={className}>
@@ -84,7 +81,6 @@ type FieldPasswordProps<T extends FieldValues> = BaseFieldProps<T> & {
 };
 
 export function FieldPassword<T extends FieldValues>({
-  control,
   name,
   label,
   description,
@@ -94,7 +90,6 @@ export function FieldPassword<T extends FieldValues>({
   const [show, setShow] = useState(false);
   return (
     <FormField
-      control={control}
       name={name}
       render={({ field, fieldState }) => (
         <FormItem className={className}>
@@ -140,7 +135,6 @@ type FieldTextareaProps<T extends FieldValues> = BaseFieldProps<T> &
   Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "name">;
 
 export function FieldTextarea<T extends FieldValues>({
-  control,
   name,
   label,
   description,
@@ -149,7 +143,6 @@ export function FieldTextarea<T extends FieldValues>({
 }: FieldTextareaProps<T>) {
   return (
     <FormField
-      control={control}
       name={name}
       render={({ field, fieldState }) => (
         <FormItem className={className}>
@@ -185,7 +178,6 @@ type FieldSelectProps<T extends FieldValues> = BaseFieldProps<T> & {
 };
 
 export function FieldSelect<T extends FieldValues>({
-  control,
   name,
   label,
   description,
@@ -196,7 +188,6 @@ export function FieldSelect<T extends FieldValues>({
 }: FieldSelectProps<T>) {
   return (
     <FormField
-      control={control}
       name={name}
       render={({ field, fieldState }) => (
         <FormItem className={className}>

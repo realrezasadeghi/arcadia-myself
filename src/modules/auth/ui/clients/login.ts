@@ -1,8 +1,8 @@
-import { useMutation } from "@tanstack/react-query";
+import { useServerMutation } from "@/modules/shared/ui/hooks/use-mutation";
 import { login } from "../../presentation/server-action/login";
 
 export function useLogin() {
-  return useMutation({
+  return useServerMutation({
     mutationFn: login,
   });
 }

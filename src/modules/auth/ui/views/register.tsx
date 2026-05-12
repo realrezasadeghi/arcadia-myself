@@ -3,7 +3,7 @@
 import {
   type FieldDef,
   FieldRenderer,
-} from "@/modules/shared/ui/components/common/form-renderer";
+} from "@/modules/shared/ui/components/common/field-renderer";
 import { Button } from "@/modules/shared/ui/components/ui/button";
 import {
   Card,
@@ -19,6 +19,7 @@ import { UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useCallback } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { useRegister } from "../clients/register";
 import { type RegisterFormValues, registerSchema } from "../schemas/register";
 
@@ -44,6 +45,7 @@ const fields: FieldDef[] = [
 
 export function RegisterView() {
   const form = useForm<RegisterFormValues>({
+    mode: "onChange",
     resolver: zodResolver(registerSchema),
     defaultValues: { name: "", username: "", password: "" },
   });
@@ -52,19 +54,17 @@ export function RegisterView() {
 
   const handleSubmit: SubmitHandler<RegisterFormValues> = useCallback(
     (values) => {
-      register.mutateAsync(values, {
+      register.mutate(values, {
         onError(error) {
-          console.log("error", error);
+          toast.error(error.meta.message);
         },
-        onSuccess(data) {
-          console.log("data", data);
+        onSuccess({ meta }) {
+          toast.success(meta.message || "Register successfully.");
         },
       });
     },
     [register],
   );
-
-  console.log("error", form.formState.errors);
 
   return (
     <Card className="w-full max-w-sm">
@@ -82,7 +82,7 @@ export function RegisterView() {
             className="flex flex-col gap-4"
             onSubmit={form.handleSubmit(handleSubmit)}
           >
-            <FieldRenderer form={form} fields={fields} />
+            <FieldRenderer fields={fields} />
             <Button type="submit" className="w-full gap-2 mt-1">
               <UserPlus className="h-4 w-4" />
               ایجاد حساب

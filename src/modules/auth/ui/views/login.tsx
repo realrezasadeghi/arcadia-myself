@@ -3,7 +3,7 @@
 import {
   type FieldDef,
   FieldRenderer,
-} from "@/modules/shared/ui/components/common/form-renderer";
+} from "@/modules/shared/ui/components/common/field-renderer";
 import { Button } from "@/modules/shared/ui/components/ui/button";
 import {
   Card,
@@ -19,6 +19,8 @@ import { LogIn } from "lucide-react";
 import Link from "next/link";
 import { useCallback } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { useLogin } from "../clients/login";
 import { type LoginFormValues, loginSchema } from "../schemas/login";
 
 const fields: FieldDef[] = [
@@ -37,8 +39,21 @@ export function LoginView() {
     defaultValues: { username: "", password: "" },
   });
 
-  const handleSubmit: SubmitHandler<LoginFormValues> =
-    useCallback(() => {}, []);
+  const login = useLogin();
+
+  const handleSubmit: SubmitHandler<LoginFormValues> = useCallback(
+    (values) => {
+      login.mutateAsync(values, {
+        onError(error) {
+          toast.error(error.meta.message);
+        },
+        onSuccess({ meta }) {
+          toast.success(meta.message || "عملیات با موفقیت انجام شد");
+        },
+      });
+    },
+    [login],
+  );
 
   return (
     <Card className="w-full max-w-sm">
@@ -56,7 +71,7 @@ export function LoginView() {
             className="flex flex-col gap-4"
             onSubmit={form.handleSubmit(handleSubmit)}
           >
-            <FieldRenderer form={form} fields={fields} />
+            <FieldRenderer fields={fields} />
             <Button type="submit" className="w-full gap-2 mt-1">
               <LogIn className="h-4 w-4" />
               ورود
@@ -70,7 +85,7 @@ export function LoginView() {
           حساب ندارید؟
           <Link
             href="/register"
-            className="text-primary hover:underline font-medium"
+            className="text-primary hover:underline font-medium ms-2"
           >
             ثبت‌نام کنید
           </Link>

@@ -8,7 +8,6 @@ import { LoginDTO, type LoginDTOProps } from "../dtos/login";
 
 export async function login(props: LoginDTOProps) {
   try {
-    console.log("props", props);
     const dto = LoginDTO.create(props);
     const loginUseCase = new LoginUseCase(authRepository, tokenService);
     const response = await loginUseCase.execute(dto);

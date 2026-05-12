@@ -8,7 +8,7 @@ type User = {
 
 type Token = string;
 
-type AuthResponse = {
+export type AuthResponse = {
   user: User;
   token: Token;
 };
@@ -17,17 +17,15 @@ export type LoginPayload = {
   username: string;
   password: string;
 };
-export type LoginResponse = AuthResponse;
 
 export type RegisterPayload = {
   name: string;
   username: string;
   password: string;
 };
-export type RegisterResponse = AuthResponse;
 
 export interface IAuthRepository {
-  login(payload: LoginPayload): Promise<LoginResponse>;
+  login(payload: LoginPayload): Promise<AuthResponse>;
 
-  register(payload: RegisterPayload): Promise<RegisterResponse>;
+  register(payload: RegisterPayload): Promise<AuthResponse>;
 }

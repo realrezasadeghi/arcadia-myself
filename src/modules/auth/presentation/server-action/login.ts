@@ -1,12 +1,17 @@
 "use server";
 
-import { fail, ok } from "@/modules/shared/utils/response";
-import { LoginUseCase } from "../../application/use-cases/login";
+import { fail, type IRes, ok } from "@/modules/shared/utils/response";
+import {
+  type LoginResponse,
+  LoginUseCase,
+} from "../../application/use-cases/login";
 import { authRepository } from "../../infrastructure/repositories";
 import { cookieTokenService } from "../../infrastructure/services";
 import { LoginDTO, type LoginDTOProps } from "../dtos/login";
 
-export async function login(props: LoginDTOProps) {
+export async function login(
+  props: LoginDTOProps,
+): Promise<IRes<LoginResponse>> {
   try {
     const dto = LoginDTO.create(props);
     const loginUseCase = new LoginUseCase(authRepository, cookieTokenService);

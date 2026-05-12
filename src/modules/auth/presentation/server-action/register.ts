@@ -14,7 +14,10 @@ export async function register(
 ): Promise<IRes<RegisterResponse>> {
   try {
     const dto = RegisterDTO.create(props);
-    const registerUseCase = new RegisterUseCase(authRepository, cookieTokenService);
+    const registerUseCase = new RegisterUseCase(
+      authRepository,
+      cookieTokenService,
+    );
     const response = await registerUseCase.execute(dto);
     return ok(response);
   } catch (error) {

@@ -1,11 +1,16 @@
 import type { IUseCase } from "@/modules/shared/application/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
 import { User } from "../../domain/entities/user";
-import { RegisterDTO, type RegisterDTOProps } from "../dtos/register";
 import type { IAuthRepository } from "../ports/auth";
 import type { ITokenService } from "../ports/token";
 
-type RegisterResponse = {
+export type RegisterPayload = {
+  username: string;
+  password: string;
+  name: string;
+};
+
+export type RegisterResponse = {
   id: number;
   name: string;
   username: string;
@@ -14,18 +19,16 @@ type RegisterResponse = {
 };
 
 export class RegisterUseCase
-  implements IUseCase<RegisterDTOProps, RegisterResponse>
+  implements IUseCase<RegisterPayload, RegisterResponse>
 {
   constructor(
     private readonly authRepository: IAuthRepository,
     private readonly tokenService: ITokenService,
   ) {}
 
-  async execute(props: RegisterDTOProps): Promise<RegisterResponse> {
+  async execute(payload: RegisterPayload): Promise<RegisterResponse> {
     try {
-      const dto = RegisterDTO.create(props);
-
-      const response = await this.authRepository.register(dto);
+      const response = await this.authRepository.register(payload);
 
       const user = User.reconstitute({
         id: response.user.id,

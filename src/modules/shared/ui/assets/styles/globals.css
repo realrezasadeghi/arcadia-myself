@@ -120,8 +120,6 @@
   }
 
   html {
-    direction: rtl;
-    scroll-behavior: smooth;
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
   }
@@ -164,7 +162,7 @@
 }
 
 /* ─── React Flow overrides (keep LTR inside the canvas) ───────────────── */
-  .react-flow__renderer {
+.react-flow__renderer {
   direction: ltr;
 }
 .react-flow__controls {

@@ -1,9 +1,5 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { LogIn } from "lucide-react";
-import Link from "next/link";
-import { useForm } from "react-hook-form";
 import {
   type FieldDef,
   FieldRenderer,
@@ -18,14 +14,18 @@ import {
   CardTitle,
 } from "@/modules/shared/ui/components/ui/card";
 import { Form } from "@/modules/shared/ui/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { LogIn } from "lucide-react";
+import Link from "next/link";
+import { useCallback } from "react";
+import { type SubmitHandler, useForm } from "react-hook-form";
 import { type LoginFormValues, loginSchema } from "../schemas/login";
 
 const fields: FieldDef[] = [
   {
-    name: "email",
-    label: "ایمیل",
-    type: "email",
-    placeholder: "example@domain.com",
+    name: "username",
+    label: "نام کاربری",
+    type: "text",
     dir: "ltr",
   },
   { name: "password", label: "رمز عبور", type: "password" },
@@ -34,8 +34,11 @@ const fields: FieldDef[] = [
 export function LoginView() {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { username: "", password: "" },
   });
+
+  const handleSubmit: SubmitHandler<LoginFormValues> =
+    useCallback(() => {}, []);
 
   return (
     <Card className="w-full max-w-sm">
@@ -49,7 +52,10 @@ export function LoginView() {
 
       <CardContent>
         <Form {...form}>
-          <form className="flex flex-col gap-4">
+          <form
+            className="flex flex-col gap-4"
+            onSubmit={form.handleSubmit(handleSubmit)}
+          >
             <FieldRenderer form={form} fields={fields} />
             <Button type="submit" className="w-full gap-2 mt-1">
               <LogIn className="h-4 w-4" />

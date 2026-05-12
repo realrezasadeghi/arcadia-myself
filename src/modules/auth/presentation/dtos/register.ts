@@ -55,7 +55,7 @@ export class RegisterDTO {
   }
 
   private static validatePassword(password: string): string {
-    if (!password || password.length !== 8) {
+    if (!password || password.length < 8) {
       throw new Error("Password must be more than 8 characters");
     }
     return password;

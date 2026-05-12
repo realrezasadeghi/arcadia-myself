@@ -22,6 +22,7 @@ export default function RootLayout({
       lang="fa"
       dir="rtl"
       suppressHydrationWarning
+      data-scroll-behavior="smooth"
       className={`${fonts.vazirmatn.variable} h-full antialiased`}
     >
       <body className="min-h-full">

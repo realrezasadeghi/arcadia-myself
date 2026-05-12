@@ -73,12 +73,12 @@ export function FieldRenderer<T extends FieldValues>({
       {fields.map((field) => {
         const name = field.name as Path<T>;
         const common = {
-          key: field.name,
-          control: form.control,
           name,
+          key: field.name,
           label: field.label,
-          description: field.description,
+          control: form.control,
           className: field.className,
+          description: field.description,
         };
 
         switch (field.type) {

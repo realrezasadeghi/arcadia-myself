@@ -16,7 +16,6 @@ import { Eye, EyeOff } from "lucide-react";
 import type * as React from "react";
 import { useState } from "react";
 import type { Control, FieldValues, Path } from "react-hook-form";
-import { cn } from "../../libs/cn";
 import {
   FormControl,
   FormDescription,
@@ -105,10 +104,10 @@ export function FieldPassword<T extends FieldValues>({
           <FormControl>
             <div className="relative">
               <Input
-                type={show ? "text" : "password"}
-                placeholder={placeholder}
-                className="pl-10"
                 dir="ltr"
+                className="pl-10"
+                placeholder={placeholder}
+                type={show ? "text" : "password"}
                 {...field}
                 value={field.value ?? ""}
               />

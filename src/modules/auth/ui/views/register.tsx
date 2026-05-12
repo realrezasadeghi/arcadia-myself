@@ -1,9 +1,5 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { UserPlus } from "lucide-react";
-import Link from "next/link";
-import { useForm } from "react-hook-form";
 import {
   type FieldDef,
   FieldRenderer,
@@ -18,6 +14,12 @@ import {
   CardTitle,
 } from "@/modules/shared/ui/components/ui/card";
 import { Form } from "@/modules/shared/ui/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { UserPlus } from "lucide-react";
+import Link from "next/link";
+import { useCallback } from "react";
+import { type SubmitHandler, useForm } from "react-hook-form";
+import { useRegister } from "../clients/register";
 import { type RegisterFormValues, registerSchema } from "../schemas/register";
 
 const fields: FieldDef[] = [
@@ -25,13 +27,11 @@ const fields: FieldDef[] = [
     name: "name",
     label: "نام و نام خانوادگی",
     type: "text",
-    placeholder: "علی محمدی",
   },
   {
-    name: "email",
-    label: "ایمیل",
-    type: "email",
-    placeholder: "example@domain.com",
+    name: "username",
+    label: "نام کاربری",
+    type: "text",
     dir: "ltr",
   },
   {
@@ -45,8 +45,26 @@ const fields: FieldDef[] = [
 export function RegisterView() {
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { name: "", email: "", password: "" },
+    defaultValues: { name: "", username: "", password: "" },
   });
+
+  const register = useRegister();
+
+  const handleSubmit: SubmitHandler<RegisterFormValues> = useCallback(
+    (values) => {
+      register.mutateAsync(values, {
+        onError(error) {
+          console.log("error", error);
+        },
+        onSuccess(data) {
+          console.log("data", data);
+        },
+      });
+    },
+    [register],
+  );
+
+  console.log("error", form.formState.errors);
 
   return (
     <Card className="w-full max-w-sm">
@@ -60,7 +78,10 @@ export function RegisterView() {
 
       <CardContent>
         <Form {...form}>
-          <form className="flex flex-col gap-4">
+          <form
+            className="flex flex-col gap-4"
+            onSubmit={form.handleSubmit(handleSubmit)}
+          >
             <FieldRenderer form={form} fields={fields} />
             <Button type="submit" className="w-full gap-2 mt-1">
               <UserPlus className="h-4 w-4" />
@@ -75,7 +96,7 @@ export function RegisterView() {
           قبلاً ثبت‌نام کرده‌اید؟
           <Link
             href="/login"
-            className="text-primary hover:underline font-medium"
+            className="text-primary hover:underline font-medium ms-1"
           >
             وارد شوید
           </Link>

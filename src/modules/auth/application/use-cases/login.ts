@@ -1,11 +1,15 @@
 import type { IUseCase } from "@/modules/shared/application/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
 import { User } from "../../domain/entities/user";
-import { LoginDTO, type LoginDTOProps } from "../dtos/login";
 import type { IAuthRepository } from "../ports/auth";
 import type { ITokenService } from "../ports/token";
 
-type LoginResponse = {
+export type LoginPayload = {
+  username: string;
+  password: string;
+};
+
+export type LoginResponse = {
   id: number;
   name: string;
   username: string;
@@ -13,17 +17,15 @@ type LoginResponse = {
   updatedAt: string;
 };
 
-export class LoginUseCase implements IUseCase<LoginDTOProps, LoginResponse> {
+export class LoginUseCase implements IUseCase<LoginPayload, LoginResponse> {
   constructor(
     private readonly authRepository: IAuthRepository,
     private readonly tokenService: ITokenService,
   ) {}
 
-  async execute(props: LoginDTOProps): Promise<LoginResponse> {
+  async execute(payload: LoginPayload): Promise<LoginResponse> {
     try {
-      const dto = LoginDTO.create(props);
-
-      const response = await this.authRepository.login(dto);
+      const response = await this.authRepository.login(payload);
 
       const user = User.reconstitute({
         id: response.user.id,

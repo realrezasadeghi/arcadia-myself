@@ -1,5 +1,5 @@
 export interface ITokenService {
-  save(token: string): Promise<boolean>;
-  get(): Promise<string | undefined>;
-  delete(): Promise<boolean>;
+  save(token: string): Promise<void>;
+  get(): Promise<string | null>;
+  delete(): Promise<void>;
 }

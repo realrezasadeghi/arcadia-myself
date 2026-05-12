@@ -17,6 +17,7 @@ import { Form } from "@/modules/shared/ui/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LogIn } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -41,18 +42,21 @@ export function LoginView() {
 
   const login = useLogin();
 
+  const router = useRouter();
+
   const handleSubmit: SubmitHandler<LoginFormValues> = useCallback(
     (values) => {
       login.mutateAsync(values, {
         onError(error) {
-          toast.error(error.meta.message);
+          console.log("errorr", error);
+          toast.error(error.meta?.message);
         },
-        onSuccess({ meta }) {
-          toast.success(meta.message || "عملیات با موفقیت انجام شد");
+        onSuccess() {
+          router.replace("/dashboard");
         },
       });
     },
-    [login],
+    [login, router],
   );
 
   return (
@@ -72,7 +76,11 @@ export function LoginView() {
             onSubmit={form.handleSubmit(handleSubmit)}
           >
             <FieldRenderer fields={fields} />
-            <Button type="submit" className="w-full gap-2 mt-1">
+            <Button
+              type="submit"
+              className="w-full gap-2 mt-1"
+              loading={login.isPending}
+            >
               <LogIn className="h-4 w-4" />
               ورود
             </Button>

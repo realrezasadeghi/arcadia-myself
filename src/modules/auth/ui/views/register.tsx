@@ -83,7 +83,11 @@ export function RegisterView() {
             onSubmit={form.handleSubmit(handleSubmit)}
           >
             <FieldRenderer fields={fields} />
-            <Button type="submit" className="w-full gap-2 mt-1">
+            <Button
+              type="submit"
+              className="w-full gap-2 mt-1"
+              loading={register.isPending}
+            >
               <UserPlus className="h-4 w-4" />
               ایجاد حساب
             </Button>

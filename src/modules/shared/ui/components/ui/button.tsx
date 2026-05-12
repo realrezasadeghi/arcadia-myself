@@ -2,6 +2,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Slot } from "radix-ui";
 import type * as React from "react";
 import { cn } from "../../libs/cn";
+import { Spinner } from "./spinner";
 
 const buttonVariants = cva(
   [
@@ -40,10 +41,12 @@ function Button({
   variant = "default",
   size = "default",
   asChild = false,
+  loading,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
+    loading?: boolean;
   }) {
   const Comp = asChild ? Slot.Root : "button";
 
@@ -52,9 +55,12 @@ function Button({
       data-slot="button"
       data-variant={variant}
       data-size={size}
+      disabled={props.disabled || loading}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
-    />
+    >
+      {loading ? <Spinner /> : props.children}
+    </Comp>
   );
 }
 

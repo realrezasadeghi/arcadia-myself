@@ -39,6 +39,7 @@ export class LoginUseCase implements IUseCase<LoginPayload, LoginResponse> {
 
       return user.toJSON();
     } catch (error) {
+      console.log("error", error);
       throw new Error(resolveErrorMessage(error, "Error in login"));
     }
   }

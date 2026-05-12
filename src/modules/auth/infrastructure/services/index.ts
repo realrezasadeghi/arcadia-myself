@@ -1,3 +1,3 @@
-import { TokenService } from "./token";
+import { CookieTokenService } from "./cookie";
 
-export const tokenService = new TokenService();
+export const cookieTokenService = new CookieTokenService();

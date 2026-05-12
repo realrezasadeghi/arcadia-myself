@@ -1,4 +1,8 @@
-type User = {
+export type GetMePayload = {
+  token: string;
+};
+
+export type GetMeResponse = {
   id: number;
   name: string;
   username: string;
@@ -6,8 +10,6 @@ type User = {
   updated_at: Date;
 };
 
-export type MeResponse = User;
-
 export interface IUserRepository {
-  me(): Promise<MeResponse>;
+  getMe(payload: GetMePayload): Promise<GetMeResponse>;
 }

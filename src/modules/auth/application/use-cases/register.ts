@@ -1,16 +1,27 @@
+import type { IUseCase } from "@/modules/shared/application/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
 import { User } from "../../domain/entities/user";
 import { RegisterDTO, type RegisterDTOProps } from "../dtos/register";
 import type { IAuthRepository } from "../ports/auth";
 import type { ITokenService } from "../ports/token";
 
-export class RegisterUseCase {
+type RegisterResponse = {
+  id: number;
+  name: string;
+  username: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export class RegisterUseCase
+  implements IUseCase<RegisterDTOProps, RegisterResponse>
+{
   constructor(
     private readonly authRepository: IAuthRepository,
     private readonly tokenService: ITokenService,
   ) {}
 
-  async execute(props: RegisterDTOProps) {
+  async execute(props: RegisterDTOProps): Promise<RegisterResponse> {
     try {
       const dto = RegisterDTO.create(props);
 

@@ -1,16 +1,25 @@
+import type { IUseCase } from "@/modules/shared/application/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
 import { User } from "../../domain/entities/user";
 import { LoginDTO, type LoginDTOProps } from "../dtos/login";
 import type { IAuthRepository } from "../ports/auth";
 import type { ITokenService } from "../ports/token";
 
-export class LoginUseCase {
+type LoginResponse = {
+  id: number;
+  name: string;
+  username: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export class LoginUseCase implements IUseCase<LoginDTOProps, LoginResponse> {
   constructor(
     private readonly authRepository: IAuthRepository,
     private readonly tokenService: ITokenService,
   ) {}
 
-  async execute(props: LoginDTOProps) {
+  async execute(props: LoginDTOProps): Promise<LoginResponse> {
     try {
       const dto = LoginDTO.create(props);
 

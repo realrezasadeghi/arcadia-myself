@@ -31,7 +31,12 @@ const fields: FieldDef[] = [
     type: "text",
     dir: "ltr",
   },
-  { name: "password", label: "رمز عبور", type: "password" },
+  {
+    name: "password",
+    label: "رمز عبور",
+    type: "password",
+    placeholder: "********",
+  },
 ];
 
 export function LoginView() {
@@ -46,9 +51,8 @@ export function LoginView() {
 
   const handleSubmit: SubmitHandler<LoginFormValues> = useCallback(
     (values) => {
-      login.mutateAsync(values, {
+      login.mutate(values, {
         onError(error) {
-          console.log("errorr", error);
           toast.error(error.meta?.message);
         },
         onSuccess() {
@@ -78,8 +82,8 @@ export function LoginView() {
             <FieldRenderer fields={fields} />
             <Button
               type="submit"
-              className="w-full gap-2 mt-1"
               loading={login.isPending}
+              className="w-full gap-2 mt-1"
             >
               <LogIn className="h-4 w-4" />
               ورود

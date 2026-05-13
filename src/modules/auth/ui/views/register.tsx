@@ -17,6 +17,7 @@ import { Form } from "@/modules/shared/ui/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserPlus } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useCallback } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -50,20 +51,22 @@ export function RegisterView() {
     defaultValues: { name: "", username: "", password: "" },
   });
 
+  const router = useRouter();
+
   const register = useRegister();
 
   const handleSubmit: SubmitHandler<RegisterFormValues> = useCallback(
     (values) => {
       register.mutate(values, {
         onError(error) {
-          toast.error(error.meta.message);
+          toast.error(error?.meta?.message);
         },
-        onSuccess({ meta }) {
-          toast.success(meta.message || "Register successfully.");
+        onSuccess() {
+          router.replace("/dashboard");
         },
       });
     },
-    [register],
+    [register, router],
   );
 
   return (
@@ -85,8 +88,8 @@ export function RegisterView() {
             <FieldRenderer fields={fields} />
             <Button
               type="submit"
-              className="w-full gap-2 mt-1"
               loading={register.isPending}
+              className="w-full gap-2 mt-1"
             >
               <UserPlus className="h-4 w-4" />
               ایجاد حساب

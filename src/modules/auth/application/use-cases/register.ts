@@ -1,8 +1,7 @@
-import type { IUseCase } from "@/modules/shared/application/use-case";
+import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
 import { User } from "../../domain/entities/user";
 import type { IAuthRepository } from "../ports/auth";
-import type { ITokenService } from "../ports/token";
 
 export type RegisterPayload = {
   username: string;
@@ -11,20 +10,20 @@ export type RegisterPayload = {
 };
 
 export type RegisterResponse = {
-  id: number;
-  name: string;
-  username: string;
-  createdAt: string;
-  updatedAt: string;
+  user: {
+    id: number;
+    name: string;
+    username: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+  token: string;
 };
 
 export class RegisterUseCase
   implements IUseCase<RegisterPayload, RegisterResponse>
 {
-  constructor(
-    private readonly authRepository: IAuthRepository,
-    private readonly tokenService: ITokenService,
-  ) {}
+  constructor(private readonly authRepository: IAuthRepository) {}
 
   async execute(payload: RegisterPayload): Promise<RegisterResponse> {
     try {
@@ -38,9 +37,10 @@ export class RegisterUseCase
         updatedAt: response.user.updated_at.toString(),
       });
 
-      await this.tokenService.save(response.token);
-
-      return user.toJSON();
+      return {
+        token: response.token,
+        user: user.toJSON(),
+      };
     } catch (error) {
       throw new Error(resolveErrorMessage(error, "Error in register"));
     }

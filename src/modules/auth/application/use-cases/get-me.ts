@@ -1,7 +1,6 @@
-import type { IUseCase } from "@/modules/shared/application/use-case";
+import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
 import { User } from "../../domain/entities/user";
-import type { ITokenService } from "../ports/token";
 import type { IUserRepository } from "../ports/user";
 
 export type GetMePayload = {
@@ -16,21 +15,14 @@ export type GetMeResponse = {
   updatedAt: string;
 };
 
-export class GetMeUseCase implements IUseCase<void, GetMeResponse> {
-  constructor(
-    private readonly userRepository: IUserRepository,
-    private readonly tokenService: ITokenService,
-  ) {}
+export class GetMeUseCase implements IUseCase<GetMePayload, GetMeResponse> {
+  constructor(private readonly userRepository: IUserRepository) {}
 
-  async execute(): Promise<GetMeResponse> {
+  async execute(payload: GetMePayload): Promise<GetMeResponse> {
     try {
-      const token = await this.tokenService.get();
-
-      if (!token) {
-        throw new Error("Token is required but now is empty.");
-      }
-
-      const response = await this.userRepository.getMe({ token });
+      const response = await this.userRepository.getMe({
+        token: payload.token,
+      });
 
       const user = User.reconstitute({
         id: response.id,

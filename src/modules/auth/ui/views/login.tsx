@@ -53,7 +53,7 @@ export function LoginView() {
     (values) => {
       login.mutate(values, {
         onError(error) {
-          toast.error(error.meta?.message);
+          toast.error(error.message);
         },
         onSuccess() {
           router.replace("/dashboard");

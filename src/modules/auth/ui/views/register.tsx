@@ -17,7 +17,7 @@ import { Form } from "@/modules/shared/ui/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserPlus } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -59,7 +59,7 @@ export function RegisterView() {
     (values) => {
       register.mutate(values, {
         onError(error) {
-          toast.error(error?.meta?.message);
+          toast.error(error?.message);
         },
         onSuccess() {
           router.replace("/dashboard");

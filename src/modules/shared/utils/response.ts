@@ -1,23 +1,20 @@
 export interface IRes<T = unknown> {
-  success: boolean;
-  status: number;
   data: T;
-  meta: { message: string };
+  message: string;
+  success: boolean;
 }
 
 export const ok = <T>(
   data: T,
   message: string = "با موفقیت انجام شد",
 ): IRes<T> => ({
-  success: true,
-  status: 200,
   data,
-  meta: { message },
+  message,
+  success: true,
 });
 
 export const fail = <T = unknown>(
   error: Error | string | unknown,
-  status: number = 500,
   data?: T,
 ): IRes<T> => {
   let message = "خطای ناشناخته";
@@ -29,9 +26,8 @@ export const fail = <T = unknown>(
   }
 
   return {
+    message,
     success: false,
-    status,
     data: data as T,
-    meta: { message },
   };
 };

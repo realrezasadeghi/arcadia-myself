@@ -1,33 +1,43 @@
-import { ArrowLeft, GitMerge, Layers, Shield, Users } from "lucide-react";
-import Link from "next/link";
 import { ThemeToggle } from "@/modules/shared/ui/components/common/theme-toggle";
 import { Badge } from "@/modules/shared/ui/components/ui/badge";
 import { Button } from "@/modules/shared/ui/components/ui/button";
+import { cn } from "@/modules/shared/ui/libs/cn";
+import { ArrowLeft, GitMerge, Layers, Shield, Users } from "lucide-react";
+import Link from "next/link";
 
 const LAYERS = [
   {
     code: "OA",
     name: "تحلیل عملیاتی",
     desc: "نیازها و فعالیت‌های عملیاتی سازمان",
-    color: "oa",
+    container: "bg-blue-50 border-blue-200/30 hover:border-blue-300/50",
+    badge: "bg-blue-500 text-white",
+    text: "text-blue-800",
   },
   {
     code: "SA",
     name: "تحلیل سیستم",
     desc: "مرزها، توابع و تبادلات سیستم",
-    color: "sa",
+    container: "bg-amber-50 border-amber-200/30 hover:border-amber-300/50",
+    badge: "bg-amber-500 text-white",
+    text: "text-amber-800",
   },
   {
     code: "LA",
     name: "معماری منطقی",
     desc: "مؤلفه‌های منطقی و رابط‌های بینشان",
-    color: "la",
+    container:
+      "bg-emerald-50 border-emerald-200/30 hover:border-emerald-300/50",
+    badge: "bg-emerald-600 text-white",
+    text: "text-emerald-800",
   },
   {
     code: "PA",
     name: "معماری فیزیکی",
     desc: "پیاده‌سازی واقعی و استقرار سخت‌افزار",
-    color: "pa",
+    container: "bg-purple-50 border-purple-200/30 hover:border-purple-300/50",
+    badge: "bg-purple-600 text-white",
+    text: "text-purple-800",
   },
 ];
 
@@ -103,7 +113,7 @@ export default function Home() {
           <div className="flex flex-wrap justify-center gap-3">
             <Button size="lg" className="gap-2 h-11 px-6" asChild>
               <Link href="/register">
-                شروع رایگان
+                شروع
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
@@ -116,18 +126,6 @@ export default function Home() {
               <Link href="/login">ورود به حساب</Link>
             </Button>
           </div>
-
-          {/* Demo hint */}
-          <p className="text-xs text-muted-foreground">
-            برای دمو:{" "}
-            <span className="font-mono bg-muted px-1.5 py-0.5 rounded text-foreground">
-              demo@noqte.ir
-            </span>
-            {" / "}
-            <span className="font-mono bg-muted px-1.5 py-0.5 rounded text-foreground">
-              demo1234
-            </span>
-          </p>
         </div>
       </section>
 
@@ -141,27 +139,27 @@ export default function Home() {
             </p>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {LAYERS.map((layer, i) => (
+            {LAYERS.map((layer) => (
               <div
                 key={layer.code}
-                className="group relative rounded-xl border p-5 transition-shadow hover:shadow-md"
-                style={{
-                  borderColor: `hsl(var(--layer-${layer.color}))`,
-                  background: `hsl(var(--layer-${layer.color}-muted))`,
-                }}
+                className={cn(
+                  "group relative rounded-xl border p-5 transition-shadow hover:shadow-md",
+                  layer.container,
+                )}
               >
                 <div className="flex items-center gap-2 mb-3">
                   <span
-                    className="rounded-md px-2 py-0.5 text-xs font-bold"
-                    style={{
-                      background: `hsl(var(--layer-${layer.color}))`,
-                      color: "#fff",
-                    }}
+                    className={cn(
+                      "rounded-md px-2 py-0.5 text-xs font-bold",
+                      layer.badge,
+                    )}
                   >
                     {layer.code}
                   </span>
                 </div>
-                <p className="font-semibold text-sm mb-1">{layer.name}</p>
+                <p className={cn("font-semibold text-sm mb-1", layer.text)}>
+                  {layer.name}
+                </p>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   {layer.desc}
                 </p>
@@ -213,7 +211,7 @@ export default function Home() {
           </p>
           <Button size="lg" className="gap-2 h-11 px-8" asChild>
             <Link href="/register">
-              ساخت حساب رایگان
+              ساخت حساب
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>

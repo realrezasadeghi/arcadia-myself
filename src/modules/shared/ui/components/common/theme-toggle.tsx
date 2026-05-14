@@ -12,6 +12,7 @@ export function ThemeToggle() {
       size="icon"
       variant="ghost"
       aria-label="تغییر تم"
+      className="rounded-full"
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
     >
       <Sun className="h-4 w-4 rotate-0 scale-100 transition-transform dark:-rotate-90 dark:scale-0" />

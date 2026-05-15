@@ -27,7 +27,7 @@ export type GetModelsByProjectIdResponse = {
  * تمام مدل‌های یک پروژه را بازمی‌گرداند.
  * Business rule: projectId نمی‌تواند خالی باشد.
  */
-export class GetModelsByProjectUseCase
+export class GetModelsByProjectIdUseCase
   implements
     IUseCase<GetModelsByProjectIdPayload, GetModelsByProjectIdResponse[]>
 {

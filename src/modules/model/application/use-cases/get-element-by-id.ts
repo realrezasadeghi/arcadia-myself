@@ -29,7 +29,7 @@ export type GetElementByIdResponse = {
  * Business rules:
  * 1. المنت باید وجود داشته باشد
  */
-export class GetElementUseCase
+export class GetElementByIdUseCase
   implements IUseCase<GetElementByIdPayload, GetElementByIdResponse>
 {
   constructor(private readonly elementRepository: IElementRepository) {}

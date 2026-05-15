@@ -13,7 +13,7 @@ export interface GetDiagramsByModelIdPayload {
   };
 }
 
-export type GetDiagramByModelIdResponse = {
+export type GetDiagramsByModelIdResponse = {
   id: string;
   modelId: string;
   type: string;
@@ -33,7 +33,7 @@ export type GetDiagramByModelIdResponse = {
  */
 export class GetDiagramsByModelUseCase
   implements
-    IUseCase<GetDiagramsByModelIdPayload, GetDiagramByModelIdResponse[]>
+    IUseCase<GetDiagramsByModelIdPayload, GetDiagramsByModelIdResponse[]>
 {
   constructor(
     private readonly diagramRepository: IDiagramRepository,
@@ -42,7 +42,7 @@ export class GetDiagramsByModelUseCase
 
   async execute({
     query,
-  }: GetDiagramsByModelIdPayload): Promise<GetDiagramByModelIdResponse[]> {
+  }: GetDiagramsByModelIdPayload): Promise<GetDiagramsByModelIdResponse[]> {
     try {
       const model = await this.modelRepository.findModelById(query.modelId);
       if (!model) throw new Error(`Model not found with id : ${query.modelId}`);

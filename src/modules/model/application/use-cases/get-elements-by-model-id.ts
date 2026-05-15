@@ -30,7 +30,7 @@ export type GetElementsByModelIdResponse = {
  * Business rules:
  * 1. مدل باید وجود داشته باشد
  */
-export class GetElementsByModelUseCase
+export class GetElementsByModelIdUseCase
   implements
     IUseCase<GetElementsByModelIdPayload, GetElementsByModelIdResponse[]>
 {

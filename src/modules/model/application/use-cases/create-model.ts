@@ -1,12 +1,12 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
-import { Layer } from "../../domain/value-objects/layer";
+import { Layer, type LayerValue } from "../../domain/value-objects/layer";
 import type { IModelRepository } from "../ports/model";
 
 export type CreateModelPayload = {
   payload: {
     projectId: string;
-    layer: string | Layer;
+    layer: string | LayerValue;
     name: string;
     description?: string;
   };
@@ -40,10 +40,7 @@ export class CreateModelUseCase
 
   async execute({ payload }: CreateModelPayload): Promise<CreateModelResponse> {
     try {
-      const layer =
-        payload.layer instanceof Layer
-          ? payload.layer
-          : Layer.from(payload.layer);
+      const layer = Layer.from(payload.layer);
 
       const existing = await this.modelRepository.findModelByProjectIdAndLayer(
         payload.projectId,

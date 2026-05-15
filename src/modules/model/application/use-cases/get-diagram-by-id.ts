@@ -30,7 +30,7 @@ export type GetDiagramByIdResponse = {
  * Business rules:
  * 1. دیاگرام باید وجود داشته باشد
  */
-export class GetDiagramUseCase
+export class GetDiagramByIdUseCase
   implements IUseCase<GetDiagramPayload, GetDiagramByIdResponse>
 {
   constructor(private readonly repository: IDiagramRepository) {}

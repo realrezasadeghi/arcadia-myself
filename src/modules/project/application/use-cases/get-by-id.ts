@@ -3,7 +3,7 @@ import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-messag
 import { Project, type ProjectRole } from "../../domain/entities/project";
 import type { IProjectRepository } from "../ports/project";
 
-type GetProjectByIdPayload = {
+export type GetProjectByIdPayload = {
   query: {
     id: number;
   };
@@ -13,7 +13,7 @@ type GetProjectByIdPayload = {
   };
 };
 
-type GetProjectByIdResponse = {
+export type GetProjectByIdResponse = {
   id: number;
   name: string;
   description?: string;

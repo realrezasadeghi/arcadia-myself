@@ -2,12 +2,17 @@
 
 import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
 import { extractUserIdFromJwt } from "@/modules/shared/libs/extract-jwt";
-import { fail, ok } from "@/modules/shared/utils/response";
+import { fail, type IRes, ok } from "@/modules/shared/utils/response";
 import { cacheTag } from "next/cache";
-import { GetProjectByIdUseCase } from "../../application/use-cases/get-by-id";
+import {
+  type GetProjectByIdResponse,
+  GetProjectByIdUseCase,
+} from "../../application/use-cases/get-by-id";
 import { projectRepository } from "../../infrastructure/repositories";
 
-export async function getProjectById(id: number) {
+export async function getProjectById(
+  id: number,
+): Promise<IRes<GetProjectByIdResponse>> {
   "use cache: private";
   cacheTag("GET_PROJECT_BY_ID");
   try {

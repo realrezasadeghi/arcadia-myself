@@ -1,6 +1,6 @@
 import { ValueObject } from "@/modules/shared/domain/value-object";
 
-type LayerValue = "OA" | "SA" | "LA" | "PA";
+export type LayerValue = "OA" | "SA" | "LA" | "PA";
 
 interface LayerProps {
   value: LayerValue;

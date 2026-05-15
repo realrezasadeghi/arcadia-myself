@@ -3,13 +3,13 @@ import { Layer } from "../value-objects/layer";
 import { TraceLinkType } from "../value-objects/trace-link";
 
 interface TraceLinkProps {
-  projectId: string;
+  projectId: number;
   type: TraceLinkType;
   sourceElementId: string;
   sourceLayer: Layer;
   targetElementId: string;
   targetLayer: Layer;
-  description: string;
+  description?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -23,8 +23,8 @@ interface TraceLinkProps {
  * source و target نمی‌توانند همان المنت باشند.
  */
 export class TraceLink extends Entity<string> {
-  private _description: string;
-  private readonly _projectId: string;
+  private _description?: string;
+  private readonly _projectId: number;
   private readonly _type: TraceLinkType;
   private readonly _sourceElementId: string;
   private readonly _sourceLayer: Layer;
@@ -48,7 +48,7 @@ export class TraceLink extends Entity<string> {
 
   static create(props: {
     id: string;
-    projectId: string;
+    projectId: number;
     type: string;
     sourceElementId: string;
     sourceLayer: string;
@@ -71,7 +71,7 @@ export class TraceLink extends Entity<string> {
 
   static reconstitute(props: {
     id: string;
-    projectId: string;
+    projectId: number;
     type: string;
     sourceElementId: string;
     sourceLayer: string;
@@ -94,7 +94,7 @@ export class TraceLink extends Entity<string> {
     });
   }
 
-  get projectId(): string {
+  get projectId(): number {
     return this._projectId;
   }
   get type(): TraceLinkType {
@@ -112,14 +112,14 @@ export class TraceLink extends Entity<string> {
   get targetLayer(): Layer {
     return this._targetLayer;
   }
-  get description(): string {
+  get description(): string | undefined {
     return this._description;
   }
   get updatedAt(): Date {
     return this._updatedAt;
   }
 
-  updateDescription(description: string): void {
+  updateDescription(description?: string): void {
     this._description = description;
     this._updatedAt = new Date();
   }

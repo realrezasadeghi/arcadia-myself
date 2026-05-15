@@ -8,7 +8,7 @@ import {
   type GetAllProjectsResponse,
   GetAllProjectsUseCase,
 } from "../../application/use-cases/get-all";
-import { projectRepository } from "../../infrastructure/repositories";
+import { projectRepository } from "../../infrastructure/remote";
 
 export async function getAllProjects(): Promise<IRes<GetAllProjectsResponse>> {
   "use cache: private";

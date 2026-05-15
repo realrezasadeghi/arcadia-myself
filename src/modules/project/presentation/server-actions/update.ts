@@ -5,7 +5,7 @@ import { extractUserIdFromJwt } from "@/modules/shared/libs/extract-jwt";
 import { fail, ok } from "@/modules/shared/utils/response";
 import { updateTag } from "next/cache";
 import { UpdateProjectUseCase } from "../../application/use-cases/update";
-import { projectRepository } from "../../infrastructure/repositories";
+import { projectRepository } from "../../infrastructure/remote";
 import { UpdateProjectDTO, type UpdateProjectDTOProps } from "../dtos/update";
 
 export async function update(payload: UpdateProjectDTOProps) {

@@ -3,7 +3,7 @@ import { Layer } from "../value-objects/layer";
 import { TraceLinkType } from "../value-objects/trace-link";
 
 interface TraceLinkProps {
-  projectId: number;
+  projectId: string;
   type: TraceLinkType;
   sourceElementId: string;
   sourceLayer: Layer;
@@ -24,7 +24,7 @@ interface TraceLinkProps {
  */
 export class TraceLink extends Entity<string> {
   private _description?: string;
-  private readonly _projectId: number;
+  private readonly _projectId: string;
   private readonly _type: TraceLinkType;
   private readonly _sourceElementId: string;
   private readonly _sourceLayer: Layer;
@@ -48,7 +48,7 @@ export class TraceLink extends Entity<string> {
 
   static create(props: {
     id: string;
-    projectId: number;
+    projectId: string;
     type: string;
     sourceElementId: string;
     sourceLayer: string;
@@ -71,7 +71,7 @@ export class TraceLink extends Entity<string> {
 
   static reconstitute(props: {
     id: string;
-    projectId: number;
+    projectId: string;
     type: string;
     sourceElementId: string;
     sourceLayer: string;
@@ -94,7 +94,7 @@ export class TraceLink extends Entity<string> {
     });
   }
 
-  get projectId(): number {
+  get projectId(): string {
     return this._projectId;
   }
   get type(): TraceLinkType {

@@ -13,7 +13,7 @@ import type {
   UpdateProjectsResponse,
 } from "../../application/ports/project";
 
-export class ProjectRepository implements IProjectRepository {
+export class ProjectRemoteRepository implements IProjectRepository {
   private readonly http: HttpClient;
 
   constructor() {

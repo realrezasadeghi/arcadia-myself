@@ -8,7 +8,7 @@ import {
   type GetProjectByIdResponse,
   GetProjectByIdUseCase,
 } from "../../application/use-cases/get-by-id";
-import { projectRepository } from "../../infrastructure/repositories";
+import { projectRepository } from "../../infrastructure/remote";
 
 export async function getProjectById(
   id: number,

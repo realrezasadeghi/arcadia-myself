@@ -5,7 +5,7 @@ import { extractUserIdFromJwt } from "@/modules/shared/libs/extract-jwt";
 import { fail, ok } from "@/modules/shared/utils/response";
 import { updateTag } from "next/cache";
 import { CreateProjectUseCase } from "../../application/use-cases/create";
-import { projectRepository } from "../../infrastructure/repositories";
+import { projectRepository } from "../../infrastructure/remote";
 import { CreateProjectDTO, type CreateProjectDTOProps } from "../dtos/create";
 
 export async function create(payload: CreateProjectDTOProps) {

@@ -4,7 +4,7 @@ import { cookiesStorageService } from "@/modules/shared/infrastructure/services"
 import { fail, ok } from "@/modules/shared/utils/response";
 import { updateTag } from "next/cache";
 import { RemoveProjectUseCase } from "../../application/use-cases/remove";
-import { projectRepository } from "../../infrastructure/repositories";
+import { projectRepository } from "../../infrastructure/remote";
 
 export async function remove(id: number) {
   try {

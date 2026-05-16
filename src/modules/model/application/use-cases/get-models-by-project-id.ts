@@ -1,5 +1,6 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
+import { LayerValue } from "../../domain/value-objects/layer";
 import type { IModelRepository } from "../ports/model";
 
 export type GetModelsByProjectIdPayload = {
@@ -14,7 +15,7 @@ export type GetModelsByProjectIdPayload = {
 export type GetModelsByProjectIdResponse = {
   id: string;
   projectId: string;
-  layer: string;
+  layer: LayerValue;
   name: string;
   description?: string;
   createdAt: string;

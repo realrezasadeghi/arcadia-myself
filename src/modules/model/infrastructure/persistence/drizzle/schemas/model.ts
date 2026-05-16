@@ -1,12 +1,9 @@
-import { sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { projects } from "@/modules/project/infrastructure/persistence/drizzle/schemas/project";
+import { pgTable, text } from "drizzle-orm/pg-core";
 
-export const models = sqliteTable("models", {
+export const models = pgTable("models", {
   id: text("id").primaryKey(),
-  projectId: text("project_id")
-    .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
-  layer: text("layer").notNull(), // "OA" | "SA" | "LA" | "PA"
+  projectId: text("project_id").notNull(), // ← just a required field, no FK
+  layer: text("layer").notNull(),
   name: text("name").notNull(),
   description: text("description").notNull().default(""),
   createdAt: text("created_at").notNull(),

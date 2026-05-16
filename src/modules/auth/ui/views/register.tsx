@@ -62,7 +62,7 @@ export function RegisterView() {
           toast.error(error?.message);
         },
         onSuccess() {
-          router.replace("/dashboard");
+          router.replace("/dashboard/project");
         },
       });
     },

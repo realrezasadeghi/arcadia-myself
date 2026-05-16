@@ -122,6 +122,6 @@ export class DrizzleDiagramRepository implements IDiagramRepository {
 
   async remove(payload: RemoveDiagramPayload): Promise<boolean> {
     const result = await db.delete(diagrams).where(eq(diagrams.id, payload.id));
-    return (result?.rowsAffected ?? 0) > 0;
+    return (result?.rowCount ?? 0) > 0;
   }
 }

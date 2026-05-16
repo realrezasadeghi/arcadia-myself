@@ -1,7 +1,8 @@
 import { cn } from "@/modules/shared/ui/libs/cn";
 
 interface LayerBadgeProps {
-  layer: { value: "OA" | "SA" | "LA" | "PA"; label: string };
+  showLabel?: boolean;
+  layer: { value: string; label: string };
 }
 
 const LAYER_CLASSNAMES = {
@@ -11,15 +12,15 @@ const LAYER_CLASSNAMES = {
   PA: "bg-purple-50 border-purple-200/30 hover:border-purple-300/50 bg-purple-600",
 };
 
-export function LayerBadge({ layer }: LayerBadgeProps) {
+export function LayerBadge({ showLabel = false, layer }: LayerBadgeProps) {
   return (
     <span
       className={cn(
         "rounded-full px-3 py-1 text-xs font-medium text-white border",
-        LAYER_CLASSNAMES[layer.value],
+        LAYER_CLASSNAMES[layer.value as keyof typeof LAYER_CLASSNAMES],
       )}
     >
-      {layer.value} — {layer.label}
+      {showLabel ? `${layer.value} - ${layer.label}` : layer.value}
     </span>
   );
 }

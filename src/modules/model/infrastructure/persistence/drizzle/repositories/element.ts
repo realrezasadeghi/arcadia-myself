@@ -107,6 +107,6 @@ export class DrizzleElementRepository implements IElementRepository {
 
   async removeElement(payload: RemoveElementPayload): Promise<boolean> {
     const result = await db.delete(elements).where(eq(elements.id, payload.id));
-    return (result?.rowsAffected ?? 0) > 0;
+    return (result?.rowCount ?? 0) > 0;
   }
 }

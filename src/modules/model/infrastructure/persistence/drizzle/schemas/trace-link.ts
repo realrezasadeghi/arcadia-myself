@@ -1,11 +1,8 @@
-import { sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { projects } from "@/modules/project/infrastructure/persistence/drizzle/schemas/project";
+import { pgTable, text } from "drizzle-orm/pg-core";
 
-export const traceLinks = sqliteTable("trace_links", {
+export const traceLinks = pgTable("trace_links", {
   id: text("id").primaryKey(),
-  projectId: text("project_id")
-    .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
+  projectId: text("project_id").notNull(),
   type: text("type").notNull(),
   sourceElementId: text("source_element_id").notNull(),
   sourceLayer: text("source_layer").notNull(),

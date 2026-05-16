@@ -1,7 +1,7 @@
-import { primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { pgTable, primaryKey, text } from "drizzle-orm/pg-core";
 import { projects } from "./project";
 
-export const projectMembers = sqliteTable(
+export const projectMembers = pgTable(
   "project_members",
   {
     projectId: text("project_id")

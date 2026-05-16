@@ -16,7 +16,7 @@ export async function getDiagramsByModelId(
   modelId: string,
 ): Promise<IRes<GetDiagramsByModelIdResponse[]>> {
   "use cache: private";
-  cacheTag("GET_DIAGRAM_BY_PROJECT_ID", modelId);
+  cacheTag(`get-diagrams-by-model-id-${modelId}`);
   try {
     const token = await cookiesStorageService.get("token");
 

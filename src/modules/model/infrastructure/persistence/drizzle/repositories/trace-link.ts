@@ -101,6 +101,6 @@ export class DrizzleTraceLinkRepository implements ITraceLinkRepository {
     const result = await db
       .delete(traceLinks)
       .where(eq(traceLinks.id, payload.id));
-    return (result?.rowsAffected ?? 0) > 0;
+    return (result?.rowCount ?? 0) > 0;
   }
 }

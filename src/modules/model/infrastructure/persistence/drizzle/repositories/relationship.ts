@@ -111,6 +111,6 @@ export class DrizzleRelationshipRepository implements IRelationshipRepository {
     const result = await db
       .delete(relationships)
       .where(eq(relationships.id, payload.id));
-    return (result?.rowsAffected ?? 0) > 0;
+    return (result?.rowCount ?? 0) > 0;
   }
 }

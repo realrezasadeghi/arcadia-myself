@@ -16,6 +16,7 @@ import { Eye, EyeOff } from "lucide-react";
 import type * as React from "react";
 import { useState } from "react";
 import type { FieldValues, Path } from "react-hook-form";
+import { cn } from "../../libs/cn";
 import {
   FormControl,
   FormDescription,
@@ -196,7 +197,7 @@ export function FieldSelect<T extends FieldValues>({
           )}
           <FormControl>
             <Select value={field.value ?? ""} onValueChange={field.onChange}>
-              <SelectTrigger className={triggerClassName}>
+              <SelectTrigger className={cn("w-full", triggerClassName)}>
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>
               <SelectContent>

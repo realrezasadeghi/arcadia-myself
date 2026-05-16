@@ -9,11 +9,11 @@ import {
 } from "../../application/use-cases/get-models-by-project-id";
 import { modelRepository } from "../../infrastructure/persistence/drizzle/repositories";
 
-export async function getModelByProjectId(
+export async function getModelsByProjectId(
   projectId: string,
 ): Promise<IRes<GetModelsByProjectIdResponse[]>> {
   "use cache: private";
-  cacheTag("GET_MODELS_BY_PROJECT_ID", projectId);
+  cacheTag(`get-models-by-project-id-${projectId}`);
   try {
     const token = await cookiesStorageService.get("token");
 

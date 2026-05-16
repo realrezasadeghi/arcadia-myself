@@ -1,7 +1,7 @@
 import { ValueObject } from "@/modules/shared/domain/value-object";
 import { Layer } from "./layer";
 
-type DiagramTypeValue =
+export type DiagramTypeValue =
   | "OEB"
   | "OAB"
   | "OPD"

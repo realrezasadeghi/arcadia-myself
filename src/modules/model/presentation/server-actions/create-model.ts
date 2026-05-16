@@ -29,10 +29,11 @@ export async function createModel(
       context: { token },
     });
 
-    updateTag(`GET_MODELS_BY_PROJECT_ID`);
+    updateTag(`get-models-by-project-id-${payload.projectId}`);
 
     return ok(response);
   } catch (error) {
+    console.log("error", error);
     return fail(error);
   }
 }

@@ -95,6 +95,6 @@ export class DrizzleModelRepository implements IModelRepository {
 
   async deleteModel(payload: RemoveModelPayload): Promise<boolean> {
     const result = await db.delete(models).where(eq(models.id, payload.id));
-    return (result?.rowsAffected ?? 0) > 0;
+    return (result?.rowCount ?? 0) > 0;
   }
 }

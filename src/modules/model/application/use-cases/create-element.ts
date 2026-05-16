@@ -1,14 +1,17 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
 import type { ElementProperties } from "../../domain/entities/element";
-import { ElementType } from "../../domain/value-objects/element-type";
+import {
+  ElementType,
+  type ElementTypeValue,
+} from "../../domain/value-objects/element-type";
 import type { IElementRepository } from "../ports/element";
 import type { IModelRepository } from "./../ports/model";
 
 export type CreateElementPayload = {
   payload: {
     modelId: string;
-    type: string;
+    type: ElementTypeValue;
     name: string;
     description?: string;
   };

@@ -42,16 +42,16 @@ export class CreateModelUseCase
     try {
       const layer = Layer.from(payload.layer);
 
-      const existing = await this.modelRepository.findModelByProjectIdAndLayer(
-        payload.projectId,
-        layer,
-      );
+      // const existing = await this.modelRepository.findModelByProjectIdAndLayer(
+      //   payload.projectId,
+      //   layer,
+      // );
 
-      if (existing) {
-        throw new Error(
-          `This project already had a model for this layer : ${layer.label}`,
-        );
-      }
+      // if (existing) {
+      //   throw new Error(
+      //     `This project already had a model for this layer : ${layer.label}`,
+      //   );
+      // }
 
       const response = await this.modelRepository.createModel({
         ...payload,
@@ -60,6 +60,7 @@ export class CreateModelUseCase
 
       return response.toJSON();
     } catch (error) {
+      console.log("error use case", error);
       throw new Error(resolveErrorMessage(error, "Error in create model"));
     }
   }

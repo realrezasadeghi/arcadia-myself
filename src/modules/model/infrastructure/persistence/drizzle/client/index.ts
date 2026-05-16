@@ -1,6 +1,6 @@
-import { createClient } from "@libsql/client";
-import { drizzle } from "drizzle-orm/libsql";
 import { env } from "@/modules/shared/config/env";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 import {
   diagrams,
   elements,
@@ -9,11 +9,11 @@ import {
   traceLinks,
 } from "../schemas";
 
-const client = createClient({
-  url: env.get("DATABASE_URL"),
+const pool = new Pool({
+  connectionString: env.get("DATABASE_URL"),
 });
 
-export const db = drizzle(client, {
+export const db = drizzle(pool, {
   schema: {
     diagrams,
     elements,

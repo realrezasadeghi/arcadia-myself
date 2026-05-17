@@ -1,4 +1,9 @@
-import type { TraceLinkRule, TraceLinkTypeInfo } from "../types/trace-link";
+import type {
+  TraceLinkRule,
+  TraceLinkTypeInfo,
+  TraceLinkTypeValue,
+  TraceLinkVisualSpec,
+} from "../types/trace-link";
 
 export const TRACE_LINK_TYPES: TraceLinkTypeInfo[] = [
   { value: "Realization", label: "Realization", labelFa: "تحقق" },
@@ -114,3 +119,36 @@ export const TRACE_RULES: TraceLinkRule[] = [
     targetTypes: ["OperationalCapability"],
   },
 ];
+
+export const TRACE_VISUAL: Record<TraceLinkTypeValue, TraceLinkVisualSpec> = {
+  Realization: {
+    strokeColor: "#8E44AD",
+    strokeWidth: 1,
+    arrowEnd: "open-arrow",
+    strokeDash: "4,2",
+  },
+  Allocation: {
+    strokeColor: "#E67E22",
+    strokeWidth: 1,
+    arrowEnd: "open-arrow",
+    strokeDash: "4,2",
+  },
+  Deployment: {
+    strokeColor: "#2C3E50",
+    strokeWidth: 1,
+    arrowEnd: "open-arrow",
+    strokeDash: "6,2",
+  },
+  Involvement: {
+    strokeColor: "#717D7E",
+    strokeWidth: 1,
+    arrowEnd: "open-arrow",
+    strokeDash: "3,3",
+  },
+  Refinement: {
+    strokeColor: "#1A5276",
+    strokeWidth: 1,
+    arrowEnd: "open-arrow",
+    strokeDash: "5,3",
+  },
+};

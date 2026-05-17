@@ -13,7 +13,7 @@ import type { ITraceLinkRepository } from "../ports/trace-link";
 export type CreateTraceLinkPayload = {
   payload: {
     projectId: string;
-    type: string;
+    type: TraceLinkTypeValue;
     sourceElementId: string;
     sourceLayer: string;
     targetElementId: string;

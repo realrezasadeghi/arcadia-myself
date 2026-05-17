@@ -7,7 +7,12 @@ export const LAYERS: LayerInfo[] = [
     labelFa: "تحلیل عملیاتی",
     order: 1,
   },
-  { value: "SA", label: "System Analysis", labelFa: "تحلیل سیستم", order: 2 },
+  {
+    value: "SA",
+    label: "System Analysis",
+    labelFa: "تحلیل سیستمی",
+    order: 2,
+  },
   {
     value: "LA",
     label: "Logical Architecture",

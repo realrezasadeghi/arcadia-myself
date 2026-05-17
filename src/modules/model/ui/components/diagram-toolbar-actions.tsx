@@ -1,0 +1,119 @@
+"use client";
+
+import { Button } from "@/modules/shared/ui/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/modules/shared/ui/components/ui/dropdown-menu";
+import { Separator } from "@/modules/shared/ui/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/modules/shared/ui/components/ui/tooltip";
+import {
+  Download,
+  Maximize2,
+  Redo2,
+  Trash2,
+  Undo2,
+  ZoomIn,
+  ZoomOut,
+} from "lucide-react";
+import type { LayerValue } from "../types/layer";
+import { SaveStatusIndicator } from "./save-status-indicator";
+
+type DiagramToolbarActionsProps = {
+  layer: LayerValue;
+  projectName: string;
+  diagramName: string;
+};
+
+export function DiagramToolbarActions(props: DiagramToolbarActionsProps) {
+  return (
+    <div className="flex items-center gap-2">
+      <SaveStatusIndicator />
+
+      <Separator orientation="vertical" className="h-5 w-0.5" />
+
+      {/* Undo */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size="icon" className="size-7">
+            <Undo2 className="size-3.5" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>واگرد (Ctrl+Z)</TooltipContent>
+      </Tooltip>
+
+      {/* Redo */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size="icon" className="size-7">
+            <Redo2 className="size-3.5" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>انجام‌مجدد (Ctrl+Shift+Z)</TooltipContent>
+      </Tooltip>
+
+      <Separator orientation="vertical" className="h-5 w-0.5" />
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size="icon" className="size-7">
+            <Trash2 className="size-3.5 text-destructive" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>حذف انتخاب‌شده (Delete)</TooltipContent>
+      </Tooltip>
+
+      <Separator orientation="vertical" className="h-5 w-0.5" />
+
+      <DropdownMenu>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="size-7">
+                <Download className="size-3.5" />
+              </Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent>خروجی گرفتن</TooltipContent>
+        </Tooltip>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem>دانلود JSON</DropdownMenuItem>
+          <DropdownMenuItem>چاپ / PDF</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <Separator orientation="vertical" className="h-5 w-0.5" />
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size="icon" className="size-7">
+            <ZoomIn className="size-3.5" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>بزرگ‌نمایی</TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size="icon" className="size-7">
+            <ZoomOut className="size-3.5" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>کوچک‌نمایی</TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size="icon" className="size-7">
+            <Maximize2 className="size-3.5" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>جا دادن همه</TooltipContent>
+      </Tooltip>
+    </div>
+  );
+}

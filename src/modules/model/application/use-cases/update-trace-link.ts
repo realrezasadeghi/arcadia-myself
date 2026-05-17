@@ -15,7 +15,7 @@ export type UpdateTraceLinkPayload = {
 
 export type UpdateTraceLinkResponse = {
   id: string;
-  projectId: number;
+  projectId: string;
   type: TraceLinkTypeValue;
   updatedAt: string;
   createdAt: string;

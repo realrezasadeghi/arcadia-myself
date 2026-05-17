@@ -3,7 +3,10 @@ import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-messag
 import type { RelationshipProperties } from "../../domain/entities/relationship";
 import { ConnectionPolicy } from "../../domain/policies/connection";
 import { ElementType } from "../../domain/value-objects/element-type";
-import { RelationshipType } from "../../domain/value-objects/relationship-type";
+import {
+  RelationshipType,
+  type RelationshipTypeValue,
+} from "../../domain/value-objects/relationship-type";
 import type { IElementRepository } from "../ports/element";
 import type { IRelationshipRepository } from "../ports/relationship";
 
@@ -12,7 +15,7 @@ export type ConnectElementsPayload = {
     modelId: string;
     sourceElementId: string;
     targetElementId: string;
-    relationshipType: string;
+    relationshipType: RelationshipTypeValue;
     name?: string;
     description?: string;
   };

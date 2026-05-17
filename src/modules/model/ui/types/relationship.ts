@@ -31,3 +31,11 @@ export type Relationship = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type RelationshipVisualSpec = {
+  strokeColor: string;
+  strokeWidth: number;
+  strokeDash?: string;
+  arrowEnd: "arrow" | "open-arrow" | "diamond" | "none";
+  animated?: boolean;
+};

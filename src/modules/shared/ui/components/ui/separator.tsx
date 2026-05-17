@@ -20,6 +20,7 @@ function Separator({
         className,
       )}
       {...props}
+      suppressHydrationWarning
     />
   );
 }

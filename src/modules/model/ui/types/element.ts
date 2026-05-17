@@ -38,3 +38,10 @@ export type Element = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type ElementVisualSpec = {
+  shape: "rectangle" | "rounded-rectangle" | "ellipse";
+  fillColor: string;
+  fillColorDark: string;
+  strokeColor: string;
+};

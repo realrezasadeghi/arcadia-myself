@@ -44,3 +44,11 @@ export type TraceLinkRule = {
   targetLayerLabelFa: string;
   targetTypes: ElementTypeValue[];
 };
+
+export type TraceLinkVisualSpec = {
+  strokeColor: string;
+  strokeWidth: number;
+  strokeDash?: string;
+  arrowEnd: "arrow" | "open-arrow" | "diamond" | "none";
+  animated?: boolean;
+};

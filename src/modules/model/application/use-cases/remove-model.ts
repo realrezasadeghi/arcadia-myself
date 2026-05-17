@@ -1,10 +1,10 @@
-import { IUseCase } from "@/modules/shared/application/interfaces/use-case";
+import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
 import type { IModelRepository } from "../ports/model";
 
 export type RemoveModelPayload = {
   payload: {
-    modelId: string;
+    id: string;
   };
   context: {
     token: string;
@@ -25,13 +25,12 @@ export class RemoveModelUseCase
 
   async execute({ payload }: RemoveModelPayload): Promise<boolean> {
     try {
-      const model = await this.modelRepository.findModelById(payload.modelId);
+      const model = await this.modelRepository.findModelById(payload.id);
 
-      if (!model)
-        throw new Error(`Model not found with id : ${payload.modelId}`);
+      if (!model) throw new Error(`Model not found with id : ${payload.id}`);
 
       return this.modelRepository.deleteModel({
-        id: payload.modelId,
+        id: payload.id,
       });
     } catch (error) {
       throw new Error(resolveErrorMessage(error, "Error in remove model"));

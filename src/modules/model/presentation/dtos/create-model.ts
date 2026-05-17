@@ -63,7 +63,7 @@ export class CreateModelDTO {
   private static validateDescription(description?: string): string | undefined {
     if (description === undefined || description === null) return undefined;
 
-    const trimmed = description.trim();
+    const trimmed = description?.trim();
 
     if (trimmed.length === 0) return undefined;
 

@@ -12,7 +12,7 @@ export async function getDiagramById(
   id: string,
 ): Promise<IRes<GetDiagramByIdResponse>> {
   "use cache: private";
-  cacheTag("GET_DIAGRAM_BY_ID", id);
+  cacheTag(`get-diagram-by-id-${id}`);
   try {
     const token = await cookiesStorageService.get("token");
 

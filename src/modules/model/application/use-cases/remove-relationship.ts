@@ -18,7 +18,7 @@ export type RemoveRelationshipPayload = {
  * Business rules:
  * 1. رابطه باید در مدل وجود داشته باشد
  */
-export class DeleteRelationshipUseCase
+export class RemoveRelationshipUseCase
   implements IUseCase<RemoveRelationshipPayload, boolean>
 {
   constructor(private readonly repository: IRelationshipRepository) {}

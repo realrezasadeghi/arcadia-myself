@@ -13,7 +13,7 @@ export async function getElementById(
   id: string,
 ): Promise<IRes<GetElementByIdResponse>> {
   "use cache: private";
-  cacheTag("GET_ELEMENT_BY_ID", id);
+  cacheTag(`get-element-by-id-${id}`);
   try {
     const token = await cookiesStorageService.get("token");
 

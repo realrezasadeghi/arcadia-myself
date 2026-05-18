@@ -7,7 +7,7 @@ export type ElementNodeData = {
   name: string;
   modelId: string;
   elementId: string;
-  description: string;
+  description?: string;
   elementType: ElementTypeValue;
   status: "DRAFT" | "VALIDATED" | "DEPRECATED";
 };

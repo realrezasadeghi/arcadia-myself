@@ -1,3 +1,4 @@
+import { Separator } from "@/modules/shared/ui/components/ui/separator";
 import {
   Tooltip,
   TooltipContent,
@@ -31,13 +32,17 @@ export async function DiagramElementPalette({
           المنت‌ها
         </p>
       </div>
-
       <div className="flex flex-col gap-1 p-2">
         {elementTypes.map((element) => {
           return (
             <Tooltip key={element.value}>
               <TooltipTrigger asChild>
-                <ElementShape label={element.label} type={element.value} />
+                <ElementShape
+                  draggable
+                  type={element.value}
+                  label={element.labelFa}
+                  className="rounded-md px-2.5 py-1.5 cursor-grab active:cursor-grabbing hover:bg-accent transition-colors select-none"
+                />
               </TooltipTrigger>
               <TooltipContent side="right" className="text-xs">
                 <p className="font-medium">{element.label}</p>
@@ -46,6 +51,12 @@ export async function DiagramElementPalette({
             </Tooltip>
           );
         })}
+      </div>
+      <Separator className="my-1" />
+      <div className="px-3 py-2 text-center">
+        <p className="text-[10px] text-muted-foreground">
+          المنت را به canvas بکشید
+        </p>
       </div>
     </aside>
   );

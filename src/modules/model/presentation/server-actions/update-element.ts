@@ -2,6 +2,7 @@
 
 import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
 import { fail, type IRes, ok } from "@/modules/shared/utils/response";
+import { updateTag } from "next/cache";
 import {
   type UpdateElementResponse,
   UpdateElementUseCase,
@@ -30,6 +31,8 @@ export async function updateElement(
       payload: dto,
       context: { token },
     });
+
+    updateTag(`get-element-by-id-${payload.id}`);
 
     return ok(response);
   } catch (error) {

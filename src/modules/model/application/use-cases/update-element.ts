@@ -70,6 +70,8 @@ export class UpdateElementUseCase
         properties: element.properties,
       });
 
+      console.log("reponse", response);
+
       return response.toJSON();
     } catch (error) {
       throw new Error(resolveErrorMessage(error, "Error in update element"));

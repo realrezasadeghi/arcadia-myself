@@ -46,13 +46,20 @@ export class UpdateDiagramLayoutUseCase
       if (!diagram)
         throw new Error(`Diagram not found with id : ${payload.id}`);
 
+      console.log("payload use case", payload);
+
       diagram.updateViewport({ ...diagram.viewport, ...payload.viewport });
 
       const response = await this.diagramRepository.updateLayout({
         id: payload.id,
         viewport: diagram.viewport,
-        elementLayouts: payload.elementLayouts,
+        elementLayouts: [
+          ...diagram.elementLayouts,
+          ...(payload?.elementLayouts ?? []),
+        ],
       });
+
+      console.log("response layout", response);
 
       return response.toJSON();
     } catch (error) {

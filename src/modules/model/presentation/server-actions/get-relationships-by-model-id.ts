@@ -16,7 +16,7 @@ export async function getRelationshipsByModelId(
   modelId: string,
 ): Promise<IRes<GetRelationshipsByModelIdResponse[]>> {
   "use cache: private";
-  cacheTag("GET_RELATIONSHIPS_BY_MODEL_ID", modelId);
+  cacheTag(`get-relationships-by-model-id-${modelId}`);
   try {
     const token = await cookiesStorageService.get("token");
 

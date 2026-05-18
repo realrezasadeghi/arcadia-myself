@@ -1,8 +1,8 @@
-import type {
+import {
   ElementType,
-  ElementTypeValue,
+  type ElementTypeValue,
 } from "../value-objects/element-type";
-import { Layer } from "../value-objects/layer";
+import { Layer, type LayerValue } from "../value-objects/layer";
 import { TraceLinkType } from "../value-objects/trace-link";
 
 interface TraceRule {
@@ -142,8 +142,8 @@ export class TracePolicy {
 
   /** گزینه‌های قابل trace برای یک المنت */
   static getTraceOptions(
-    sourceType: ElementType,
-    sourceLayer: Layer,
+    sourceType: string | ElementType,
+    sourceLayer: LayerValue | Layer,
   ): Array<{
     targetTypes: ElementTypeValue[];
     targetLayer: Layer;
@@ -151,8 +151,8 @@ export class TracePolicy {
   }> {
     return RULES.filter(
       (r) =>
-        r.sourceLayer.equals(sourceLayer) &&
-        r.sourceTypes.includes(sourceType.value),
+        r.sourceTypes.includes(ElementType.from(sourceType.toString()).value) &&
+        r.sourceLayer.equals(Layer.from(sourceLayer.toString())),
     ).map((r) => ({
       targetTypes: r.targetTypes,
       targetLayer: r.targetLayer,

@@ -2,6 +2,7 @@
 
 import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
 import { fail, type IRes, ok } from "@/modules/shared/utils/response";
+import { updateTag } from "next/cache";
 import {
   type ConnectElementsResponse,
   ConnectElementsUseCase,
@@ -36,6 +37,10 @@ export async function connectElements(
       payload: dto,
       context: { token },
     });
+
+    updateTag(`get-elements-by-model-id-${payload.modelId}`);
+
+    updateTag(`get-relationships-by-model-id-${payload.modelId}`);
 
     return ok(response);
   } catch (error) {

@@ -24,6 +24,7 @@ export async function updateDiagramLayout(
 
     const dto = UpdateDiagramLayoutDTO.create(payload);
 
+    console.log("dto", dto);
     const updateDiagramLayoutUseCase = new UpdateDiagramLayoutUseCase(
       diagramRepository,
     );

@@ -1,6 +1,7 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
 import type { ElementProperties } from "../../domain/entities/element";
+import type { ElementTypeValue } from "../../domain/value-objects/element-type";
 import type { IElementRepository } from "../ports/element";
 import type { IModelRepository } from "../ports/model";
 
@@ -18,7 +19,7 @@ export type GetElementsByModelIdResponse = {
   modelId: string;
   name: string;
   description?: string;
-  type: string;
+  type: ElementTypeValue;
   updatedAt: string;
   createdAt: string;
   properties: ElementProperties;

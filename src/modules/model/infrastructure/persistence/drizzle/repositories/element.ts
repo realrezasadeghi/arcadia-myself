@@ -78,6 +78,7 @@ export class DrizzleElementRepository implements IElementRepository {
     const existing = await db.query.elements.findFirst({
       where: eq(elements.id, payload.id),
     });
+    console.log("payload ", payload);
     if (!existing) throw new Error(`Element not found with id : ${payload.id}`);
 
     const currentProps = JSON.parse(

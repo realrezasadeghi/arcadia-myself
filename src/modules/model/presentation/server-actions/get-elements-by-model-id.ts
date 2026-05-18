@@ -2,7 +2,7 @@
 
 import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
 import { fail, type IRes, ok } from "@/modules/shared/utils/response";
-import { cacheTag } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import {
   type GetElementsByModelIdResponse,
   GetElementsByModelIdUseCase,
@@ -16,7 +16,8 @@ export async function getElementsByModelId(
   modelId: string,
 ): Promise<IRes<GetElementsByModelIdResponse[]>> {
   "use cache: private";
-  cacheTag("GET_ELEMENTS_BY_MODEL_ID", modelId);
+  cacheTag(`get-elements-by-model-id-${modelId}`);
+  cacheLife("minutes");
   try {
     const token = await cookiesStorageService.get("token");
 

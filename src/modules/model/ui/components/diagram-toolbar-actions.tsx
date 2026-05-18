@@ -13,6 +13,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/modules/shared/ui/components/ui/tooltip";
+import { useReactFlow } from "@xyflow/react";
 import {
   Download,
   Maximize2,
@@ -22,6 +23,10 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
+import { useCallback, useMemo } from "react";
+import { getLayerInfo } from "../helpers/layer";
+import { useDiagramExport } from "../hooks/use-diagram-export";
+import { useCanvasStore } from "../stores/canvas";
 import type { LayerValue } from "../types/layer";
 import { SaveStatusIndicator } from "./save-status-indicator";
 
@@ -31,7 +36,46 @@ type DiagramToolbarActionsProps = {
   diagramName: string;
 };
 
-export function DiagramToolbarActions(props: DiagramToolbarActionsProps) {
+export function DiagramToolbarActions({
+  projectName,
+  diagramName,
+  layer,
+}: DiagramToolbarActionsProps) {
+  const {
+    selectedNodeId,
+    selectedEdgeId,
+    removeNode,
+    removeEdge,
+    canUndo,
+    canRedo,
+    undo,
+    redo,
+    pushHistory,
+  } = useCanvasStore();
+
+  const { zoomIn, zoomOut, fitView } = useReactFlow();
+
+  const { exportHtml, exportJson } = useDiagramExport({
+    diagramName,
+    projectName,
+    layer: getLayerInfo(layer),
+  });
+
+  const hasSelection = useMemo(
+    () => selectedNodeId || selectedEdgeId,
+    [selectedNodeId, selectedEdgeId],
+  );
+
+  const handleDelete = useCallback(() => {
+    if (selectedNodeId) {
+      pushHistory();
+      removeNode(selectedNodeId);
+    } else if (selectedEdgeId) {
+      pushHistory();
+      removeEdge(selectedEdgeId);
+    }
+  }, [selectedNodeId, selectedEdgeId, pushHistory, removeEdge, removeNode]);
+
   return (
     <div className="flex items-center gap-2">
       <SaveStatusIndicator />
@@ -41,7 +85,13 @@ export function DiagramToolbarActions(props: DiagramToolbarActionsProps) {
       {/* Undo */}
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon" className="size-7">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="size-7"
+            onClick={undo}
+            disabled={!canUndo}
+          >
             <Undo2 className="size-3.5" />
           </Button>
         </TooltipTrigger>
@@ -51,7 +101,13 @@ export function DiagramToolbarActions(props: DiagramToolbarActionsProps) {
       {/* Redo */}
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon" className="size-7">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="size-7"
+            onClick={redo}
+            disabled={!canRedo}
+          >
             <Redo2 className="size-3.5" />
           </Button>
         </TooltipTrigger>
@@ -62,7 +118,13 @@ export function DiagramToolbarActions(props: DiagramToolbarActionsProps) {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon" className="size-7">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            disabled={!hasSelection}
+            onClick={handleDelete}
+          >
             <Trash2 className="size-3.5 text-destructive" />
           </Button>
         </TooltipTrigger>
@@ -83,8 +145,8 @@ export function DiagramToolbarActions(props: DiagramToolbarActionsProps) {
           <TooltipContent>خروجی گرفتن</TooltipContent>
         </Tooltip>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem>دانلود JSON</DropdownMenuItem>
-          <DropdownMenuItem>چاپ / PDF</DropdownMenuItem>
+          <DropdownMenuItem onClick={exportJson}>دانلود JSON</DropdownMenuItem>
+          <DropdownMenuItem onClick={exportHtml}>چاپ / PDF</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -92,7 +154,12 @@ export function DiagramToolbarActions(props: DiagramToolbarActionsProps) {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon" className="size-7">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            onClick={() => zoomIn()}
+          >
             <ZoomIn className="size-3.5" />
           </Button>
         </TooltipTrigger>
@@ -100,7 +167,12 @@ export function DiagramToolbarActions(props: DiagramToolbarActionsProps) {
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon" className="size-7">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="size-7"
+            onClick={() => zoomOut()}
+          >
             <ZoomOut className="size-3.5" />
           </Button>
         </TooltipTrigger>
@@ -108,7 +180,12 @@ export function DiagramToolbarActions(props: DiagramToolbarActionsProps) {
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon" className="size-7">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="size-7"
+            onClick={() => fitView()}
+          >
             <Maximize2 className="size-3.5" />
           </Button>
         </TooltipTrigger>

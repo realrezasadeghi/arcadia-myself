@@ -1,6 +1,6 @@
-import type {
+import {
   ElementType,
-  ElementTypeValue,
+  type ElementTypeValue,
 } from "../value-objects/element-type";
 import { Layer } from "../value-objects/layer";
 import { RelationshipType } from "../value-objects/relationship-type";
@@ -144,13 +144,17 @@ export class ConnectionPolicy {
    * Returns the allowed relationship types between two element types.
    */
   static getAllowedTypes(
-    sourceType: ElementType,
-    targetType: ElementType,
+    sourceType: string | ElementType,
+    targetType: string | ElementType,
   ): RelationshipType[] {
     return RULES.filter(
       (r) =>
-        r.allowedSources.includes(sourceType.value) &&
-        r.allowedTargets.includes(targetType.value),
+        r.allowedSources.includes(
+          ElementType.from(sourceType.toString()).value,
+        ) &&
+        r.allowedTargets.includes(
+          ElementType.from(targetType.toString()).value,
+        ),
     ).map((r) => RelationshipType.from(r.relationshipType));
   }
 

@@ -102,12 +102,17 @@ export class DrizzleDiagramRepository implements IDiagramRepository {
     const updateData: any = { updatedAt: now };
 
     if (payload.viewport !== undefined) {
-      updateData.viewport = JSON.stringify(payload.viewport);
+      updateData.viewportJson = JSON.stringify(payload.viewport);
     }
 
+    console.log("update data repo", payload);
+    console.log("data repo", payload.elementLayouts);
+
     if (payload.elementLayouts !== undefined) {
-      updateData.elementLayouts = JSON.stringify(payload.elementLayouts);
+      updateData.elementLayoutsJson = JSON.stringify(payload.elementLayouts);
     }
+
+    console.log({ updateData });
 
     await db
       .update(diagrams)

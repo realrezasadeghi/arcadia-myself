@@ -1,6 +1,7 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
 import type { RelationshipProperties } from "../../domain/entities/relationship";
+import type { RelationshipTypeValue } from "../../domain/value-objects/relationship-type";
 import type { IModelRepository } from "../ports/model";
 import type { IRelationshipRepository } from "../ports/relationship";
 
@@ -20,7 +21,7 @@ export type GetRelationshipsByModelIdResponse = {
   description?: string;
   sourceElementId: string;
   targetElementId: string;
-  type: string;
+  type: RelationshipTypeValue;
   updatedAt: string;
   createdAt: string;
   properties: RelationshipProperties;

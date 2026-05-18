@@ -27,7 +27,7 @@ export type Relationship = {
   sourceElementId: string;
   targetElementId: string;
   name: string;
-  description: string;
+  description?: string;
   createdAt: string;
   updatedAt: string;
 };

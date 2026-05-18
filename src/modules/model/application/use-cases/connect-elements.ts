@@ -31,7 +31,7 @@ export type ConnectElementsResponse = {
   description?: string;
   sourceElementId: string;
   targetElementId: string;
-  type: string;
+  type: RelationshipTypeValue;
   updatedAt: string;
   createdAt: string;
   properties: RelationshipProperties;

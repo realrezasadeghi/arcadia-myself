@@ -43,7 +43,7 @@ export type Diagram = {
   modelId: string;
   type: DiagramTypeValue;
   name: string;
-  description: string;
+  description?: string;
   viewport: Viewport;
   elementLayouts: ElementLayout[];
   createdAt: string;

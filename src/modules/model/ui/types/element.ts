@@ -33,7 +33,7 @@ export type Element = {
   modelId: string;
   type: ElementTypeValue;
   name: string;
-  description: string;
+  description?: string;
   status: ElementStatus;
   createdAt: string;
   updatedAt: string;

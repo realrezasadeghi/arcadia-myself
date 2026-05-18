@@ -25,7 +25,7 @@ export type CreateElementResponse = {
   modelId: string;
   name: string;
   description?: string;
-  type: string;
+  type: ElementTypeValue;
   updatedAt: string;
   createdAt: string;
   properties: ElementProperties;

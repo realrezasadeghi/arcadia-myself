@@ -29,10 +29,20 @@ export function SaveStatusIndicator() {
   const Icon = config.icon;
 
   return (
-    <div className={cn("flex items-center gap-1.5 text-xs px-2", config.className)}>
-      <Icon className={cn("size-3.5", saveStatus === "saving" && "animate-spin")} />
+    <div
+      className={cn("flex items-center gap-1.5 text-xs px-2", config.className)}
+    >
+      <Icon
+        className={cn(
+          "size-3.5",
+          saveStatus === "saving" && "animate-spin",
+          saveStatus === "saved" && "text-green-500",
+        )}
+      />
       <span className="hidden sm:inline">
-        {saveStatus === "dirty" && pendingChanges > 0  ? `${pendingChanges} تغییر`: config.text}
+        {saveStatus === "dirty" && pendingChanges > 0
+          ? `${pendingChanges} تغییر`
+          : config.text}
       </span>
     </div>
   );

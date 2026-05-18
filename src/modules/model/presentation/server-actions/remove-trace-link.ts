@@ -2,10 +2,15 @@
 
 import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
 import { fail, type IRes, ok } from "@/modules/shared/utils/response";
+import { updateTag } from "next/cache";
 import { RemoveTraceLinkUseCase } from "../../application/use-cases/remove-trace-link";
 import { traceLinkRepository } from "../../infrastructure/persistence/drizzle/repositories";
 
-export async function removeTraceLink(id: string): Promise<IRes<boolean>> {
+export async function removeTraceLink(payload: {
+  id: string;
+  sourceElementId: string;
+  targetElementId: string;
+}): Promise<IRes<boolean>> {
   try {
     const token = await cookiesStorageService.get("token");
 
@@ -13,7 +18,7 @@ export async function removeTraceLink(id: string): Promise<IRes<boolean>> {
       throw new Error("Token is required");
     }
 
-    if (!id) {
+    if (!payload.id) {
       throw new Error("Trace link id is required");
     }
 
@@ -22,9 +27,13 @@ export async function removeTraceLink(id: string): Promise<IRes<boolean>> {
     );
 
     const response = await removeTraceLinkUseCase.execute({
-      payload: { id },
+      payload: { id: payload.id },
       context: { token },
     });
+
+    updateTag(`get-trace-links-by-element-id-${payload.sourceElementId}`);
+
+    updateTag(`get-trace-links-by-element-id-${payload.targetElementId}`);
 
     return ok(response);
   } catch (error) {

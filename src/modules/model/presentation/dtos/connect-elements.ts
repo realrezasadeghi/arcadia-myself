@@ -123,6 +123,7 @@ export class ConnectElementsDTO {
       "PhysicalExchange",
       "PhysicalLink",
       "DeploymentLink",
+      "Composition",
     ];
 
     if (!validTypes.includes(type)) {

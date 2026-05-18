@@ -33,6 +33,21 @@ const RULES: ConnectionRule[] = [
     ],
     descriptionFa: "پیوند مشارکت بین موجودیت/بازیگر و قابلیت/فعالیت",
   },
+  {
+    relationshipType: "Composition",
+    layer: Layer.OA,
+    allowedSources: [
+      "OperationalEntity",
+      "OperationalActivity",
+      "OperationalCapability",
+    ],
+    allowedTargets: [
+      "OperationalEntity",
+      "OperationalActivity",
+      "OperationalCapability",
+    ],
+    descriptionFa: "ترکیب (والد-فرزندی) بین موجودیت‌ها/فعالیت‌ها/قابلیت‌ها",
+  },
   // ─── SA ────────────────────────────────────────────────────────────────────
   {
     relationshipType: "FunctionalExchange",
@@ -47,6 +62,13 @@ const RULES: ConnectionRule[] = [
     allowedSources: ["System", "SystemActor"],
     allowedTargets: ["System", "SystemActor"],
     descriptionFa: "تبادل سیستمی بین سیستم و بازیگران خارجی",
+  },
+  {
+    relationshipType: "ComponentExchange",
+    layer: Layer.SA,
+    allowedSources: ["SystemComponent"],
+    allowedTargets: ["SystemComponent"],
+    descriptionFa: "تبادل مؤلفه بین مؤلفه‌های سیستم",
   },
   // ─── LA ────────────────────────────────────────────────────────────────────
   {
@@ -77,6 +99,13 @@ const RULES: ConnectionRule[] = [
     allowedTargets: ["LogicalComponent"],
     descriptionFa: "رابط مورد نیاز مؤلفه منطقی",
   },
+  {
+    relationshipType: "Composition",
+    layer: Layer.LA,
+    allowedSources: ["LogicalComponent", "LogicalActor"],
+    allowedTargets: ["LogicalComponent", "LogicalActor"],
+    descriptionFa: "ترکیب بین مؤلفه‌ها/بازیگران منطقی",
+  },
   // ─── PA ────────────────────────────────────────────────────────────────────
   {
     relationshipType: "PhysicalExchange",
@@ -98,6 +127,13 @@ const RULES: ConnectionRule[] = [
     allowedSources: ["PhysicalComponent"],
     allowedTargets: ["PhysicalNode"],
     descriptionFa: "مؤلفه فیزیکی روی گره فیزیکی مستقر می‌شود",
+  },
+  {
+    relationshipType: "Composition",
+    layer: Layer.PA,
+    allowedSources: ["PhysicalComponent", "PhysicalNode"],
+    allowedTargets: ["PhysicalComponent", "PhysicalNode"],
+    descriptionFa: "ترکیب بین مؤلفه‌ها/گره‌های فیزیکی",
   },
 ];
 

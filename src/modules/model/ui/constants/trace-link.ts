@@ -1,3 +1,4 @@
+import type { LayerValue } from "../types/layer";
 import type {
   TraceLinkRule,
   TraceLinkTypeInfo,
@@ -152,3 +153,13 @@ export const TRACE_VISUAL: Record<TraceLinkTypeValue, TraceLinkVisualSpec> = {
     strokeDash: "5,3",
   },
 };
+
+export const LAYER_PAIRS: Array<{
+  upper: LayerValue;
+  lower: LayerValue;
+  label: string;
+}> = [
+  { upper: "OA", lower: "SA", label: "OA → SA" },
+  { upper: "SA", lower: "LA", label: "SA → LA" },
+  { upper: "LA", lower: "PA", label: "LA → PA" },
+];

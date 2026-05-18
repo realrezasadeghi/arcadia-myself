@@ -71,6 +71,12 @@ export const RELATIONSHIP_TYPES: RelationshipTypeInfo[] = [
     labelFa: "پیوند استقرار",
     allowedFor: ["PA"],
   },
+  {
+    value: "Composition",
+    label: "Composition",
+    labelFa: "ترکیب",
+    allowedFor: ["OA", "SA", "LA", "PA"],
+  },
 ];
 
 export const RELATIONSHIP_VISUAL: Record<
@@ -126,5 +132,11 @@ export const RELATIONSHIP_VISUAL: Record<
     strokeWidth: 1,
     arrowEnd: "open-arrow",
     strokeDash: "6,3",
+  },
+  Composition: {
+    strokeColor: "#7D3C98",
+    strokeWidth: 1.5,
+    arrowEnd: "diamond", // یا "none" بسته به نمایش
+    strokeDash: "none",
   },
 };

@@ -77,6 +77,9 @@ export function ConnectionDialog({
                   />
                   <span className="flex-1 text-right">
                     {relationshipInfo.labelFa}
+                    <span className="text-gray-200 text-[8px]">
+                      ({relationshipInfo.label})
+                    </span>
                   </span>
                 </button>
               );

@@ -11,7 +11,8 @@ export type RelationshipTypeValue =
   | "RequiredInterface"
   | "PhysicalExchange"
   | "PhysicalLink"
-  | "DeploymentLink";
+  | "DeploymentLink"
+  | "Composition";
 
 export type RelationshipTypeInfo = {
   value: RelationshipTypeValue;

@@ -52,7 +52,7 @@ function TraceOptionList({
                 : "border-border bg-background hover:bg-muted",
             )}
           >
-            <span className="font-medium">{opt.type.labelFa}</span>
+            <span className="font-medium">{opt.type.label}</span>
             <span className="text-xs text-muted-foreground block mt-0.5">
               → {opt.targetLayer.labelFa} (
               {opt.targetTypes

@@ -80,6 +80,10 @@ export class CreateDiagramDTO {
   }
 
   private static validateName(name: string): string {
+    if (!name) {
+      throw new Error("Diagram name is required");
+    }
+
     const trimmed = name.trim();
 
     if (!trimmed) {
@@ -94,6 +98,10 @@ export class CreateDiagramDTO {
   }
 
   private static validateModelId(modelId: string): string {
+    if (!modelId) {
+      throw new Error("Model id is required");
+    }
+
     const trimmed = modelId.trim();
 
     if (!trimmed) {

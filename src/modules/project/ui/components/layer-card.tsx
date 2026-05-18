@@ -63,6 +63,7 @@ export function LayerCard({ model, layer, projectId }: LayerCardProps) {
             toast.error(message || "Error in create diagram");
           },
           onSuccess(data) {
+            setOpen(false);
             router.push(
               `/dashboard/project/${projectId}/diagram/${data.data.id}`,
             );

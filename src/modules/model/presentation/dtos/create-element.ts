@@ -35,6 +35,9 @@ export class CreateElementDTO {
   }
 
   private static validateModelId(modelId: string): string {
+    if (!modelId) {
+      throw new Error("Model id is required");
+    }
     const trimmed = modelId.trim();
 
     if (!trimmed) {
@@ -49,6 +52,10 @@ export class CreateElementDTO {
   }
 
   private static validateType(type: ElementTypeValue): ElementTypeValue {
+    if (!type) {
+      throw new Error("Element type is required");
+    }
+
     const validTypes: ElementTypeValue[] = [
       "OperationalActivity",
       "OperationalActor",
@@ -77,6 +84,10 @@ export class CreateElementDTO {
   }
 
   private static validateName(name: string): string {
+    if (!name) {
+      throw new Error("Element name is required.");
+    }
+
     const trimmed = name?.trim();
 
     if (!trimmed) {

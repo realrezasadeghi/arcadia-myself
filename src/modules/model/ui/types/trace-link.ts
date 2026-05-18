@@ -22,7 +22,7 @@ export type TraceLink = {
   sourceLayer: LayerValue;
   targetElementId: string;
   targetLayer: LayerValue;
-  description: string;
+  description?: string;
   createdAt: string;
   updatedAt: string;
 };

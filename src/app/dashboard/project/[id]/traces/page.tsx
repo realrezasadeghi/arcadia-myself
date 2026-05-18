@@ -1,0 +1,29 @@
+import { TraceHeaderBreadcrumb } from "@/modules/model/ui/components/trace-header-breadcrumb";
+import { TraceLayerPairList } from "@/modules/model/ui/components/trace-layer-pair-list";
+import { Skeleton } from "@/modules/shared/ui/components/ui/skeleton";
+import { Suspense } from "react";
+
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+function TraceHeaderBreadcrumbSkeleton() {
+  return (
+    <div className="max-w-6xl mx-auto">
+      <Skeleton className="w-full h-8" />
+    </div>
+  );
+}
+
+export default function Page({ params }: Props) {
+  return (
+    <div className="flex flex-col gap-6 p-6 max-w-6xl mx-auto">
+      <Suspense fallback={<TraceHeaderBreadcrumbSkeleton />}>
+        <TraceHeaderBreadcrumb params={params} />
+      </Suspense>
+      <Suspense>
+        <TraceLayerPairList params={params} />
+      </Suspense>
+    </div>
+  );
+}

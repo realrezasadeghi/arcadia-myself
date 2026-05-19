@@ -28,6 +28,8 @@ import { ConnectionPolicy } from "../../domain/policies/connection";
 import { useConnectElements } from "../clients/connect-elements";
 import { useCreateElement } from "../clients/create-element";
 import { useUpdateDiagramLayout } from "../clients/update-diagram-layout";
+import { useRemoveElementSync } from "../hooks/use-remove-element";
+import { useRemoveRelationshipSync } from "../hooks/use-remove-relationship";
 import { useSaveManager } from "../hooks/use-save-manager";
 import type { Diagram, ElementLayout } from "../types/diagram";
 import type { Element, ElementTypeValue } from "../types/element";
@@ -72,8 +74,6 @@ export function DiagramCanvasInner({
     modelId,
     reset,
     addEdge,
-    removeNode,
-    removeEdge,
     initCanvas,
     updateNodePosition,
     setPendingConnection,
@@ -81,6 +81,10 @@ export function DiagramCanvasInner({
     selectedNodeId,
     pendingConnection,
   } = useCanvasStore();
+
+  const { removeElement } = useRemoveElementSync();
+
+  const { removeRelationship } = useRemoveRelationshipSync();
 
   // Build canvas nodes/edges when all data is ready
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -404,22 +408,19 @@ export function DiagramCanvasInner({
         e.target === document.body
       ) {
         if (selectedNodeId) {
-          pushHistory();
-          removeNode(selectedNodeId);
+          removeElement(selectedNodeId);
         } else if (selectedEdgeId) {
-          pushHistory();
-          removeEdge(selectedEdgeId);
+          removeRelationship(selectedEdgeId);
         }
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [
-    removeNode,
-    removeEdge,
+    removeElement,
+    removeRelationship,
     undo,
     redo,
-    pushHistory,
     selectedNodeId,
     selectedEdgeId,
   ]);

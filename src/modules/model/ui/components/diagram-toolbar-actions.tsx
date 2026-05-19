@@ -26,6 +26,8 @@ import {
 import { useCallback, useMemo } from "react";
 import { getLayerInfo } from "../helpers/layer";
 import { useDiagramExport } from "../hooks/use-diagram-export";
+import { useRemoveElementSync } from "../hooks/use-remove-element";
+import { useRemoveRelationshipSync } from "../hooks/use-remove-relationship";
 import { useCanvasStore } from "../stores/canvas";
 import type { LayerValue } from "../types/layer";
 import { SaveStatusIndicator } from "./save-status-indicator";
@@ -41,17 +43,14 @@ export function DiagramToolbarActions({
   diagramName,
   layer,
 }: DiagramToolbarActionsProps) {
-  const {
-    selectedNodeId,
-    selectedEdgeId,
-    removeNode,
-    removeEdge,
-    canUndo,
-    canRedo,
-    undo,
-    redo,
-    pushHistory,
-  } = useCanvasStore();
+  const { selectedNodeId, selectedEdgeId, canUndo, canRedo, undo, redo } =
+    useCanvasStore();
+
+  const { removeElement, isPending: isRemoveElementPending } =
+    useRemoveElementSync();
+
+  const { removeRelationship, isPending: isRemoveRelationshipPending } =
+    useRemoveRelationshipSync();
 
   const { zoomIn, zoomOut, fitView } = useReactFlow();
 
@@ -68,13 +67,11 @@ export function DiagramToolbarActions({
 
   const handleDelete = useCallback(() => {
     if (selectedNodeId) {
-      pushHistory();
-      removeNode(selectedNodeId);
+      removeElement(selectedNodeId);
     } else if (selectedEdgeId) {
-      pushHistory();
-      removeEdge(selectedEdgeId);
+      removeRelationship(selectedEdgeId);
     }
-  }, [selectedNodeId, selectedEdgeId, pushHistory, removeEdge, removeNode]);
+  }, [selectedNodeId, selectedEdgeId, removeElement, removeRelationship]);
 
   return (
     <div className="flex items-center gap-2">
@@ -119,11 +116,12 @@ export function DiagramToolbarActions({
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
-            variant="ghost"
             size="icon"
+            variant="ghost"
             className="size-7"
-            disabled={!hasSelection}
             onClick={handleDelete}
+            disabled={!hasSelection}
+            loading={isRemoveElementPending || isRemoveRelationshipPending}
           >
             <Trash2 className="size-3.5 text-destructive" />
           </Button>

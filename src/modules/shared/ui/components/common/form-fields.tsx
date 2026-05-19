@@ -42,6 +42,7 @@ interface BaseFieldProps<T extends FieldValues> {
   label?: string;
   description?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 // ─── FieldInput ────────────────────────────────────────────────────────────────
@@ -54,11 +55,13 @@ export function FieldInput<T extends FieldValues>({
   label,
   description,
   className,
+  disabled,
   ...inputProps
 }: FieldInputProps<T>) {
   return (
     <FormField
       name={name}
+      disabled={disabled}
       render={({ field, fieldState }) => (
         <FormItem className={className}>
           {label && (
@@ -86,12 +89,14 @@ export function FieldPassword<T extends FieldValues>({
   label,
   description,
   className,
+  disabled,
   placeholder = "••••••••",
 }: FieldPasswordProps<T>) {
   const [show, setShow] = useState(false);
   return (
     <FormField
       name={name}
+      disabled={disabled}
       render={({ field, fieldState }) => (
         <FormItem className={className}>
           {label && (
@@ -140,11 +145,13 @@ export function FieldTextarea<T extends FieldValues>({
   label,
   description,
   className,
+  disabled,
   ...textareaProps
 }: FieldTextareaProps<T>) {
   return (
     <FormField
       name={name}
+      disabled={disabled}
       render={({ field, fieldState }) => (
         <FormItem className={className}>
           {label && (
@@ -184,19 +191,25 @@ export function FieldSelect<T extends FieldValues>({
   description,
   className,
   options,
+  disabled,
   placeholder = "انتخاب کنید...",
   triggerClassName,
 }: FieldSelectProps<T>) {
   return (
     <FormField
       name={name}
+      disabled={disabled}
       render={({ field, fieldState }) => (
         <FormItem className={className}>
           {label && (
             <FormLabel data-error={fieldState.invalid}>{label}</FormLabel>
           )}
           <FormControl>
-            <Select value={field.value ?? ""} onValueChange={field.onChange}>
+            <Select
+              value={field.value ?? ""}
+              disabled={field?.disabled}
+              onValueChange={field.onChange}
+            >
               <SelectTrigger className={cn("w-full", triggerClassName)}>
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>

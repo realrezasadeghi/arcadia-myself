@@ -1,10 +1,11 @@
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
 import type { RelationshipProperties } from "../../domain/entities/relationship";
+import type { RelationshipTypeValue } from "../../domain/value-objects/relationship-type";
 import type { IRelationshipRepository } from "../ports/relationship";
 
 export type UpdateRelationshipPayload = {
   payload: {
-    relationshipId: string;
+    id: string;
     modelId: string;
     name?: string;
     description?: string;
@@ -22,9 +23,9 @@ export type UpdateRelationshipResponse = {
   description?: string;
   sourceElementId: string;
   targetElementId: string;
-  type: string;
   updatedAt: string;
   createdAt: string;
+  type: RelationshipTypeValue;
   properties: RelationshipProperties;
 };
 
@@ -49,14 +50,10 @@ export class UpdateRelationshipUseCase {
           modelId: payload.modelId,
         });
 
-      const relationship = relationships.find(
-        (r) => r.id === payload.relationshipId,
-      );
+      const relationship = relationships.find((r) => r.id === payload.id);
 
       if (!relationship)
-        throw new Error(
-          `Relationship not found with id : ${payload.relationshipId}`,
-        );
+        throw new Error(`Relationship not found with id : ${payload.id}`);
 
       relationship.rename(payload.name);
 
@@ -66,7 +63,7 @@ export class UpdateRelationshipUseCase {
 
       const response = await this.relationshipRepository.updateRelationship({
         modelId: payload.modelId,
-        id: payload.relationshipId,
+        id: payload.id,
         name: relationship.name,
         description: relationship.description,
         properties: relationship.properties,

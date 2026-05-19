@@ -4,7 +4,7 @@ import type {
 } from "../../domain/entities/relationship";
 
 export type UpdateRelationshipDTOProps = {
-  relationshipId: string;
+  id: string;
   modelId: string;
   name?: string;
   description?: string;
@@ -12,14 +12,14 @@ export type UpdateRelationshipDTOProps = {
 };
 
 export class UpdateRelationshipDTO {
-  public readonly relationshipId: string;
+  public readonly id: string;
   public readonly modelId: string;
   public readonly name?: string;
   public readonly description?: string;
   public readonly properties?: RelationshipProperties;
 
   private constructor(props: UpdateRelationshipDTOProps) {
-    this.relationshipId = props.relationshipId;
+    this.id = props.id;
     this.modelId = props.modelId;
     this.name = props.name;
     this.description = props.description;
@@ -27,16 +27,14 @@ export class UpdateRelationshipDTO {
   }
 
   static create(props: {
-    relationshipId: string;
+    id: string;
     modelId: string;
     name?: string;
     description?: string;
     properties?: RelationshipProperties;
   }): UpdateRelationshipDTO {
     return new UpdateRelationshipDTO({
-      relationshipId: UpdateRelationshipDTO.validateRelationshipId(
-        props.relationshipId,
-      ),
+      id: UpdateRelationshipDTO.validateRelationshipId(props.id),
       modelId: UpdateRelationshipDTO.validateModelId(props.modelId),
       name: UpdateRelationshipDTO.validateName(props.name),
       description: UpdateRelationshipDTO.validateDescription(props.description),

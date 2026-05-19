@@ -1,6 +1,7 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
 import type { ElementLayout, Viewport } from "../../domain/entities/diagram";
+import type { DiagramTypeValue } from "../../domain/value-objects/diagram-type";
 import type { IDiagramRepository } from "../ports/diagram";
 import type { IModelRepository } from "../ports/model";
 
@@ -16,7 +17,7 @@ export interface GetDiagramsByModelIdPayload {
 export type GetDiagramsByModelIdResponse = {
   id: string;
   modelId: string;
-  type: string;
+  type: DiagramTypeValue;
   viewport: Viewport;
   name: string;
   description?: string;

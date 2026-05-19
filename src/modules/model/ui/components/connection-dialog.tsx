@@ -11,6 +11,7 @@ import {
 } from "@/modules/shared/ui/components/ui/dialog";
 import { Input } from "@/modules/shared/ui/components/ui/input";
 import { Label } from "@/modules/shared/ui/components/ui/label";
+import { Textarea } from "@/modules/shared/ui/components/ui/textarea";
 import { cn } from "@/modules/shared/ui/libs/cn";
 import { useState } from "react";
 import {
@@ -33,6 +34,7 @@ export function ConnectionDialog({
   onOpenChange,
 }: ConnectionDialogProps) {
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
 
   const [selectedType, setSelectedType] =
     useState<RelationshipTypeValue | null>(allowedTypes[0] ?? null);
@@ -41,6 +43,8 @@ export function ConnectionDialog({
     if (!selectedType) return;
     onConfirm(selectedType, name);
     setName("");
+    setDescription("");
+    onOpenChange(false);
   }
 
   return (
@@ -93,6 +97,16 @@ export function ConnectionDialog({
               value={name}
               onChange={(e) => setName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleConfirm()}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="rel-description">توضیحات رابطه (اختیاری)</Label>
+            <Textarea
+              id="rel-description"
+              value={description}
+              onBlur={handleConfirm}
+              placeholder="مثال: requestData"
+              onChange={(e) => setDescription(e.target.value)}
             />
           </div>
         </div>

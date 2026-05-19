@@ -122,7 +122,7 @@ export function ProjectFormDialog({
           >
             <FieldRenderer fields={projectFields} />
 
-            <DialogFooter>
+            <DialogFooter className="-mb-6">
               <Button
                 type="button"
                 variant="outline"

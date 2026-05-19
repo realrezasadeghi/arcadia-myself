@@ -1,5 +1,4 @@
 import { ThemeToggle } from "@/modules/shared/ui/components/common/theme-toggle";
-import { Badge } from "@/modules/shared/ui/components/ui/badge";
 import { Button } from "@/modules/shared/ui/components/ui/button";
 import { cn } from "@/modules/shared/ui/libs/cn";
 import { ArrowLeft, GitMerge, Layers, Shield, Users } from "lucide-react";
@@ -72,12 +71,9 @@ export default function Home() {
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-              <span className="text-lg font-black text-primary">ن</span>
+              <span className="text-lg font-black text-primary">آ</span>
             </div>
-            <span className="font-bold text-lg">نقطه</span>
-            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 mr-1">
-              بتا
-            </Badge>
+            <span className="font-bold text-lg">آرکدیا</span>
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
@@ -85,7 +81,7 @@ export default function Home() {
               <Link href="/login">ورود</Link>
             </Button>
             <Button size="sm" asChild>
-              <Link href="/register">شروع رایگان</Link>
+              <Link href="/register">شروع</Link>
             </Button>
           </div>
         </div>
@@ -96,7 +92,7 @@ export default function Home() {
         <div className="mx-auto max-w-3xl flex flex-col items-center gap-6">
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-4 py-1.5 text-sm text-primary">
             <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-            متدولوژی Arcadia، به زبان فارسی
+            متدولوژی Arcadia، با زبان فارسی
           </div>
 
           <h1 className="text-4xl font-black leading-tight md:text-6xl">
@@ -173,7 +169,7 @@ export default function Home() {
       <section className="px-4 py-16">
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold mb-2">چرا نقطه؟</h2>
+            <h2 className="text-2xl font-bold mb-2">چرا آرکدیا</h2>
             <p className="text-muted-foreground text-sm">
               قابلیت‌های کلیدی که کار تیم‌های مهندسی سیستم را ساده‌تر می‌کند
             </p>
@@ -203,7 +199,7 @@ export default function Home() {
       <section className="border-t border-border/60 bg-primary/5 px-4 py-16">
         <div className="mx-auto max-w-xl text-center flex flex-col items-center gap-5">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
-            <span className="text-3xl font-black text-primary">ن</span>
+            <span className="text-3xl font-black text-primary">آ</span>
           </div>
           <h2 className="text-2xl font-bold">همین حالا شروع کنید</h2>
           <p className="text-muted-foreground text-sm">
@@ -221,7 +217,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-border/40 px-4 py-5">
         <div className="mx-auto max-w-6xl flex items-center justify-between text-xs text-muted-foreground">
-          <span>نقطه — پلتفرم MBSE فارسی</span>
+          <span>آرکدیا — پلتفرم MBSE فارسی</span>
           <span>ساخته‌شده بر پایه متدولوژی Arcadia</span>
         </div>
       </footer>

@@ -2,6 +2,7 @@
 
 import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
 import { fail, type IRes, ok } from "@/modules/shared/utils/response";
+import { updateTag } from "next/cache";
 import { RemoveDiagramUseCase } from "../../application/use-cases/remove-diagram";
 import { diagramRepository } from "../../infrastructure/persistence/drizzle/repositories";
 
@@ -23,6 +24,8 @@ export async function removeDiagram(id: string): Promise<IRes<boolean>> {
       payload: { id },
       context: { token },
     });
+
+    updateTag(`get-diagrams-by-model-id-${id}`);
 
     return ok(response);
   } catch (error) {

@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import "@/modules/shared/ui/assets/styles/globals.css";
 import { DirectionProvider } from "@/modules/shared/ui/components/ui/direction";
 import { Toaster } from "@/modules/shared/ui/components/ui/sonner";
+import { ConfirmProvider } from "@/modules/shared/ui/providers/confirm";
 
 export const metadata: Metadata = {
   title: "پلتفرم مدل‌سازی معماری",
@@ -29,7 +30,9 @@ export default function RootLayout({
       <body className="min-h-full">
         <DirectionProvider dir="rtl">
           <ThemeProvider>
-            <QueryProvider>{children}</QueryProvider>
+            <ConfirmProvider>
+              <QueryProvider>{children}</QueryProvider>
+            </ConfirmProvider>
           </ThemeProvider>
           <Toaster position="bottom-right" />
         </DirectionProvider>

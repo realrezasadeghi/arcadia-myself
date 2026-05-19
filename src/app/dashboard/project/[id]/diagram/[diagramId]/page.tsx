@@ -4,6 +4,7 @@ import { DiagramPropertiesPanel } from "@/modules/model/ui/components/diagram-pr
 import { DiagramToolbar } from "@/modules/model/ui/components/diagram-toolbar";
 import { DiagramToolbarSkeleton } from "@/modules/model/ui/components/diagram-toolbar-skeleton";
 import { ErrorBoundary } from "@/modules/shared/ui/components/common/error-boundary";
+import { Spinner } from "@/modules/shared/ui/components/ui/spinner";
 import { TooltipProvider } from "@/modules/shared/ui/components/ui/tooltip";
 import { ReactFlowProvider } from "@xyflow/react";
 import { Suspense } from "react";
@@ -25,7 +26,13 @@ export default function Page({ params }: Props) {
               <Suspense>
                 <DiagramPropertiesPanel params={params} />
               </Suspense>
-              <Suspense>
+              <Suspense
+                fallback={
+                  <div className="w-full h-screen flex items-center justify-center">
+                    <Spinner />
+                  </div>
+                }
+              >
                 <DiagramCanvas params={params} />
               </Suspense>
               <Suspense>

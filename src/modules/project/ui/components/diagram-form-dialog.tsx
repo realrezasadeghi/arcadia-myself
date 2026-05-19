@@ -1,6 +1,7 @@
 "use client";
 
 import { getDiagramTypesForLayer } from "@/modules/model/ui/helpers/diagram";
+import type { Diagram } from "@/modules/model/ui/types/diagram";
 import type { LayerValue } from "@/modules/model/ui/types/layer";
 import {
   type FieldDef,
@@ -17,28 +18,32 @@ import {
 } from "@/modules/shared/ui/components/ui/dialog";
 import { Form } from "@/modules/shared/ui/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { type DiagramFormValues, diagramFormSchema } from "../schemas/diagram";
 
-type CreateDiagramDialogProps = {
+interface DiagramFormDialogProps {
+  open: boolean;
+  onOpenChange: (value: boolean) => void;
   layer: {
     label: string;
     value: LayerValue;
   };
-  open: boolean;
-  loading: boolean;
-  onOpenChange: (value: boolean) => void;
   onSubmit: (values: DiagramFormValues) => void;
-};
+  diagram: Pick<Diagram, "name" | "description" | "type"> | null;
+  loading?: boolean;
+}
 
-export function CreateDiagramDialog({
+export function DiagramFormDialog({
   open,
-  layer,
-  loading,
-  onSubmit,
   onOpenChange,
-}: CreateDiagramDialogProps) {
+  layer,
+  onSubmit,
+  diagram,
+  loading = false,
+}: DiagramFormDialogProps) {
+  const isEdit = !!diagram;
+
   const form = useForm<DiagramFormValues>({
     resolver: zodResolver(diagramFormSchema),
     defaultValues: {
@@ -47,11 +52,21 @@ export function CreateDiagramDialog({
     },
   });
 
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        type: diagram?.type,
+        name: diagram?.name ?? "",
+        description: diagram?.description ?? "",
+      });
+    }
+  }, [open, diagram, form]);
+
   const diagramTypeOptions = useMemo(
     () =>
-      getDiagramTypesForLayer(layer.value).map((diagram) => ({
-        label: diagram.label,
-        value: diagram.value,
+      getDiagramTypesForLayer(layer.value).map((d) => ({
+        label: d.label,
+        value: d.value,
       })),
     [layer.value],
   );
@@ -62,8 +77,9 @@ export function CreateDiagramDialog({
         name: "type",
         label: "نوع دیاگرام",
         type: "select",
-        options: diagramTypeOptions,
+        disabled: isEdit,
         className: "w-full",
+        options: diagramTypeOptions,
         placeholder: "نوع دیاگرام را انتخاب کنید",
       },
       {
@@ -79,7 +95,7 @@ export function CreateDiagramDialog({
         placeholder: "اختیاری",
       },
     ],
-    [diagramTypeOptions],
+    [diagramTypeOptions, isEdit],
   );
 
   const handleSubmit: SubmitHandler<DiagramFormValues> = useCallback(
@@ -88,28 +104,39 @@ export function CreateDiagramDialog({
     },
     [onSubmit],
   );
+
   return (
-    <Dialog onOpenChange={onOpenChange} open={open}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>ایجاد دیاگرام</DialogTitle>
+          <DialogTitle>
+            {isEdit ? "ویرایش دیاگرام" : "ایجاد دیاگرام"}
+          </DialogTitle>
           <DialogDescription>
-            یک دیاگرام برای لایه <b className="mx-0.5">{layer.label}</b> بسازید
+            {isEdit
+              ? `ویرایش دیاگرام «${diagram?.name}» در لایه ${layer.label}`
+              : `یک دیاگرام برای لایه ${layer.label} بسازید`}
           </DialogDescription>
         </DialogHeader>
+
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)}>
+          <form
+            className="flex flex-col gap-4 py-2"
+            onSubmit={form.handleSubmit(handleSubmit)}
+          >
             <FieldRenderer fields={fields} />
-            <DialogFooter className="mt-4">
+
+            <DialogFooter className="-mb-6">
               <Button
                 type="button"
                 variant="outline"
+                disabled={loading}
                 onClick={() => onOpenChange(false)}
               >
                 انصراف
               </Button>
-              <Button loading={loading} type="submit">
-                ایجاد و باز کردن
+              <Button type="submit" loading={loading}>
+                {isEdit ? "ذخیره تغییرات" : "ایجاد و باز کردن"}
               </Button>
             </DialogFooter>
           </form>

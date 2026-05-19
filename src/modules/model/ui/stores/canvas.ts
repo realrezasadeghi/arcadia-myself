@@ -14,7 +14,9 @@ export type ElementNodeData = {
 
 export type RelationshipEdgeData = {
   name: string;
+  modelId: string;
   relationshipId: string;
+  description: string;
   relationshipType: RelationshipTypeValue;
 };
 
@@ -63,6 +65,7 @@ interface CanvasState {
   addNode: (node: CanvasNode) => void;
   updateNodePosition: (id: string, position: XYPosition) => void;
   updateNodeData: (id: string, data: Partial<ElementNodeData>) => void;
+  updateEdgeData: (id: string, data: Partial<RelationshipEdgeData>) => void;
   removeNode: (id: string) => void;
   addEdge: (edge: CanvasEdge) => void;
   removeEdge: (id: string) => void;
@@ -160,6 +163,15 @@ export const useCanvasStore = create<CanvasState>((set) => ({
     set((s) => ({
       nodes: s.nodes.map((n) =>
         n.id === id ? { ...n, data: { ...n.data, ...data } } : n,
+      ),
+    })),
+
+  updateEdgeData: (id, data) =>
+    set((s) => ({
+      edges: s.edges.map((e) =>
+        e.id === id
+          ? { ...e, data: { ...e.data, ...data } as RelationshipEdgeData }
+          : e,
       ),
     })),
 

@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   GitMerge,
   Loader2,
+  MousePointerClick,
   RotateCcw,
   Trash2,
   X,
@@ -21,6 +22,7 @@ import { useShallow } from "zustand/shallow";
 import { useGetTraceLinksByElementId } from "../clients/get-trace-links-by-element-id";
 import { useRemoveTraceLink } from "../clients/remove-trace-link";
 import { useUpdateElement } from "../clients/update-element";
+import { useUpdateRelationship } from "../clients/update-relationship";
 import { getElementTypeInfo } from "../helpers/element";
 import { getLayerInfo } from "../helpers/layer";
 import {
@@ -34,6 +36,7 @@ import {
   type ElementNodeData,
   useCanvasStore,
 } from "../stores/canvas";
+import type { RelationshipTypeValue } from "../types/relationship";
 import { CreateTraceLinkDialog } from "./create-trace-link-dialog";
 import { ElementShape } from "./element-shape";
 
@@ -76,6 +79,17 @@ export function DiagramPropertiesPanel({
           </>
         )}
         {edge && <EdgeProperties edge={edge} />}
+
+        {!node && !edge && (
+          <div className="flex flex-col items-center justify-center text-center gap-3 text-muted-foreground">
+            <MousePointerClick className="size-8 opacity-30" />
+            <p className="text-xs leading-relaxed max-w-45">
+              یک المنت یا رابطه را روی بوم انتخاب کنید
+              <br />
+              تا جزئیات آن نمایش داده شود
+            </p>
+          </div>
+        )}
       </div>
     </aside>
   );
@@ -100,8 +114,8 @@ const ELEMENT_STATUS_VARIANTS = {
 
 function NodeProperties({ projectId, node }: NodeProperties) {
   const [name, setName] = useState(node?.data.name);
-  const [description, setDescription] = useState(node?.data.description);
   const [traceDialogOpen, setTraceDialogOpen] = useState(false);
+  const [description, setDescription] = useState(node?.data.description);
 
   const updateElement = useUpdateElement();
 
@@ -272,30 +286,99 @@ function NodeProperties({ projectId, node }: NodeProperties) {
   );
 }
 
-type EdgeProperties = {
+type EdgePropertiesProps = {
   edge: CanvasEdge;
 };
 
-function EdgeProperties({ edge }: EdgeProperties) {
-  const relType = getRelationshipTypeInfo(
-    edge?.data?.relationshipType as string,
+function EdgeProperties({ edge }: EdgePropertiesProps) {
+  const [name, setName] = useState(edge?.data?.name ?? "");
+  const [description, setDescription] = useState(edge?.data?.description ?? "");
+
+  const updateRelationship = useUpdateRelationship();
+  const updateEdgeData = useCanvasStore((state) => state.updateEdgeData);
+
+  useEffect(() => {
+    if (edge) {
+      setName(edge?.data?.name ?? "");
+      setDescription(edge?.data?.description ?? "");
+    }
+  }, [edge]);
+
+  const handleSave = useCallback(() => {
+    if (!edge || !edge?.data) return;
+
+    updateRelationship.mutate(
+      {
+        modelId: edge.data.modelId,
+        id: edge.id,
+        name: name,
+        description: description,
+      },
+      {
+        onSuccess: () => {
+          updateEdgeData(edge.id, {
+            name,
+            description,
+          });
+        },
+        onError: ({ message }) => {
+          toast.error(message || "خطا در ذخیره رابطه");
+        },
+      },
+    );
+  }, [edge, name, description, updateRelationship, updateEdgeData]);
+
+  const spec = getEdgeVisual(
+    edge.data?.relationshipType as RelationshipTypeValue,
   );
 
-  const spec = getEdgeVisual(relType.value);
+  const relInfo = getRelationshipTypeInfo(
+    edge.data?.relationshipType as RelationshipTypeValue,
+  );
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2">
         <span
           className="h-1 w-6 rounded-full"
           style={{ backgroundColor: spec.strokeColor }}
         />
-        <span className="text-xs text-muted-foreground">{relType.labelFa}</span>
+        <span className="text-xs text-muted-foreground">{relInfo.labelFa}</span>
       </div>
-      {edge?.data?.name && (
-        <div>
-          <p className="text-xs text-muted-foreground mb-1">نام</p>
-          <p className="text-sm font-medium">{edge.data.name}</p>
+
+      <Separator />
+
+      <div className="flex flex-col gap-1.5">
+        <Label className="text-xs" htmlFor="edge-name">
+          نام
+        </Label>
+        <Input
+          id="edge-name"
+          value={name}
+          onBlur={handleSave}
+          className="h-8 text-sm"
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSave()}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label className="text-xs" htmlFor="edge-desc">
+          توضیحات
+        </Label>
+        <Textarea
+          rows={3}
+          id="edge-desc"
+          value={description}
+          onBlur={handleSave}
+          className="h-8 text-sm"
+          onChange={(e) => setDescription(e.target.value)}
+        />
+      </div>
+
+      {updateRelationship.isPending && (
+        <div className="flex justify-end">
+          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
         </div>
       )}
     </div>

@@ -52,6 +52,8 @@ export interface FieldDef {
   options?: SelectOption[];
   dir?: "ltr" | "rtl" | "auto";
   className?: string;
+  disabled?: boolean;
+  visible?: boolean;
 }
 
 interface FieldRendererProps {
@@ -66,11 +68,15 @@ export function FieldRenderer({ fields, className }: FieldRendererProps) {
   return (
     <div className={className ?? "flex flex-col gap-4"}>
       {fields.map((field) => {
+        if (typeof field?.visible === "boolean" && field?.visible === false)
+          return null;
+
         const name = field.name;
         const common = {
           name,
           key: field.name,
           label: field.label,
+          disabled: field.disabled,
           className: field.className,
           description: field.description,
         };

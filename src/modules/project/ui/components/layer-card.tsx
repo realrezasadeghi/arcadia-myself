@@ -2,7 +2,13 @@
 
 import { useCreateDiagram } from "@/modules/model/ui/clients/create-diagram";
 import { useCreateModel } from "@/modules/model/ui/clients/create-model";
-import { useGetDiagramsByModelId } from "@/modules/model/ui/clients/get-diagrams-by-model-id";
+import {
+  getDiagramsByModelIdKey,
+  useGetDiagramsByModelId,
+} from "@/modules/model/ui/clients/get-diagrams-by-model-id";
+import { useRemoveDiagram } from "@/modules/model/ui/clients/remove-diagram";
+import { useUpdateDiagram } from "@/modules/model/ui/clients/update-diagram";
+import type { Diagram } from "@/modules/model/ui/types/diagram";
 import type { LayerValue } from "@/modules/model/ui/types/layer";
 import type { Model } from "@/modules/model/ui/types/model";
 import { Button } from "@/modules/shared/ui/components/ui/button";
@@ -18,17 +24,24 @@ import {
   EmptyTitle,
 } from "@/modules/shared/ui/components/ui/empty";
 import { Skeleton } from "@/modules/shared/ui/components/ui/skeleton";
-import { FileBarChart2, LayoutDashboard } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/modules/shared/ui/components/ui/tooltip";
+import { useConfirm } from "@/modules/shared/ui/hooks/use-confirm";
+import { useQueryClient } from "@tanstack/react-query";
+import { FileBarChart2, LayoutDashboard, Pencil, Trash2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { type SyntheticEvent, useCallback, useState } from "react";
 import { toast } from "sonner";
 import type { DiagramFormValues } from "../schemas/diagram";
 import { LayerBadge } from "./layer-badge";
 
-const CreateDiagramDialog = dynamic(() =>
-  import("./create-diagram-dialog").then((mod) => mod.CreateDiagramDialog),
+const DiagramFormDialog = dynamic(() =>
+  import("./diagram-form-dialog").then((mod) => mod.DiagramFormDialog),
 );
 
 export type LayerCardProps = {
@@ -47,31 +60,38 @@ export function LayerCard({ model, layer, projectId }: LayerCardProps) {
 
   const createModel = useCreateModel();
 
+  const queryClient = useQueryClient();
+
   const createDiagram = useCreateDiagram();
 
   const handleCreateDiagram = useCallback(
-    (values: DiagramFormValues) => {
+    (values: DiagramFormValues, modelId: string) => {
+      if (!modelId) {
+        return;
+      }
+
       createDiagram.mutate(
         {
+          modelId,
           type: values.type,
           name: values.name,
-          modelId: model?.id as string,
           description: values.description,
         },
         {
           onError({ message }) {
             toast.error(message || "Error in create diagram");
           },
-          onSuccess(data) {
+          onSuccess({ data }) {
             setOpen(false);
-            router.push(
-              `/dashboard/project/${projectId}/diagram/${data.data.id}`,
-            );
+            queryClient.invalidateQueries({
+              queryKey: getDiagramsByModelIdKey(modelId),
+            });
+            router.push(`/dashboard/project/${projectId}/diagram/${data.id}`);
           },
         },
       );
     },
-    [createDiagram, model, router, projectId],
+    [createDiagram, router, queryClient, projectId],
   );
 
   const handleSubmit = useCallback(
@@ -84,11 +104,11 @@ export function LayerCard({ model, layer, projectId }: LayerCardProps) {
             layer: layer.value,
           },
           {
-            onSuccess: () => {
-              handleCreateDiagram(values);
+            onSuccess: ({ success, data }) => {
+              if (!success) return;
+              handleCreateDiagram(values, data.id);
             },
-            onError: ({ message, data }) => {
-              console.log("error", data);
+            onError: ({ message }) => {
               toast.error(message || "Error in create model");
             },
           },
@@ -96,7 +116,7 @@ export function LayerCard({ model, layer, projectId }: LayerCardProps) {
         return;
       }
 
-      handleCreateDiagram(values);
+      handleCreateDiagram(values, model.id);
     },
     [model, projectId, createModel, handleCreateDiagram, layer],
   );
@@ -120,12 +140,17 @@ export function LayerCard({ model, layer, projectId }: LayerCardProps) {
           </div>
         </CardHeader>
         <CardContent>
-          <DiagramList modelId={model?.id} projectId={projectId} />
+          <DiagramList
+            modelId={model?.id}
+            projectId={projectId}
+            layer={layer}
+          />
         </CardContent>
       </Card>
-      <CreateDiagramDialog
+      <DiagramFormDialog
         open={open}
         layer={layer}
+        diagram={null}
         onOpenChange={setOpen}
         onSubmit={handleSubmit}
         loading={createModel.isPending || createDiagram.isPending}
@@ -164,11 +189,90 @@ function DiagramListSkeleton() {
 
 type DiagramListProps = {
   modelId?: string;
-  projectId?: string;
+  projectId: string;
+  layer: { label: string; value: LayerValue };
 };
 
-function DiagramList({ modelId, projectId }: DiagramListProps) {
+type DiagramSelected = Pick<Diagram, "name" | "description" | "type" | "id">;
+
+function DiagramList({ modelId, projectId, layer }: DiagramListProps) {
+  const [open, setOpen] = useState(false);
+
+  const [diagramSelected, setDiagramSelected] =
+    useState<DiagramSelected | null>(null);
+
+  const confirm = useConfirm();
+
+  const queryClient = useQueryClient();
+
+  const removeDiagram = useRemoveDiagram();
+
+  const updateDiagram = useUpdateDiagram();
+
   const { data: diagrams, isLoading } = useGetDiagramsByModelId(modelId);
+
+  const handleRemoveDiagram = useCallback(
+    (event: SyntheticEvent, diagram: { id: string; name: string }) => {
+      event.preventDefault();
+
+      if (!modelId || !diagram?.id) return;
+
+      confirm({
+        tone: "danger",
+        title: "حذف دیاگرام",
+        cancelText: "انصراف",
+        confirmText: "حذف دیاگرام",
+        description: `آیا از حذف دیاگرام  «${diagram?.name}»  مطمئن هستید؟`,
+        onConfirm: () => {
+          removeDiagram.mutate(diagram.id, {
+            onSuccess: () => {
+              toast.success("دیاگرام با موفقیت حذف شد");
+              queryClient.invalidateQueries({
+                queryKey: getDiagramsByModelIdKey(modelId),
+              });
+            },
+            onError: ({ message }) => {
+              toast.error(message || "خطا در حذف دیاگرام");
+            },
+          });
+        },
+      });
+    },
+    [confirm, modelId, removeDiagram, queryClient],
+  );
+
+  const handleUpdate = useCallback((diagram: DiagramSelected) => {
+    setOpen(true);
+    setDiagramSelected(diagram);
+  }, []);
+
+  const handleSubmit = useCallback(
+    (values: DiagramFormValues) => {
+      if (!modelId || !diagramSelected) return;
+
+      updateDiagram.mutate(
+        {
+          id: diagramSelected?.id,
+          name: values?.name,
+          description: values?.description,
+        },
+        {
+          onSuccess: () => {
+            setOpen(false);
+            setDiagramSelected(null);
+            toast.success("دیاگرام با موفقیت بروزرسانی شد");
+            queryClient.invalidateQueries({
+              queryKey: getDiagramsByModelIdKey(modelId),
+            });
+          },
+          onError: ({ message }) => {
+            toast.error(message || "خطا در بروزرسانی دیاگرام");
+          },
+        },
+      );
+    },
+    [updateDiagram, diagramSelected, modelId, queryClient],
+  );
 
   if (isLoading) {
     return <DiagramListSkeleton />;
@@ -179,20 +283,84 @@ function DiagramList({ modelId, projectId }: DiagramListProps) {
   }
 
   return (
-    <div className="flex flex-col gap-1">
-      {diagrams.map((diagram) => (
-        <Link
-          key={diagram.id}
-          href={`/dashboard/project/${projectId}/diagram/${diagram.id}`}
-          className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent transition-colors"
-        >
-          <FileBarChart2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-          <span className="flex-1 truncate">{diagram.name}</span>
-          <span className="font-mono text-xs text-muted-foreground">
-            {diagram.type}
-          </span>
-        </Link>
-      ))}
-    </div>
+    <>
+      <div className="flex flex-col gap-1">
+        {diagrams.map((diagram) => (
+          <div
+            key={diagram.id}
+            className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent transition-colors group"
+          >
+            <Link
+              href={`/dashboard/project/${projectId}/diagram/${diagram.id}`}
+              className="flex items-center gap-2 flex-1 min-w-0"
+            >
+              <FileBarChart2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              <span className="truncate">{diagram.name}</span>
+              <span className="font-mono text-xs text-muted-foreground shrink-0">
+                {diagram.type}
+              </span>
+            </Link>
+
+            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="size-7"
+                    onClick={() =>
+                      handleUpdate({
+                        id: diagram.id,
+                        name: diagram.name,
+                        type: diagram.type,
+                        description: diagram.description,
+                      })
+                    }
+                  >
+                    <Pencil className="size-3.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>ویرایش دیاگرام</TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="size-7 text-destructive hover:text-destructive"
+                    onClick={(event) =>
+                      handleRemoveDiagram(event, {
+                        id: diagram.id,
+                        name: diagram.name,
+                      })
+                    }
+                  >
+                    <Trash2 className="size-3.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>حذف دیاگرام</TooltipContent>
+              </Tooltip>
+            </div>
+          </div>
+        ))}
+      </div>
+      <DiagramFormDialog
+        open={open}
+        layer={layer}
+        onOpenChange={setOpen}
+        onSubmit={handleSubmit}
+        diagram={
+          diagramSelected
+            ? {
+                name: diagramSelected?.name,
+                type: diagramSelected.type,
+                description: diagramSelected.description,
+              }
+            : null
+        }
+        loading={updateDiagram.isPending}
+      />
+    </>
   );
 }

@@ -120,13 +120,15 @@ export function DiagramCanvasInner({
       )
       .map((relationship) => ({
         id: relationship.id,
+        type: "architecture-edge",
         source: relationship.sourceElementId,
         target: relationship.targetElementId,
-        type: "architecture-edge",
         data: {
           name: relationship.name,
+          modelId: diagram.modelId,
           relationshipId: relationship.id,
           relationshipType: relationship.type,
+          description: relationship?.description ?? "",
         },
       }));
 
@@ -211,9 +213,11 @@ export function DiagramCanvasInner({
               source: payload.sourceElementId,
               target: payload.targetElementId,
               data: {
+                modelId,
                 name: relationship.name,
                 relationshipId: relationship.id,
                 relationshipType: relationship.type,
+                description: relationship.description ?? "",
               },
             });
           },
@@ -228,7 +232,6 @@ export function DiagramCanvasInner({
 
   const handleConnect: OnConnect = useCallback(
     (connection) => {
-      console.log("connection", connection);
       if (!connection.source || !connection.target) return;
 
       const sourceNode = nodes.find((n) => n.id === connection.source);
@@ -335,7 +338,7 @@ export function DiagramCanvasInner({
                 onError: ({ message }) => {
                   toast.error(message || "خطا در اضافه کردن المنت");
                 },
-                onSuccess: (data) => {
+                onSuccess: () => {
                   addNode({
                     id: element.id,
                     type: "architecture-node",
@@ -372,7 +375,6 @@ export function DiagramCanvasInner({
 
   const handleDragOver: DragEventHandler<HTMLDivElement> = useCallback(
     (event) => {
-      console.log("event", event);
       event.preventDefault();
       event.dataTransfer.dropEffect = "copy";
     },

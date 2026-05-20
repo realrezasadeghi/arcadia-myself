@@ -12,12 +12,14 @@ import {
   DialogTitle,
 } from "@/modules/shared/ui/components/ui/dialog";
 import { cn } from "@/modules/shared/ui/libs/cn";
+import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { TracePolicy } from "../../domain/policies/trace";
 import { useCreateTraceLink } from "../clients/create-trace-link";
 import { useGetElementsByModelId } from "../clients/get-elements-by-model-id";
 import { useGetModelsByProjectId } from "../clients/get-models-by-project-id";
+import { getTraceLinksByElementIdKey } from "../clients/get-trace-links-by-element-id";
 import { getElementTypeInfo, getElementVisual } from "../helpers/element";
 import type { Element, ElementTypeValue } from "../types/element";
 import type { LayerValue } from "../types/layer";
@@ -166,8 +168,11 @@ export function CreateTraceLinkDialog({
     null,
   );
 
+  const queryClient = useQueryClient();
+
   // Data
   const createTrace = useCreateTraceLink();
+
   const traceOptions = useMemo(
     () => TracePolicy.getTraceOptions(sourceElementType, sourceLayerType),
     [sourceElementType, sourceLayerType],
@@ -236,7 +241,18 @@ export function CreateTraceLinkDialog({
         targetElementId: selectedTargetId,
         targetLayer: selectedOption.targetLayer.value,
       },
-      { onSuccess: handleClose },
+      {
+        onSuccess: () => {
+          handleClose();
+          queryClient.invalidateQueries({
+            queryKey: getTraceLinksByElementIdKey(sourceElementId),
+          });
+
+          queryClient.invalidateQueries({
+            queryKey: getTraceLinksByElementIdKey(selectedTargetId),
+          });
+        },
+      },
     );
   }, [
     selectedOption,
@@ -244,6 +260,7 @@ export function CreateTraceLinkDialog({
     createTrace,
     projectId,
     sourceElementId,
+    queryClient,
     handleClose,
     sourceLayerType,
   ]);

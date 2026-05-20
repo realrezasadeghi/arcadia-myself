@@ -7,7 +7,14 @@ import { Label } from "@/modules/shared/ui/components/ui/label";
 import { Separator } from "@/modules/shared/ui/components/ui/separator";
 import { Textarea } from "@/modules/shared/ui/components/ui/textarea";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/modules/shared/ui/components/ui/tooltip";
+import { useQueryClient } from "@tanstack/react-query";
+import {
   Archive,
+  ArrowUp,
   CheckCircle2,
   GitMerge,
   Loader2,
@@ -19,7 +26,10 @@ import {
 import { use, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useShallow } from "zustand/shallow";
-import { useGetTraceLinksByElementId } from "../clients/get-trace-links-by-element-id";
+import {
+  getTraceLinksByElementIdKey,
+  useGetTraceLinksByElementId,
+} from "../clients/get-trace-links-by-element-id";
 import { useRemoveTraceLink } from "../clients/remove-trace-link";
 import { useUpdateElement } from "../clients/update-element";
 import { useUpdateRelationship } from "../clients/update-relationship";
@@ -286,16 +296,36 @@ function NodeProperties({ projectId, node }: NodeProperties) {
   );
 }
 
+function Loading() {
+  return (
+    <span className="flex items-center gap-1 text-xs text-muted-foreground transition-opacity duration-200 opacity-100">
+      <Loader2 className="size-3 animate-spin" />
+      ذخیره...
+    </span>
+  );
+}
+
 type EdgePropertiesProps = {
   edge: CanvasEdge;
 };
 
-function EdgeProperties({ edge }: EdgePropertiesProps) {
+export function EdgeProperties({ edge }: EdgePropertiesProps) {
   const [name, setName] = useState(edge?.data?.name ?? "");
   const [description, setDescription] = useState(edge?.data?.description ?? "");
 
+  const selectNode = useCanvasStore((state) => state.selectNode);
+
   const updateRelationship = useUpdateRelationship();
+
   const updateEdgeData = useCanvasStore((state) => state.updateEdgeData);
+
+  const sourceNode = useCanvasStore((state) =>
+    state.nodes.find((n) => n.id === edge.source),
+  );
+
+  const targetNode = useCanvasStore((state) =>
+    state.nodes.find((n) => n.id === edge.target),
+  );
 
   useEffect(() => {
     if (edge) {
@@ -311,8 +341,8 @@ function EdgeProperties({ edge }: EdgePropertiesProps) {
       {
         modelId: edge.data.modelId,
         id: edge.id,
-        name: name,
-        description: description,
+        name: name?.trim() || undefined,
+        description: description?.trim() || undefined,
       },
       {
         onSuccess: () => {
@@ -338,12 +368,53 @@ function EdgeProperties({ edge }: EdgePropertiesProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-2">
-        <span
-          className="h-1 w-6 rounded-full"
-          style={{ backgroundColor: spec.strokeColor }}
-        />
-        <span className="text-xs text-muted-foreground">{relInfo.labelFa}</span>
+      <div className="flex flex-col items-center gap-1.5 text-xs">
+        {sourceNode ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={"link"}
+                onClick={() => selectNode(sourceNode.id)}
+              >
+                {sourceNode.data.name}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>المنت مبدأ</TooltipContent>
+          </Tooltip>
+        ) : (
+          <span className="text-muted-foreground">مبدأ نامشخص</span>
+        )}
+
+        <ArrowUp className="h-3 w-3 shrink-0 text-muted-foreground" />
+
+        <Badge
+          variant="outline"
+          className="px-1.5 py-0 text-[10px] gap-1 shrink-0"
+        >
+          <span
+            className="h-1.5 w-3 rounded-full"
+            style={{ backgroundColor: spec.strokeColor }}
+          />
+          {relInfo.labelFa}
+        </Badge>
+
+        <ArrowUp className="h-3 w-3 shrink-0 text-muted-foreground" />
+
+        {targetNode ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={"link"}
+                onClick={() => selectNode(targetNode.id)}
+              >
+                {targetNode.data.name}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>المنت مقصد</TooltipContent>
+          </Tooltip>
+        ) : (
+          <span className="text-muted-foreground">مقصد نامشخص</span>
+        )}
       </div>
 
       <Separator />
@@ -356,7 +427,7 @@ function EdgeProperties({ edge }: EdgePropertiesProps) {
           id="edge-name"
           value={name}
           onBlur={handleSave}
-          className="h-8 text-sm"
+          className="h-8 text-sm flex-1"
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSave()}
         />
@@ -371,16 +442,11 @@ function EdgeProperties({ edge }: EdgePropertiesProps) {
           id="edge-desc"
           value={description}
           onBlur={handleSave}
-          className="h-8 text-sm"
+          className="text-sm flex-1"
           onChange={(e) => setDescription(e.target.value)}
         />
       </div>
-
-      {updateRelationship.isPending && (
-        <div className="flex justify-end">
-          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-        </div>
-      )}
+      {updateRelationship.isPending && <Loading />}
     </div>
   );
 }
@@ -393,6 +459,8 @@ export const TraceLinksList = ({ elementId }: TraceLinksListProps) => {
   const { data: traceLinks, isLoading: isGetTraceLinksLoading } =
     useGetTraceLinksByElementId(elementId);
 
+  const queryClient = useQueryClient();
+
   const removeTraceLink = useRemoveTraceLink();
 
   const handleDelete = useCallback(
@@ -402,12 +470,21 @@ export const TraceLinksList = ({ elementId }: TraceLinksListProps) => {
       targetElementId: string;
     }) => {
       removeTraceLink.mutate(payload, {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: getTraceLinksByElementIdKey(payload.sourceElementId),
+          });
+
+          queryClient.invalidateQueries({
+            queryKey: getTraceLinksByElementIdKey(payload.targetElementId),
+          });
+        },
         onError: ({ message }) => {
           toast.error(message || "خطا در حذف Trace Link");
         },
       });
     },
-    [removeTraceLink],
+    [removeTraceLink, queryClient],
   );
 
   if (isGetTraceLinksLoading) {

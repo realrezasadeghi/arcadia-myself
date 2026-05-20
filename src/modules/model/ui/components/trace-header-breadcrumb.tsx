@@ -16,6 +16,7 @@ export async function TraceHeaderBreadcrumb({
     getProjectById(+projectId),
     getTraceLinksByProjectId(projectId),
   ]);
+
   return (
     <div className="flex items-start gap-4">
       <Button variant="ghost" size="icon" className="size-4 mt-0.5" asChild>

@@ -1,5 +1,6 @@
 import { TraceHeaderBreadcrumb } from "@/modules/model/ui/components/trace-header-breadcrumb";
 import { TraceLayerPairList } from "@/modules/model/ui/components/trace-layer-pair-list";
+import { TraceLayerPairListSkeleton } from "@/modules/model/ui/components/trace-layer-pair-list-skeleton";
 import { Skeleton } from "@/modules/shared/ui/components/ui/skeleton";
 import { Suspense } from "react";
 
@@ -21,7 +22,7 @@ export default function Page({ params }: Props) {
       <Suspense fallback={<TraceHeaderBreadcrumbSkeleton />}>
         <TraceHeaderBreadcrumb params={params} />
       </Suspense>
-      <Suspense>
+      <Suspense fallback={<TraceLayerPairListSkeleton />}>
         <TraceLayerPairList params={params} />
       </Suspense>
     </div>

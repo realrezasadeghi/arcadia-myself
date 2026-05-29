@@ -1,6 +1,7 @@
 import type { ConnectionRule } from "../types/connection";
 
 export const CONNECTION_RULES: ConnectionRule[] = [
+  // ─── OA ────────────────────────────────────────────────────────────────────
   {
     relationshipType: "OperationalExchange",
     allowedSources: ["OperationalActivity"],
@@ -8,13 +9,14 @@ export const CONNECTION_RULES: ConnectionRule[] = [
   },
   {
     relationshipType: "InvolvementLink",
-    allowedSources: ["OperationalEntity", "OperationalActor"],
+    allowedSources: ["OperationalEntity", "OperationalActor", "Mission"],
     allowedTargets: [
       "OperationalCapability",
       "OperationalActivity",
       "OperationalProcess",
     ],
   },
+  // ─── SA ────────────────────────────────────────────────────────────────────
   {
     relationshipType: "FunctionalExchange",
     allowedSources: ["SystemFunction"],
@@ -25,6 +27,12 @@ export const CONNECTION_RULES: ConnectionRule[] = [
     allowedSources: ["System", "SystemActor"],
     allowedTargets: ["System", "SystemActor"],
   },
+  {
+    relationshipType: "ComponentExchange",
+    allowedSources: ["SystemComponent"],
+    allowedTargets: ["SystemComponent"],
+  },
+  // ─── LA ────────────────────────────────────────────────────────────────────
   {
     relationshipType: "LogicalExchange",
     allowedSources: ["LogicalFunction"],
@@ -45,6 +53,7 @@ export const CONNECTION_RULES: ConnectionRule[] = [
     allowedSources: ["LogicalComponent"],
     allowedTargets: ["LogicalComponent"],
   },
+  // ─── PA ────────────────────────────────────────────────────────────────────
   {
     relationshipType: "PhysicalExchange",
     allowedSources: ["PhysicalFunction"],
@@ -59,5 +68,33 @@ export const CONNECTION_RULES: ConnectionRule[] = [
     relationshipType: "DeploymentLink",
     allowedSources: ["PhysicalComponent"],
     allowedTargets: ["PhysicalNode"],
+  },
+  // ─── Cross-layer (all layers) ──────────────────────────────────────────────
+  {
+    // ← BUG FIX: was missing entirely — needed for IFE containment
+    relationshipType: "Composition",
+    allowedSources: [
+      "OperationalEntity",
+      "OperationalActivity",
+      "OperationalCapability",
+      "SystemComponent",
+      "LogicalComponent",
+      "LogicalActor",
+      "PhysicalComponent",
+      "PhysicalNode",
+    ],
+    allowedTargets: [
+      "OperationalEntity",
+      "OperationalActivity",
+      "OperationalCapability",
+      "SystemFunction",
+      "SystemComponent",
+      "LogicalFunction",
+      "LogicalComponent",
+      "LogicalActor",
+      "PhysicalFunction",
+      "PhysicalComponent",
+      "PhysicalNode",
+    ],
   },
 ];

@@ -2,10 +2,15 @@ import { TraceHeaderBreadcrumb } from "@/modules/model/ui/components/trace-heade
 import { TraceLayerPairList } from "@/modules/model/ui/components/trace-layer-pair-list";
 import { TraceLayerPairListSkeleton } from "@/modules/model/ui/components/trace-layer-pair-list-skeleton";
 import { Skeleton } from "@/modules/shared/ui/components/ui/skeleton";
+import type { Metadata } from "next";
 import { Suspense } from "react";
 
 type Props = {
   params: Promise<{ id: string }>;
+};
+
+export const metadata: Metadata = {
+  title: "لیست ردیابی ها",
 };
 
 function TraceHeaderBreadcrumbSkeleton() {

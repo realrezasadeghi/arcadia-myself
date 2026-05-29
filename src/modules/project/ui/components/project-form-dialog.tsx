@@ -1,5 +1,6 @@
 "use client";
 
+import { useIFEProject } from "@/modules/model/ui/clients/ife";
 import {
   type FieldDef,
   FieldRenderer,
@@ -15,29 +16,13 @@ import {
 } from "@/modules/shared/ui/components/ui/dialog";
 import { Form } from "@/modules/shared/ui/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useCreateProject } from "../clients/create";
 import { useUpdateProject } from "../clients/update";
 import { type ProjectFormValues, projectFormSchema } from "../schemas/project";
 import type { Project } from "../types/project";
-
-const projectFields: FieldDef[] = [
-  {
-    name: "name",
-    label: "نام پروژه *",
-    type: "text",
-    placeholder: "مثال: سیستم IFE هواپیما",
-    dir: "rtl",
-  },
-  {
-    name: "description",
-    label: "توضیحات",
-    type: "textarea",
-    placeholder: "توضیح مختصری از هدف این پروژه...",
-  },
-];
 
 interface ProjectFormDialogProps {
   open: boolean;
@@ -57,7 +42,7 @@ export function ProjectFormDialog({
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),
-    defaultValues: { name: "", description: "" },
+    defaultValues: { name: "", description: "", isSeed: false },
   });
 
   useEffect(() => {
@@ -68,6 +53,33 @@ export function ProjectFormDialog({
       });
     }
   }, [open, project, form]);
+
+  const fields = useMemo<FieldDef[]>(
+    () => [
+      {
+        name: "name",
+        label: "نام پروژه *",
+        type: "text",
+        placeholder: "مثال: سیستم IFE هواپیما",
+        dir: "rtl",
+      },
+      {
+        name: "description",
+        label: "توضیحات",
+        type: "textarea",
+        placeholder: "توضیح مختصری از هدف این پروژه...",
+      },
+      {
+        name: "isSeed",
+        label: "مدل IFE به طور پیشفرض ایجاد شود ؟ ",
+        type: "checkbox",
+        visible: !isEdit,
+      },
+    ],
+    [isEdit],
+  );
+
+  const ife = useIFEProject();
 
   const handleSubmit: SubmitHandler<ProjectFormValues> = useCallback(
     (values) => {
@@ -93,14 +105,24 @@ export function ProjectFormDialog({
           onError: (error) => {
             toast.error(error.message);
           },
-          onSuccess: (data) => {
+          onSuccess: ({ data, message }) => {
             onOpenChange(false);
-            toast.success(data.message);
+            toast.success(message);
+            if (values.isSeed) {
+              ife.mutate(String(data.id), {
+                onSuccess() {
+                  console.log("created ife successfully");
+                },
+                onError(data) {
+                  console.log("error", data);
+                },
+              });
+            }
           },
         });
       }
     },
-    [project, isEdit, update, create, onOpenChange],
+    [project, isEdit, update, create, onOpenChange, ife],
   );
 
   return (
@@ -120,7 +142,7 @@ export function ProjectFormDialog({
             className="flex flex-col gap-4 py-2"
             onSubmit={form.handleSubmit(handleSubmit)}
           >
-            <FieldRenderer fields={projectFields} />
+            <FieldRenderer fields={fields} />
 
             <DialogFooter className="-mb-6">
               <Button

@@ -1,3 +1,4 @@
+import { getDiagramById } from "@/modules/model/presentation/server-actions/get-diagram-by-id";
 import { DiagramCanvas } from "@/modules/model/ui/components/diagram-canvas";
 import { DiagramElementPalette } from "@/modules/model/ui/components/diagram-element-palette";
 import { DiagramPropertiesPanel } from "@/modules/model/ui/components/diagram-properties-panel";
@@ -7,10 +8,22 @@ import { ErrorBoundary } from "@/modules/shared/ui/components/common/error-bound
 import { Spinner } from "@/modules/shared/ui/components/ui/spinner";
 import { TooltipProvider } from "@/modules/shared/ui/components/ui/tooltip";
 import { ReactFlowProvider } from "@xyflow/react";
+import type { Metadata } from "next";
 import { Suspense } from "react";
 
 type Props = {
   params: Promise<{ id: string; diagramId: string }>;
+};
+
+export const generateMetadata = async ({
+  params,
+}: Props): Promise<Metadata> => {
+  const { diagramId } = await params;
+  const diagram = await getDiagramById(diagramId);
+  return {
+    title: diagram?.data?.name,
+    description: diagram?.data?.description,
+  };
 };
 
 export default function Page({ params }: Props) {

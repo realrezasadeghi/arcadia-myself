@@ -17,6 +17,8 @@ export type TraceLinkTypeInfo = {
 export type TraceLink = {
   id: string;
   projectId: string;
+  sourceModelId: string;
+  targetModelId: string;
   type: TraceLinkTypeValue;
   sourceElementId: string;
   sourceLayer: LayerValue;

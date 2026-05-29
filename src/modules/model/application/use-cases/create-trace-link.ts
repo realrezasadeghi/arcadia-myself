@@ -13,6 +13,8 @@ import type { ITraceLinkRepository } from "../ports/trace-link";
 export type CreateTraceLinkPayload = {
   payload: {
     projectId: string;
+    sourceModelId: string;
+    targetModelId: string;
     type: TraceLinkTypeValue;
     sourceElementId: string;
     sourceLayer: string;
@@ -29,6 +31,8 @@ export type CreateTraceLinkResponse = {
   id: string;
   projectId: string;
   type: TraceLinkTypeValue;
+  sourceModelId: string;
+  targetModelId: string;
   updatedAt: string;
   createdAt: string;
   sourceElementId: string;
@@ -88,6 +92,8 @@ export class CreateTraceLinkUseCase
 
       const response = await this.traceLinkRepository.create({
         projectId: payload.projectId,
+        sourceModelId: payload.sourceModelId,
+        targetModelId: payload.targetModelId,
         type: traceType,
         sourceElementId: payload.sourceElementId,
         sourceLayer,

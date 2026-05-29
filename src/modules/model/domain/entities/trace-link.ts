@@ -4,6 +4,8 @@ import { TraceLinkType } from "../value-objects/trace-link";
 
 interface TraceLinkProps {
   projectId: string;
+  sourceModelId: string;
+  targetModelId: string;
   type: TraceLinkType;
   sourceElementId: string;
   sourceLayer: Layer;
@@ -15,16 +17,18 @@ interface TraceLinkProps {
 }
 
 /**
- * TraceLink — Entity
- *
- * پیوند ردیابی بین دو المنت از لایه‌های مختلف.
- * Validation توسط TracePolicy قبل از ساخت انجام می‌شود.
- * این Entity خودش invariant اساسی را enforce می‌کند:
- * source و target نمی‌توانند همان المنت باشند.
+ * TraceLink — Entity (fixed)
+ * ARCADIA cross-layer links:
+ *   SA realizes OA  → SystemFunction —[Realization]→ OperationalActivity
+ *   LA realizes SA  → LogicalFunction —[Realization]→ SystemFunction
+ *   PA realizes LA  → PhysicalComponent —[Realization]→ LogicalComponent
+ *   LA Allocation   → LogicalFunction —[Allocation]→ LogicalComponent (same model)
  */
 export class TraceLink extends Entity<string> {
   private _description?: string;
   private readonly _projectId: string;
+  private readonly _sourceModelId: string;
+  private readonly _targetModelId: string;
   private readonly _type: TraceLinkType;
   private readonly _sourceElementId: string;
   private readonly _sourceLayer: Layer;
@@ -36,6 +40,8 @@ export class TraceLink extends Entity<string> {
   private constructor(id: string, props: TraceLinkProps) {
     super(id);
     this._projectId = props.projectId;
+    this._sourceModelId = props.sourceModelId;
+    this._targetModelId = props.targetModelId;
     this._type = props.type;
     this._sourceElementId = props.sourceElementId;
     this._sourceLayer = props.sourceLayer;
@@ -44,11 +50,20 @@ export class TraceLink extends Entity<string> {
     this._description = props.description;
     this.createdAt = props.createdAt;
     this._updatedAt = props.updatedAt;
+
+    if (
+      this._sourceElementId === this._targetElementId &&
+      props.sourceLayer.equals(props.targetLayer)
+    ) {
+      throw new Error("An element cannot trace to itself");
+    }
   }
 
   static create(props: {
     id: string;
     projectId: string;
+    sourceModelId: string;
+    targetModelId: string;
     type: string;
     sourceElementId: string;
     sourceLayer: string;
@@ -58,6 +73,8 @@ export class TraceLink extends Entity<string> {
   }): TraceLink {
     return new TraceLink(props.id, {
       projectId: props.projectId,
+      sourceModelId: props.sourceModelId,
+      targetModelId: props.targetModelId,
       type: TraceLinkType.from(props.type),
       sourceElementId: props.sourceElementId,
       sourceLayer: Layer.from(props.sourceLayer),
@@ -72,6 +89,8 @@ export class TraceLink extends Entity<string> {
   static reconstitute(props: {
     id: string;
     projectId: string;
+    sourceModelId: string;
+    targetModelId: string;
     type: string;
     sourceElementId: string;
     sourceLayer: string;
@@ -83,6 +102,8 @@ export class TraceLink extends Entity<string> {
   }): TraceLink {
     return new TraceLink(props.id, {
       projectId: props.projectId,
+      sourceModelId: props.sourceModelId,
+      targetModelId: props.targetModelId,
       type: TraceLinkType.from(props.type),
       sourceElementId: props.sourceElementId,
       sourceLayer: Layer.from(props.sourceLayer),
@@ -96,6 +117,13 @@ export class TraceLink extends Entity<string> {
 
   get projectId(): string {
     return this._projectId;
+  }
+
+  get sourceModelId(): string {
+    return this._sourceModelId;
+  }
+  get targetModelId(): string {
+    return this._targetModelId;
   }
   get type(): TraceLinkType {
     return this._type;
@@ -136,6 +164,8 @@ export class TraceLink extends Entity<string> {
     return {
       id: this._id,
       projectId: this._projectId,
+      sourceModelId: this._sourceModelId,
+      targetModelId: this._targetModelId,
       type: this._type.value,
       sourceElementId: this._sourceElementId,
       sourceLayer: this._sourceLayer.value,

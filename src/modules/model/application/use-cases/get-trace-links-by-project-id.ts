@@ -17,6 +17,8 @@ export type GetTraceLinksByProjectIdResponse = {
   id: string;
   projectId: string;
   type: TraceLinkTypeValue;
+  sourceModelId: string;
+  targetModelId: string;
   updatedAt: string;
   createdAt: string;
   sourceElementId: string;

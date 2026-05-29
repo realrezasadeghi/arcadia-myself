@@ -1,7 +1,10 @@
 import type {
   CreateElementPayload,
+  FindChildElementsQuery,
   FindElementsByIdQuery,
+  FindElementsByLayerQuery,
   FindElementsByModelIdQuery,
+  FindRootElementsQuery,
   IElementRepository,
   RemoveElementPayload,
   UpdateElementPayload,
@@ -10,7 +13,6 @@ import {
   type ElementProperties,
   ModelElement,
 } from "@/modules/model/domain/entities/element";
-import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
 import { db } from "../client";
 import { elements } from "../schemas/element";
@@ -23,14 +25,48 @@ function toElement(row: ElementRow): ModelElement {
     modelId: row.modelId,
     type: row.type,
     name: row.name,
+    layer: row.layer,
+    parentId: row.parentId,
     description: row.description,
-    properties: JSON.parse(row.propertiesJson) as ElementProperties,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
+    properties: row.properties as ElementProperties,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
   });
 }
 
 export class DrizzleElementRepository implements IElementRepository {
+  async findElementsByLayer(
+    query: FindElementsByLayerQuery,
+  ): Promise<ModelElement[]> {
+    const rows = await db
+      .select()
+      .from(elements)
+      .where(eq(elements.modelId, query.modelId));
+
+    return rows.filter((r) => r.layer === query.layer.value).map(toElement);
+  }
+
+  async findChildElements(
+    query: FindChildElementsQuery,
+  ): Promise<ModelElement[]> {
+    const rows = await db
+      .select()
+      .from(elements)
+      .where(eq(elements.parentId, query.parentId));
+
+    return rows.map(toElement);
+  }
+
+  async findRootElements(
+    query: FindRootElementsQuery,
+  ): Promise<ModelElement[]> {
+    const rows = await db
+      .select()
+      .from(elements)
+      .where(eq(elements.modelId, query.modelId));
+    return rows.filter((r) => r.parentId === null).map(toElement);
+  }
+
   async findElementsByModelId(
     query: FindElementsByModelIdQuery,
   ): Promise<ModelElement[]> {
@@ -51,26 +87,25 @@ export class DrizzleElementRepository implements IElementRepository {
   }
 
   async createElement(payload: CreateElementPayload): Promise<ModelElement> {
-    const id = randomUUID();
-    const now = new Date().toISOString();
-    const defaultProps: ElementProperties = {
-      status: "DRAFT",
-      ...(payload.properties ?? {}),
-    };
-    await db.insert(elements).values({
-      id,
-      modelId: payload.modelId,
-      type: payload.type,
-      name: payload.name,
-      description: payload.description ?? "",
-      propertiesJson: JSON.stringify(defaultProps),
-      createdAt: now,
-      updatedAt: now,
-    });
-    const row = await db.query.elements.findFirst({
-      where: eq(elements.id, id),
-    });
+    const response = await db
+      .insert(elements)
+      .values({
+        parentId: payload.parentId ?? null,
+        modelId: payload.modelId,
+        type: payload.type,
+        name: payload.name,
+        layer: payload.layer,
+        description: payload.description ?? "",
+        properties: {
+          status: "DRAFT",
+          ...(payload.properties ?? {}),
+        },
+      })
+      .returning();
+    const [row] = response;
+
     if (!row) throw new Error("Failed to create element");
+
     return toElement(row);
   }
 
@@ -80,27 +115,26 @@ export class DrizzleElementRepository implements IElementRepository {
     });
     if (!existing) throw new Error(`Element not found with id : ${payload.id}`);
 
-    const currentProps = JSON.parse(
-      existing.propertiesJson,
-    ) as ElementProperties;
+    const currentProps = existing.properties as ElementProperties;
+
     const newProps = payload.properties
       ? { ...currentProps, ...payload.properties }
       : currentProps;
-    const now = new Date().toISOString();
 
-    await db
+    const now = new Date();
+
+    const response = await db
       .update(elements)
       .set({
         name: payload.name,
+        properties: newProps,
         description: payload.description ?? existing.description,
-        propertiesJson: JSON.stringify(newProps),
         updatedAt: now,
       })
-      .where(eq(elements.id, payload.id));
+      .where(eq(elements.id, payload.id))
+      .returning();
 
-    const updated = await db.query.elements.findFirst({
-      where: eq(elements.id, payload.id),
-    });
+    const [updated] = response;
     if (!updated) throw new Error(`Element not found with id : ${payload.id}`);
     return toElement(updated);
   }

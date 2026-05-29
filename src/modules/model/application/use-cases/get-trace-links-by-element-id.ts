@@ -16,10 +16,12 @@ export type GetTraceLinksByElementIdPayload = {
 
 export type GetTraceLinksByElementIdResponse = {
   id: string;
-  projectId: number;
+  projectId: string;
   type: TraceLinkTypeValue;
   updatedAt: string;
   createdAt: string;
+  sourceModelId: string;
+  targetModelId: string;
   sourceElementId: string;
   sourceLayer: LayerValue;
   targetElementId: string;

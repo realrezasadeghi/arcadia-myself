@@ -36,6 +36,7 @@ export async function updateDiagramLayout(
 
     return ok(response);
   } catch (error) {
+    console.log("error", error);
     return fail(error);
   }
 }

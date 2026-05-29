@@ -2,6 +2,8 @@ import type { TraceLinkTypeValue } from "../../domain/value-objects/relationship
 
 export type CreateTraceLinkDTOProps = {
   projectId: string;
+  sourceModelId: string;
+  targetModelId: string;
   type: TraceLinkTypeValue;
   sourceElementId: string;
   sourceLayer: string;
@@ -12,6 +14,8 @@ export type CreateTraceLinkDTOProps = {
 
 export class CreateTraceLinkDTO {
   public readonly projectId: string;
+  public readonly sourceModelId: string;
+  public readonly targetModelId: string;
   public readonly type: TraceLinkTypeValue;
   public readonly sourceElementId: string;
   public readonly sourceLayer: string;
@@ -21,6 +25,8 @@ export class CreateTraceLinkDTO {
 
   private constructor(props: CreateTraceLinkDTOProps) {
     this.projectId = props.projectId;
+    this.sourceModelId = props.sourceModelId;
+    this.targetModelId = props.targetModelId;
     this.type = props.type;
     this.sourceElementId = props.sourceElementId;
     this.sourceLayer = props.sourceLayer;
@@ -31,6 +37,8 @@ export class CreateTraceLinkDTO {
 
   static create(props: {
     projectId: string;
+    sourceModelId: string;
+    targetModelId: string;
     type: TraceLinkTypeValue;
     sourceElementId: string;
     sourceLayer: string;
@@ -42,6 +50,14 @@ export class CreateTraceLinkDTO {
       projectId: CreateTraceLinkDTO.validateRequiredString(
         props.projectId,
         "Project ID",
+      ),
+      sourceModelId: CreateTraceLinkDTO.validateRequiredString(
+        props.sourceModelId,
+        "Source model ID",
+      ),
+      targetModelId: CreateTraceLinkDTO.validateRequiredString(
+        props.targetModelId,
+        "Target model ID",
       ),
       type: CreateTraceLinkDTO.validateTraceLinkType(props.type),
       sourceElementId: CreateTraceLinkDTO.validateRequiredString(

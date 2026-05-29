@@ -20,12 +20,18 @@ export function UserMenu() {
   const { data: user } = useGetMe();
 
   const abbr = useMemo(() => {
-    if (user?.name) {
+    if (user?.name?.trim()) {
       const [name, family] = user.name.split(" ");
-      return name[0] + family[0];
+      if (!name && !family) {
+        return "Unknown";
+      }
+
+      const nameAbbr = name.charAt(0).toUpperCase();
+      const familyAbbr = family.charAt(0).toUpperCase();
+      return name && family ? `${nameAbbr} ${familyAbbr}` : nameAbbr;
     }
 
-    return "";
+    return "Unknown";
   }, [user?.name]);
 
   if (!user) return null;

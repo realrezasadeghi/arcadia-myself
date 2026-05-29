@@ -25,6 +25,7 @@ export async function DiagramCanvas({ params }: DiagramCanvasProps) {
     getRelationshipsByModelId(diagram.data.modelId),
   ]);
 
+  console.log("elements", elements);
   const mappedElements = elements?.data?.map((element) => ({
     id: element.id,
     name: element.name,

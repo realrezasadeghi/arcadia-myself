@@ -114,6 +114,8 @@ export function DiagramCanvasInner({
         };
       });
 
+    console.log({ nodes, diagram, layoutMap });
+
     const nodeIds = new Set(nodes.map((n) => n.id));
 
     const edges: CanvasEdge[] = relationships
@@ -316,6 +318,7 @@ export function DiagramCanvasInner({
       createElement.mutate(
         {
           type: elementType,
+          layer: elementTypeInfo.layer,
           modelId: String(modelId),
           name: elementTypeInfo.label,
         },

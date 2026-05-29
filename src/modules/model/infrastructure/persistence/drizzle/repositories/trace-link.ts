@@ -1,4 +1,7 @@
-import type { FindByIdQuery } from "@/modules/model/application/ports/diagram";
+import type {
+  FindByIdQuery,
+  FindByModelIdQuery,
+} from "@/modules/model/application/ports/diagram";
 import type {
   CreateTraceLinkPayload,
   FindByElementIdQuery,
@@ -8,7 +11,6 @@ import type {
   UpdateTraceLinkPayload,
 } from "@/modules/model/application/ports/trace-link";
 import { TraceLink } from "@/modules/model/domain/entities/trace-link";
-import { randomUUID } from "crypto";
 import { eq, or } from "drizzle-orm";
 import { db } from "../client";
 import { traceLinks } from "../schemas/trace-link";
@@ -19,14 +21,16 @@ function toEntity(row: TraceLinkRow): TraceLink {
   return TraceLink.reconstitute({
     id: row.id,
     projectId: row.projectId,
+    sourceModelId: row.sourceModelId,
+    targetModelId: row.targetModelId,
     type: row.type,
     sourceElementId: row.sourceElementId,
     sourceLayer: row.sourceLayer,
     targetElementId: row.targetElementId,
     targetLayer: row.targetLayer,
     description: row.description,
-    createdAt: row.createdAt,
-    updatedAt: row.createdAt, // immutable, use createdAt as updatedAt
+    createdAt: row.createdAt?.toISOString() as string,
+    updatedAt: row.createdAt?.toISOString() as string, // immutable, use createdAt as updatedAt
   });
 }
 
@@ -36,6 +40,19 @@ export class DrizzleTraceLinkRepository implements ITraceLinkRepository {
       .select()
       .from(traceLinks)
       .where(eq(traceLinks.projectId, query.projectId));
+    return rows.map(toEntity);
+  }
+
+  async findByModelId(query: FindByModelIdQuery): Promise<TraceLink[]> {
+    const rows = await db
+      .select()
+      .from(traceLinks)
+      .where(
+        or(
+          eq(traceLinks.sourceElementId, query.modelId),
+          eq(traceLinks.targetElementId, query.modelId),
+        ),
+      );
     return rows.map(toEntity);
   }
 
@@ -60,22 +77,21 @@ export class DrizzleTraceLinkRepository implements ITraceLinkRepository {
   }
 
   async create(payload: CreateTraceLinkPayload): Promise<TraceLink> {
-    const id = randomUUID();
-    const now = new Date().toISOString();
-    await db.insert(traceLinks).values({
-      id,
-      projectId: payload.projectId,
-      type: payload.type.value, // TraceLinkType -> string
-      sourceElementId: payload.sourceElementId,
-      sourceLayer: payload.sourceLayer.value, // Layer -> string
-      targetElementId: payload.targetElementId,
-      targetLayer: payload.targetLayer.value, // Layer -> string
-      description: payload.description ?? "",
-      createdAt: now,
-    });
-    const row = await db.query.traceLinks.findFirst({
-      where: eq(traceLinks.id, id),
-    });
+    const response = await db
+      .insert(traceLinks)
+      .values({
+        projectId: payload.projectId,
+        sourceModelId: payload.sourceModelId,
+        targetModelId: payload.targetModelId,
+        type: payload.type.value, // TraceLinkType -> string
+        sourceElementId: payload.sourceElementId,
+        sourceLayer: payload.sourceLayer.value, // Layer -> string
+        targetElementId: payload.targetElementId,
+        targetLayer: payload.targetLayer.value, // Layer -> string
+        description: payload.description ?? "",
+      })
+      .returning();
+    const [row] = response;
     if (!row) throw new Error("Failed to create trace link");
     return toEntity(row);
   }
@@ -86,14 +102,16 @@ export class DrizzleTraceLinkRepository implements ITraceLinkRepository {
       updateData.description = payload.description;
     }
     // No updatedAt column in schema? If present, add: updateData.updatedAt = new Date().toISOString();
-    await db
+    const response = await db
       .update(traceLinks)
       .set(updateData)
-      .where(eq(traceLinks.id, payload.id));
-    const row = await db.query.traceLinks.findFirst({
-      where: eq(traceLinks.id, payload.id),
-    });
+      .where(eq(traceLinks.id, payload.id))
+      .returning();
+
+    const [row] = response;
+
     if (!row) throw new Error(`Trace link not found with id : ${payload.id}`);
+
     return toEntity(row);
   }
 

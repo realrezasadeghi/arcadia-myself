@@ -17,6 +17,7 @@ import type * as React from "react";
 import { useState } from "react";
 import type { FieldValues, Path } from "react-hook-form";
 import { cn } from "../../libs/cn";
+import { Checkbox } from "../ui/checkbox";
 import {
   FormControl,
   FormDescription,
@@ -26,6 +27,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import {
   Select,
   SelectContent,
@@ -221,6 +223,44 @@ export function FieldSelect<T extends FieldValues>({
                 ))}
               </SelectContent>
             </Select>
+          </FormControl>
+          {description && <FormDescription>{description}</FormDescription>}
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+// ─── FieldCheckbox ─────────────────────────────────────────────────────────────
+
+type FieldCheckboxProps<T extends FieldValues> = BaseFieldProps<T>;
+
+export function FieldCheckbox<T extends FieldValues>({
+  name,
+  label,
+  description,
+  className,
+  disabled,
+}: FieldCheckboxProps<T>) {
+  return (
+    <FormField
+      name={name}
+      disabled={disabled}
+      render={({ field, fieldState }) => (
+        <FormItem className={cn("flex flex-col gap-1", className)}>
+          <FormControl>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id={name}
+                name={name}
+                disabled={field.disabled}
+                checked={field.value ?? false}
+                onCheckedChange={field.onChange}
+                aria-invalid={fieldState.invalid}
+              />
+              {label && <Label htmlFor={name}>{label}</Label>}
+            </div>
           </FormControl>
           {description && <FormDescription>{description}</FormDescription>}
           <FormMessage />

@@ -25,6 +25,7 @@
 
 import type { FieldPath, FieldValues } from "react-hook-form";
 import {
+  FieldCheckbox,
   FieldInput,
   FieldPassword,
   FieldSelect,
@@ -40,7 +41,8 @@ type FieldType =
   | "number"
   | "password"
   | "textarea"
-  | "select";
+  | "select"
+  | "checkbox";
 
 export interface FieldDef {
   name: FieldPath<FieldValues>;
@@ -109,6 +111,9 @@ export function FieldRenderer({ fields, className }: FieldRendererProps) {
                 placeholder={field.placeholder}
               />
             );
+
+          case "checkbox":
+            return <FieldCheckbox {...common} key={field.name} />;
 
           default:
             return (

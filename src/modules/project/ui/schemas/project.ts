@@ -10,6 +10,7 @@ export const projectFormSchema = z.object({
     .string()
     .max(500, "توضیحات نمی‌تواند بیشتر از ۵۰۰ کاراکتر باشد")
     .optional(),
+  isSeed: z.boolean().optional(),
 });
 
 export type ProjectFormValues = z.infer<typeof projectFormSchema>;

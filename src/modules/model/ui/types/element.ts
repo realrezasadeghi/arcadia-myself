@@ -3,6 +3,7 @@ import type { LayerValue } from "./layer";
 export type ElementStatus = "DRAFT" | "VALIDATED" | "DEPRECATED";
 
 export type ElementTypeValue =
+  | "Mission"
   | "OperationalEntity"
   | "OperationalActor"
   | "OperationalActivity"
@@ -13,6 +14,7 @@ export type ElementTypeValue =
   | "SystemFunction"
   | "SystemCapability"
   | "SystemComponent"
+  | "FunctionPort"
   | "LogicalComponent"
   | "LogicalActor"
   | "LogicalFunction"

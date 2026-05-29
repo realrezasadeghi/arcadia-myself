@@ -59,10 +59,9 @@ export class UpdateDiagramLayoutUseCase
         ],
       });
 
-      console.log("response layout", response);
-
       return response.toJSON();
     } catch (error) {
+      console.log("error use case", error);
       throw new Error(
         resolveErrorMessage(error, "Error in update diagram layout"),
       );

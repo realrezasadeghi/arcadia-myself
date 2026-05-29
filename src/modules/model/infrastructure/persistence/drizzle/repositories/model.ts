@@ -6,7 +6,6 @@ import type {
 } from "@/modules/model/application/ports/model";
 import { Model } from "@/modules/model/domain/entities/model";
 import type { Layer } from "@/modules/model/domain/value-objects/layer";
-import { randomUUID } from "crypto";
 import { and, eq } from "drizzle-orm";
 import { db } from "../client";
 import { models } from "../schemas/model";
@@ -21,8 +20,8 @@ function toModel(row: ModelRow): Model {
     layer: row.layer, // adjust if Layer is a value object
     name: row.name,
     description: row.description,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
   });
 }
 
@@ -56,27 +55,26 @@ export class DrizzleModelRepository implements IModelRepository {
   }
 
   async createModel(payload: CreateModelPayload): Promise<Model> {
-    const id = randomUUID();
-    const now = new Date().toISOString();
-    await db.insert(models).values({
-      id,
-      projectId: payload.projectId,
-      layer: payload.layer.toString(),
-      name: payload.name,
-      description: payload.description ?? "",
-      createdAt: now,
-      updatedAt: now,
-    });
-    const row = await db.query.models.findFirst({
-      where: eq(models.id, id),
-    });
+    const now = new Date();
+    const response = await db
+      .insert(models)
+      .values({
+        projectId: payload.projectId,
+        layer: payload.layer.toString(),
+        name: payload.name,
+        description: payload.description ?? "",
+        createdAt: now,
+        updatedAt: now,
+      })
+      .returning();
+    const [row] = response;
     if (!row) throw new Error("Failed to create model");
     return toModel(row);
   }
 
   async updateModel(payload: UpdateModelPayload): Promise<Model> {
-    const now = new Date().toISOString();
-    await db
+    const now = new Date();
+    const response = await db
       .update(models)
       .set({
         projectId: payload.projectId,
@@ -85,12 +83,14 @@ export class DrizzleModelRepository implements IModelRepository {
         description: payload.description ?? "",
         updatedAt: now,
       })
-      .where(eq(models.id, payload.id));
-    const row = await db.query.models.findFirst({
-      where: eq(models.id, payload.id),
-    });
-    if (!row) throw new Error(`Model not found with id : ${payload.id}`);
-    return toModel(row);
+      .where(eq(models.id, payload.id))
+      .returning();
+
+    const [updated] = response;
+
+    if (!updated) throw new Error(`Model not found with id : ${payload.id}`);
+
+    return toModel(updated);
   }
 
   async deleteModel(payload: RemoveModelPayload): Promise<boolean> {

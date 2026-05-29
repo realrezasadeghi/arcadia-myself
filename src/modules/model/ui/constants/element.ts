@@ -5,7 +5,8 @@ import type {
 } from "../types/element";
 
 export const ELEMENT_TYPES: ElementTypeInfo[] = [
-  // OA
+  // ─── OA ───────────────────────────────────────────────────────────────────
+  { value: "Mission", label: "Mission", labelFa: "مأموریت", layer: "OA" }, // ← NEW
   {
     value: "OperationalEntity",
     label: "Operational Entity",
@@ -36,7 +37,7 @@ export const ELEMENT_TYPES: ElementTypeInfo[] = [
     labelFa: "فرایند عملیاتی",
     layer: "OA",
   },
-  // SA
+  // ─── SA ───────────────────────────────────────────────────────────────────
   { value: "System", label: "System", labelFa: "سیستم", layer: "SA" },
   {
     value: "SystemActor",
@@ -62,7 +63,13 @@ export const ELEMENT_TYPES: ElementTypeInfo[] = [
     labelFa: "مؤلفه سیستم",
     layer: "SA",
   },
-  // LA
+  {
+    value: "FunctionPort",
+    label: "Function Port",
+    labelFa: "پورت تابع",
+    layer: "SA",
+  }, // ← NEW
+  // ─── LA ───────────────────────────────────────────────────────────────────
   {
     value: "LogicalComponent",
     label: "Logical Component",
@@ -81,7 +88,7 @@ export const ELEMENT_TYPES: ElementTypeInfo[] = [
     labelFa: "تابع منطقی",
     layer: "LA",
   },
-  // PA
+  // ─── PA ───────────────────────────────────────────────────────────────────
   {
     value: "PhysicalComponent",
     label: "Physical Component",
@@ -109,6 +116,14 @@ export const ELEMENT_TYPES: ElementTypeInfo[] = [
 ];
 
 export const ELEMENT_VISUAL: Record<ElementTypeValue, ElementVisualSpec> = {
+  // ─── OA ───────────────────────────────────────────────────────────────────
+  Mission: {
+    // ← NEW
+    shape: "ellipse",
+    fillColor: "#D5F5E3",
+    fillColorDark: "#0d2b1a",
+    strokeColor: "#1D8348",
+  },
   OperationalEntity: {
     shape: "rounded-rectangle",
     fillColor: "#AED6F1",
@@ -139,6 +154,7 @@ export const ELEMENT_VISUAL: Record<ElementTypeValue, ElementVisualSpec> = {
     fillColorDark: "#2d1a3d",
     strokeColor: "#7D3C98",
   },
+  // ─── SA ───────────────────────────────────────────────────────────────────
   System: {
     shape: "rounded-rectangle",
     fillColor: "#AED6F1",
@@ -169,6 +185,14 @@ export const ELEMENT_VISUAL: Record<ElementTypeValue, ElementVisualSpec> = {
     fillColorDark: "#0d2d47",
     strokeColor: "#1A5276",
   },
+  FunctionPort: {
+    // ← NEW
+    shape: "rectangle",
+    fillColor: "#FDEBD0",
+    fillColorDark: "#3d1a00",
+    strokeColor: "#E67E22",
+  },
+  // ─── LA ───────────────────────────────────────────────────────────────────
   LogicalComponent: {
     shape: "rounded-rectangle",
     fillColor: "#A9DFBF",
@@ -187,6 +211,7 @@ export const ELEMENT_VISUAL: Record<ElementTypeValue, ElementVisualSpec> = {
     fillColorDark: "#3d3200",
     strokeColor: "#D4AC0D",
   },
+  // ─── PA ───────────────────────────────────────────────────────────────────
   PhysicalComponent: {
     shape: "rectangle",
     fillColor: "#D2B4DE",

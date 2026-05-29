@@ -5,7 +5,6 @@ import type {
   RemoveRelationshipPayload,
   UpdateRelationshipPayload,
 } from "@/modules/model/application/ports/relationship";
-import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
 import {
   Relationship,
@@ -25,9 +24,9 @@ function toRelationship(row: RelRow): Relationship {
     targetElementId: row.targetElementId,
     name: row.name,
     description: row.description,
-    properties: JSON.parse(row.propertiesJson) as RelationshipProperties,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
+    properties: row.properties as RelationshipProperties,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
   });
 }
 
@@ -45,23 +44,19 @@ export class DrizzleRelationshipRepository implements IRelationshipRepository {
   async createRelationship(
     payload: CreateRelationshipPayload,
   ): Promise<Relationship> {
-    const id = randomUUID();
-    const now = new Date().toISOString();
-    await db.insert(relationships).values({
-      id,
-      modelId: payload.modelId,
-      type: payload.type.value, // assuming RelationshipType has .value
-      sourceElementId: payload.sourceElementId,
-      targetElementId: payload.targetElementId,
-      name: payload.name ?? "",
-      description: payload.description ?? "",
-      propertiesJson: "{}",
-      createdAt: now,
-      updatedAt: now,
-    });
-    const row = await db.query.relationships.findFirst({
-      where: eq(relationships.id, id),
-    });
+    const response = await db
+      .insert(relationships)
+      .values({
+        modelId: payload.modelId,
+        type: payload.type.value, // assuming RelationshipType has .value
+        sourceElementId: payload.sourceElementId,
+        targetElementId: payload.targetElementId,
+        name: payload.name ?? "",
+        description: payload.description ?? "",
+        properties: {},
+      })
+      .returning();
+    const [row] = response;
     if (!row) throw new Error("Failed to create relationship");
     return toRelationship(row);
   }
@@ -75,29 +70,26 @@ export class DrizzleRelationshipRepository implements IRelationshipRepository {
     if (!existing)
       throw new Error(`Relationship not found with id : ${payload.id}`);
 
-    const currentProps = JSON.parse(
-      existing.propertiesJson,
-    ) as RelationshipProperties;
+    const currentProps = existing.properties as RelationshipProperties;
 
     const newProps = payload.properties
       ? { ...currentProps, ...payload.properties }
       : currentProps;
 
-    const now = new Date().toISOString();
+    const now = new Date();
 
-    await db
+    const response = await db
       .update(relationships)
       .set({
         name: payload.name ?? existing.name,
         description: payload.description ?? existing.description,
-        propertiesJson: JSON.stringify(newProps),
+        properties: newProps,
         updatedAt: now,
       })
-      .where(eq(relationships.id, payload.id));
+      .where(eq(relationships.id, payload.id))
+      .returning();
 
-    const updated = await db.query.relationships.findFirst({
-      where: eq(relationships.id, payload.id),
-    });
+    const [updated] = response;
 
     if (!updated)
       throw new Error(`Relationship not found with id : ${payload.id}`);

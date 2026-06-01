@@ -12,8 +12,10 @@
  * - Realistic layouts
  */
 
-import { randomUUID } from "crypto";
-import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import { randomUUID } from "node:crypto";
+import { eq } from "drizzle-orm";
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import type * as schema from "./schemas";
 
 import {
   diagrams,
@@ -29,10 +31,15 @@ type SeedIFEInput = {
 
 export async function seedIFEProject(
   input: SeedIFEInput,
-  db: PostgresJsDatabase<any>,
+  db: NodePgDatabase<typeof schema>,
 ) {
   try {
-    console.log("🌱 Seeding complete IFE ARCADIA project...");
+    console.log("Seeding complete IFE ARCADIA project...");
+
+    await db
+      .delete(traceLinks)
+      .where(eq(traceLinks.projectId, input.projectId));
+    await db.delete(models).where(eq(models.projectId, input.projectId));
 
     // =========================================================================
     // MODELS
@@ -373,6 +380,7 @@ export async function seedIFEProject(
     const pa = {
       hardwareSDU: randomUUID(),
       hardwareServer: randomUUID(),
+      networkAdapter: randomUUID(),
       switchNode: randomUUID(),
     };
 
@@ -400,6 +408,17 @@ export async function seedIFEProject(
       },
 
       {
+        id: pa.networkAdapter,
+        modelId: modelIds.pa,
+        layer: "PA",
+        type: "PhysicalComponent",
+        name: "Cabin Network Adapter",
+        description: "Aircraft cabin network interface hardware",
+        properties: { status: "VALIDATED" },
+        parentId: null,
+      },
+
+      {
         id: pa.switchNode,
         modelId: modelIds.pa,
         layer: "PA",
@@ -421,7 +440,7 @@ export async function seedIFEProject(
       {
         id: randomUUID(),
         modelId: modelIds.oa,
-        type: "OperationalExchange",
+        type: "InvolvementLink",
         sourceElementId: oa.passenger,
         targetElementId: oa.activityWatchMovie,
         name: "Requests Video",
@@ -432,7 +451,7 @@ export async function seedIFEProject(
       {
         id: randomUUID(),
         modelId: modelIds.oa,
-        type: "OperationalExchange",
+        type: "InvolvementLink",
         sourceElementId: oa.passenger,
         targetElementId: oa.activityBrowseInternet,
         name: "Uses WiFi",
@@ -447,24 +466,11 @@ export async function seedIFEProject(
         modelId: modelIds.sa,
         type: "FunctionalExchange",
         sourceElementId: sa.functionVideo,
-        targetElementId: sa.capabilityVideo,
+        targetElementId: sa.functionInternet,
         name: "Video Stream",
         description: "",
         properties: {
           protocol: "RTP",
-        },
-      },
-
-      {
-        id: randomUUID(),
-        modelId: modelIds.sa,
-        type: "FunctionalExchange",
-        sourceElementId: sa.functionInternet,
-        targetElementId: sa.capabilityInternet,
-        name: "Connectivity Flow",
-        description: "",
-        properties: {
-          protocol: "TCP/IP",
         },
       },
 
@@ -474,8 +480,8 @@ export async function seedIFEProject(
         id: randomUUID(),
         modelId: modelIds.la,
         type: "LogicalExchange",
-        sourceElementId: la.ifeServer,
-        targetElementId: la.sdu,
+        sourceElementId: la.logicalFunctionRenderVideo,
+        targetElementId: la.logicalFunctionConnectivity,
         name: "Media Stream",
         description: "",
         properties: {
@@ -483,26 +489,15 @@ export async function seedIFEProject(
         },
       },
 
-      {
-        id: randomUUID(),
-        modelId: modelIds.la,
-        type: "LogicalExchange",
-        sourceElementId: la.network,
-        targetElementId: la.ifeServer,
-        name: "Network Transport",
-        description: "",
-        properties: {},
-      },
-
       // PA
 
       {
         id: randomUUID(),
         modelId: modelIds.pa,
-        type: "PhysicalLink",
+        type: "DeploymentLink",
         sourceElementId: pa.hardwareServer,
         targetElementId: pa.switchNode,
-        name: "Ethernet Backbone",
+        name: "Server Deployment",
         description: "",
         properties: {},
       },
@@ -510,10 +505,10 @@ export async function seedIFEProject(
       {
         id: randomUUID(),
         modelId: modelIds.pa,
-        type: "PhysicalLink",
-        sourceElementId: pa.switchNode,
-        targetElementId: pa.hardwareSDU,
-        name: "Cabin Ethernet",
+        type: "DeploymentLink",
+        sourceElementId: pa.networkAdapter,
+        targetElementId: pa.switchNode,
+        name: "Network Adapter Deployment",
         description: "",
         properties: {},
       },
@@ -569,7 +564,7 @@ export async function seedIFEProject(
         sourceModelId: modelIds.sa,
         targetModelId: modelIds.oa,
 
-        type: "Refinement",
+        type: "Realization",
 
         sourceElementId: sa.capabilityVideo,
         sourceLayer: "SA",
@@ -703,7 +698,7 @@ export async function seedIFEProject(
 
         type: "Realization",
 
-        sourceElementId: pa.switchNode,
+        sourceElementId: pa.networkAdapter,
         sourceLayer: "PA",
 
         targetElementId: la.network,
@@ -938,15 +933,21 @@ export async function seedIFEProject(
           },
 
           {
-            elementId: pa.switchNode,
+            elementId: pa.networkAdapter,
             position: { x: 900, y: 200 },
+            size: { width: 260, height: 100 },
+          },
+
+          {
+            elementId: pa.switchNode,
+            position: { x: 1300, y: 200 },
             size: { width: 260, height: 100 },
           },
         ],
       },
     ]);
 
-    console.log("✅ Complete IFE project seeded");
+    console.log("Complete IFE project seeded");
 
     return {
       models: modelIds,

@@ -1,5 +1,11 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo } from "react";
+import { type SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { useIFEProject } from "@/modules/model/ui/clients/ife";
 import {
   type FieldDef,
@@ -15,10 +21,6 @@ import {
   DialogTitle,
 } from "@/modules/shared/ui/components/ui/dialog";
 import { Form } from "@/modules/shared/ui/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useEffect, useMemo } from "react";
-import { type SubmitHandler, useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { useCreateProject } from "../clients/create";
 import { useUpdateProject } from "../clients/update";
 import { type ProjectFormValues, projectFormSchema } from "../schemas/project";
@@ -38,7 +40,10 @@ export function ProjectFormDialog({
   const isEdit = !!project;
   const create = useCreateProject();
   const update = useUpdateProject();
-  const isPending = create.isPending || update.isPending;
+  const ife = useIFEProject();
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  const isPending = create.isPending || update.isPending || ife.isPending;
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),
@@ -79,8 +84,6 @@ export function ProjectFormDialog({
     [isEdit],
   );
 
-  const ife = useIFEProject();
-
   const handleSubmit: SubmitHandler<ProjectFormValues> = useCallback(
     (values) => {
       const payload = {
@@ -106,23 +109,28 @@ export function ProjectFormDialog({
             toast.error(error.message);
           },
           onSuccess: ({ data, message }) => {
-            onOpenChange(false);
-            toast.success(message);
             if (values.isSeed) {
               ife.mutate(String(data.id), {
-                onSuccess() {
-                  console.log("created ife successfully");
+                onSuccess({ message: seedMessage }) {
+                  onOpenChange(false);
+                  toast.success(seedMessage || message);
+                  queryClient.invalidateQueries();
+                  router.push(`/dashboard/project/${data.id}`);
                 },
-                onError(data) {
-                  console.log("error", data);
+                onError(error) {
+                  toast.error(error.message || "خطا در ایجاد مدل IFE");
                 },
               });
+              return;
             }
+            onOpenChange(false);
+            toast.success(message);
+            queryClient.invalidateQueries();
           },
         });
       }
     },
-    [project, isEdit, update, create, onOpenChange, ife],
+    [project, isEdit, update, create, onOpenChange, ife, queryClient, router],
   );
 
   return (

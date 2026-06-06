@@ -25,7 +25,7 @@ export function DiagramToolbarBreadcrumb({
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link href={"/dashboard/project"}>پروژه ها</Link>
+            <Link href={"/dashboard/project"}>Projects</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />

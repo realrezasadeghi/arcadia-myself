@@ -23,7 +23,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { use, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useShallow } from "zustand/shallow";
 import {
@@ -46,18 +46,19 @@ import {
   type ElementNodeData,
   useCanvasStore,
 } from "../stores/canvas";
+import { useWorkbenchStore } from "../stores/workbench";
 import type { RelationshipTypeValue } from "../types/relationship";
 import { CreateTraceLinkDialog } from "./create-trace-link-dialog";
 import { ElementShape } from "./element-shape";
 
 type DiagramPropertiesPanelProps = {
-  params: Promise<{ id: string }>;
+  projectId: string;
 };
 
 export function DiagramPropertiesPanel({
-  params,
+  projectId,
 }: DiagramPropertiesPanelProps) {
-  const { id: projectId } = use(params);
+  const setPanel = useWorkbenchStore((s) => s.setPanel);
 
   const node = useCanvasStore(
     useShallow((state) =>
@@ -72,16 +73,22 @@ export function DiagramPropertiesPanel({
   );
 
   return (
-    <aside className="flex w-64 shrink-0 flex-col border-r bg-card overflow-y-auto">
-      <div className="sticky top-0 z-10 flex items-center justify-between bg-card border-b px-3 py-2.5">
+    <aside className="flex h-full min-h-0 w-full flex-col bg-card">
+      <div className="sticky top-0 z-10 flex h-8 shrink-0 items-center justify-between border-b bg-muted/30 px-3">
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-          مشخصات
+          Properties
         </p>
-        <Button size="icon" variant="ghost" className="size-6">
+        <Button
+          size="icon"
+          variant="ghost"
+          className="size-6"
+          onClick={() => setPanel("properties", false)}
+          aria-label="Close Properties"
+        >
           <X className="size-3.5" />
         </Button>
       </div>
-      <div className="flex-1 overflow-y-auto p-3">
+      <div className="min-h-0 flex-1 overflow-y-auto p-3">
         {node && (
           <>
             <NodeProperties projectId={projectId} node={node} />
@@ -94,9 +101,9 @@ export function DiagramPropertiesPanel({
           <div className="flex flex-col items-center justify-center text-center gap-3 text-muted-foreground">
             <MousePointerClick className="size-8 opacity-30" />
             <p className="text-xs leading-relaxed max-w-45">
-              یک المنت یا رابطه را روی بوم انتخاب کنید
+              Select an element or relationship on the canvas
               <br />
-              تا جزئیات آن نمایش داده شود
+              to view its details
             </p>
           </div>
         )}
@@ -111,9 +118,9 @@ type NodeProperties = {
 };
 
 const ELEMENT_STATUS_LABELS = {
-  DRAFT: "پیش‌نویس",
-  VALIDATED: "اعتبارسنجی‌شده",
-  DEPRECATED: "منسوخ",
+  DRAFT: "Draft",
+  VALIDATED: "Validated",
+  DEPRECATED: "Deprecated",
 } as const;
 
 const ELEMENT_STATUS_VARIANTS = {
@@ -151,7 +158,7 @@ function NodeProperties({ projectId, node }: NodeProperties) {
         },
         {
           onError({ message }) {
-            toast.error(message || "خطا در بروزرسانی وضعیت المنت");
+            toast.error(message || "Error updating element status");
           },
         },
       );
@@ -175,7 +182,7 @@ function NodeProperties({ projectId, node }: NodeProperties) {
           });
         },
         onError: ({ message }) => {
-          toast.error(message || "خطا در ذخیره تغییرات");
+          toast.error(message || "Error saving changes");
         },
       },
     );
@@ -184,10 +191,10 @@ function NodeProperties({ projectId, node }: NodeProperties) {
   return (
     <>
       <div className="flex flex-col gap-4">
-        <ElementShape label={elementType.labelFa} type={elementType.value} />
+        <ElementShape label={elementType.label} type={elementType.value} />
 
         <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">وضعیت:</span>
+          <span className="text-xs text-muted-foreground">Status:</span>
           <Badge
             className="text-xs px-1.5 py-0"
             variant={ELEMENT_STATUS_VARIANTS[node.data.status]}
@@ -200,7 +207,7 @@ function NodeProperties({ projectId, node }: NodeProperties) {
 
         <div className="flex flex-col gap-1.5">
           <Label className="text-xs" htmlFor="name">
-            نام
+            Name
           </Label>
           <Input
             value={name}
@@ -213,13 +220,13 @@ function NodeProperties({ projectId, node }: NodeProperties) {
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="description" className="text-xs">
-            توضیحات
+            Description
           </Label>
           <Textarea
             rows={3}
             value={description}
             onBlur={handleSave}
-            placeholder="توضیح المنت ..."
+            placeholder="Element description..."
             onChange={(e) => setDescription(e.target.value)}
             className="w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-sm resize-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring placeholder:text-muted-foreground"
           />
@@ -228,7 +235,7 @@ function NodeProperties({ projectId, node }: NodeProperties) {
         <Separator />
 
         <div className="flex flex-col gap-1.5">
-          <p className="text-xs text-muted-foreground">عملیات سریع</p>
+          <p className="text-xs text-muted-foreground">Quick Actions</p>
           <div className="flex flex-col gap-1">
             {node.data.status !== "VALIDATED" && (
               <Button
@@ -243,7 +250,7 @@ function NodeProperties({ projectId, node }: NodeProperties) {
                 ) : (
                   <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
                 )}
-                اعتبارسنجی
+                Validate
               </Button>
             )}
             {node.data.status !== "DRAFT" && (
@@ -255,7 +262,7 @@ function NodeProperties({ projectId, node }: NodeProperties) {
                 onClick={() => updateElementStatus("DRAFT")}
               >
                 <RotateCcw className="size-3.5 text-muted-foreground" />
-                بازگشت به پیش‌نویس
+                Revert to Draft
               </Button>
             )}
             <Button
@@ -265,7 +272,7 @@ function NodeProperties({ projectId, node }: NodeProperties) {
               onClick={() => setTraceDialogOpen(true)}
             >
               <GitMerge className="size-3.5 text-primary" />
-              افزودن Trace Link
+              Add Trace Link
             </Button>
             {node.data.status !== "DEPRECATED" && (
               <Button
@@ -276,7 +283,7 @@ function NodeProperties({ projectId, node }: NodeProperties) {
                 className="justify-start gap-2 h-7 text-xs text-destructive hover:text-destructive"
               >
                 <Archive className="size-3.5" />
-                منسوخ کردن
+                Deprecate
               </Button>
             )}
           </div>
@@ -300,7 +307,7 @@ function Loading() {
   return (
     <span className="flex items-center gap-1 text-xs text-muted-foreground transition-opacity duration-200 opacity-100">
       <Loader2 className="size-3 animate-spin" />
-      ذخیره...
+      Saving...
     </span>
   );
 }
@@ -352,7 +359,7 @@ export function EdgeProperties({ edge }: EdgePropertiesProps) {
           });
         },
         onError: ({ message }) => {
-          toast.error(message || "خطا در ذخیره رابطه");
+          toast.error(message || "Error saving relationship");
         },
       },
     );
@@ -379,10 +386,10 @@ export function EdgeProperties({ edge }: EdgePropertiesProps) {
                 {sourceNode.data.name}
               </Button>
             </TooltipTrigger>
-            <TooltipContent>المنت مبدأ</TooltipContent>
+            <TooltipContent>Source element</TooltipContent>
           </Tooltip>
         ) : (
-          <span className="text-muted-foreground">مبدأ نامشخص</span>
+          <span className="text-muted-foreground">Unknown source</span>
         )}
 
         <ArrowUp className="h-3 w-3 shrink-0 text-muted-foreground" />
@@ -395,7 +402,7 @@ export function EdgeProperties({ edge }: EdgePropertiesProps) {
             className="h-1.5 w-3 rounded-full"
             style={{ backgroundColor: spec.strokeColor }}
           />
-          {relInfo.labelFa}
+          {relInfo.label}
         </Badge>
 
         <ArrowUp className="h-3 w-3 shrink-0 text-muted-foreground" />
@@ -410,10 +417,10 @@ export function EdgeProperties({ edge }: EdgePropertiesProps) {
                 {targetNode.data.name}
               </Button>
             </TooltipTrigger>
-            <TooltipContent>المنت مقصد</TooltipContent>
+            <TooltipContent>Target element</TooltipContent>
           </Tooltip>
         ) : (
-          <span className="text-muted-foreground">مقصد نامشخص</span>
+          <span className="text-muted-foreground">Unknown target</span>
         )}
       </div>
 
@@ -421,7 +428,7 @@ export function EdgeProperties({ edge }: EdgePropertiesProps) {
 
       <div className="flex flex-col gap-1.5">
         <Label className="text-xs" htmlFor="edge-name">
-          نام
+          Name
         </Label>
         <Input
           id="edge-name"
@@ -435,7 +442,7 @@ export function EdgeProperties({ edge }: EdgePropertiesProps) {
 
       <div className="flex flex-col gap-1.5">
         <Label className="text-xs" htmlFor="edge-desc">
-          توضیحات
+          Description
         </Label>
         <Textarea
           rows={3}
@@ -480,7 +487,7 @@ export const TraceLinksList = ({ elementId }: TraceLinksListProps) => {
           });
         },
         onError: ({ message }) => {
-          toast.error(message || "خطا در حذف Trace Link");
+          toast.error(message || "Error deleting trace link");
         },
       });
     },
@@ -499,7 +506,7 @@ export const TraceLinksList = ({ elementId }: TraceLinksListProps) => {
     return (
       <div className="text-center">
         <p className="text-xs text-muted-foreground">
-          هیچ trace ای تعریف نشده است.
+          No trace links defined.
         </p>
       </div>
     );
@@ -528,9 +535,9 @@ export const TraceLinksList = ({ elementId }: TraceLinksListProps) => {
                 style={{ backgroundColor: traceSpec.strokeColor }}
               />
               <div className="min-w-0 flex-1 space-y-1">
-                <p className="text-xs font-medium">{traceInfo.labelFa}</p>
+                <p className="text-xs font-medium">{traceInfo.label}</p>
                 <p className="text-[10px] text-muted-foreground">
-                  {isSource ? "→" : "←"} {otherLayer.labelFa}
+                  {isSource ? "→" : "←"} {otherLayer.label}
                 </p>
               </div>
               <Button

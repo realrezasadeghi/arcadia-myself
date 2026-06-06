@@ -5,6 +5,7 @@ import {
   applyNodeChanges,
   Background,
   BackgroundVariant,
+  Controls,
   type EdgeMouseHandler,
   MiniMap,
   type NodeMouseHandler,
@@ -15,7 +16,11 @@ import {
   ReactFlow,
 } from "@xyflow/react";
 import { type DragEventHandler, useCallback, useEffect, useRef } from "react";
-import { getElementTypeInfo, getElementVisual } from "../helpers/element";
+import {
+  getElementTypeInfo,
+  getElementVisual,
+  getNodeTypeForElement,
+} from "../helpers/element";
 import {
   type CanvasEdge,
   type CanvasNode,
@@ -37,11 +42,20 @@ import type {
   Relationship,
   RelationshipTypeValue,
 } from "../types/relationship";
+import { useWorkbenchStore } from "../stores/workbench";
 import { ArchitectureEdge } from "./architecture-edge";
 import { ArchitectureNode } from "./architecture-node";
 import { ConnectionDialog } from "./connection-dialog";
+import { ActorNode } from "./nodes/actor-node";
+import { ComponentNode } from "./nodes/component-node";
+import { FunctionNode } from "./nodes/function-node";
 
-const NODE_TYPES = { "architecture-node": ArchitectureNode } as const;
+const NODE_TYPES = {
+  "architecture-node": ArchitectureNode,
+  "actor-node": ActorNode,
+  "function-node": FunctionNode,
+  "component-node": ComponentNode,
+} as const;
 const EDGE_TYPES = { "architecture-edge": ArchitectureEdge } as const;
 
 export type DiagramCanvasInnerProps = {
@@ -100,7 +114,7 @@ export function DiagramCanvasInner({
         return {
           id: element.id,
           width: layout.size.width,
-          type: "architecture-node",
+          type: getNodeTypeForElement(element.type),
           position: layout.position,
           height: layout.size.height,
           data: {
@@ -113,8 +127,6 @@ export function DiagramCanvasInner({
           },
         };
       });
-
-    console.log({ nodes, diagram, layoutMap });
 
     const nodeIds = new Set(nodes.map((n) => n.id));
 
@@ -170,6 +182,8 @@ export function DiagramCanvasInner({
   const onNodeClick: NodeMouseHandler<CanvasNode> = useCallback(
     (_, node) => {
       selectNode(node.id);
+      // همگام‌سازی انتخاب با Workbench (برای Semantic Browser و درخت)
+      useWorkbenchStore.getState().selectElement(node.id);
     },
     [selectNode],
   );
@@ -228,7 +242,7 @@ export function DiagramCanvasInner({
             });
           },
           onError: ({ message }) => {
-            toast.error(message || "خطا در ایجاد رابطه بین المنت ها");
+            toast.error(message || "Error creating relationship between elements");
           },
         },
       );
@@ -254,7 +268,7 @@ export function DiagramCanvasInner({
       ).map((rt) => rt.value) as RelationshipTypeValue[];
 
       if (allowedTypes.length === 0) {
-        toast.error("امکان ایجاد ارتباط بین این دو المنت وجود ندارد.");
+        toast.error("Cannot create a connection between these two elements.");
         return;
       }
 
@@ -343,12 +357,12 @@ export function DiagramCanvasInner({
               },
               {
                 onError: ({ message }) => {
-                  toast.error(message || "خطا در اضافه کردن المنت");
+                  toast.error(message || "Error adding element");
                 },
                 onSuccess: () => {
                   addNode({
                     id: element.id,
-                    type: "architecture-node",
+                    type: getNodeTypeForElement(element.type),
                     position,
                     data: {
                       name: element.name,
@@ -364,7 +378,7 @@ export function DiagramCanvasInner({
             );
           },
           onError: ({ message }) => {
-            toast.error(message || "خطا در اضافه کردن المنت");
+            toast.error(message || "Error adding element");
           },
         },
       );
@@ -430,7 +444,7 @@ export function DiagramCanvasInner({
 
   return (
     <>
-      <div ref={reactFlowRef} className="flex-1 h-screen">
+      <div ref={reactFlowRef} className="flex-1 h-full w-full">
         <ReactFlow
           fitView
           nodes={nodes}
@@ -457,9 +471,16 @@ export function DiagramCanvasInner({
           />
 
           <MiniMap
-            position="top-left"
+            pannable
+            zoomable
+            position="bottom-right"
             nodeColor={getNodeColor}
             className="bg-card! border! border-border! rounded-lg overflow-hidden"
+          />
+
+          <Controls
+            position="bottom-left"
+            className="rounded-lg overflow-hidden border! border-border! [&>button]:bg-card! [&>button]:border-border! [&>button]:fill-foreground!"
           />
         </ReactFlow>
       </div>

@@ -1,30 +1,30 @@
 import { ThemeToggle } from "@/modules/shared/ui/components/common/theme-toggle";
 import { Button } from "@/modules/shared/ui/components/ui/button";
 import { cn } from "@/modules/shared/ui/libs/cn";
-import { ArrowLeft, GitMerge, Layers, Shield, Users } from "lucide-react";
+import { ArrowRight, GitMerge, Layers, Shield, Users } from "lucide-react";
 import Link from "next/link";
 
 const LAYERS = [
   {
     code: "OA",
-    name: "تحلیل عملیاتی",
-    desc: "نیازها و فعالیت‌های عملیاتی سازمان",
+    name: "Operational Analysis",
+    desc: "Organizational needs, missions, and operational activities",
     container: "bg-blue-50 border-blue-200/30 hover:border-blue-300/50",
     badge: "bg-blue-500 text-white",
     text: "text-blue-800",
   },
   {
     code: "SA",
-    name: "تحلیل سیستم",
-    desc: "مرزها، توابع و تبادلات سیستم",
+    name: "System Analysis",
+    desc: "System boundaries, functions, and exchanges with actors",
     container: "bg-amber-50 border-amber-200/30 hover:border-amber-300/50",
     badge: "bg-amber-500 text-white",
     text: "text-amber-800",
   },
   {
     code: "LA",
-    name: "معماری منطقی",
-    desc: "مؤلفه‌های منطقی و رابط‌های بینشان",
+    name: "Logical Architecture",
+    desc: "Logical components, their interfaces and allocations",
     container:
       "bg-emerald-50 border-emerald-200/30 hover:border-emerald-300/50",
     badge: "bg-emerald-600 text-white",
@@ -32,8 +32,8 @@ const LAYERS = [
   },
   {
     code: "PA",
-    name: "معماری فیزیکی",
-    desc: "پیاده‌سازی واقعی و استقرار سخت‌افزار",
+    name: "Physical Architecture",
+    desc: "Physical implementation, hardware nodes and deployment",
     container: "bg-purple-50 border-purple-200/30 hover:border-purple-300/50",
     badge: "bg-purple-600 text-white",
     text: "text-purple-800",
@@ -43,23 +43,23 @@ const LAYERS = [
 const FEATURES = [
   {
     icon: <Layers className="h-5 w-5" />,
-    title: "۴ لایه Arcadia",
-    desc: "پشتیبانی کامل از متدولوژی Arcadia — از تحلیل عملیاتی تا معماری فیزیکی با نمایش بصری مطابق Capella",
+    title: "4 ARCADIA Layers",
+    desc: "Full ARCADIA method support — from Operational Analysis to Physical Architecture with Capella-compliant visual diagrams",
   },
   {
     icon: <GitMerge className="h-5 w-5" />,
-    title: "Traceability کامل",
-    desc: "ردیابی الزامات از لایه OA تا PA با ماتریس پیوندها — Realization، Allocation، Deployment",
+    title: "Full Traceability",
+    desc: "Requirement tracing from OA to PA with link matrices — Realization, Allocation, Deployment, and more",
   },
   {
     icon: <Shield className="h-5 w-5" />,
-    title: "اعتبارسنجی هوشمند",
-    desc: "قوانین Connection و Trace از پیش تعریف‌شده — هیچ اتصال نامعتبری در دیاگرام ایجاد نمی‌شود",
+    title: "Smart Validation",
+    desc: "Pre-defined Connection and Trace rules — no invalid connections allowed in diagrams",
   },
   {
     icon: <Users className="h-5 w-5" />,
-    title: "همکاری تیمی",
-    desc: "مدیریت نقش OWNER، EDITOR، VIEWER برای هر پروژه — اشتراک‌گذاری ساختاریافته مدل‌ها",
+    title: "Team Collaboration",
+    desc: "Role management with OWNER, EDITOR, VIEWER per project — structured model sharing",
   },
 ];
 
@@ -71,17 +71,17 @@ export default function Home() {
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-              <span className="text-lg font-black text-primary">آ</span>
+              <span className="text-lg font-black text-primary">A</span>
             </div>
-            <span className="font-bold text-lg">آرکدیا</span>
+            <span className="font-bold text-lg">Arcadia</span>
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/login">ورود</Link>
+              <Link href="/login">Sign In</Link>
             </Button>
             <Button size="sm" asChild>
-              <Link href="/register">شروع</Link>
+              <Link href="/register">Get Started</Link>
             </Button>
           </div>
         </div>
@@ -92,25 +92,25 @@ export default function Home() {
         <div className="mx-auto max-w-3xl flex flex-col items-center gap-6">
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-4 py-1.5 text-sm text-primary">
             <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-            متدولوژی Arcadia، با زبان فارسی
+            ARCADIA Methodology — Web-Based
           </div>
 
           <h1 className="text-4xl font-black leading-tight md:text-6xl">
-            معماری سیستم‌های پیچیده
+            Model-Based Systems
             <br />
-            <span className="text-primary">مدل‌محور و ساختاریافته</span>
+            <span className="text-primary">Engineering Platform</span>
           </h1>
 
           <p className="max-w-xl text-base text-muted-foreground md:text-lg leading-relaxed">
-            نقطه یک پلتفرم MBSE فارسی است که متدولوژی Arcadia را با تجربه کاربری
-            مدرن، ابزارهای بصری قدرتمند و همکاری تیمی یکپارچه ترکیب می‌کند.
+            A web-based MBSE platform that combines the ARCADIA methodology with
+            modern UX, powerful visual tools, and seamless team collaboration.
           </p>
 
           <div className="flex flex-wrap justify-center gap-3">
             <Button size="lg" className="gap-2 h-11 px-6" asChild>
               <Link href="/register">
-                شروع
-                <ArrowLeft className="h-4 w-4" />
+                Get Started
+                <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
             <Button
@@ -119,7 +119,7 @@ export default function Home() {
               className="gap-2 h-11 px-6"
               asChild
             >
-              <Link href="/login">ورود به حساب</Link>
+              <Link href="/login">Sign In</Link>
             </Button>
           </div>
         </div>
@@ -129,9 +129,9 @@ export default function Home() {
       <section className="border-y border-border/60 bg-muted/20 px-4 py-16">
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold mb-2">زنجیره معماری Arcadia</h2>
+            <h2 className="text-2xl font-bold mb-2">ARCADIA Architecture Chain</h2>
             <p className="text-muted-foreground text-sm">
-              از نیاز عملیاتی تا پیاده‌سازی فیزیکی — همه در یک مکان
+              From operational needs to physical implementation — all in one place
             </p>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -169,9 +169,9 @@ export default function Home() {
       <section className="px-4 py-16">
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold mb-2">چرا آرکدیا</h2>
+            <h2 className="text-2xl font-bold mb-2">Why Arcadia</h2>
             <p className="text-muted-foreground text-sm">
-              قابلیت‌های کلیدی که کار تیم‌های مهندسی سیستم را ساده‌تر می‌کند
+              Key capabilities that simplify systems engineering teams&apos; work
             </p>
           </div>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -199,16 +199,16 @@ export default function Home() {
       <section className="border-t border-border/60 bg-primary/5 px-4 py-16">
         <div className="mx-auto max-w-xl text-center flex flex-col items-center gap-5">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
-            <span className="text-3xl font-black text-primary">آ</span>
+            <span className="text-3xl font-black text-primary">A</span>
           </div>
-          <h2 className="text-2xl font-bold">همین حالا شروع کنید</h2>
+          <h2 className="text-2xl font-bold">Get Started Today</h2>
           <p className="text-muted-foreground text-sm">
-            بدون نصب، بدون پیکربندی — مستقیم در مرورگر طراحی کنید
+            No installation, no configuration — design directly in your browser
           </p>
           <Button size="lg" className="gap-2 h-11 px-8" asChild>
             <Link href="/register">
-              ساخت حساب
-              <ArrowLeft className="h-4 w-4" />
+              Create Account
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
         </div>
@@ -217,8 +217,8 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-border/40 px-4 py-5">
         <div className="mx-auto max-w-6xl flex items-center justify-between text-xs text-muted-foreground">
-          <span>آرکدیا — پلتفرم MBSE فارسی</span>
-          <span>ساخته‌شده بر پایه متدولوژی Arcadia</span>
+          <span>Arcadia — Web-Based MBSE Platform</span>
+          <span>Built on the ARCADIA Methodology</span>
         </div>
       </footer>
     </div>

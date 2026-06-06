@@ -10,7 +10,7 @@ type Props = {
 };
 
 export const metadata: Metadata = {
-  title: "لیست ردیابی ها",
+  title: "Traceability Matrix",
 };
 
 function TraceHeaderBreadcrumbSkeleton() {

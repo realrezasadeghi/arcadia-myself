@@ -18,7 +18,7 @@ export async function LayerList({ projectId }: LayerListProps) {
             model={model}
             key={layer.value}
             projectId={projectId}
-            layer={{ label: layer.labelFa, value: layer.value }}
+            layer={{ label: layer.label, value: layer.value }}
           />
         );
       })}

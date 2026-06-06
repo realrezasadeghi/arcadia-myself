@@ -14,16 +14,16 @@ export class Username extends ValueObject<UsernameProps> {
     const trimmed = props.value?.trim() ?? "";
 
     if (!trimmed) {
-      throw new DomainError("نام کاربری الزامی است");
+      throw new DomainError("Username is required");
     }
 
     if (trimmed.length < 3 || trimmed.length > 30) {
-      throw new DomainError("نام کاربری باید بین ۳ تا ۳۰ کاراکتر باشد");
+      throw new DomainError("Username must be between 3 and 30 characters");
     }
 
     if (!/^[a-zA-Z0-9_]+$/.test(trimmed)) {
       throw new DomainError(
-        "نام کاربری فقط می‌تواند شامل حروف انگلیسی، اعداد و زیرخط باشد",
+        "Username can only contain letters, numbers, and underscores",
       );
     }
   }

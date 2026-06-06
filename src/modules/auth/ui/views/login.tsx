@@ -27,13 +27,13 @@ import { type LoginFormValues, loginSchema } from "../schemas/login";
 const fields: FieldDef[] = [
   {
     name: "username",
-    label: "نام کاربری",
+    label: "Username",
     type: "text",
     dir: "ltr",
   },
   {
     name: "password",
-    label: "رمز عبور",
+    label: "Password",
     type: "password",
     placeholder: "********",
   },
@@ -67,10 +67,10 @@ export function LoginView() {
     <Card className="w-full max-w-sm">
       <CardHeader className="text-center">
         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-          <span className="text-2xl font-black text-primary">ن</span>
+          <span className="text-2xl font-black text-primary">A</span>
         </div>
-        <CardTitle className="text-xl">ورود به آرکدیا پلتفرم</CardTitle>
-        <CardDescription>پلتفرم مدل‌سازی متدولوژی آرکدیا</CardDescription>
+        <CardTitle className="text-xl">Sign In to Arcadia</CardTitle>
+        <CardDescription>ARCADIA methodology modeling platform</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -86,7 +86,7 @@ export function LoginView() {
               className="w-full gap-2 mt-1"
             >
               <LogIn className="h-4 w-4" />
-              ورود
+              Sign In
             </Button>
           </form>
         </Form>
@@ -94,12 +94,12 @@ export function LoginView() {
 
       <CardFooter className="justify-center">
         <p className="text-sm text-muted-foreground">
-          حساب ندارید؟
+          Don&apos;t have an account?
           <Link
             href="/register"
-            className="text-primary hover:underline font-medium ms-2"
+            className="text-primary hover:underline font-medium ms-1"
           >
-            ثبت‌نام کنید
+            Register
           </Link>
         </p>
       </CardFooter>

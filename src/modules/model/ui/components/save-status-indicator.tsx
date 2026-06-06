@@ -5,20 +5,20 @@ import { AlertCircle, Check, Cloud, Loader2 } from "lucide-react";
 import { useModelStore } from "../stores/model";
 
 const STATUS_CONFIG = {
-  saved: { icon: Check, text: "ذخیره شد", className: "text-muted-foreground" },
+  saved: { icon: Check, text: "Saved", className: "text-muted-foreground" },
   saving: {
     icon: Loader2,
-    text: "در حال ذخیره...",
+    text: "Saving...",
     className: "text-primary animate-pulse",
   },
   dirty: {
     icon: Cloud,
-    text: "تغییرات ذخیره‌نشده",
+    text: "Unsaved changes",
     className: "text-muted-foreground",
   },
   error: {
     icon: AlertCircle,
-    text: "خطا در ذخیره",
+    text: "Save error",
     className: "text-destructive",
   },
 } as const;
@@ -41,7 +41,7 @@ export function SaveStatusIndicator() {
       />
       <span className="hidden sm:inline">
         {saveStatus === "dirty" && pendingChanges > 0
-          ? `${pendingChanges} تغییر`
+          ? `${pendingChanges} change${pendingChanges !== 1 ? "s" : ""}`
           : config.text}
       </span>
     </div>

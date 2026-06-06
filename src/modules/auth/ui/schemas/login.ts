@@ -4,17 +4,17 @@ export const loginSchema = z.object({
   username: z
     .string()
     .trim()
-    .min(1, "نام کاربری الزامی است")
-    .min(3, "نام کاربری باید بین ۳ تا ۳۰ کاراکتر باشد")
-    .max(30, "نام کاربری باید بین ۳ تا ۳۰ کاراکتر باشد")
+    .min(1, "Username is required")
+    .min(3, "Username must be between 3 and 30 characters")
+    .max(30, "Username must be between 3 and 30 characters")
     .regex(
       /^[a-zA-Z0-9_]+$/,
-      "نام کاربری فقط می‌تواند شامل حروف انگلیسی، اعداد و زیرخط باشد",
+      "Username can only contain letters, numbers, and underscores",
     ),
   password: z
     .string()
-    .min(1, "رمز عبور الزامی است")
-    .min(8, "رمز عبور باید حداقل 8 کاراکتر باشد"),
+    .min(1, "Password is required")
+    .min(8, "Password must be at least 8 characters"),
 });
 
 export type LoginFormValues = z.infer<typeof loginSchema>;

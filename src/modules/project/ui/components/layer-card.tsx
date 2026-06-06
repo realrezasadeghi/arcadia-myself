@@ -135,7 +135,7 @@ export function LayerCard({ model, layer, projectId }: LayerCardProps) {
               variant={"outline"}
               onClick={() => setOpen(true)}
             >
-              دیاگرام جدید
+              New Diagram
             </Button>
           </div>
         </CardHeader>
@@ -167,7 +167,7 @@ function DiagramListEmpty() {
           <LayoutDashboard className="size-8 text-muted-foreground/40" />
         </EmptyMedia>
         <EmptyTitle className="text-sm">
-          دیاگرامی وجود نداره میتونی اولین دیاگرام تو بسازی!
+          No diagrams yet. Create your first one!
         </EmptyTitle>
       </EmptyHeader>
     </Empty>
@@ -219,20 +219,20 @@ function DiagramList({ modelId, projectId, layer }: DiagramListProps) {
 
       confirm({
         tone: "danger",
-        title: "حذف دیاگرام",
-        cancelText: "انصراف",
-        confirmText: "حذف دیاگرام",
-        description: `آیا از حذف دیاگرام  «${diagram?.name}»  مطمئن هستید؟`,
+        title: "Delete Diagram",
+        cancelText: "Cancel",
+        confirmText: "Delete",
+        description: `Are you sure you want to delete "${diagram?.name}"?`,
         onConfirm: () => {
           removeDiagram.mutate(diagram.id, {
             onSuccess: () => {
-              toast.success("دیاگرام با موفقیت حذف شد");
+              toast.success("Diagram deleted successfully");
               queryClient.invalidateQueries({
                 queryKey: getDiagramsByModelIdKey(modelId),
               });
             },
             onError: ({ message }) => {
-              toast.error(message || "خطا در حذف دیاگرام");
+              toast.error(message || "Error deleting diagram");
             },
           });
         },
@@ -260,13 +260,13 @@ function DiagramList({ modelId, projectId, layer }: DiagramListProps) {
           onSuccess: () => {
             setOpen(false);
             setDiagramSelected(null);
-            toast.success("دیاگرام با موفقیت بروزرسانی شد");
+            toast.success("Diagram updated successfully");
             queryClient.invalidateQueries({
               queryKey: getDiagramsByModelIdKey(modelId),
             });
           },
           onError: ({ message }) => {
-            toast.error(message || "خطا در بروزرسانی دیاگرام");
+            toast.error(message || "Error updating diagram");
           },
         },
       );
@@ -320,7 +320,7 @@ function DiagramList({ modelId, projectId, layer }: DiagramListProps) {
                     <Pencil className="size-3.5" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>ویرایش دیاگرام</TooltipContent>
+                <TooltipContent>Edit diagram</TooltipContent>
               </Tooltip>
 
               <Tooltip>
@@ -339,7 +339,7 @@ function DiagramList({ modelId, projectId, layer }: DiagramListProps) {
                     <Trash2 className="size-3.5" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>حذف دیاگرام</TooltipContent>
+                <TooltipContent>Delete diagram</TooltipContent>
               </Tooltip>
             </div>
           </div>

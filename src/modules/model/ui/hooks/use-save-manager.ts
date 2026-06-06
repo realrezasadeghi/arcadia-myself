@@ -12,9 +12,12 @@ const MAX_PENDING = 5;
 /**
  * useSaveManager
  *
- * بعد از هر تغییر در canvas:
- * - pendingChanges را افزایش می‌دهد
- * - اگر ≥ MAX_PENDING یا ۲ ثانیه سکوت → layout را به API ارسال می‌کند
+ * After every canvas change:
+ * - increments pendingChanges
+ * - if ≥ MAX_PENDING or 2s of silence → sends layout to API
+ *
+ * On unmount (e.g. switching editor tabs) any pending change is flushed
+ * immediately so layout edits are never lost.
  */
 export function useSaveManager() {
   const { diagramId, nodes } = useCanvasStore();
@@ -50,11 +53,15 @@ export function useSaveManager() {
         },
         onError: ({ message }) => {
           setSaveStatus("error");
-          toast.error(message || "خطا در ذخیره دیاگرام");
+          toast.error(message || "Error saving diagram");
         },
       },
     );
   }, [diagramId, nodes, setSaveStatus, resetPending, updateDiagramLayout]);
+
+  // نگه‌داشتن آخرین نسخه‌ی flush برای فراخوانی هنگام unmount
+  const flushRef = useRef(flush);
+  flushRef.current = flush;
 
   const notifyChange = useCallback(() => {
     incrementPending();
@@ -71,7 +78,11 @@ export function useSaveManager() {
 
   useEffect(() => {
     return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        // در صورت وجود تغییر معلق هنگام unmount، فوراً ذخیره کن
+        flushRef.current();
+      }
     };
   }, []);
 

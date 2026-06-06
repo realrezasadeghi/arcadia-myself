@@ -6,10 +6,10 @@
  * so you don't have to repeat all that boilerplate every time.
  *
  * Usage:
- *   <FieldInput control={form.control} name="email" label="ایمیل" type="email" dir="ltr" />
- *   <FieldPassword control={form.control} name="password" label="رمز عبور" />
- *   <FieldTextarea control={form.control} name="description" label="توضیحات" />
- *   <FieldSelect control={form.control} name="role" label="نقش" options={roleOptions} />
+ *   <FieldInput control={form.control} name="email" label="Email" type="email" dir="ltr" />
+ *   <FieldPassword control={form.control} name="password" label="Password" />
+ *   <FieldTextarea control={form.control} name="description" label="Description" />
+ *   <FieldSelect control={form.control} name="role" label="Role" options={roleOptions} />
  */
 
 import { Eye, EyeOff } from "lucide-react";
@@ -119,7 +119,7 @@ export function FieldPassword<T extends FieldValues>({
                 onClick={() => setShow((v) => !v)}
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 tabIndex={-1}
-                aria-label={show ? "مخفی کردن رمز" : "نمایش رمز"}
+                aria-label={show ? "Hide password" : "Show password"}
               >
                 {show ? (
                   <EyeOff className="h-4 w-4" />
@@ -194,7 +194,7 @@ export function FieldSelect<T extends FieldValues>({
   className,
   options,
   disabled,
-  placeholder = "انتخاب کنید...",
+  placeholder = "Select...",
   triggerClassName,
 }: FieldSelectProps<T>) {
   return (

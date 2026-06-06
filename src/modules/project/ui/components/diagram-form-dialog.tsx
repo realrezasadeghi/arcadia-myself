@@ -75,24 +75,24 @@ export function DiagramFormDialog({
     () => [
       {
         name: "type",
-        label: "نوع دیاگرام",
+        label: "Diagram Type",
         type: "select",
         disabled: isEdit,
         className: "w-full",
         options: diagramTypeOptions,
-        placeholder: "نوع دیاگرام را انتخاب کنید",
+        placeholder: "Select diagram type",
       },
       {
         name: "name",
-        label: "نام دیاگرام",
+        label: "Diagram Name",
         type: "text",
-        placeholder: "کانتکست دیاگرام",
+        placeholder: "Context Diagram",
       },
       {
         name: "description",
-        label: "توضیحات",
+        label: "Description",
         type: "textarea",
-        placeholder: "اختیاری",
+        placeholder: "Optional",
       },
     ],
     [diagramTypeOptions, isEdit],
@@ -110,12 +110,12 @@ export function DiagramFormDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? "ویرایش دیاگرام" : "ایجاد دیاگرام"}
+            {isEdit ? "Edit Diagram" : "Create Diagram"}
           </DialogTitle>
           <DialogDescription>
             {isEdit
-              ? `ویرایش دیاگرام «${diagram?.name}» در لایه ${layer.label}`
-              : `یک دیاگرام برای لایه ${layer.label} بسازید`}
+              ? `Edit "${diagram?.name}" in ${layer.label} layer`
+              : `Create a new diagram in ${layer.label} layer`}
           </DialogDescription>
         </DialogHeader>
 
@@ -133,10 +133,10 @@ export function DiagramFormDialog({
                 disabled={loading}
                 onClick={() => onOpenChange(false)}
               >
-                انصراف
+                Cancel
               </Button>
               <Button type="submit" loading={loading}>
-                {isEdit ? "ذخیره تغییرات" : "ایجاد و باز کردن"}
+                {isEdit ? "Save Changes" : "Create & Open"}
               </Button>
             </DialogFooter>
           </form>

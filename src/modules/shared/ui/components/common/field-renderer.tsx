@@ -6,18 +6,18 @@
  *
  * Usage:
  *   const fields: FieldDef[] = [
- *     { name: "email",    label: "ایمیل",    type: "email",    dir: "ltr" },
- *     { name: "password", label: "رمز عبور", type: "password" },
- *     { name: "role",     label: "نقش",      type: "select",   options: roleOptions },
+ *     { name: "email",    label: "Email",    type: "email",    dir: "ltr" },
+ *     { name: "password", label: "Password", type: "password" },
+ *     { name: "role",     label: "Role",      type: "select",   options: roleOptions },
  *   ];
  *
  *   <Form {...form}>
  *     <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
  *       <FieldRenderer form={form} fields={fields} />
  *       <div className="flex gap-2">
- *         <Button variant="outline" onClick={onCancel}>انصراف</Button>
- *         <Button type="submit" loading={isPending}>ذخیره</Button>
- *         <Button type="button" onClick={doAnythingElse}>کار خاص</Button>
+ *         <Button variant="outline" onClick={onCancel}>Cancel</Button>
+ *         <Button type="submit" loading={isPending}>Save</Button>
+ *         <Button type="button" onClick={doAnythingElse}>Action</Button>
  *       </div>
  *     </form>
  *   </Form>

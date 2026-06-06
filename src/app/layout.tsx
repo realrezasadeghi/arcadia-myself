@@ -9,9 +9,9 @@ import { Toaster } from "@/modules/shared/ui/components/ui/sonner";
 import { ConfirmProvider } from "@/modules/shared/ui/providers/confirm";
 
 export const metadata: Metadata = {
-  title: "پلتفرم مدل‌سازی معماری",
+  title: "Arcadia — MBSE Platform",
   description:
-    "پلتفرم مدل‌محور برای طراحی، تحلیل و رهگیری معماری سیستم‌های پیچیده",
+    "A model-based systems engineering platform for designing, analyzing, and tracing complex system architectures.",
 };
 
 export default function RootLayout({
@@ -21,14 +21,14 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="fa"
-      dir="rtl"
+      lang="en"
+      dir="ltr"
       suppressHydrationWarning
       data-scroll-behavior="smooth"
-      className={`${fonts.vazirmatn.variable} h-full antialiased`}
+      className={`${fonts.inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full">
-        <DirectionProvider dir="rtl">
+      <body className="min-h-full font-sans">
+        <DirectionProvider dir="ltr">
           <ThemeProvider>
             <ConfirmProvider>
               <QueryProvider>{children}</QueryProvider>

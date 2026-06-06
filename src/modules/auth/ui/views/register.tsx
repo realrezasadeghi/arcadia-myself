@@ -27,18 +27,18 @@ import { type RegisterFormValues, registerSchema } from "../schemas/register";
 const fields: FieldDef[] = [
   {
     name: "name",
-    label: "نام و نام خانوادگی",
+    label: "Full Name",
     type: "text",
   },
   {
     name: "username",
-    label: "نام کاربری",
+    label: "Username",
     type: "text",
     dir: "ltr",
   },
   {
     name: "password",
-    label: "رمز عبور",
+    label: "Password",
     type: "password",
     placeholder: "********",
   },
@@ -73,10 +73,10 @@ export function RegisterView() {
     <Card className="w-full max-w-sm">
       <CardHeader className="text-center">
         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-          <span className="text-2xl font-black text-primary">ن</span>
+          <span className="text-2xl font-black text-primary">A</span>
         </div>
-        <CardTitle className="text-xl">ثبت‌نام در آرکدیا</CardTitle>
-        <CardDescription>یک حساب برای خودتان بسازید بسازید</CardDescription>
+        <CardTitle className="text-xl">Create an Account</CardTitle>
+        <CardDescription>Join Arcadia and start modeling</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -92,7 +92,7 @@ export function RegisterView() {
               className="w-full gap-2 mt-1"
             >
               <UserPlus className="h-4 w-4" />
-              ایجاد حساب
+              Create Account
             </Button>
           </form>
         </Form>
@@ -100,12 +100,12 @@ export function RegisterView() {
 
       <CardFooter className="justify-center">
         <p className="text-sm text-muted-foreground">
-          قبلاً ثبت‌نام کرده‌اید؟
+          Already registered?
           <Link
             href="/login"
             className="text-primary hover:underline font-medium ms-1"
           >
-            وارد شوید
+            Sign In
           </Link>
         </p>
       </CardFooter>

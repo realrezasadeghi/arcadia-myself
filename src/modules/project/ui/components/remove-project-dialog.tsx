@@ -40,13 +40,13 @@ export function RemoveProjectDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>حذف پروژه</DialogTitle>
+          <DialogTitle>Delete Project</DialogTitle>
           <DialogDescription>
-            آیا از حذف پروژه{" "}
+            Are you sure you want to delete{" "}
             <span className="font-semibold text-foreground">
-              «{project?.name}»
+              &ldquo;{project?.name}&rdquo;
             </span>
-            مطمئن هستید؟ این عمل برگشت‌پذیر نیست.
+            ? This action cannot be undone.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -55,14 +55,14 @@ export function RemoveProjectDialog({
             disabled={removeProject.isPending}
             onClick={() => onOpenChange(false)}
           >
-            انصراف
+            Cancel
           </Button>
           <Button
             variant="destructive"
             onClick={handleConfirm}
             loading={removeProject.isPending}
           >
-            حذف پروژه
+            Delete
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -40,7 +40,7 @@ function TraceOptionList({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-xs">نوع ارتباط trace</p>
+      <p className="text-xs">Trace Type</p>
       <div className="flex flex-col gap-1.5">
         {options.map((opt, index) => (
           <button
@@ -48,7 +48,7 @@ function TraceOptionList({
             type="button"
             onClick={() => onSelect(index)}
             className={cn(
-              "w-full rounded-md border px-3 py-2 text-sm text-right transition-colors",
+              "w-full rounded-md border px-3 py-2 text-sm text-left transition-colors",
               selectedIndex === index
                 ? "border-primary bg-primary/10 text-primary"
                 : "border-border bg-background hover:bg-muted",
@@ -56,9 +56,9 @@ function TraceOptionList({
           >
             <span className="font-medium">{opt.type.label}</span>
             <span className="text-xs text-muted-foreground block mt-0.5">
-              → {opt.targetLayer.labelFa} (
+              → {opt.targetLayer.label} (
               {opt.targetTypes
-                .map((type) => getElementTypeInfo(type).labelFa)
+                .map((type) => getElementTypeInfo(type).label)
                 .join(" / ")}
               )
             </span>
@@ -69,7 +69,7 @@ function TraceOptionList({
   );
 }
 
-/** انتخابگر المنت هدف (گام دوم) */
+/** Target element picker (step 2) */
 function TargetElementPicker({
   targetLayerLabel,
   targetModel,
@@ -86,9 +86,9 @@ function TargetElementPicker({
   if (!targetModel) {
     return (
       <div className="flex flex-col gap-2">
-        <p className="text-xs">انتخاب المنت در لایه {targetLayerLabel}</p>
+        <p className="text-xs">Select target in {targetLayerLabel}</p>
         <p className="text-xs text-muted-foreground">
-          مدلی برای لایه {targetLayerLabel} ایجاد نشده است.
+          No model has been created for {targetLayerLabel} layer yet.
         </p>
       </div>
     );
@@ -97,9 +97,9 @@ function TargetElementPicker({
   if (elements.length === 0) {
     return (
       <div className="flex flex-col gap-2">
-        <p className="text-xs">انتخاب المنت در لایه {targetLayerLabel}</p>
+        <p className="text-xs">Select target in {targetLayerLabel}</p>
         <p className="text-xs text-muted-foreground">
-          المنت سازگاری در این لایه وجود ندارد.
+          No compatible elements exist in this layer.
         </p>
       </div>
     );
@@ -107,7 +107,7 @@ function TargetElementPicker({
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-xs">انتخاب المنت در لایه {targetLayerLabel}</p>
+      <p className="text-xs">Select target in {targetLayerLabel}</p>
       <div className="flex flex-col gap-1 max-h-48 overflow-y-auto border rounded-md p-1">
         {elements.map((element) => {
           const spec = getElementVisual(element.type);
@@ -118,7 +118,7 @@ function TargetElementPicker({
               type="button"
               onClick={() => onSelectTarget(element.id)}
               className={cn(
-                "flex items-center gap-2 rounded px-2 py-1.5 text-sm text-right transition-colors",
+                "flex items-center gap-2 rounded px-2 py-1.5 text-sm text-left transition-colors",
                 isSelected ? "bg-primary/10 text-primary" : "hover:bg-muted",
               )}
             >
@@ -130,8 +130,8 @@ function TargetElementPicker({
                 }}
               />
               <span className="truncate">{element.name}</span>
-              <span className="mr-auto text-[10px] text-muted-foreground shrink-0">
-                {getElementTypeInfo(element.type).labelFa}
+              <span className="ml-auto text-[10px] text-muted-foreground shrink-0">
+                {getElementTypeInfo(element.type).label}
               </span>
             </button>
           );
@@ -185,6 +185,11 @@ export function CreateTraceLinkDialog({
 
   const { data: models } = useGetModelsByProjectId(projectId);
 
+  const sourceModel = useMemo(
+    () => models?.find((model) => model.layer === sourceLayerType),
+    [models, sourceLayerType],
+  );
+
   const targetModel = useMemo(
     () =>
       models?.find(
@@ -207,6 +212,7 @@ export function CreateTraceLinkDialog({
           type: element.type,
           description: element.description,
           modelId: element.modelId,
+          parentId: element.parentId,
           status: element.properties.status,
           updatedAt: element.updatedAt,
           createdAt: element.createdAt,
@@ -231,10 +237,13 @@ export function CreateTraceLinkDialog({
   }, []);
 
   const handleConfirm = useCallback(() => {
-    if (!selectedOption || !selectedTargetId) return;
+    if (!selectedOption || !selectedTargetId || !sourceModel || !targetModel)
+      return;
     createTrace.mutate(
       {
         projectId,
+        sourceModelId: sourceModel.id,
+        targetModelId: targetModel.id,
         sourceElementId,
         sourceLayer: sourceLayerType,
         type: selectedOption.type.value,
@@ -257,6 +266,8 @@ export function CreateTraceLinkDialog({
   }, [
     selectedOption,
     selectedTargetId,
+    sourceModel,
+    targetModel,
     createTrace,
     projectId,
     sourceElementId,
@@ -272,16 +283,16 @@ export function CreateTraceLinkDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>ایجاد Trace Link</DialogTitle>
+          <DialogTitle>Create Trace Link</DialogTitle>
           <DialogDescription>
-            برای ایجاد ارتباط با سایر لایه ها باید نوع ارتباط را انتخاب کنید
+            Select the trace type to link this element to another layer
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-4 py-1">
           {hasNoOptions ? (
             <p className="text-sm text-muted-foreground text-center py-4">
-              هیچ trace مجازی برای این المنت تعریف نشده است.
+              No trace options are defined for this element.
             </p>
           ) : (
             <>
@@ -297,7 +308,7 @@ export function CreateTraceLinkDialog({
                   elements={filteredTargetElements}
                   selectedTargetId={selectedTargetId}
                   onSelectTarget={setSelectedTargetId}
-                  targetLayerLabel={selectedOption.targetLayer.labelFa}
+                  targetLayerLabel={selectedOption.targetLayer.label}
                 />
               )}
             </>
@@ -306,7 +317,7 @@ export function CreateTraceLinkDialog({
 
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={handleClose}>
-            انصراف
+            Cancel
           </Button>
           <Button
             onClick={handleConfirm}
@@ -315,9 +326,9 @@ export function CreateTraceLinkDialog({
             }
           >
             {createTrace.isPending && (
-              <Loader2 className="size-3.5 animate-spin ml-1.5" />
+              <Loader2 className="size-3.5 animate-spin mr-1.5" />
             )}
-            ایجاد Trace
+            Create Trace
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -50,16 +50,16 @@ export function UserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <UserIcon className="h-4 w-4" />
-          پروفایل
+          Profile
         </DropdownMenuItem>
         <DropdownMenuItem>
           <Settings className="h-4 w-4" />
-          تنظیمات
+          Settings
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="text-destructive focus:text-destructive">
           <LogOut className="h-4 w-4" />
-          خروج
+          Sign Out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

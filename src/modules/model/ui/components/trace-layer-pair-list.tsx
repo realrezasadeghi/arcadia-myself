@@ -1,4 +1,4 @@
-import { getElementsByModelId } from "../../presentation/server-actions/get-elements-by-model-id"; // همین server action که هوک کلاینت از آن استفاده می‌کند
+import { getElementsByModelId } from "../../presentation/server-actions/get-elements-by-model-id"; // Same server action used by the client hook
 import { getModelsByProjectId } from "../../presentation/server-actions/get-models-by-project-id";
 import { getTraceLinksByProjectId } from "../../presentation/server-actions/get-trace-links-by-project-id";
 import { LAYER_PAIRS } from "../constants/trace-link";
@@ -36,6 +36,7 @@ export async function TraceLayerPairList({ params }: TraceLayerPairListProps) {
         updatedAt: element.updatedAt,
         createdAt: element.createdAt,
         description: element.description,
+        parentId: element.parentId,
         status: element.properties.status,
       })) ?? [],
     );

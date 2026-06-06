@@ -92,7 +92,7 @@ export function DiagramToolbarActions({
             <Undo2 className="size-3.5" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>واگرد (Ctrl+Z)</TooltipContent>
+        <TooltipContent>Undo (Ctrl+Z)</TooltipContent>
       </Tooltip>
 
       {/* Redo */}
@@ -108,7 +108,7 @@ export function DiagramToolbarActions({
             <Redo2 className="size-3.5" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>انجام‌مجدد (Ctrl+Shift+Z)</TooltipContent>
+        <TooltipContent>Redo (Ctrl+Shift+Z)</TooltipContent>
       </Tooltip>
 
       <Separator orientation="vertical" className="h-5 w-0.5" />
@@ -126,7 +126,7 @@ export function DiagramToolbarActions({
             <Trash2 className="size-3.5 text-destructive" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>حذف انتخاب‌شده (Delete)</TooltipContent>
+        <TooltipContent>Delete selected (Delete)</TooltipContent>
       </Tooltip>
 
       <Separator orientation="vertical" className="h-5 w-0.5" />
@@ -140,11 +140,11 @@ export function DiagramToolbarActions({
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
-          <TooltipContent>خروجی گرفتن</TooltipContent>
+          <TooltipContent>Export</TooltipContent>
         </Tooltip>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={exportJson}>دانلود JSON</DropdownMenuItem>
-          <DropdownMenuItem onClick={exportHtml}>چاپ / PDF</DropdownMenuItem>
+          <DropdownMenuItem onClick={exportJson}>Download JSON</DropdownMenuItem>
+          <DropdownMenuItem onClick={exportHtml}>Print / PDF</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -161,7 +161,7 @@ export function DiagramToolbarActions({
             <ZoomIn className="size-3.5" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>بزرگ‌نمایی</TooltipContent>
+        <TooltipContent>Zoom in</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -174,7 +174,7 @@ export function DiagramToolbarActions({
             <ZoomOut className="size-3.5" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>کوچک‌نمایی</TooltipContent>
+        <TooltipContent>Zoom out</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -187,7 +187,7 @@ export function DiagramToolbarActions({
             <Maximize2 className="size-3.5" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>جا دادن همه</TooltipContent>
+        <TooltipContent>Fit view</TooltipContent>
       </Tooltip>
     </div>
   );

@@ -37,6 +37,7 @@ export type Element = {
   name: string;
   description?: string;
   status: ElementStatus;
+  parentId: string | null;
   createdAt: string;
   updatedAt: string;
 };

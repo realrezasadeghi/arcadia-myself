@@ -16,7 +16,7 @@ import {
 } from "@/modules/shared/ui/components/ui/dropdown-menu";
 import { cn } from "@/modules/shared/ui/libs/cn";
 import {
-  ArrowLeft,
+  ArrowRight,
   Calendar,
   MoreHorizontal,
   Pencil,
@@ -53,7 +53,7 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
   const memberCount = project.members.length;
-  const date = new Intl.DateTimeFormat("fa-IR", {
+  const date = new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -84,14 +84,14 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
               <DropdownMenuItem onClick={() => onEdit(project)}>
-                <Pencil className="h-4 w-4" /> ویرایش
+                <Pencil className="h-4 w-4" /> Edit
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => onDelete(project)}
                 className="text-destructive focus:text-destructive"
               >
-                <Trash2 className="h-4 w-4" /> حذف
+                <Trash2 className="h-4 w-4" /> Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -111,7 +111,7 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
         <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
           <span className="flex items-center gap-1">
             <Users className="h-3.5 w-3.5" />
-            {memberCount} عضو
+            {memberCount} members
           </span>
           <span className="flex items-center gap-1">
             <Calendar className="h-3.5 w-3.5" />
@@ -121,8 +121,8 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
 
         <Link href={`/dashboard/project/${project.id}`}>
           <Button variant="outline" size="sm" className="w-full gap-1.5">
-            باز کردن
-            <ArrowLeft className="h-3.5 w-3.5" />
+            Open
+            <ArrowRight className="h-3.5 w-3.5" />
           </Button>
         </Link>
       </CardContent>

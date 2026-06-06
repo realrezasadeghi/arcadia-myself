@@ -51,9 +51,9 @@ export function ConnectionDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>نوع رابطه را انتخاب کنید</DialogTitle>
+          <DialogTitle>Select Relationship Type</DialogTitle>
           <DialogDescription>
-            بین این دو المنت چه نوع رابطه‌ای برقرار می‌شود؟
+            What type of relationship connects these two elements?
           </DialogDescription>
         </DialogHeader>
 
@@ -69,7 +69,7 @@ export function ConnectionDialog({
                   key={typeValue}
                   onClick={() => setSelectedType(typeValue)}
                   className={cn(
-                    "flex items-center gap-3 rounded-md border px-3 py-2 text-sm text-right transition-colors",
+                    "flex items-center gap-3 rounded-md border px-3 py-2 text-sm text-left transition-colors",
                     isSelected
                       ? "border-primary bg-primary/5"
                       : "border-border hover:border-primary/40 hover:bg-accent",
@@ -79,33 +79,30 @@ export function ConnectionDialog({
                     className="h-1 w-6 rounded-full shrink-0"
                     style={{ backgroundColor: spec.strokeColor }}
                   />
-                  <span className="flex-1 text-right">
-                    {relationshipInfo.labelFa}
-                    <span className="text-gray-200 text-[8px]">
-                      ({relationshipInfo.label})
-                    </span>
+                  <span className="flex-1 text-left">
+                    {relationshipInfo.label}
                   </span>
                 </button>
               );
             })}
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="rel-name">نام رابطه (اختیاری)</Label>
+            <Label htmlFor="rel-name">Relationship Name (optional)</Label>
             <Input
               id="rel-name"
-              placeholder="مثال: requestData"
+              placeholder="e.g. requestData"
               value={name}
               onChange={(e) => setName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleConfirm()}
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="rel-description">توضیحات رابطه (اختیاری)</Label>
+            <Label htmlFor="rel-description">Description (optional)</Label>
             <Textarea
               id="rel-description"
               value={description}
               onBlur={handleConfirm}
-              placeholder="مثال: requestData"
+              placeholder="e.g. requestData"
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
@@ -113,10 +110,10 @@ export function ConnectionDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            انصراف
+            Cancel
           </Button>
           <Button onClick={handleConfirm} disabled={!selectedType}>
-            ایجاد رابطه
+            Create Relationship
           </Button>
         </DialogFooter>
       </DialogContent>

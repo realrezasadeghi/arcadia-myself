@@ -66,7 +66,7 @@ export function TraceLayerPair({
       <section>
         <SectionHeader upper={upper} lower={lower} count={0} />
         <p className="text-sm text-muted-foreground">
-          هیچ المنتی در این دو لایه وجود ندارد.
+          No elements in these layers.
         </p>
       </section>
     );
@@ -84,9 +84,9 @@ export function TraceLayerPair({
             <TableRow className="bg-muted/60">
               <TableHead
                 scope="col"
-                className="sticky right-0 z-10 bg-muted/60 border-b border-l border-border px-3 py-2 text-right font-medium min-w-35"
+                className="sticky left-0 z-10 bg-muted/60 border-b border-r border-border px-3 py-2 text-left font-medium min-w-35"
               >
-                {getLayerInfo(upper).labelFa} \ {getLayerInfo(lower).labelFa}
+                {getLayerInfo(upper).label} \ {getLayerInfo(lower).label}
               </TableHead>
 
               {lowerElements.map((element) => (
@@ -117,7 +117,7 @@ export function TraceLayerPair({
                 >
                   <TableCell
                     style={{ backgroundColor: stickyBgColor }}
-                    className="sticky right-0 z-10 border-b border-l border-border px-3 py-2 font-medium bg-background"
+                    className="sticky left-0 z-10 border-b border-r border-border px-3 py-2 font-medium bg-background"
                   >
                     <div className="flex items-center gap-1.5">
                       <ElementDot elementType={rowEl.type} />
@@ -149,12 +149,12 @@ export function TraceLayerPair({
                         {hasTrace && traceSpec && traceInfo ? (
                           <div className="flex flex-col items-center gap-0.5">
                             <span
-                              title={traceInfo.labelFa}
+                              title={traceInfo.label}
                               className="h-3 w-3 rounded-full"
                               style={{ backgroundColor: traceSpec.strokeColor }}
                             />
                             <span className="text-[9px] text-muted-foreground">
-                              {traceInfo.labelFa}
+                              {traceInfo.label}
                             </span>
                           </div>
                         ) : (
@@ -190,7 +190,7 @@ function SectionHeader({
         <LayerBadge layer={getLayerInfo(lower)} />
       </div>
       <Badge variant="secondary" className="text-xs">
-        {count} پیوند
+        {count} link{count !== 1 ? "s" : ""}
       </Badge>
     </div>
   );

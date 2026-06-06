@@ -25,7 +25,7 @@ export class User extends Entity<number> {
   }
 
   static create(props: { id: number; name: string; username: string }): User {
-    if (!props.name.trim()) throw new DomainError("نام کاربر الزامی است");
+    if (!props.name.trim()) throw new DomainError("User name is required");
     return new User(props.id, {
       id: props.id,
       name: props.name.trim(),
@@ -60,7 +60,7 @@ export class User extends Entity<number> {
   }
 
   changeName(name: string): void {
-    if (!name.trim()) throw new DomainError("نام کاربر نمی‌تواند خالی باشد");
+    if (!name.trim()) throw new DomainError("User name cannot be empty");
     this._name = name.trim();
   }
 

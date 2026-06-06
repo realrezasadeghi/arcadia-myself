@@ -6,7 +6,7 @@ export interface IRes<T = unknown> {
 
 export const ok = <T>(
   data: T,
-  message: string = "با موفقیت انجام شد",
+  message: string = "Operation completed successfully",
 ): IRes<T> => ({
   data,
   message,

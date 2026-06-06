@@ -58,20 +58,19 @@ export function ProjectFormDialog({
     () => [
       {
         name: "name",
-        label: "نام پروژه *",
+        label: "Project Name *",
         type: "text",
-        placeholder: "مثال: سیستم IFE هواپیما",
-        dir: "rtl",
+        placeholder: "e.g. IFE System",
       },
       {
         name: "description",
-        label: "توضیحات",
+        label: "Description",
         type: "textarea",
-        placeholder: "توضیح مختصری از هدف این پروژه...",
+        placeholder: "Brief description of the project purpose...",
       },
       {
         name: "isSeed",
-        label: "مدل IFE به طور پیشفرض ایجاد شود ؟ ",
+        label: "Pre-populate with IFE example model",
         type: "checkbox",
         visible: !isEdit,
       },
@@ -129,11 +128,11 @@ export function ProjectFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEdit ? "ویرایش پروژه" : "پروژه جدید"}</DialogTitle>
+          <DialogTitle>{isEdit ? "Edit Project" : "New Project"}</DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "مشخصات پروژه را ویرایش کنید"
-              : "یک پروژه معماری جدید بسازید"}
+              ? "Edit the project details"
+              : "Create a new architecture project"}
           </DialogDescription>
         </DialogHeader>
 

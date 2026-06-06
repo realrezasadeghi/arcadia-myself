@@ -18,8 +18,8 @@ interface State {
 /**
  * ErrorBoundary
  *
- * جلوگیری از crash کامل صفحه — نمایش پیام خطای دوستانه.
- * باید یک بار در هر "ناحیه خطرناک" مثل canvas یا feature اصلی قرار گیرد.
+ * Prevents full page crash — shows a friendly error message.
+ * Should be placed once in each "danger zone" like canvas or main feature.
  */
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
@@ -45,7 +45,7 @@ export class ErrorBoundary extends Component<Props, State> {
         </div>
         <div className="flex flex-col gap-1.5 max-w-sm">
           <p className="text-base font-semibold">
-            {this.props.fallbackMessage ?? "خطای غیرمنتظره‌ای رخ داد"}
+            {this.props.fallbackMessage ?? "An unexpected error occurred"}
           </p>
           {this.state.error?.message && (
             <p className="text-sm text-muted-foreground">
@@ -55,7 +55,7 @@ export class ErrorBoundary extends Component<Props, State> {
         </div>
         {(this.props.showReload ?? true) && (
           <Button variant="outline" onClick={() => window.location.reload()}>
-            بارگذاری مجدد
+            Reload
           </Button>
         )}
       </div>

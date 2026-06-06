@@ -35,3 +35,22 @@ export function getElementVisual(type: ElementTypeValue): ElementVisualSpec {
     }
   );
 }
+
+export type CanvasNodeType =
+  | "actor-node"
+  | "function-node"
+  | "component-node"
+  | "architecture-node";
+
+/**
+ * نوع node سفارشی React Flow را بر اساس دسته‌ی المنت Arcadia برمی‌گرداند.
+ * بازیگر/موجودیت → actor، تابع/فعالیت → function، مؤلفه → component،
+ * بقیه (Mission, Capability, Node, Port, System, Process) → fallback عمومی.
+ */
+export function getNodeTypeForElement(type: ElementTypeValue): CanvasNodeType {
+  if (type.endsWith("Actor") || type.endsWith("Entity")) return "actor-node";
+  if (type.endsWith("Function") || type.endsWith("Activity"))
+    return "function-node";
+  if (type.endsWith("Component")) return "component-node";
+  return "architecture-node";
+}

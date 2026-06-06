@@ -1,5 +1,5 @@
 import { getProjectById } from "@/modules/project/presentation/server-actions/get-by-id";
-import { ProjectDetailsView } from "@/modules/project/ui/views/project-details";
+import { WorkbenchView } from "@/modules/model/ui/components/workbench/workbench-view";
 import { Spinner } from "@/modules/shared/ui/components/ui/spinner";
 import type { Metadata } from "next";
 import { Suspense } from "react";
@@ -19,18 +19,18 @@ export const generateMetadata = async ({
   };
 };
 
-function ProjectDetailsLoading() {
+function WorkbenchLoading() {
   return (
-    <div className="h-screen w-screen flex items-center justify-center">
+    <div className="flex h-full w-full items-center justify-center">
       <Spinner />
     </div>
   );
 }
 
-export default async function Page({ params }: Props) {
+export default function Page({ params }: Props) {
   return (
-    <Suspense fallback={<ProjectDetailsLoading />}>
-      <ProjectDetailsView params={params} />
+    <Suspense fallback={<WorkbenchLoading />}>
+      <WorkbenchView params={params} />
     </Suspense>
   );
 }

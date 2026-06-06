@@ -20,6 +20,7 @@ export type GetElementsByModelIdResponse = {
   name: string;
   description?: string;
   type: ElementTypeValue;
+  parentId: string | null;
   updatedAt: string;
   createdAt: string;
   properties: ElementProperties;

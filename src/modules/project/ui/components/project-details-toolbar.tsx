@@ -1,5 +1,5 @@
 import { Button } from "@/modules/shared/ui/components/ui/button";
-import { ArrowRight, GitMerge, Users } from "lucide-react";
+import { ArrowLeft, GitMerge, Users } from "lucide-react";
 import Link from "next/link";
 import type { Project } from "../types/project";
 
@@ -17,7 +17,7 @@ export function ProjectDetailsToolbar({
       <div className="flex items-center gap-1">
         <Button variant={"link"} className="text-muted-foreground" asChild>
           <Link href={"/dashboard/project"}>
-            <ArrowRight className="size-4" />
+            <ArrowLeft className="size-4" />
           </Link>
         </Button>
         <h1 className="text-xl font-bold truncate">{project.name}</h1>

@@ -23,7 +23,7 @@ export type CreateDiagramPayload = {
 export type CreateDiagramResponse = {
   id: string;
   modelId: string;
-  type: string;
+  type: DiagramTypeValue;
   viewport: Viewport;
   name: string;
   description?: string;

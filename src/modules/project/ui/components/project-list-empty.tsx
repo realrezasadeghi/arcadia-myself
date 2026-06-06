@@ -33,7 +33,7 @@ export function ProjectListEmpty({
         <EmptyContent>
           <Button onClick={onProjectCreate} variant="outline" className="gap-2">
             <Plus className="size-4" />
-            ایجاد پروژه
+            Create Project
           </Button>
         </EmptyContent>
       )}

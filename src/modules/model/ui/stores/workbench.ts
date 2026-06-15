@@ -20,6 +20,7 @@ export interface PanelVisibility {
   properties: boolean;
   outline: boolean;
   semantic: boolean;
+  validation: boolean;
 }
 
 interface WorkbenchState {
@@ -36,6 +37,9 @@ interface WorkbenchState {
    */
   selectedElementId: string | null;
 
+  /** لایه فعلی برای نمایش در Layer Switcher */
+  currentLayer: LayerValue;
+
   panels: PanelVisibility;
 
   setProject: (projectId: string, projectName: string) => void;
@@ -45,6 +49,8 @@ interface WorkbenchState {
   renameTab: (diagramId: string, name: string) => void;
 
   selectElement: (elementId: string | null) => void;
+
+  setCurrentLayer: (layer: LayerValue) => void;
 
   togglePanel: (panel: keyof PanelVisibility) => void;
   setPanel: (panel: keyof PanelVisibility, open: boolean) => void;
@@ -58,6 +64,7 @@ const DEFAULT_PANELS: PanelVisibility = {
   properties: true,
   outline: false,
   semantic: false,
+  validation: false,
 };
 
 export const useWorkbenchStore = create<WorkbenchState>((set) => ({
@@ -66,6 +73,7 @@ export const useWorkbenchStore = create<WorkbenchState>((set) => ({
   tabs: [],
   activeDiagramId: null,
   selectedElementId: null,
+  currentLayer: "OA",
   panels: { ...DEFAULT_PANELS },
 
   setProject: (projectId, projectName) => set({ projectId, projectName }),
@@ -76,6 +84,7 @@ export const useWorkbenchStore = create<WorkbenchState>((set) => ({
       return {
         tabs: exists ? s.tabs : [...s.tabs, tab],
         activeDiagramId: tab.diagramId,
+        currentLayer: tab.layer,
       };
     }),
 
@@ -87,16 +96,24 @@ export const useWorkbenchStore = create<WorkbenchState>((set) => ({
       const tabs = s.tabs.filter((t) => t.diagramId !== diagramId);
 
       let activeDiagramId = s.activeDiagramId;
+      let currentLayer = s.currentLayer;
       if (s.activeDiagramId === diagramId) {
-        // فعال‌سازی تب مجاور (راست، سپس چپ)
         const next = tabs[index] ?? tabs[index - 1] ?? null;
         activeDiagramId = next?.diagramId ?? null;
+        if (next) currentLayer = next.layer;
       }
 
-      return { tabs, activeDiagramId };
+      return { tabs, activeDiagramId, currentLayer };
     }),
 
-  setActiveTab: (diagramId) => set({ activeDiagramId: diagramId }),
+  setActiveTab: (diagramId) =>
+    set((s) => {
+      const tab = s.tabs.find((t) => t.diagramId === diagramId);
+      return {
+        activeDiagramId: diagramId,
+        currentLayer: tab?.layer ?? s.currentLayer,
+      };
+    }),
 
   renameTab: (diagramId, name) =>
     set((s) => ({
@@ -104,6 +121,8 @@ export const useWorkbenchStore = create<WorkbenchState>((set) => ({
     })),
 
   selectElement: (selectedElementId) => set({ selectedElementId }),
+
+  setCurrentLayer: (currentLayer) => set({ currentLayer }),
 
   togglePanel: (panel) =>
     set((s) => ({ panels: { ...s.panels, [panel]: !s.panels[panel] } })),
@@ -118,6 +137,7 @@ export const useWorkbenchStore = create<WorkbenchState>((set) => ({
       tabs: [],
       activeDiagramId: null,
       selectedElementId: null,
+      currentLayer: "OA",
       panels: { ...DEFAULT_PANELS },
     }),
 }));

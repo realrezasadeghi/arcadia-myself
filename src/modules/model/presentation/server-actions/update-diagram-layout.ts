@@ -23,8 +23,6 @@ export async function updateDiagramLayout(
     }
 
     const dto = UpdateDiagramLayoutDTO.create(payload);
-
-    console.log("dto", dto);
     const updateDiagramLayoutUseCase = new UpdateDiagramLayoutUseCase(
       diagramRepository,
     );
@@ -36,7 +34,6 @@ export async function updateDiagramLayout(
 
     return ok(response);
   } catch (error) {
-    console.log("error", error);
     return fail(error);
   }
 }

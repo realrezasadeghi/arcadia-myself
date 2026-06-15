@@ -46,8 +46,6 @@ export class UpdateDiagramLayoutUseCase
       if (!diagram)
         throw new Error(`Diagram not found with id : ${payload.id}`);
 
-      console.log("payload use case", payload);
-
       diagram.updateViewport({ ...diagram.viewport, ...payload.viewport });
 
       const response = await this.diagramRepository.updateLayout({
@@ -61,7 +59,6 @@ export class UpdateDiagramLayoutUseCase
 
       return response.toJSON();
     } catch (error) {
-      console.log("error use case", error);
       throw new Error(
         resolveErrorMessage(error, "Error in update diagram layout"),
       );

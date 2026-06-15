@@ -390,7 +390,7 @@ function ModelNode({
   const nextLayerLabel = getNextLayerLabel(model.layer);
 
   return (
-    <div className="mb-0.5">
+    <div className="mb-0.5" data-layer={model.layer}>
       <ContextMenu>
         <ContextMenuTrigger asChild>
           <button

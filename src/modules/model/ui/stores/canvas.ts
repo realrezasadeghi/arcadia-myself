@@ -29,6 +29,21 @@ export interface PendingConnection {
   allowedTypes: RelationshipTypeValue[];
 }
 
+/**
+ * درخواست افزودن یک المنت *موجود* (مثلاً از Project Explorer) به دیاگرام فعال.
+ * این کار فقط نمای گرافیکی را اضافه می‌کند (مانند ابزار Insert در Capella) و
+ * المنت جدیدی نمی‌سازد. canvas فعال این درخواست را مصرف می‌کند.
+ */
+export interface ElementInsertRequest {
+  elementId: string;
+  elementType: ElementTypeValue;
+  name: string;
+  description?: string;
+  status: "DRAFT" | "VALIDATED" | "DEPRECATED";
+  /** نشانه‌ی یکتا برای جلوگیری از مصرف دوباره‌ی همان درخواست. */
+  token: number;
+}
+
 /** یک snapshot از وضعیت canvas برای undo/redo */
 interface CanvasSnapshot {
   nodes: CanvasNode[];
@@ -45,6 +60,7 @@ interface CanvasState {
   selectedNodeId: string | null;
   selectedEdgeId: string | null;
   pendingConnection: PendingConnection | null;
+  insertRequest: ElementInsertRequest | null;
 
   past: CanvasSnapshot[];
   future: CanvasSnapshot[];
@@ -72,6 +88,12 @@ interface CanvasState {
   selectNode: (id: string | null) => void;
   selectEdge: (id: string | null) => void;
   setPendingConnection: (conn: PendingConnection | null) => void;
+  /** درخواست افزودن یک المنت موجود به دیاگرام فعال را ثبت می‌کند. */
+  requestElementInsert: (
+    req: Omit<ElementInsertRequest, "token">,
+  ) => void;
+  /** پس از مصرف درخواست توسط canvas، آن را پاک می‌کند. */
+  clearInsertRequest: () => void;
   reset: () => void;
 }
 
@@ -83,6 +105,7 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   selectedNodeId: null,
   selectedEdgeId: null,
   pendingConnection: null,
+  insertRequest: null,
   past: [],
   future: [],
   canUndo: false,
@@ -96,6 +119,7 @@ export const useCanvasStore = create<CanvasState>((set) => ({
       edges,
       selectedNodeId: null,
       selectedEdgeId: null,
+      insertRequest: null,
       past: [],
       future: [],
       canUndo: false,
@@ -194,6 +218,10 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   selectEdge: (id) => set({ selectedEdgeId: id, selectedNodeId: null }),
   setPendingConnection: (conn) => set({ pendingConnection: conn }),
 
+  requestElementInsert: (req) =>
+    set({ insertRequest: { ...req, token: Date.now() } }),
+  clearInsertRequest: () => set({ insertRequest: null }),
+
   reset: () =>
     set({
       diagramId: null,
@@ -203,6 +231,7 @@ export const useCanvasStore = create<CanvasState>((set) => ({
       selectedNodeId: null,
       selectedEdgeId: null,
       pendingConnection: null,
+      insertRequest: null,
       past: [],
       future: [],
       canUndo: false,

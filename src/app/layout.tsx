@@ -25,7 +25,7 @@ export default function RootLayout({
       dir="ltr"
       suppressHydrationWarning
       data-scroll-behavior="smooth"
-      className={`${fonts.inter.variable} h-full antialiased`}
+      className={`${fonts.inter.variable} ${fonts}  h-full antialiased`}
     >
       <body className="min-h-full font-sans">
         <DirectionProvider dir="ltr">

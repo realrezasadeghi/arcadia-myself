@@ -13,7 +13,7 @@ import {
 import { ScrollArea } from "@/modules/shared/ui/components/ui/scroll-area";
 import { useConfirm } from "@/modules/shared/ui/hooks/use-confirm";
 import { Check, FolderTree, Plus } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useCreateDiagram } from "../../clients/create-diagram";
 import { useCreateElement } from "../../clients/create-element";
@@ -56,9 +56,21 @@ export function ExplorerPanel({
   const closeTab = useWorkbenchStore((s) => s.closeTab);
   const renameTab = useWorkbenchStore((s) => s.renameTab);
   const selectElement = useWorkbenchStore((s) => s.selectElement);
+  const currentLayer = useWorkbenchStore((s) => s.currentLayer);
 
   const selectCanvasNode = useCanvasStore((s) => s.selectNode);
   const canvasNodes = useCanvasStore((s) => s.nodes);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+    const target = container.querySelector(`[data-layer="${currentLayer}"]`);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [currentLayer]);
 
   const createDiagram = useCreateDiagram();
   const createElement = useCreateElement();
@@ -116,12 +128,30 @@ export function ExplorerPanel({
   const onSelectElement = useCallback(
     (elementId: string) => {
       selectElement(elementId);
-      // اگر المنت روی canvas فعال موجود است، آن را هم انتخاب کن
+
+      // find first diagram that contains this element and open it
+      for (const { model, diagrams } of modelData) {
+        const diagram = diagrams.find((d) =>
+          d.elementLayouts.some((l) => l.elementId === elementId),
+        );
+        if (diagram) {
+          openTab({
+            diagramId: diagram.id,
+            modelId: model.id,
+            name: diagram.name,
+            type: diagram.type,
+            layer: getDiagramLayer(diagram.type),
+          });
+          return;
+        }
+      }
+
+      // fallback: if on current canvas, select the node
       if (canvasNodes.some((n) => n.id === elementId)) {
         selectCanvasNode(elementId);
       }
     },
-    [selectElement, selectCanvasNode, canvasNodes],
+    [selectElement, selectCanvasNode, canvasNodes, modelData, openTab],
   );
 
   const onNewElement = useCallback(
@@ -296,7 +326,7 @@ export function ExplorerPanel({
                   {exists ? (
                     <Check className="size-3.5 text-muted-foreground" />
                   ) : (
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       {layer.value}
                     </span>
                   )}
@@ -308,12 +338,14 @@ export function ExplorerPanel({
       </div>
 
       <ScrollArea className="min-h-0 flex-1">
-        <ExplorerTree
-          modelData={modelData}
-          handlers={handlers}
-          existingLayers={existingLayers}
-          onNewModel={onNewModel}
-        />
+        <div ref={scrollRef}>
+          <ExplorerTree
+            modelData={modelData}
+            handlers={handlers}
+            existingLayers={existingLayers}
+            onNewModel={onNewModel}
+          />
+        </div>
       </ScrollArea>
 
       {diagramDialogModel && (

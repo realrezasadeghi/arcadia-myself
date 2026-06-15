@@ -61,6 +61,15 @@ export const TRACE_RULES: TraceLinkRule[] = [
     targetLayerLabelFa: "تحلیل سیستم",
     targetTypes: ["SystemComponent"],
   },
+  {
+    type: "Realization",
+    typeLabelFa: "تحقق",
+    sourceLayer: "LA",
+    sourceTypes: ["LogicalActor"],
+    targetLayer: "SA",
+    targetLayerLabelFa: "تحلیل سیستم",
+    targetTypes: ["SystemActor"],
+  },
   // PA realizes LA
   {
     type: "Realization",
@@ -79,6 +88,15 @@ export const TRACE_RULES: TraceLinkRule[] = [
     targetLayer: "LA",
     targetLayerLabelFa: "معماری منطقی",
     targetTypes: ["LogicalFunction"],
+  },
+  {
+    type: "Realization",
+    typeLabelFa: "تحقق",
+    sourceLayer: "PA",
+    sourceTypes: ["PhysicalActor"],
+    targetLayer: "LA",
+    targetLayerLabelFa: "معماری منطقی",
+    targetTypes: ["LogicalActor"],
   },
   // Allocation (intra-layer)
   {

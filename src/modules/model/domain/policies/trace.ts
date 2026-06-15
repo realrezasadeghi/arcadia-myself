@@ -57,6 +57,14 @@ const RULES: TraceRule[] = [
     targetTypes: ["SystemComponent"],
     descriptionFa: "مؤلفه منطقی، مؤلفه سیستم را محقق می‌کند",
   },
+  {
+    type: "Realization",
+    sourceLayer: Layer.LA,
+    sourceTypes: ["LogicalActor"],
+    targetLayer: Layer.SA,
+    targetTypes: ["SystemActor"],
+    descriptionFa: "بازیگر منطقی، بازیگر سیستم را محقق می‌کند",
+  },
   // ─── PA realizes LA ────────────────────────────────────────────────────────
   {
     type: "Realization",
@@ -73,6 +81,14 @@ const RULES: TraceRule[] = [
     targetLayer: Layer.LA,
     targetTypes: ["LogicalFunction"],
     descriptionFa: "تابع فیزیکی، تابع منطقی را محقق می‌کند",
+  },
+  {
+    type: "Realization",
+    sourceLayer: Layer.PA,
+    sourceTypes: ["PhysicalActor"],
+    targetLayer: Layer.LA,
+    targetTypes: ["LogicalActor"],
+    descriptionFa: "بازیگر فیزیکی، بازیگر منطقی را محقق می‌کند",
   },
   // ─── Allocation (درون لایه) ────────────────────────────────────────────────
   {

@@ -17,6 +17,7 @@ import {
   PanelBottom,
   PanelLeft,
   PanelRight,
+  ShieldCheck,
   Workflow,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -28,13 +29,16 @@ import {
 } from "../../stores/workbench";
 import type { Diagram } from "../../types/diagram";
 import type { Element } from "../../types/element";
+import type { LayerValue } from "../../types/layer";
 import type { Model } from "../../types/model";
 import { EditorArea } from "./editor-area";
 import { ExplorerPanel } from "./explorer-panel";
+import { LayerSwitcher } from "./layer-switcher";
 import { OutlinePanel } from "./outline-panel";
 import { PalettePanel } from "./palette-panel";
 import { PropertiesPanel } from "./properties-panel";
 import { SemanticBrowserPanel } from "./semantic-browser-panel";
+import { ValidationPanel } from "./validation-panel";
 
 export type WorkbenchModelData = {
   model: Model;
@@ -58,8 +62,10 @@ export function Workbench({
 
   const panels = useWorkbenchStore((s) => s.panels);
   const currentProjectId = useWorkbenchStore((s) => s.projectId);
-  const resetForProject = useWorkbenchStore((s) => s.resetForProject);
   const openTab = useWorkbenchStore((s) => s.openTab);
+  const resetForProject = useWorkbenchStore((s) => s.resetForProject);
+  const currentLayer = useWorkbenchStore((s) => s.currentLayer);
+  const setCurrentLayer = useWorkbenchStore((s) => s.setCurrentLayer);
 
   useEffect(() => {
     if (currentProjectId !== projectId) {
@@ -93,14 +99,38 @@ export function Workbench({
     }
   }, [deepLinkDiagramId, modelData, openTab]);
 
+  const handleLayerChange = (layer: LayerValue, modelId: string) => {
+    setCurrentLayer(layer);
+
+    const layerData = modelData.find((d) => d.model.layer === layer);
+    if (layerData && layerData.diagrams.length > 0) {
+      const diagram = layerData.diagrams[0];
+      openTab({
+        diagramId: diagram.id,
+        modelId: layerData.model.id,
+        name: diagram.name,
+        type: diagram.type,
+        layer: getDiagramLayer(diagram.type),
+      });
+    }
+  };
+
+  const allModels = modelData.map((d) => d.model);
+
   const refreshTree = () => router.refresh();
 
-  const showRightDock = panels.outline || panels.semantic;
+  const showRightDock = panels.outline || panels.semantic || panels.validation;
 
   return (
     <ReactFlowProvider>
       <div className="flex h-full min-h-0 flex-col bg-background">
         <WorkbenchMenuBar projectName={projectName} />
+
+        <LayerSwitcher
+          models={allModels}
+          currentLayer={currentLayer}
+          onLayerChange={handleLayerChange}
+        />
 
         <ResizablePanelGroup
           orientation="horizontal"
@@ -110,7 +140,7 @@ export function Workbench({
             <>
               <ResizablePanel
                 id="explorer"
-                defaultSize={100}
+                defaultSize={300}
                 minSize={100}
                 maxSize={400}
                 collapsible
@@ -142,9 +172,9 @@ export function Workbench({
 
                   <ResizablePanel
                     id="palette"
-                    defaultSize={100}
                     minSize={100}
-                    maxSize={300}
+                    maxSize={400}
+                    defaultSize={300}
                     className="min-w-0"
                   >
                     <PalettePanel />
@@ -158,9 +188,9 @@ export function Workbench({
 
                   <ResizablePanel
                     id="properties"
-                    defaultSize={100}
                     minSize={100}
                     maxSize={400}
+                    defaultSize={200}
                     collapsible
                     className="min-h-0"
                   >
@@ -194,27 +224,49 @@ export function Workbench({
 }
 
 function RightDock({ panels }: { panels: PanelVisibility }) {
-  if (panels.outline && panels.semantic) {
-    return (
-      <ResizablePanelGroup orientation="vertical">
-        <ResizablePanel id="outline" minSize={20}>
+  const openPanels: Array<"outline" | "semantic" | "validation"> = [];
+  if (panels.outline) openPanels.push("outline");
+  if (panels.semantic) openPanels.push("semantic");
+  if (panels.validation) openPanels.push("validation");
+
+  if (openPanels.length === 0) return null;
+
+  if (openPanels.length === 1) {
+    if (openPanels[0] === "outline") return <OutlinePanel />;
+    if (openPanels[0] === "semantic") return <SemanticBrowserPanel />;
+    return <ValidationPanel />;
+  }
+
+  return (
+    <ResizablePanelGroup orientation="vertical">
+      {openPanels.includes("outline") && (
+        <ResizablePanel id="outline" defaultSize={500}>
           <OutlinePanel />
         </ResizablePanel>
+      )}
 
-        <ResizeHandle />
+      {openPanels.includes("outline") &&
+        (openPanels.includes("semantic") || openPanels.includes("validation")) && (
+          <ResizeHandle />
+        )}
 
-        <ResizablePanel id="semantic" minSize={20}>
+      {openPanels.includes("semantic") && (
+        <ResizablePanel id="semantic">
           <SemanticBrowserPanel />
         </ResizablePanel>
-      </ResizablePanelGroup>
-    );
-  }
+      )}
 
-  if (panels.outline) {
-    return <OutlinePanel />;
-  }
+      {openPanels.includes("semantic") && openPanels.includes("validation") && (
+        <ResizeHandle />
+      )}
 
-  return <SemanticBrowserPanel />;
+      {openPanels.includes("validation") && (
+        <ResizablePanel id="validation">
+          <ValidationPanel />
+        </ResizablePanel>
+      )}
+    </ResizablePanelGroup>
+  );
 }
 
 function ResizeHandle({ className }: { className?: string }) {
@@ -233,15 +285,16 @@ function WorkbenchMenuBar({ projectName }: { projectName: string }) {
   const panels = useWorkbenchStore((s) => s.panels);
   const togglePanel = useWorkbenchStore((s) => s.togglePanel);
 
-  const toggles: Array<{
+  const toggles: {
     key: keyof PanelVisibility;
     label: string;
     icon: typeof PanelLeft;
-  }> = [
+  }[] = [
     { key: "explorer", label: "Project Explorer", icon: PanelLeft },
     { key: "properties", label: "Properties", icon: PanelBottom },
     { key: "outline", label: "Outline", icon: PanelRight },
     { key: "semantic", label: "Semantic Browser", icon: Workflow },
+    { key: "validation", label: "Validation", icon: ShieldCheck },
   ];
 
   return (

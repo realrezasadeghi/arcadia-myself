@@ -108,14 +108,7 @@ export function ProjectFormDialog({
             onOpenChange(false);
             toast.success(message);
             if (values.isSeed) {
-              ife.mutate(String(data.id), {
-                onSuccess() {
-                  console.log("created ife successfully");
-                },
-                onError(data) {
-                  console.log("error", data);
-                },
-              });
+              ife.mutate(String(data.id));
             }
           },
         });

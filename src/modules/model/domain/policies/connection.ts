@@ -70,6 +70,13 @@ const RULES: ConnectionRule[] = [
     allowedTargets: ["SystemComponent"],
     descriptionFa: "تبادل مؤلفه بین مؤلفه‌های سیستم",
   },
+  {
+    relationshipType: "FunctionalExchange",
+    layer: Layer.SA,
+    allowedSources: ["SystemFunction"],
+    allowedTargets: ["SystemComponent"],
+    descriptionFa: "تخصیص تابع سیستم به مؤلفه سیستم",
+  },
   // ─── LA ────────────────────────────────────────────────────────────────────
   {
     relationshipType: "LogicalExchange",
@@ -106,6 +113,13 @@ const RULES: ConnectionRule[] = [
     allowedTargets: ["LogicalComponent", "LogicalActor"],
     descriptionFa: "ترکیب بین مؤلفه‌ها/بازیگران منطقی",
   },
+  {
+    relationshipType: "LogicalExchange",
+    layer: Layer.LA,
+    allowedSources: ["LogicalFunction"],
+    allowedTargets: ["LogicalComponent"],
+    descriptionFa: "تخصیص تابع منطقی به مؤلفه منطقی",
+  },
   // ─── PA ────────────────────────────────────────────────────────────────────
   {
     relationshipType: "PhysicalExchange",
@@ -134,6 +148,13 @@ const RULES: ConnectionRule[] = [
     allowedSources: ["PhysicalComponent", "PhysicalNode"],
     allowedTargets: ["PhysicalComponent", "PhysicalNode"],
     descriptionFa: "ترکیب بین مؤلفه‌ها/گره‌های فیزیکی",
+  },
+  {
+    relationshipType: "PhysicalExchange",
+    layer: Layer.PA,
+    allowedSources: ["PhysicalFunction"],
+    allowedTargets: ["PhysicalComponent"],
+    descriptionFa: "تخصیص تابع فیزیکی به مؤلفه فیزیکی",
   },
 ];
 

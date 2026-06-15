@@ -82,7 +82,6 @@ export class CreateElementUseCase
 
       return response.toJSON();
     } catch (error) {
-      console.log("error", error);
       throw new Error(resolveErrorMessage(error, "Error in create element"));
     }
   }

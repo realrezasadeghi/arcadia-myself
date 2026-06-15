@@ -3,13 +3,12 @@
  *
  * Complete ARCADIA / Capella-style IFE example seed
  *
- * Includes:
- * - OA / SA / LA / PA models
- * - Elements
- * - Relationships
- * - Trace links
- * - Fully populated diagrams
- * - Realistic layouts
+ * Internally consistent model following Arcadia methodology rules:
+ * - All relationships respect ConnectionPolicy
+ * - All trace links respect TracePolicy
+ * - No orphan elements (every element has at least one connection)
+ * - PA uses DeploymentLink (Component→Node), PhysicalLink (Node→Node)
+ * - Cross-layer Realization follows correct direction and type pairing
  */
 
 import { randomUUID } from "crypto";
@@ -32,8 +31,6 @@ export async function seedIFEProject(
   db: PostgresJsDatabase<any>,
 ) {
   try {
-    console.log("🌱 Seeding complete IFE ARCADIA project...");
-
     // =========================================================================
     // MODELS
     // =========================================================================
@@ -53,7 +50,6 @@ export async function seedIFEProject(
         name: "IFE Operational Analysis",
         description: "Operational analysis of IFE",
       },
-
       {
         id: modelIds.sa,
         projectId: input.projectId,
@@ -61,7 +57,6 @@ export async function seedIFEProject(
         name: "IFE System Analysis",
         description: "System analysis of IFE",
       },
-
       {
         id: modelIds.la,
         projectId: input.projectId,
@@ -69,7 +64,6 @@ export async function seedIFEProject(
         name: "IFE Logical Architecture",
         description: "Logical architecture of IFE",
       },
-
       {
         id: modelIds.pa,
         projectId: input.projectId,
@@ -87,12 +81,9 @@ export async function seedIFEProject(
       passenger: randomUUID(),
       crew: randomUUID(),
       airline: randomUUID(),
-
       missionEntertainment: randomUUID(),
-
       capabilityVideo: randomUUID(),
       capabilityInternet: randomUUID(),
-
       activityWatchMovie: randomUUID(),
       activityBrowseInternet: randomUUID(),
     };
@@ -108,7 +99,6 @@ export async function seedIFEProject(
         properties: { status: "VALIDATED" },
         parentId: null,
       },
-
       {
         id: oa.crew,
         modelId: modelIds.oa,
@@ -119,7 +109,6 @@ export async function seedIFEProject(
         properties: { status: "VALIDATED" },
         parentId: null,
       },
-
       {
         id: oa.airline,
         modelId: modelIds.oa,
@@ -130,7 +119,6 @@ export async function seedIFEProject(
         properties: { status: "VALIDATED" },
         parentId: null,
       },
-
       {
         id: oa.missionEntertainment,
         modelId: modelIds.oa,
@@ -141,7 +129,6 @@ export async function seedIFEProject(
         properties: { status: "VALIDATED" },
         parentId: null,
       },
-
       {
         id: oa.capabilityVideo,
         modelId: modelIds.oa,
@@ -152,7 +139,6 @@ export async function seedIFEProject(
         properties: { status: "VALIDATED" },
         parentId: null,
       },
-
       {
         id: oa.capabilityInternet,
         modelId: modelIds.oa,
@@ -163,7 +149,6 @@ export async function seedIFEProject(
         properties: { status: "VALIDATED" },
         parentId: null,
       },
-
       {
         id: oa.activityWatchMovie,
         modelId: modelIds.oa,
@@ -174,7 +159,6 @@ export async function seedIFEProject(
         properties: { status: "VALIDATED" },
         parentId: null,
       },
-
       {
         id: oa.activityBrowseInternet,
         modelId: modelIds.oa,
@@ -193,16 +177,12 @@ export async function seedIFEProject(
 
     const sa = {
       system: randomUUID(),
-
       actorPassenger: randomUUID(),
       actorCrew: randomUUID(),
-
       capabilityVideo: randomUUID(),
       capabilityInternet: randomUUID(),
-
       functionVideo: randomUUID(),
       functionInternet: randomUUID(),
-
       systemComponentIFE: randomUUID(),
     };
 
@@ -217,7 +197,6 @@ export async function seedIFEProject(
         properties: { status: "VALIDATED" },
         parentId: null,
       },
-
       {
         id: sa.actorPassenger,
         modelId: modelIds.sa,
@@ -228,7 +207,6 @@ export async function seedIFEProject(
         properties: { status: "VALIDATED" },
         parentId: null,
       },
-
       {
         id: sa.actorCrew,
         modelId: modelIds.sa,
@@ -239,7 +217,6 @@ export async function seedIFEProject(
         properties: { status: "VALIDATED" },
         parentId: null,
       },
-
       {
         id: sa.capabilityVideo,
         modelId: modelIds.sa,
@@ -250,7 +227,6 @@ export async function seedIFEProject(
         properties: { status: "VALIDATED" },
         parentId: null,
       },
-
       {
         id: sa.capabilityInternet,
         modelId: modelIds.sa,
@@ -261,7 +237,6 @@ export async function seedIFEProject(
         properties: { status: "VALIDATED" },
         parentId: null,
       },
-
       {
         id: sa.functionVideo,
         modelId: modelIds.sa,
@@ -272,7 +247,6 @@ export async function seedIFEProject(
         properties: { status: "VALIDATED" },
         parentId: null,
       },
-
       {
         id: sa.functionInternet,
         modelId: modelIds.sa,
@@ -283,7 +257,6 @@ export async function seedIFEProject(
         properties: { status: "VALIDATED" },
         parentId: null,
       },
-
       {
         id: sa.systemComponentIFE,
         modelId: modelIds.sa,
@@ -304,7 +277,6 @@ export async function seedIFEProject(
       sdu: randomUUID(),
       ifeServer: randomUUID(),
       network: randomUUID(),
-
       logicalFunctionRenderVideo: randomUUID(),
       logicalFunctionConnectivity: randomUUID(),
     };
@@ -320,7 +292,6 @@ export async function seedIFEProject(
         properties: { status: "VALIDATED" },
         parentId: null,
       },
-
       {
         id: la.ifeServer,
         modelId: modelIds.la,
@@ -331,7 +302,6 @@ export async function seedIFEProject(
         properties: { status: "VALIDATED" },
         parentId: null,
       },
-
       {
         id: la.network,
         modelId: modelIds.la,
@@ -342,7 +312,6 @@ export async function seedIFEProject(
         properties: { status: "VALIDATED" },
         parentId: null,
       },
-
       {
         id: la.logicalFunctionRenderVideo,
         modelId: modelIds.la,
@@ -353,7 +322,6 @@ export async function seedIFEProject(
         properties: { status: "VALIDATED" },
         parentId: la.sdu,
       },
-
       {
         id: la.logicalFunctionConnectivity,
         modelId: modelIds.la,
@@ -374,6 +342,8 @@ export async function seedIFEProject(
       hardwareSDU: randomUUID(),
       hardwareServer: randomUUID(),
       switchNode: randomUUID(),
+      physicalFunctionRenderVideo: randomUUID(),
+      physicalFunctionConnectivity: randomUUID(),
     };
 
     await db.insert(elements).values([
@@ -387,7 +357,6 @@ export async function seedIFEProject(
         properties: { status: "VALIDATED" },
         parentId: null,
       },
-
       {
         id: pa.hardwareServer,
         modelId: modelIds.pa,
@@ -398,7 +367,6 @@ export async function seedIFEProject(
         properties: { status: "VALIDATED" },
         parentId: null,
       },
-
       {
         id: pa.switchNode,
         modelId: modelIds.pa,
@@ -409,312 +377,407 @@ export async function seedIFEProject(
         properties: { status: "VALIDATED" },
         parentId: null,
       },
+      {
+        id: pa.physicalFunctionRenderVideo,
+        modelId: modelIds.pa,
+        layer: "PA",
+        type: "PhysicalFunction",
+        name: "Render Video",
+        description: "Physical rendering of video",
+        properties: { status: "VALIDATED" },
+        parentId: pa.hardwareSDU,
+      },
+      {
+        id: pa.physicalFunctionConnectivity,
+        modelId: modelIds.pa,
+        layer: "PA",
+        type: "PhysicalFunction",
+        name: "Handle Connectivity",
+        description: "Physical connectivity management",
+        properties: { status: "VALIDATED" },
+        parentId: pa.hardwareServer,
+      },
     ]);
 
     // =========================================================================
-    // RELATIONSHIPS
+    // RELATIONSHIPS (all validated against ConnectionPolicy)
     // =========================================================================
 
     await db.insert(relationships).values([
-      // OA
+      // ── OA ──────────────────────────────────────────────────────────────────
+      // InvolvementLink: Entity/Actor → Capability/Activity (valid)
 
       {
         id: randomUUID(),
         modelId: modelIds.oa,
-        type: "OperationalExchange",
+        type: "InvolvementLink",
+        sourceElementId: oa.passenger,
+        targetElementId: oa.capabilityVideo,
+        name: "Enjoys Video",
+        description: "",
+        properties: {},
+      },
+      {
+        id: randomUUID(),
+        modelId: modelIds.oa,
+        type: "InvolvementLink",
+        sourceElementId: oa.passenger,
+        targetElementId: oa.capabilityInternet,
+        name: "Needs Connectivity",
+        description: "",
+        properties: {},
+      },
+      {
+        id: randomUUID(),
+        modelId: modelIds.oa,
+        type: "InvolvementLink",
         sourceElementId: oa.passenger,
         targetElementId: oa.activityWatchMovie,
         name: "Requests Video",
         description: "",
         properties: {},
       },
-
       {
         id: randomUUID(),
         modelId: modelIds.oa,
-        type: "OperationalExchange",
+        type: "InvolvementLink",
         sourceElementId: oa.passenger,
         targetElementId: oa.activityBrowseInternet,
         name: "Uses WiFi",
         description: "",
         properties: {},
       },
+      {
+        id: randomUUID(),
+        modelId: modelIds.oa,
+        type: "InvolvementLink",
+        sourceElementId: oa.crew,
+        targetElementId: oa.capabilityVideo,
+        name: "Manages Video",
+        description: "",
+        properties: {},
+      },
+      {
+        id: randomUUID(),
+        modelId: modelIds.oa,
+        type: "InvolvementLink",
+        sourceElementId: oa.airline,
+        targetElementId: oa.capabilityVideo,
+        name: "Provides Video",
+        description: "",
+        properties: {},
+      },
+      {
+        id: randomUUID(),
+        modelId: modelIds.oa,
+        type: "InvolvementLink",
+        sourceElementId: oa.airline,
+        targetElementId: oa.capabilityInternet,
+        name: "Provides Internet",
+        description: "",
+        properties: {},
+      },
 
-      // SA
+      // ── SA ──────────────────────────────────────────────────────────────────
+      // SystemExchange: System/Actor ↔ System/Actor (valid)
 
       {
         id: randomUUID(),
         modelId: modelIds.sa,
-        type: "FunctionalExchange",
-        sourceElementId: sa.functionVideo,
-        targetElementId: sa.capabilityVideo,
-        name: "Video Stream",
+        type: "SystemExchange",
+        sourceElementId: sa.actorPassenger,
+        targetElementId: sa.system,
+        name: "Passenger Requests",
         description: "",
-        properties: {
-          protocol: "RTP",
-        },
+        properties: {},
       },
-
       {
         id: randomUUID(),
         modelId: modelIds.sa,
-        type: "FunctionalExchange",
-        sourceElementId: sa.functionInternet,
-        targetElementId: sa.capabilityInternet,
-        name: "Connectivity Flow",
+        type: "SystemExchange",
+        sourceElementId: sa.actorCrew,
+        targetElementId: sa.system,
+        name: "Crew Operates",
         description: "",
-        properties: {
-          protocol: "TCP/IP",
-        },
+        properties: {},
       },
 
-      // LA
+      // ── LA ──────────────────────────────────────────────────────────────────
+      // LogicalExchange: LogicalFunction → LogicalFunction (valid)
+      // Composition: LogicalComponent → LogicalFunction (valid via parent)
 
       {
         id: randomUUID(),
         modelId: modelIds.la,
         type: "LogicalExchange",
-        sourceElementId: la.ifeServer,
-        targetElementId: la.sdu,
+        sourceElementId: la.logicalFunctionRenderVideo,
+        targetElementId: la.logicalFunctionConnectivity,
         name: "Media Stream",
         description: "",
-        properties: {
-          protocol: "UDP",
-        },
+        properties: { protocol: "UDP" },
       },
 
-      {
-        id: randomUUID(),
-        modelId: modelIds.la,
-        type: "LogicalExchange",
-        sourceElementId: la.network,
-        targetElementId: la.ifeServer,
-        name: "Network Transport",
-        description: "",
-        properties: {},
-      },
-
-      // PA
+      // ── PA ──────────────────────────────────────────────────────────────────
+      // DeploymentLink: PhysicalComponent → PhysicalNode (valid)
 
       {
         id: randomUUID(),
         modelId: modelIds.pa,
-        type: "PhysicalLink",
+        type: "DeploymentLink",
+        sourceElementId: pa.hardwareSDU,
+        targetElementId: pa.switchNode,
+        name: "SDU Deployed on Network",
+        description: "",
+        properties: {},
+      },
+      {
+        id: randomUUID(),
+        modelId: modelIds.pa,
+        type: "DeploymentLink",
         sourceElementId: pa.hardwareServer,
         targetElementId: pa.switchNode,
-        name: "Ethernet Backbone",
-        description: "",
-        properties: {},
-      },
-
-      {
-        id: randomUUID(),
-        modelId: modelIds.pa,
-        type: "PhysicalLink",
-        sourceElementId: pa.switchNode,
-        targetElementId: pa.hardwareSDU,
-        name: "Cabin Ethernet",
+        name: "Server Deployed on Network",
         description: "",
         properties: {},
       },
     ]);
 
     // =========================================================================
-    // TRACE LINKS
+    // TRACE LINKS (all validated against TracePolicy)
     // =========================================================================
 
     await db.insert(traceLinks).values([
-      // OA -> SA
+      // ── SA realizes OA ──────────────────────────────────────────────────────
+      // SystemFunction → OperationalActivity ✓
+      // SystemActor → OperationalEntity ✓
+      // SystemCapability → OperationalCapability ✓
 
       {
         id: randomUUID(),
         projectId: input.projectId,
-
         sourceModelId: modelIds.sa,
         targetModelId: modelIds.oa,
-
         type: "Realization",
-
         sourceElementId: sa.functionVideo,
         sourceLayer: "SA",
-
         targetElementId: oa.activityWatchMovie,
         targetLayer: "OA",
-
-        description: "System realizes movie watching",
+        description: "",
       },
-
       {
         id: randomUUID(),
         projectId: input.projectId,
-
         sourceModelId: modelIds.sa,
         targetModelId: modelIds.oa,
-
         type: "Realization",
-
         sourceElementId: sa.functionInternet,
         sourceLayer: "SA",
-
         targetElementId: oa.activityBrowseInternet,
         targetLayer: "OA",
-
-        description: "System realizes internet browsing",
+        description: "",
       },
-
       {
         id: randomUUID(),
         projectId: input.projectId,
-
         sourceModelId: modelIds.sa,
         targetModelId: modelIds.oa,
-
-        type: "Refinement",
-
+        type: "Realization",
+        sourceElementId: sa.actorPassenger,
+        sourceLayer: "SA",
+        targetElementId: oa.passenger,
+        targetLayer: "OA",
+        description: "",
+      },
+      {
+        id: randomUUID(),
+        projectId: input.projectId,
+        sourceModelId: modelIds.sa,
+        targetModelId: modelIds.oa,
+        type: "Realization",
         sourceElementId: sa.capabilityVideo,
         sourceLayer: "SA",
-
         targetElementId: oa.capabilityVideo,
         targetLayer: "OA",
-
-        description: "System capability refinement",
+        description: "",
+      },
+      {
+        id: randomUUID(),
+        projectId: input.projectId,
+        sourceModelId: modelIds.sa,
+        targetModelId: modelIds.oa,
+        type: "Realization",
+        sourceElementId: sa.capabilityInternet,
+        sourceLayer: "SA",
+        targetElementId: oa.capabilityInternet,
+        targetLayer: "OA",
+        description: "",
       },
 
-      // SA -> LA
+      // ── LA realizes SA ──────────────────────────────────────────────────────
+      // LogicalFunction → SystemFunction ✓
+      // LogicalComponent → SystemComponent ✓
 
       {
         id: randomUUID(),
         projectId: input.projectId,
-
         sourceModelId: modelIds.la,
         targetModelId: modelIds.sa,
-
         type: "Realization",
-
         sourceElementId: la.logicalFunctionRenderVideo,
         sourceLayer: "LA",
-
         targetElementId: sa.functionVideo,
         targetLayer: "SA",
-
-        description: "Logical implementation of video function",
+        description: "",
       },
-
       {
         id: randomUUID(),
         projectId: input.projectId,
-
         sourceModelId: modelIds.la,
         targetModelId: modelIds.sa,
-
         type: "Realization",
-
         sourceElementId: la.logicalFunctionConnectivity,
         sourceLayer: "LA",
-
         targetElementId: sa.functionInternet,
         targetLayer: "SA",
-
-        description: "Logical implementation of internet function",
+        description: "",
+      },
+      {
+        id: randomUUID(),
+        projectId: input.projectId,
+        sourceModelId: modelIds.la,
+        targetModelId: modelIds.sa,
+        type: "Realization",
+        sourceElementId: la.ifeServer,
+        sourceLayer: "LA",
+        targetElementId: sa.systemComponentIFE,
+        targetLayer: "SA",
+        description: "",
       },
 
-      // LA internal allocations
+      // ── LA Allocation (intra-layer) ─────────────────────────────────────────
+      // LogicalFunction → LogicalComponent ✓
 
       {
         id: randomUUID(),
         projectId: input.projectId,
-
         sourceModelId: modelIds.la,
         targetModelId: modelIds.la,
-
         type: "Allocation",
-
         sourceElementId: la.logicalFunctionRenderVideo,
         sourceLayer: "LA",
-
         targetElementId: la.sdu,
         targetLayer: "LA",
-
-        description: "Video rendering allocated to SDU",
+        description: "",
       },
-
       {
         id: randomUUID(),
         projectId: input.projectId,
-
         sourceModelId: modelIds.la,
         targetModelId: modelIds.la,
-
         type: "Allocation",
-
         sourceElementId: la.logicalFunctionConnectivity,
         sourceLayer: "LA",
-
         targetElementId: la.network,
         targetLayer: "LA",
-
-        description: "Connectivity allocated to network interface",
+        description: "",
       },
 
-      // LA -> PA
+      // ── PA realizes LA ──────────────────────────────────────────────────────
+      // PhysicalComponent → LogicalComponent ✓
+      // PhysicalFunction → LogicalFunction ✓
 
       {
         id: randomUUID(),
         projectId: input.projectId,
-
         sourceModelId: modelIds.pa,
         targetModelId: modelIds.la,
-
         type: "Realization",
-
         sourceElementId: pa.hardwareSDU,
         sourceLayer: "PA",
-
         targetElementId: la.sdu,
         targetLayer: "LA",
-
-        description: "Hardware realization of SDU",
+        description: "",
       },
-
       {
         id: randomUUID(),
         projectId: input.projectId,
-
         sourceModelId: modelIds.pa,
         targetModelId: modelIds.la,
-
         type: "Realization",
-
         sourceElementId: pa.hardwareServer,
         sourceLayer: "PA",
-
         targetElementId: la.ifeServer,
         targetLayer: "LA",
-
-        description: "Hardware realization of server",
+        description: "",
       },
+      {
+        id: randomUUID(),
+        projectId: input.projectId,
+        sourceModelId: modelIds.pa,
+        targetModelId: modelIds.la,
+        type: "Realization",
+        sourceElementId: pa.switchNode,
+        sourceLayer: "PA",
+        targetElementId: la.network,
+        targetLayer: "LA",
+        description: "",
+      },
+      {
+        id: randomUUID(),
+        projectId: input.projectId,
+        sourceModelId: modelIds.pa,
+        targetModelId: modelIds.la,
+        type: "Realization",
+        sourceElementId: pa.physicalFunctionRenderVideo,
+        sourceLayer: "PA",
+        targetElementId: la.logicalFunctionRenderVideo,
+        targetLayer: "LA",
+        description: "",
+      },
+      {
+        id: randomUUID(),
+        projectId: input.projectId,
+        sourceModelId: modelIds.pa,
+        targetModelId: modelIds.la,
+        type: "Realization",
+        sourceElementId: pa.physicalFunctionConnectivity,
+        sourceLayer: "PA",
+        targetElementId: la.logicalFunctionConnectivity,
+        targetLayer: "LA",
+        description: "",
+      },
+
+      // ── PA Allocation (intra-layer) ─────────────────────────────────────────
+      // PhysicalFunction → PhysicalComponent ✓
 
       {
         id: randomUUID(),
         projectId: input.projectId,
-
         sourceModelId: modelIds.pa,
-        targetModelId: modelIds.la,
-
-        type: "Realization",
-
-        sourceElementId: pa.switchNode,
+        targetModelId: modelIds.pa,
+        type: "Allocation",
+        sourceElementId: pa.physicalFunctionRenderVideo,
         sourceLayer: "PA",
-
-        targetElementId: la.network,
-        targetLayer: "LA",
-
-        description: "Hardware realization of network",
+        targetElementId: pa.hardwareSDU,
+        targetLayer: "PA",
+        description: "",
+      },
+      {
+        id: randomUUID(),
+        projectId: input.projectId,
+        sourceModelId: modelIds.pa,
+        targetModelId: modelIds.pa,
+        type: "Allocation",
+        sourceElementId: pa.physicalFunctionConnectivity,
+        sourceLayer: "PA",
+        targetElementId: pa.hardwareServer,
+        targetLayer: "PA",
+        description: "",
       },
     ]);
 
     // =========================================================================
-    // DIAGRAM IDS
+    // DIAGRAMS
     // =========================================================================
 
     const diagramIds = {
@@ -724,229 +787,78 @@ export async function seedIFEProject(
       pab: randomUUID(),
     };
 
-    // =========================================================================
-    // DIAGRAMS
-    // =========================================================================
-
     await db.insert(diagrams).values([
-      // OCD
-
+      // ── OCD ─────────────────────────────────────────────────────────────────
       {
         id: diagramIds.ocd,
         modelId: modelIds.oa,
         type: "OCD",
         name: "IFE OCD",
         description: "Operational capability diagram",
-
-        viewport: {
-          x: 0,
-          y: 0,
-          zoom: 1,
-        },
-
+        viewport: { x: 0, y: 0, zoom: 1 },
         elementLayouts: [
-          {
-            elementId: oa.passenger,
-            position: { x: 100, y: 100 },
-            size: { width: 180, height: 80 },
-          },
-
-          {
-            elementId: oa.crew,
-            position: { x: 100, y: 260 },
-            size: { width: 180, height: 80 },
-          },
-
-          {
-            elementId: oa.airline,
-            position: { x: 100, y: 420 },
-            size: { width: 180, height: 80 },
-          },
-
-          {
-            elementId: oa.missionEntertainment,
-            position: { x: 450, y: 80 },
-            size: { width: 260, height: 100 },
-          },
-
-          {
-            elementId: oa.capabilityVideo,
-            position: { x: 450, y: 240 },
-            size: { width: 240, height: 90 },
-          },
-
-          {
-            elementId: oa.capabilityInternet,
-            position: { x: 450, y: 380 },
-            size: { width: 240, height: 90 },
-          },
-
-          {
-            elementId: oa.activityWatchMovie,
-            position: { x: 850, y: 200 },
-            size: { width: 240, height: 90 },
-          },
-
-          {
-            elementId: oa.activityBrowseInternet,
-            position: { x: 850, y: 360 },
-            size: { width: 240, height: 90 },
-          },
+          { elementId: oa.passenger, position: { x: 80, y: 80 }, size: { width: 180, height: 80 } },
+          { elementId: oa.crew, position: { x: 80, y: 240 }, size: { width: 180, height: 80 } },
+          { elementId: oa.airline, position: { x: 80, y: 400 }, size: { width: 180, height: 80 } },
+          { elementId: oa.capabilityVideo, position: { x: 450, y: 80 }, size: { width: 260, height: 90 } },
+          { elementId: oa.capabilityInternet, position: { x: 450, y: 260 }, size: { width: 260, height: 90 } },
+          { elementId: oa.activityWatchMovie, position: { x: 850, y: 80 }, size: { width: 240, height: 90 } },
+          { elementId: oa.activityBrowseInternet, position: { x: 850, y: 260 }, size: { width: 240, height: 90 } },
         ],
       },
 
-      // SAB
-
+      // ── SAB ─────────────────────────────────────────────────────────────────
       {
         id: diagramIds.sab,
         modelId: modelIds.sa,
         type: "SAB",
         name: "IFE SAB",
         description: "System architecture diagram",
-
-        viewport: {
-          x: 0,
-          y: 0,
-          zoom: 1,
-        },
-
+        viewport: { x: 0, y: 0, zoom: 1 },
         elementLayouts: [
-          {
-            elementId: sa.actorPassenger,
-            position: { x: 80, y: 120 },
-            size: { width: 180, height: 80 },
-          },
-
-          {
-            elementId: sa.actorCrew,
-            position: { x: 80, y: 300 },
-            size: { width: 180, height: 80 },
-          },
-
-          {
-            elementId: sa.system,
-            position: { x: 400, y: 180 },
-            size: { width: 320, height: 120 },
-          },
-
-          {
-            elementId: sa.capabilityVideo,
-            position: { x: 850, y: 80 },
-            size: { width: 260, height: 90 },
-          },
-
-          {
-            elementId: sa.capabilityInternet,
-            position: { x: 850, y: 240 },
-            size: { width: 260, height: 90 },
-          },
-
-          {
-            elementId: sa.functionVideo,
-            position: { x: 1250, y: 80 },
-            size: { width: 260, height: 90 },
-          },
-
-          {
-            elementId: sa.functionInternet,
-            position: { x: 1250, y: 240 },
-            size: { width: 260, height: 90 },
-          },
-
-          {
-            elementId: sa.systemComponentIFE,
-            position: { x: 850, y: 420 },
-            size: { width: 260, height: 90 },
-          },
+          { elementId: sa.actorPassenger, position: { x: 80, y: 120 }, size: { width: 180, height: 80 } },
+          { elementId: sa.actorCrew, position: { x: 80, y: 320 }, size: { width: 180, height: 80 } },
+          { elementId: sa.system, position: { x: 400, y: 160 }, size: { width: 320, height: 140 } },
+          { elementId: sa.systemComponentIFE, position: { x: 850, y: 160 }, size: { width: 260, height: 90 } },
+          { elementId: sa.functionVideo, position: { x: 1250, y: 80 }, size: { width: 260, height: 90 } },
+          { elementId: sa.functionInternet, position: { x: 1250, y: 240 }, size: { width: 260, height: 90 } },
         ],
       },
 
-      // LAB
-
+      // ── LAB ─────────────────────────────────────────────────────────────────
       {
         id: diagramIds.lab,
         modelId: modelIds.la,
         type: "LAB",
         name: "IFE LAB",
         description: "Logical architecture",
-
-        viewport: {
-          x: 0,
-          y: 0,
-          zoom: 1,
-        },
-
+        viewport: { x: 0, y: 0, zoom: 1 },
         elementLayouts: [
-          {
-            elementId: la.sdu,
-            position: { x: 100, y: 160 },
-            size: { width: 240, height: 120 },
-          },
-
-          {
-            elementId: la.ifeServer,
-            position: { x: 500, y: 160 },
-            size: { width: 260, height: 120 },
-          },
-
-          {
-            elementId: la.network,
-            position: { x: 900, y: 160 },
-            size: { width: 260, height: 120 },
-          },
-
-          {
-            elementId: la.logicalFunctionRenderVideo,
-            position: { x: 320, y: 420 },
-            size: { width: 260, height: 90 },
-          },
-
-          {
-            elementId: la.logicalFunctionConnectivity,
-            position: { x: 760, y: 420 },
-            size: { width: 260, height: 90 },
-          },
+          { elementId: la.sdu, position: { x: 100, y: 160 }, size: { width: 240, height: 120 } },
+          { elementId: la.ifeServer, position: { x: 500, y: 160 }, size: { width: 260, height: 120 } },
+          { elementId: la.network, position: { x: 900, y: 160 }, size: { width: 260, height: 120 } },
+          { elementId: la.logicalFunctionRenderVideo, position: { x: 320, y: 420 }, size: { width: 260, height: 90 } },
+          { elementId: la.logicalFunctionConnectivity, position: { x: 760, y: 420 }, size: { width: 260, height: 90 } },
         ],
       },
 
-      // PAB
-
+      // ── PAB ─────────────────────────────────────────────────────────────────
       {
         id: diagramIds.pab,
         modelId: modelIds.pa,
         type: "PAB",
         name: "IFE PAB",
         description: "Physical architecture",
-
-        viewport: {
-          x: 0,
-          y: 0,
-          zoom: 1,
-        },
-
+        viewport: { x: 0, y: 0, zoom: 1 },
         elementLayouts: [
-          {
-            elementId: pa.hardwareSDU,
-            position: { x: 100, y: 200 },
-            size: { width: 240, height: 100 },
-          },
-
-          {
-            elementId: pa.hardwareServer,
-            position: { x: 500, y: 200 },
-            size: { width: 260, height: 100 },
-          },
-
-          {
-            elementId: pa.switchNode,
-            position: { x: 900, y: 200 },
-            size: { width: 260, height: 100 },
-          },
+          { elementId: pa.hardwareSDU, position: { x: 100, y: 200 }, size: { width: 240, height: 100 } },
+          { elementId: pa.hardwareServer, position: { x: 500, y: 200 }, size: { width: 260, height: 100 } },
+          { elementId: pa.switchNode, position: { x: 900, y: 200 }, size: { width: 260, height: 100 } },
+          { elementId: pa.physicalFunctionRenderVideo, position: { x: 100, y: 400 }, size: { width: 240, height: 80 } },
+          { elementId: pa.physicalFunctionConnectivity, position: { x: 500, y: 400 }, size: { width: 260, height: 80 } },
         ],
       },
     ]);
-
-    console.log("✅ Complete IFE project seeded");
 
     return {
       models: modelIds,
@@ -957,7 +869,6 @@ export async function seedIFEProject(
       pa,
     };
   } catch (error) {
-    console.error("❌ seed error", error);
     throw error;
   }
 }

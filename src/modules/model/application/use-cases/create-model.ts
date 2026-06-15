@@ -60,7 +60,6 @@ export class CreateModelUseCase
 
       return response.toJSON();
     } catch (error) {
-      console.log("error use case", error);
       throw new Error(resolveErrorMessage(error, "Error in create model"));
     }
   }

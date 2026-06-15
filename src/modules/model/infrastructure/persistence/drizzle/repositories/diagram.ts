@@ -110,7 +110,6 @@ export class DrizzleDiagramRepository implements IDiagramRepository {
       .set(updateData)
       .where(eq(diagrams.id, payload.id))
       .returning();
-    console.log("response", response);
     const [row] = response;
     if (!row) throw new Error(`Diagram not found with id : ${payload.id}`);
     return toEntity(row);

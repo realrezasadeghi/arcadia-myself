@@ -14,6 +14,7 @@ import {
   type OnNodeDrag,
   type OnNodesChange,
   ReactFlow,
+  useReactFlow,
 } from "@xyflow/react";
 import { type DragEventHandler, useCallback, useEffect, useRef } from "react";
 import {
@@ -94,6 +95,8 @@ export function DiagramCanvasInner({
     selectedEdgeId,
     selectedNodeId,
     pendingConnection,
+    insertRequest,
+    clearInsertRequest,
   } = useCanvasStore();
 
   const { removeElement } = useRemoveElementSync();
@@ -154,6 +157,23 @@ export function DiagramCanvasInner({
 
     return () => reset();
   }, [initCanvas, reset]);
+
+  // Auto-select element when selectedElementId changes (e.g. from explorer navigation)
+  const selectedElementId = useWorkbenchStore((s) => s.selectedElementId);
+  const { setCenter } = useReactFlow();
+  useEffect(() => {
+    if (selectedElementId) {
+      const node = nodes.find((n) => n.id === selectedElementId);
+      if (node) {
+        selectNode(selectedElementId);
+        setCenter(
+          node.position.x + (node.width ?? 0) / 2,
+          node.position.y + (node.height ?? 0) / 2,
+          { zoom: 1.5, duration: 400 },
+        );
+      }
+    }
+  }, [selectedElementId, nodes, selectNode, setCenter]);
 
   const createElement = useCreateElement();
 
@@ -401,6 +421,86 @@ export function DiagramCanvasInner({
     },
     [],
   );
+
+  /**
+   * مصرف درخواست افزودن یک المنت *موجود* به دیاگرام فعال (از Project Explorer).
+   * مانند ابزار Insert در Capella: فقط نمای گرافیکی اضافه می‌شود، المنت جدیدی
+   * ساخته نمی‌شود. اگر المنت از قبل روی canvas باشد، فقط انتخاب می‌شود.
+   */
+  useEffect(() => {
+    if (!insertRequest) return;
+    if (!diagramId || !modelId) return;
+
+    // فقط برای دیاگرام فعال؛ المنت باید به همان model تعلق داشته باشد.
+    const consume = () => clearInsertRequest();
+
+    const already = nodes.find((n) => n.id === insertRequest.elementId);
+    if (already) {
+      selectNode(already.id);
+      consume();
+      return;
+    }
+
+    pushHistory();
+
+    // قرار دادن المنت با کمی آفست تا روی هم نیفتند.
+    const position = {
+      x: 80 + (nodes.length % 6) * 40,
+      y: 80 + (nodes.length % 6) * 40,
+    };
+
+    const existingLayouts: ElementLayout[] = nodes.map((node) => ({
+      position: node.position,
+      elementId: node.data.elementId,
+      size: { width: node.width ?? 160, height: node.height ?? 60 },
+    }));
+
+    updateDiagramLayout.mutate(
+      {
+        id: String(diagramId),
+        elementLayouts: [
+          ...existingLayouts,
+          {
+            position,
+            elementId: insertRequest.elementId,
+            size: { width: 160, height: 60 },
+          },
+        ],
+      },
+      {
+        onSuccess: () => {
+          addNode({
+            id: insertRequest.elementId,
+            type: getNodeTypeForElement(insertRequest.elementType),
+            position,
+            data: {
+              name: insertRequest.name,
+              elementId: insertRequest.elementId,
+              elementType: insertRequest.elementType,
+              modelId: String(modelId),
+              description: insertRequest.description,
+              status: insertRequest.status,
+            },
+          });
+          selectNode(insertRequest.elementId);
+        },
+        onError: ({ message }) =>
+          toast.error(message || "Error adding element to diagram"),
+      },
+    );
+
+    consume();
+  }, [
+    insertRequest,
+    diagramId,
+    modelId,
+    nodes,
+    pushHistory,
+    updateDiagramLayout,
+    addNode,
+    selectNode,
+    clearInsertRequest,
+  ]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {

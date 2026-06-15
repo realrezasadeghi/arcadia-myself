@@ -1,5 +1,5 @@
-import { getProjectById } from "@/modules/project/presentation/server-actions/get-by-id";
 import { WorkbenchView } from "@/modules/model/ui/components/workbench/workbench-view";
+import { getProjectById } from "@/modules/project/presentation/server-actions/get-by-id";
 import { Spinner } from "@/modules/shared/ui/components/ui/spinner";
 import type { Metadata } from "next";
 import { Suspense } from "react";

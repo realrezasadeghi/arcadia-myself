@@ -80,8 +80,7 @@ export function OutlinePanel() {
             </p>
           </div>
         ) : (
-          <svg
-            // biome-ignore lint/a11y/useSemanticElements: SVG outline acts as a clickable mini-map
+            <svg
             role="button"
             tabIndex={0}
             aria-label="Diagram outline — click to recenter"

@@ -246,9 +246,8 @@ function RightDock({ panels }: { panels: PanelVisibility }) {
       )}
 
       {openPanels.includes("outline") &&
-        (openPanels.includes("semantic") || openPanels.includes("validation")) && (
-          <ResizeHandle />
-        )}
+        (openPanels.includes("semantic") ||
+          openPanels.includes("validation")) && <ResizeHandle />}
 
       {openPanels.includes("semantic") && (
         <ResizablePanel id="semantic">

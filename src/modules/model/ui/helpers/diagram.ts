@@ -32,26 +32,96 @@ export type DiagramPalette = {
  */
 const DIAGRAM_PALETTE: Record<DiagramTypeValue, DiagramPalette> = {
   // ─── OA ───
-  OEB: { elementTypes: ["OperationalEntity", "OperationalActor"], relationshipTypes: ["Composition"] },
-  OAB: { elementTypes: ["OperationalActivity"], relationshipTypes: ["Composition"] },
-  OPD: { elementTypes: ["OperationalActivity", "OperationalProcess"], relationshipTypes: ["OperationalExchange"] },
-  OCD: { elementTypes: ["OperationalCapability", "OperationalEntity", "OperationalActor", "OperationalActivity"], relationshipTypes: ["InvolvementLink"] },
-  OIS: { elementTypes: ["OperationalEntity", "OperationalActor", "OperationalActivity"], relationshipTypes: ["OperationalExchange"] },
+  OEB: {
+    elementTypes: ["OperationalEntity", "OperationalActor"],
+    relationshipTypes: ["Composition"],
+  },
+  OAB: {
+    elementTypes: ["OperationalActivity"],
+    relationshipTypes: ["Composition"],
+  },
+  OPD: {
+    elementTypes: ["OperationalActivity", "OperationalProcess"],
+    relationshipTypes: ["OperationalExchange"],
+  },
+  OCD: {
+    elementTypes: [
+      "OperationalCapability",
+      "OperationalEntity",
+      "OperationalActor",
+      "OperationalActivity",
+    ],
+    relationshipTypes: ["InvolvementLink"],
+  },
+  OIS: {
+    elementTypes: [
+      "OperationalEntity",
+      "OperationalActor",
+      "OperationalActivity",
+    ],
+    relationshipTypes: ["OperationalExchange"],
+  },
   // ─── SA ───
-  SAB: { elementTypes: ["System", "SystemActor", "SystemComponent", "SystemFunction"], relationshipTypes: ["SystemExchange", "FunctionalExchange"] },
-  SDFB: { elementTypes: ["SystemFunction", "FunctionPort"], relationshipTypes: ["FunctionalExchange"] },
-  SCD: { elementTypes: ["SystemCapability", "SystemActor", "SystemFunction"], relationshipTypes: ["InvolvementLink"] },
-  SS: { elementTypes: ["SystemActor", "SystemFunction"], relationshipTypes: ["FunctionalExchange"] },
+  SAB: {
+    elementTypes: [
+      "System",
+      "SystemActor",
+      "SystemComponent",
+      "SystemFunction",
+    ],
+    relationshipTypes: ["SystemExchange", "FunctionalExchange"],
+  },
+  SDFB: {
+    elementTypes: ["SystemFunction", "FunctionPort"],
+    relationshipTypes: ["FunctionalExchange"],
+  },
+  SCD: {
+    elementTypes: ["SystemCapability", "SystemActor", "SystemFunction"],
+    relationshipTypes: ["InvolvementLink"],
+  },
+  SS: {
+    elementTypes: ["SystemActor", "SystemFunction"],
+    relationshipTypes: ["FunctionalExchange"],
+  },
   // ─── LA ───
-  LAB: { elementTypes: ["LogicalComponent", "LogicalActor", "LogicalFunction"], relationshipTypes: ["ComponentExchange", "FunctionalExchange"] },
-  LDFB: { elementTypes: ["LogicalFunction"], relationshipTypes: ["LogicalExchange", "FunctionalExchange"] },
-  LCB: { elementTypes: ["LogicalComponent"], relationshipTypes: ["Composition"] },
-  LS: { elementTypes: ["LogicalActor", "LogicalFunction"], relationshipTypes: ["LogicalExchange"] },
+  LAB: {
+    elementTypes: ["LogicalComponent", "LogicalActor", "LogicalFunction"],
+    relationshipTypes: ["ComponentExchange", "FunctionalExchange"],
+  },
+  LDFB: {
+    elementTypes: ["LogicalFunction"],
+    relationshipTypes: ["LogicalExchange", "FunctionalExchange"],
+  },
+  LCB: {
+    elementTypes: ["LogicalComponent"],
+    relationshipTypes: ["Composition"],
+  },
+  LS: {
+    elementTypes: ["LogicalActor", "LogicalFunction"],
+    relationshipTypes: ["LogicalExchange"],
+  },
   // ─── PA ───
-  PAB: { elementTypes: ["PhysicalComponent", "PhysicalNode", "PhysicalActor", "PhysicalFunction"], relationshipTypes: ["PhysicalExchange", "PhysicalLink"] },
-  PDFB: { elementTypes: ["PhysicalFunction"], relationshipTypes: ["PhysicalExchange"] },
-  PCB: { elementTypes: ["PhysicalComponent", "PhysicalNode"], relationshipTypes: ["Composition", "DeploymentLink"] },
-  PS: { elementTypes: ["PhysicalActor", "PhysicalFunction"], relationshipTypes: ["PhysicalExchange"] },
+  PAB: {
+    elementTypes: [
+      "PhysicalComponent",
+      "PhysicalNode",
+      "PhysicalActor",
+      "PhysicalFunction",
+    ],
+    relationshipTypes: ["PhysicalExchange", "PhysicalLink"],
+  },
+  PDFB: {
+    elementTypes: ["PhysicalFunction"],
+    relationshipTypes: ["PhysicalExchange"],
+  },
+  PCB: {
+    elementTypes: ["PhysicalComponent", "PhysicalNode"],
+    relationshipTypes: ["Composition", "DeploymentLink"],
+  },
+  PS: {
+    elementTypes: ["PhysicalActor", "PhysicalFunction"],
+    relationshipTypes: ["PhysicalExchange"],
+  },
 };
 
 /**

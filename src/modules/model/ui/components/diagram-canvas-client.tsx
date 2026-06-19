@@ -61,9 +61,7 @@ export function DiagramCanvasClient({
     relationshipsQuery.isLoading;
 
   const isError =
-    diagramQuery.isError ||
-    elementsQuery.isError ||
-    relationshipsQuery.isError;
+    diagramQuery.isError || elementsQuery.isError || relationshipsQuery.isError;
 
   if (isLoading) {
     return (

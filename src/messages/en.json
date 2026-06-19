@@ -1,0 +1,106 @@
+{
+  "common": {
+    "appName": "Arcadia",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "register": "Register",
+    "getStarted": "Get Started",
+    "createAccount": "Create Account",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "search": "Search",
+    "noResults": "No results found",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "or": "or",
+    "and": "and"
+  },
+  "home": {
+    "heroBadge": "ARCADIA Methodology — Web-Based",
+    "heroTitle": "Model-Based Systems",
+    "heroTitleHighlight": "Engineering Platform",
+    "heroDescription": "A web-based MBSE platform that combines the ARCADIA methodology with modern UX, powerful visual tools, and seamless team collaboration.",
+    "layersTitle": "ARCADIA Architecture Chain",
+    "layersDescription": "From operational needs to physical implementation — all in one place",
+    "featuresTitle": "Why Arcadia",
+    "featuresDescription": "Key capabilities that simplify systems engineering teams' work",
+    "ctaTitle": "Get Started Today",
+    "ctaDescription": "No installation, no configuration — design directly in your browser",
+    "footerLeft": "Arcadia — Web-Based MBSE Platform",
+    "footerRight": "Built on the ARCADIA Methodology"
+  },
+  "layers": {
+    "OA": {
+      "name": "Operational Analysis",
+      "desc": "Organizational needs, missions, and operational activities"
+    },
+    "SA": {
+      "name": "System Analysis",
+      "desc": "System boundaries, functions, and exchanges with actors"
+    },
+    "LA": {
+      "name": "Logical Architecture",
+      "desc": "Logical components, their interfaces and allocations"
+    },
+    "PA": {
+      "name": "Physical Architecture",
+      "desc": "Physical implementation, hardware nodes and deployment"
+    }
+  },
+  "features": {
+    "arcadiaLayers": {
+      "title": "4 ARCADIA Layers",
+      "desc": "Full ARCADIA method support — from Operational Analysis to Physical Architecture with Capella-compliant visual diagrams"
+    },
+    "traceability": {
+      "title": "Full Traceability",
+      "desc": "Requirement tracing from OA to PA with link matrices — Realization, Allocation, Deployment, and more"
+    },
+    "validation": {
+      "title": "Smart Validation",
+      "desc": "Pre-defined Connection and Trace rules — no invalid connections allowed in diagrams"
+    },
+    "collaboration": {
+      "title": "Team Collaboration",
+      "desc": "Role management with OWNER, EDITOR, VIEWER per project — structured model sharing"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Sign In to Arcadia",
+      "description": "ARCADIA methodology modeling platform",
+      "username": "Username",
+      "password": "Password",
+      "submit": "Sign In",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Register"
+    },
+    "register": {
+      "title": "Create an Account",
+      "description": "Join Arcadia and start modeling",
+      "fullName": "Full Name",
+      "username": "Username",
+      "password": "Password",
+      "submit": "Create Account",
+      "hasAccount": "Already registered?",
+      "signInLink": "Sign In"
+    }
+  },
+  "dashboard": {
+    "projects": "Projects",
+    "newProject": "New Project",
+    "noProjects": "No projects yet",
+    "createFirst": "Create your first project to get started"
+  },
+  "metadata": {
+    "homeTitle": "Arcadia — MBSE Platform",
+    "homeDescription": "A model-based systems engineering platform for designing, analyzing, and tracing complex system architectures."
+  }
+}

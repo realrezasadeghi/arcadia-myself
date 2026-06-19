@@ -22,24 +22,27 @@ import { useCallback } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useLogin } from "../clients/login";
+import { useLoginTranslations } from "../hooks/use-translations";
 import { type LoginFormValues, loginSchema } from "../schemas/login";
 
-const fields: FieldDef[] = [
-  {
-    name: "username",
-    label: "Username",
-    type: "text",
-    dir: "ltr",
-  },
-  {
-    name: "password",
-    label: "Password",
-    type: "password",
-    placeholder: "********",
-  },
-];
-
 export function LoginView() {
+  const t = useLoginTranslations();
+
+  const fields: FieldDef[] = [
+    {
+      name: "username",
+      label: t("username"),
+      type: "text",
+      dir: "ltr",
+    },
+    {
+      name: "password",
+      label: t("password"),
+      type: "password",
+      placeholder: "********",
+    },
+  ];
+
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { username: "", password: "" },
@@ -69,8 +72,8 @@ export function LoginView() {
         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
           <span className="text-2xl font-black text-primary">A</span>
         </div>
-        <CardTitle className="text-xl">Sign In to Arcadia</CardTitle>
-        <CardDescription>ARCADIA methodology modeling platform</CardDescription>
+        <CardTitle className="text-xl">{t("title")}</CardTitle>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -86,7 +89,7 @@ export function LoginView() {
               className="w-full gap-2 mt-1"
             >
               <LogIn className="h-4 w-4" />
-              Sign In
+              {t("submit")}
             </Button>
           </form>
         </Form>
@@ -94,12 +97,12 @@ export function LoginView() {
 
       <CardFooter className="justify-center">
         <p className="text-sm text-muted-foreground">
-          Don&apos;t have an account?
+          {t("noAccount")}
           <Link
-            href="/register"
+            href="/auth/register"
             className="text-primary hover:underline font-medium ms-1"
           >
-            Register
+            {t("registerLink")}
           </Link>
         </p>
       </CardFooter>

@@ -36,11 +36,46 @@ function ActorNodeComponent({ data, selected }: NodeProps<ActorNodeType>) {
         role="presentation"
         style={{ color: spec.strokeColor }}
       >
-        <circle cx="11" cy="5" r="4" fill="none" stroke="currentColor" strokeWidth="1.6" />
-        <line x1="11" y1="9" x2="11" y2="17" stroke="currentColor" strokeWidth="1.6" />
-        <line x1="4" y1="12" x2="18" y2="12" stroke="currentColor" strokeWidth="1.6" />
-        <line x1="11" y1="17" x2="5" y2="24" stroke="currentColor" strokeWidth="1.6" />
-        <line x1="11" y1="17" x2="17" y2="24" stroke="currentColor" strokeWidth="1.6" />
+        <circle
+          cx="11"
+          cy="5"
+          r="4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+        />
+        <line
+          x1="11"
+          y1="9"
+          x2="11"
+          y2="17"
+          stroke="currentColor"
+          strokeWidth="1.6"
+        />
+        <line
+          x1="4"
+          y1="12"
+          x2="18"
+          y2="12"
+          stroke="currentColor"
+          strokeWidth="1.6"
+        />
+        <line
+          x1="11"
+          y1="17"
+          x2="5"
+          y2="24"
+          stroke="currentColor"
+          strokeWidth="1.6"
+        />
+        <line
+          x1="11"
+          y1="17"
+          x2="17"
+          y2="24"
+          stroke="currentColor"
+          strokeWidth="1.6"
+        />
       </svg>
 
       <span
@@ -50,10 +85,26 @@ function ActorNodeComponent({ data, selected }: NodeProps<ActorNodeType>) {
         {data.name}
       </span>
 
-      <Handle type="target" position={Position.Top} className="size-2! border! border-current! bg-background!" />
-      <Handle type="source" position={Position.Bottom} className="size-2! border! border-current! bg-background!" />
-      <Handle type="target" position={Position.Left} className="size-2! border! border-current! bg-background!" />
-      <Handle type="source" position={Position.Right} className="size-2! border! border-current! bg-background!" />
+      <Handle
+        type="target"
+        position={Position.Top}
+        className="size-2! border! border-current! bg-background!"
+      />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        className="size-2! border! border-current! bg-background!"
+      />
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="size-2! border! border-current! bg-background!"
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="size-2! border! border-current! bg-background!"
+      />
     </div>
   );
 }

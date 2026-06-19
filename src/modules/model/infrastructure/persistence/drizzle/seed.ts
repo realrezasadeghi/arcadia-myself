@@ -797,13 +797,41 @@ export async function seedIFEProject(
         description: "Operational capability diagram",
         viewport: { x: 0, y: 0, zoom: 1 },
         elementLayouts: [
-          { elementId: oa.passenger, position: { x: 80, y: 80 }, size: { width: 180, height: 80 } },
-          { elementId: oa.crew, position: { x: 80, y: 240 }, size: { width: 180, height: 80 } },
-          { elementId: oa.airline, position: { x: 80, y: 400 }, size: { width: 180, height: 80 } },
-          { elementId: oa.capabilityVideo, position: { x: 450, y: 80 }, size: { width: 260, height: 90 } },
-          { elementId: oa.capabilityInternet, position: { x: 450, y: 260 }, size: { width: 260, height: 90 } },
-          { elementId: oa.activityWatchMovie, position: { x: 850, y: 80 }, size: { width: 240, height: 90 } },
-          { elementId: oa.activityBrowseInternet, position: { x: 850, y: 260 }, size: { width: 240, height: 90 } },
+          {
+            elementId: oa.passenger,
+            position: { x: 80, y: 80 },
+            size: { width: 180, height: 80 },
+          },
+          {
+            elementId: oa.crew,
+            position: { x: 80, y: 240 },
+            size: { width: 180, height: 80 },
+          },
+          {
+            elementId: oa.airline,
+            position: { x: 80, y: 400 },
+            size: { width: 180, height: 80 },
+          },
+          {
+            elementId: oa.capabilityVideo,
+            position: { x: 450, y: 80 },
+            size: { width: 260, height: 90 },
+          },
+          {
+            elementId: oa.capabilityInternet,
+            position: { x: 450, y: 260 },
+            size: { width: 260, height: 90 },
+          },
+          {
+            elementId: oa.activityWatchMovie,
+            position: { x: 850, y: 80 },
+            size: { width: 240, height: 90 },
+          },
+          {
+            elementId: oa.activityBrowseInternet,
+            position: { x: 850, y: 260 },
+            size: { width: 240, height: 90 },
+          },
         ],
       },
 
@@ -816,12 +844,36 @@ export async function seedIFEProject(
         description: "System architecture diagram",
         viewport: { x: 0, y: 0, zoom: 1 },
         elementLayouts: [
-          { elementId: sa.actorPassenger, position: { x: 80, y: 120 }, size: { width: 180, height: 80 } },
-          { elementId: sa.actorCrew, position: { x: 80, y: 320 }, size: { width: 180, height: 80 } },
-          { elementId: sa.system, position: { x: 400, y: 160 }, size: { width: 320, height: 140 } },
-          { elementId: sa.systemComponentIFE, position: { x: 850, y: 160 }, size: { width: 260, height: 90 } },
-          { elementId: sa.functionVideo, position: { x: 1250, y: 80 }, size: { width: 260, height: 90 } },
-          { elementId: sa.functionInternet, position: { x: 1250, y: 240 }, size: { width: 260, height: 90 } },
+          {
+            elementId: sa.actorPassenger,
+            position: { x: 80, y: 120 },
+            size: { width: 180, height: 80 },
+          },
+          {
+            elementId: sa.actorCrew,
+            position: { x: 80, y: 320 },
+            size: { width: 180, height: 80 },
+          },
+          {
+            elementId: sa.system,
+            position: { x: 400, y: 160 },
+            size: { width: 320, height: 140 },
+          },
+          {
+            elementId: sa.systemComponentIFE,
+            position: { x: 850, y: 160 },
+            size: { width: 260, height: 90 },
+          },
+          {
+            elementId: sa.functionVideo,
+            position: { x: 1250, y: 80 },
+            size: { width: 260, height: 90 },
+          },
+          {
+            elementId: sa.functionInternet,
+            position: { x: 1250, y: 240 },
+            size: { width: 260, height: 90 },
+          },
         ],
       },
 
@@ -834,11 +886,31 @@ export async function seedIFEProject(
         description: "Logical architecture",
         viewport: { x: 0, y: 0, zoom: 1 },
         elementLayouts: [
-          { elementId: la.sdu, position: { x: 100, y: 160 }, size: { width: 240, height: 120 } },
-          { elementId: la.ifeServer, position: { x: 500, y: 160 }, size: { width: 260, height: 120 } },
-          { elementId: la.network, position: { x: 900, y: 160 }, size: { width: 260, height: 120 } },
-          { elementId: la.logicalFunctionRenderVideo, position: { x: 320, y: 420 }, size: { width: 260, height: 90 } },
-          { elementId: la.logicalFunctionConnectivity, position: { x: 760, y: 420 }, size: { width: 260, height: 90 } },
+          {
+            elementId: la.sdu,
+            position: { x: 100, y: 160 },
+            size: { width: 240, height: 120 },
+          },
+          {
+            elementId: la.ifeServer,
+            position: { x: 500, y: 160 },
+            size: { width: 260, height: 120 },
+          },
+          {
+            elementId: la.network,
+            position: { x: 900, y: 160 },
+            size: { width: 260, height: 120 },
+          },
+          {
+            elementId: la.logicalFunctionRenderVideo,
+            position: { x: 320, y: 420 },
+            size: { width: 260, height: 90 },
+          },
+          {
+            elementId: la.logicalFunctionConnectivity,
+            position: { x: 760, y: 420 },
+            size: { width: 260, height: 90 },
+          },
         ],
       },
 
@@ -851,11 +923,31 @@ export async function seedIFEProject(
         description: "Physical architecture",
         viewport: { x: 0, y: 0, zoom: 1 },
         elementLayouts: [
-          { elementId: pa.hardwareSDU, position: { x: 100, y: 200 }, size: { width: 240, height: 100 } },
-          { elementId: pa.hardwareServer, position: { x: 500, y: 200 }, size: { width: 260, height: 100 } },
-          { elementId: pa.switchNode, position: { x: 900, y: 200 }, size: { width: 260, height: 100 } },
-          { elementId: pa.physicalFunctionRenderVideo, position: { x: 100, y: 400 }, size: { width: 240, height: 80 } },
-          { elementId: pa.physicalFunctionConnectivity, position: { x: 500, y: 400 }, size: { width: 260, height: 80 } },
+          {
+            elementId: pa.hardwareSDU,
+            position: { x: 100, y: 200 },
+            size: { width: 240, height: 100 },
+          },
+          {
+            elementId: pa.hardwareServer,
+            position: { x: 500, y: 200 },
+            size: { width: 260, height: 100 },
+          },
+          {
+            elementId: pa.switchNode,
+            position: { x: 900, y: 200 },
+            size: { width: 260, height: 100 },
+          },
+          {
+            elementId: pa.physicalFunctionRenderVideo,
+            position: { x: 100, y: 400 },
+            size: { width: 240, height: 80 },
+          },
+          {
+            elementId: pa.physicalFunctionConnectivity,
+            position: { x: 500, y: 400 },
+            size: { width: 260, height: 80 },
+          },
         ],
       },
     ]);

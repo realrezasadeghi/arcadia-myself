@@ -11,7 +11,10 @@ type FunctionNodeType = Node<ElementNodeData>;
  * مستطیل گردگوشه با نوار عنوان رنگی و پورت‌های ورودی/خروجی روی اضلاع
  * (برای نمایش dataflow).
  */
-function FunctionNodeComponent({ data, selected }: NodeProps<FunctionNodeType>) {
+function FunctionNodeComponent({
+  data,
+  selected,
+}: NodeProps<FunctionNodeType>) {
   const typeInfo = getElementTypeInfo(data.elementType);
   const spec = getElementVisual(data.elementType);
 
@@ -54,8 +57,16 @@ function FunctionNodeComponent({ data, selected }: NodeProps<FunctionNodeType>) 
         className="size-2.5! rounded-none! border! border-current! bg-background!"
         style={{ top: "60%" }}
       />
-      <Handle type="target" position={Position.Top} className="size-2! border! border-current! bg-background!" />
-      <Handle type="source" position={Position.Bottom} className="size-2! border! border-current! bg-background!" />
+      <Handle
+        type="target"
+        position={Position.Top}
+        className="size-2! border! border-current! bg-background!"
+      />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        className="size-2! border! border-current! bg-background!"
+      />
     </div>
   );
 }

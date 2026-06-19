@@ -1,4 +1,7 @@
-import { ElementType, type ElementTypeValue } from "../value-objects/element-type";
+import {
+  ElementType,
+  type ElementTypeValue,
+} from "../value-objects/element-type";
 import { Layer, type LayerValue } from "../value-objects/layer";
 
 export type ValidationSeverity = "error" | "warning" | "info";

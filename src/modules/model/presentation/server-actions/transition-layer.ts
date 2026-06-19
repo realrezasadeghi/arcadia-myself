@@ -65,9 +65,7 @@ export async function transitionLayer(
     const modelsRes = await getModelsByProjectId(projectId);
     if (!modelsRes.success) throw new Error(modelsRes.message);
 
-    let targetModelId = modelsRes.data.find(
-      (m) => m.layer === targetLayer,
-    )?.id;
+    let targetModelId = modelsRes.data.find((m) => m.layer === targetLayer)?.id;
 
     if (!targetModelId) {
       const created = await createModel({

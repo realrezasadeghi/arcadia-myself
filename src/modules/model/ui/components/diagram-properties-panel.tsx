@@ -505,9 +505,7 @@ export const TraceLinksList = ({ elementId }: TraceLinksListProps) => {
   if (!traceLinks?.length) {
     return (
       <div className="text-center">
-        <p className="text-xs text-muted-foreground">
-          No trace links defined.
-        </p>
+        <p className="text-xs text-muted-foreground">No trace links defined.</p>
       </div>
     );
   }

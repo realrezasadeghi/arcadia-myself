@@ -21,11 +21,11 @@
       "suspicious": {
         "noUnknownAtRules": "off"
       },
-      "complexity":{
-        "noStaticOnlyClass":"off"
+      "complexity": {
+        "noStaticOnlyClass": "off"
       },
       "a11y": {
-        "noStaticElementInteractions":"off"
+        "noStaticElementInteractions": "off"
       }
     },
     "domains": {

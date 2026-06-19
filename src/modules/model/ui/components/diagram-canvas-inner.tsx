@@ -262,7 +262,9 @@ export function DiagramCanvasInner({
             });
           },
           onError: ({ message }) => {
-            toast.error(message || "Error creating relationship between elements");
+            toast.error(
+              message || "Error creating relationship between elements",
+            );
           },
         },
       );

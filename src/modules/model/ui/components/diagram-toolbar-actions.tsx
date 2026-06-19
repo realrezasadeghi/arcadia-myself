@@ -143,7 +143,9 @@ export function DiagramToolbarActions({
           <TooltipContent>Export</TooltipContent>
         </Tooltip>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={exportJson}>Download JSON</DropdownMenuItem>
+          <DropdownMenuItem onClick={exportJson}>
+            Download JSON
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={exportHtml}>Print / PDF</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

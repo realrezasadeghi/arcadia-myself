@@ -217,7 +217,8 @@ export function ModelExplorerTree({
   }, []);
 
   const sorted = [...modelData].sort(
-    (a, b) => getLayerInfo(a.model.layer).order - getLayerInfo(b.model.layer).order,
+    (a, b) =>
+      getLayerInfo(a.model.layer).order - getLayerInfo(b.model.layer).order,
   );
 
   if (sorted.length === 0) {

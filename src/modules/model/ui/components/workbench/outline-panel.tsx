@@ -80,7 +80,7 @@ export function OutlinePanel() {
             </p>
           </div>
         ) : (
-            <svg
+          <svg
             role="button"
             tabIndex={0}
             aria-label="Diagram outline — click to recenter"

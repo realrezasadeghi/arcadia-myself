@@ -23,15 +23,15 @@ export function UserMenu() {
     if (user?.name?.trim()) {
       const [name, family] = user.name.split(" ");
       if (!name && !family) {
-        return "Unknown";
+        return "U";
       }
 
       const nameAbbr = name.charAt(0).toUpperCase();
-      const familyAbbr = family.charAt(0).toUpperCase();
-      return name && family ? `${nameAbbr} ${familyAbbr}` : nameAbbr;
+      const familyAbbr = family?.charAt(0).toUpperCase() ?? "";
+      return name && family ? `${nameAbbr}${familyAbbr}` : nameAbbr;
     }
 
-    return "Unknown";
+    return "U";
   }, [user?.name]);
 
   if (!user) return null;
@@ -39,13 +39,20 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar className="size-9">
-          <AvatarFallback>{abbr}</AvatarFallback>
-        </Avatar>
+        <button
+          type="button"
+          className="flex items-center gap-2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <Avatar className="h-7 w-7">
+            <AvatarFallback className="text-[10px] font-medium">
+              {abbr}
+            </AvatarFallback>
+          </Avatar>
+        </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-52">
+      <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuLabel>
-          <p className="font-medium">{user.name}</p>
+          <p className="font-medium text-sm">{user.name}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem>

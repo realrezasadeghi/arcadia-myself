@@ -10,7 +10,10 @@ type ComponentNodeType = Node<ElementNodeData>;
  * ComponentNode — سبک Capella/UML
  * مستطیل اصلی با دو مستطیل کوچک هم‌پوشان روی ضلع چپ (نماد component).
  */
-function ComponentNodeComponent({ data, selected }: NodeProps<ComponentNodeType>) {
+function ComponentNodeComponent({
+  data,
+  selected,
+}: NodeProps<ComponentNodeType>) {
   const typeInfo = getElementTypeInfo(data.elementType);
   const spec = getElementVisual(data.elementType);
 
@@ -47,10 +50,26 @@ function ComponentNodeComponent({ data, selected }: NodeProps<ComponentNodeType>
         {data.name}
       </span>
 
-      <Handle type="target" position={Position.Top} className="size-2! border! border-current! bg-background!" />
-      <Handle type="source" position={Position.Bottom} className="size-2! border! border-current! bg-background!" />
-      <Handle type="target" position={Position.Left} className="size-2! border! border-current! bg-background!" />
-      <Handle type="source" position={Position.Right} className="size-2! border! border-current! bg-background!" />
+      <Handle
+        type="target"
+        position={Position.Top}
+        className="size-2! border! border-current! bg-background!"
+      />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        className="size-2! border! border-current! bg-background!"
+      />
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="size-2! border! border-current! bg-background!"
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="size-2! border! border-current! bg-background!"
+      />
     </div>
   );
 }

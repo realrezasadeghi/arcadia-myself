@@ -22,29 +22,32 @@ import { useCallback } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useRegister } from "../clients/register";
+import { useRegisterTranslations } from "../hooks/use-translations";
 import { type RegisterFormValues, registerSchema } from "../schemas/register";
 
-const fields: FieldDef[] = [
-  {
-    name: "name",
-    label: "Full Name",
-    type: "text",
-  },
-  {
-    name: "username",
-    label: "Username",
-    type: "text",
-    dir: "ltr",
-  },
-  {
-    name: "password",
-    label: "Password",
-    type: "password",
-    placeholder: "********",
-  },
-];
-
 export function RegisterView() {
+  const t = useRegisterTranslations();
+
+  const fields: FieldDef[] = [
+    {
+      name: "name",
+      label: t("fullName"),
+      type: "text",
+    },
+    {
+      name: "username",
+      label: t("username"),
+      type: "text",
+      dir: "ltr",
+    },
+    {
+      name: "password",
+      label: t("password"),
+      type: "password",
+      placeholder: "********",
+    },
+  ];
+
   const form = useForm<RegisterFormValues>({
     mode: "onChange",
     resolver: zodResolver(registerSchema),
@@ -75,8 +78,8 @@ export function RegisterView() {
         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
           <span className="text-2xl font-black text-primary">A</span>
         </div>
-        <CardTitle className="text-xl">Create an Account</CardTitle>
-        <CardDescription>Join Arcadia and start modeling</CardDescription>
+        <CardTitle className="text-xl">{t("title")}</CardTitle>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -92,7 +95,7 @@ export function RegisterView() {
               className="w-full gap-2 mt-1"
             >
               <UserPlus className="h-4 w-4" />
-              Create Account
+              {t("submit")}
             </Button>
           </form>
         </Form>
@@ -100,12 +103,12 @@ export function RegisterView() {
 
       <CardFooter className="justify-center">
         <p className="text-sm text-muted-foreground">
-          Already registered?
+          {t("hasAccount")}
           <Link
-            href="/login"
+            href="/auth/login"
             className="text-primary hover:underline font-medium ms-1"
           >
-            Sign In
+            {t("signInLink")}
           </Link>
         </p>
       </CardFooter>

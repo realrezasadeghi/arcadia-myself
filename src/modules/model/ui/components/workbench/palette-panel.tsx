@@ -5,8 +5,14 @@ import { Separator } from "@/modules/shared/ui/components/ui/separator";
 import { Boxes, Spline } from "lucide-react";
 import { useMemo } from "react";
 import { RELATIONSHIP_VISUAL } from "../../constants/relationship";
-import { getDiagramPalette, getDiagramTypesForLayer } from "../../helpers/diagram";
-import { getElementTypeInfo, getElementTypesForLayer } from "../../helpers/element";
+import {
+  getDiagramPalette,
+  getDiagramTypesForLayer,
+} from "../../helpers/diagram";
+import {
+  getElementTypeInfo,
+  getElementTypesForLayer,
+} from "../../helpers/element";
 import { getLayerInfo } from "../../helpers/layer";
 import { getRelationshipTypeInfo } from "../../helpers/relationship";
 import { useWorkbenchStore } from "../../stores/workbench";

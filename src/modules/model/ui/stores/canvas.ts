@@ -89,9 +89,7 @@ interface CanvasState {
   selectEdge: (id: string | null) => void;
   setPendingConnection: (conn: PendingConnection | null) => void;
   /** درخواست افزودن یک المنت موجود به دیاگرام فعال را ثبت می‌کند. */
-  requestElementInsert: (
-    req: Omit<ElementInsertRequest, "token">,
-  ) => void;
+  requestElementInsert: (req: Omit<ElementInsertRequest, "token">) => void;
   /** پس از مصرف درخواست توسط canvas، آن را پاک می‌کند. */
   clearInsertRequest: () => void;
   reset: () => void;

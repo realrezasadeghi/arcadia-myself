@@ -23,8 +23,9 @@ export function SemanticBrowserPanel() {
   const selectElement = useWorkbenchStore((s) => s.selectElement);
   const openTab = useWorkbenchStore((s) => s.openTab);
 
-  const { data, isLoading, isError } =
-    useGetElementRelations(selectedElementId ?? undefined);
+  const { data, isLoading, isError } = useGetElementRelations(
+    selectedElementId ?? undefined,
+  );
 
   return (
     <aside className="flex h-full min-h-0 flex-col border-l bg-card">
@@ -43,7 +44,9 @@ export function SemanticBrowserPanel() {
         </div>
       ) : isError || !data ? (
         <div className="flex flex-1 items-center justify-center p-4 text-center">
-          <p className="text-xs text-muted-foreground">Failed to load relations</p>
+          <p className="text-xs text-muted-foreground">
+            Failed to load relations
+          </p>
         </div>
       ) : (
         <ScrollArea className="min-h-0 flex-1">

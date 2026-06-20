@@ -3,6 +3,7 @@ import type {
   ElementTypeValue,
   ElementVisualSpec,
 } from "../types/element";
+import type { LayerValue } from "../types/layer";
 
 export const ELEMENT_TYPES: ElementTypeInfo[] = [
   // ─── OA ───────────────────────────────────────────────────────────────────
@@ -236,4 +237,30 @@ export const ELEMENT_VISUAL: Record<ElementTypeValue, ElementVisualSpec> = {
     fillColorDark: "#2d3436",
     strokeColor: "#717D7E",
   },
+};
+
+export const ELEMENTS_BY_LAYER: Record<LayerValue, ElementTypeValue[]> = {
+  OA: [
+    "Mission",
+    "OperationalEntity",
+    "OperationalActor",
+    "OperationalActivity",
+    "OperationalCapability",
+    "OperationalProcess",
+  ],
+  SA: [
+    "System",
+    "SystemActor",
+    "SystemFunction",
+    "SystemCapability",
+    "SystemComponent",
+    "FunctionPort",
+  ],
+  LA: ["LogicalComponent", "LogicalActor", "LogicalFunction"],
+  PA: [
+    "PhysicalComponent",
+    "PhysicalNode",
+    "PhysicalFunction",
+    "PhysicalActor",
+  ],
 };

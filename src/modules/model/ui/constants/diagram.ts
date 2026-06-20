@@ -1,4 +1,5 @@
-import type { DiagramTypeInfo } from "../types/diagram";
+import type { DiagramTypeInfo, DiagramTypeValue } from "../types/diagram";
+import { LayerValue } from "../types/layer";
 
 export const DIAGRAM_TYPES: DiagramTypeInfo[] = [
   {
@@ -104,3 +105,10 @@ export const DIAGRAM_TYPES: DiagramTypeInfo[] = [
     layer: "PA",
   },
 ];
+
+export const DIAGRAMS_BY_LAYER: Record<LayerValue, DiagramTypeValue[]> = {
+  OA: ["OEB", "OAB", "OPD", "OCD", "OIS"],
+  SA: ["SAB", "SDFB", "SCD", "SS"],
+  LA: ["LAB", "LDFB", "LCB", "LS"],
+  PA: ["PAB", "PDFB", "PCB", "PS"],
+};

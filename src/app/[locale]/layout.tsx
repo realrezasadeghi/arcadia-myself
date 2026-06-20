@@ -47,7 +47,8 @@ export default async function LocaleLayout({ children, params }: Props) {
   const messages = await getMessages({ locale });
 
   const dir = locale === "fa" ? "rtl" : "ltr";
-  const fontClass = locale === "fa" ? fonts.vazirmatn.variable : fonts.inter.variable;
+  const fontClass =
+    locale === "fa" ? fonts.vazirmatn.variable : fonts.inter.variable;
 
   return (
     <html

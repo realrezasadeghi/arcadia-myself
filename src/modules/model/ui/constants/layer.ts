@@ -1,4 +1,4 @@
-import type { LayerInfo } from "../types/layer";
+import type { LayerInfo, LayerValue } from "../types/layer";
 
 export const LAYERS: LayerInfo[] = [
   {
@@ -26,3 +26,33 @@ export const LAYERS: LayerInfo[] = [
     order: 4,
   },
 ];
+
+export const LAYER_COLORS: Record<
+  LayerValue,
+  { bg: string; text: string; border: string; activeBg: string }
+> = {
+  OA: {
+    bg: "bg-blue-50",
+    text: "text-blue-700",
+    border: "border-blue-200",
+    activeBg: "bg-blue-100",
+  },
+  SA: {
+    bg: "bg-amber-50",
+    text: "text-amber-700",
+    border: "border-amber-200",
+    activeBg: "bg-amber-100",
+  },
+  LA: {
+    bg: "bg-emerald-50",
+    text: "text-emerald-700",
+    border: "border-emerald-200",
+    activeBg: "bg-emerald-100",
+  },
+  PA: {
+    bg: "bg-purple-50",
+    text: "text-purple-700",
+    border: "border-purple-200",
+    activeBg: "bg-purple-100",
+  },
+};

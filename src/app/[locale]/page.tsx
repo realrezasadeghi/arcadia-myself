@@ -1,5 +1,4 @@
 import { Link } from "@/i18n/navigation";
-import { LanguageSwitcher } from "@/modules/shared/ui/components/common/language-switcher";
 import { ThemeToggle } from "@/modules/shared/ui/components/common/theme-toggle";
 import { Button } from "@/modules/shared/ui/components/ui/button";
 import { cn } from "@/modules/shared/ui/libs/cn";
@@ -104,7 +103,6 @@ export default async function Home({ params }: Props) {
 
           <div className="flex items-center gap-1">
             <ThemeToggle />
-            <LanguageSwitcher />
             <div className="w-px h-5 bg-border/60 mx-1" />
             <Button
               variant="ghost"

@@ -13,6 +13,7 @@ import {
 import { cn } from "@/modules/shared/ui/libs/cn";
 import { ReactFlowProvider } from "@xyflow/react";
 import {
+  BookOpen,
   Columns2,
   PanelBottom,
   PanelLeft,
@@ -31,6 +32,7 @@ import type { Diagram } from "../../types/diagram";
 import type { Element } from "../../types/element";
 import type { LayerValue } from "../../types/layer";
 import type { Model } from "../../types/model";
+import { ArcadiaInfoModal } from "../arcadia-info-modal";
 import { EditorArea } from "./editor-area";
 import { ExplorerPanel } from "./explorer-panel";
 import { LayerSwitcher } from "./layer-switcher";
@@ -308,7 +310,9 @@ function WorkbenchMenuBar({ projectName }: { projectName: string }) {
         Capella Workbench
       </span>
 
-      <div className="ms-auto flex items-center gap-0.5">
+      <div className="ms-auto flex items-center gap-1">
+        <ArcadiaInfoModal />
+        <div className="w-px h-4 bg-border mx-1" />
         {toggles.map(({ key, label, icon: Icon }) => (
           <Tooltip key={key}>
             <TooltipTrigger asChild>

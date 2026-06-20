@@ -102,5 +102,277 @@
   "metadata": {
     "homeTitle": "Arcadia — MBSE Platform",
     "homeDescription": "A model-based systems engineering platform for designing, analyzing, and tracing complex system architectures."
+  },
+  "arcadiaGuide": {
+    "title": "Arcadia Methodology Guide",
+    "description": "Learn about diagram types and elements in each Arcadia layer.",
+    "allLayers": "All Layers",
+    "diagrams": "Diagram Types",
+    "elements": "Element Types",
+    "purpose": "Purpose",
+    "contains": "Contains",
+    "usedFor": "Used For",
+    "capellaEquiv": "Capella Equivalent",
+    "example": "Example",
+    "layers": {
+      "OA": "Operational Analysis",
+      "SA": "System Analysis",
+      "LA": "Logical Architecture",
+      "PA": "Physical Architecture"
+    },
+    "diagramTypes": {
+      "OEB": {
+        "label": "Operational Entity Breakdown",
+        "desc": "A hierarchical decomposition of operational entities (organizations, users, external systems) that participate in missions.",
+        "purpose": "Identify and structure all actors/entities involved in the operational context before defining their activities.",
+        "contains": "Operational Entities, Operational Actors, Composition relationships",
+        "usedFor": "Understanding the organizational structure and stakeholders",
+        "capella": "Entity Breakdown Diagram (EBD)"
+      },
+      "OAB": {
+        "label": "Operational Activity Breakdown",
+        "desc": "A hierarchical tree of operational activities showing what needs to be done at the operational level.",
+        "purpose": "Decompose high-level missions into concrete operational activities that can be assigned to entities.",
+        "contains": "Operational Activities, Hierarchy relationships",
+        "usedFor": "Defining what the operational stakeholders need to accomplish",
+        "capella": "Activity Breakdown Diagram (ABD)"
+      },
+      "OPD": {
+        "label": "Operational Process Description",
+        "desc": "Shows the flow and sequence of operational activities — how activities exchange information and trigger each other.",
+        "purpose": "Define operational processes as chains of activities with data exchanges between them.",
+        "contains": "Operational Activities, Operational Exchanges, Functional Chains",
+        "usedFor": "Modeling operational workflows and information flows",
+        "capella": "Operational Process Diagram (OPD)"
+      },
+      "OCD": {
+        "label": "Operational Capability Diagram",
+        "desc": "Groups operational activities into capabilities — high-level services the operation needs to provide.",
+        "purpose": "Define what the operation must be capable of achieving, similar to use cases.",
+        "contains": "Operational Capabilities, Involvement Links, Operational Exchanges",
+        "usedFor": "Defining operational capabilities and use-case-like scenarios",
+        "capella": "Operational Capability Diagram (OCD)"
+      },
+      "OIS": {
+        "label": "Operational Interaction Scenario",
+        "desc": "A sequence diagram showing how operational entities interact over time to achieve a specific capability.",
+        "purpose": "Define operational scenarios and validate that the operational architecture supports required missions.",
+        "contains": "Lifelines, Messages, Scenario steps",
+        "usedFor": "Validating operational flows through scenario-based analysis",
+        "capella": "Operational Interaction Scenario (OIS)"
+      },
+      "SAB": {
+        "label": "System Architecture Blank",
+        "desc": "The main architecture diagram showing system functions allocated to the system and its actors.",
+        "purpose": "Define the system boundary, identify system functions, and show how the system interacts with its actors.",
+        "contains": "System, System Actors, System Functions, Functional Allocations, Functional Exchanges",
+        "usedFor": "Defining system functional architecture and actor interactions",
+        "capella": "System Architecture Blank (SAB)"
+      },
+      "SDFB": {
+        "label": "System Data Flow Blank",
+        "desc": "Focuses on the data flows between system functions without showing the allocation to components.",
+        "purpose": "Analyze functional dependencies and data exchanges at the system level.",
+        "contains": "System Functions, Functional Exchanges, Function Ports",
+        "usedFor": "Analyzing functional data flows and interfaces",
+        "capella": "System Data Flow Blank (SDFB)"
+      },
+      "SCD": {
+        "label": "System Capability Diagram",
+        "desc": "Groups system functions into capabilities — what the system must be able to do.",
+        "purpose": "Define system-level capabilities and validate against operational needs.",
+        "contains": "System Capabilities, Involvement Links, Functional Chains",
+        "usedFor": "Defining system capabilities aligned with operational needs",
+        "capella": "System Capability Diagram (SCD)"
+      },
+      "SS": {
+        "label": "System Scenario",
+        "desc": "A sequence diagram showing how system functions interact to fulfill a capability.",
+        "purpose": "Define system-level scenarios and validate functional chains.",
+        "contains": "Lifelines, Messages, Scenario steps",
+        "usedFor": "Validating system behavior through scenario-based analysis",
+        "capella": "System Scenario (SS)"
+      },
+      "LAB": {
+        "label": "Logical Architecture Blank",
+        "desc": "Shows the logical component breakdown — how the system is decomposed into logical building blocks.",
+        "purpose": "Define the system's logical architecture independent of implementation choices.",
+        "contains": "Logical Components, Logical Actors, Logical Functions, Function Allocations, Logical Exchanges, Interfaces",
+        "usedFor": "Designing the logical building blocks of the system",
+        "capella": "Logical Architecture Blank (LAB)"
+      },
+      "LDFB": {
+        "label": "Logical Data Flow Blank",
+        "desc": "Focuses on data flows between logical functions without showing component allocation.",
+        "purpose": "Analyze functional dependencies at the logical architecture level.",
+        "contains": "Logical Functions, Logical Exchanges, Function Ports",
+        "usedFor": "Analyzing logical data flows and function interfaces",
+        "capella": "Logical Data Flow Blank (LDFB)"
+      },
+      "LCB": {
+        "label": "Logical Component Breakdown",
+        "desc": "Hierarchical decomposition of logical components — showing the sub-component structure.",
+        "purpose": "Define the hierarchical structure of logical components.",
+        "contains": "Logical Components, Composition relationships",
+        "usedFor": "Organizing logical components into a hierarchy",
+        "capella": "Logical Component Breakdown (LCB)"
+      },
+      "LS": {
+        "label": "Logical Scenario",
+        "desc": "A sequence diagram showing how logical components interact to fulfill a function.",
+        "purpose": "Validate logical architecture through scenario-based analysis.",
+        "contains": "Lifelines, Messages, Scenario steps",
+        "usedFor": "Validating logical component interactions",
+        "capella": "Logical Scenario (LS)"
+      },
+      "PAB": {
+        "label": "Physical Architecture Blank",
+        "desc": "The final architecture showing physical components, nodes, and their allocations.",
+        "purpose": "Define the physical implementation architecture ready for development.",
+        "contains": "Physical Components, Physical Nodes, Physical Functions, Physical Actors, Exchanges, Links",
+        "usedFor": "Defining the physical implementation architecture",
+        "capella": "Physical Architecture Blank (PAB)"
+      },
+      "PDFB": {
+        "label": "Physical Data Flow Blank",
+        "desc": "Focuses on data flows between physical functions without showing component allocation.",
+        "purpose": "Analyze functional dependencies at the physical architecture level.",
+        "contains": "Physical Functions, Physical Exchanges, Function Ports",
+        "usedFor": "Analyzing physical data flows and function interfaces",
+        "capella": "Physical Data Flow Blank (PDFB)"
+      },
+      "PCB": {
+        "label": "Physical Component Breakdown",
+        "desc": "Hierarchical decomposition of physical components — showing the implementation sub-component structure.",
+        "purpose": "Define the hierarchical structure of physical components for development.",
+        "contains": "Physical Components, Composition relationships",
+        "usedFor": "Organizing physical components into a development hierarchy",
+        "capella": "Physical Component Breakdown (PCB)"
+      },
+      "PS": {
+        "label": "Physical Scenario",
+        "desc": "A sequence diagram showing how physical components interact to fulfill a function.",
+        "purpose": "Validate physical architecture through scenario-based analysis.",
+        "contains": "Lifelines, Messages, Scenario steps",
+        "usedFor": "Validating physical component interactions",
+        "capella": "Physical Scenario (PS)"
+      }
+    },
+    "elementTypes": {
+      "Mission": {
+        "label": "Mission",
+        "desc": "A high-level goal or objective that the operation aims to achieve.",
+        "purpose": "Define the top-level mission that drives all operational activities.",
+        "example": "Air traffic control, Border surveillance, Emergency response"
+      },
+      "OperationalEntity": {
+        "label": "Operational Entity",
+        "desc": "An organization, unit, or resource that participates in operations.",
+        "purpose": "Identify organizational units that carry out operational activities.",
+        "example": "Command center, Field team, Analysis unit"
+      },
+      "OperationalActor": {
+        "label": "Operational Actor",
+        "desc": "A human user or external system that interacts with the operation.",
+        "purpose": "Identify external actors (users, other systems) that interact with the operation.",
+        "example": "Operator, Pilot, External radar system"
+      },
+      "OperationalActivity": {
+        "label": "Operational Activity",
+        "desc": "A task or action performed at the operational level.",
+        "purpose": "Define what needs to be done operationally.",
+        "example": "Track targets, Generate reports, Coordinate teams"
+      },
+      "OperationalCapability": {
+        "label": "Operational Capability",
+        "desc": "A high-level capability the operation must provide, similar to a use case.",
+        "purpose": "Group activities into capabilities for requirements traceability.",
+        "example": "Target detection, Situation awareness, Command & control"
+      },
+      "OperationalProcess": {
+        "label": "Operational Process",
+        "desc": "An ordered sequence of operational activities forming a complete workflow.",
+        "purpose": "Define end-to-end operational workflows.",
+        "example": "Target engagement process, Alert handling process"
+      },
+      "System": {
+        "label": "System",
+        "desc": "The system under study — the main subject of the architecture.",
+        "purpose": "Define the system boundary and its interaction with actors.",
+        "example": "Radar system, Navigation system, Communication system"
+      },
+      "SystemActor": {
+        "label": "System Actor",
+        "desc": "An external system or user that interacts with the system.",
+        "purpose": "Identify external entities that provide inputs or consume outputs.",
+        "example": "Operator console, External sensor, Data network"
+      },
+      "SystemFunction": {
+        "label": "System Function",
+        "desc": "A function the system must perform to satisfy operational needs.",
+        "purpose": "Define what the system does at the functional level.",
+        "example": "Detect targets, Track objects, Display information"
+      },
+      "SystemCapability": {
+        "label": "System Capability",
+        "desc": "A high-level capability the system must provide.",
+        "purpose": "Group system functions into capabilities for traceability.",
+        "example": "Surveillance capability, Navigation capability"
+      },
+      "SystemComponent": {
+        "label": "System Component",
+        "desc": "A major subsystem or component of the system.",
+        "purpose": "Initial system decomposition before logical architecture.",
+        "example": "Sensor subsystem, Processing unit, Display module"
+      },
+      "FunctionPort": {
+        "label": "Function Port",
+        "desc": "An input or output point on a function through which data flows.",
+        "purpose": "Define precise interfaces for function inputs/outputs.",
+        "example": "Target data input, Alert output, Status port"
+      },
+      "LogicalComponent": {
+        "label": "Logical Component",
+        "desc": "A logical building block of the system — independent of implementation choices.",
+        "purpose": "Decompose the system into logical parts that carry major design decisions.",
+        "example": "Detection module, Tracking module, Display module"
+      },
+      "LogicalActor": {
+        "label": "Logical Actor",
+        "desc": "An external entity at the logical architecture level.",
+        "purpose": "Identify external interactions at the logical level.",
+        "example": "Operator workstation, External database, Network"
+      },
+      "LogicalFunction": {
+        "label": "Logical Function",
+        "desc": "A function at the logical architecture level.",
+        "purpose": "Define the functional behavior of logical components.",
+        "example": "Process sensor data, Generate alerts, Manage communications"
+      },
+      "PhysicalComponent": {
+        "label": "Physical Component",
+        "desc": "A concrete implementation unit — ready for development.",
+        "purpose": "Define the physical components that will be developed or procured.",
+        "example": "Software module, Hardware board, Firmware package"
+      },
+      "PhysicalNode": {
+        "label": "Physical Node",
+        "desc": "A physical resource (hardware, server, device) that hosts components.",
+        "purpose": "Define the physical deployment targets.",
+        "example": "Server rack, Workstation, Embedded device"
+      },
+      "PhysicalFunction": {
+        "label": "Physical Function",
+        "desc": "A function at the physical implementation level.",
+        "purpose": "Define the detailed functional behavior for development.",
+        "example": "Parse TCP packets, Render GUI, Store to database"
+      },
+      "PhysicalActor": {
+        "label": "Physical Actor",
+        "desc": "An external entity at the physical architecture level.",
+        "purpose": "Identify external interactions at the physical level.",
+        "example": "External API, Legacy system, Human operator"
+      }
+    }
   }
 }

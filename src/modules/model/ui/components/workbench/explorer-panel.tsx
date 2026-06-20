@@ -22,7 +22,7 @@ import { useRemoveDiagram } from "../../clients/remove-diagram";
 import { useRemoveElement } from "../../clients/remove-element";
 import { useUpdateDiagram } from "../../clients/update-diagram";
 import { LAYERS } from "../../constants/layer";
-import { getDiagramLayer } from "../../helpers/diagram";
+import { getDiagramLayer, getDiagramPalette } from "../../helpers/diagram";
 import { getElementTypeInfo } from "../../helpers/element";
 import { getLayerInfo } from "../../helpers/layer";
 import { useCanvasStore } from "../../stores/canvas";
@@ -281,6 +281,45 @@ export function ExplorerPanel({
     [updateDiagram, editDiagram, renameTab, onTreeChanged],
   );
 
+  const onAddElementToDiagram = useCallback(
+    (element: ElementTreeNode, diagram: Diagram) => {
+      const palette = getDiagramPalette(diagram.type);
+      if (!palette.elementTypes.includes(element.type)) {
+        toast.error(
+          `Cannot add "${element.name}" to ${diagram.type} diagram. ` +
+            `This diagram type only supports: ${palette.elementTypes.join(", ")}`,
+        );
+        return;
+      }
+
+      // Open the diagram and trigger insert
+      openTab({
+        diagramId: diagram.id,
+        modelId: diagram.modelId,
+        name: diagram.name,
+        type: diagram.type,
+        layer: getDiagramLayer(diagram.type),
+      });
+
+      // Find the element data
+      for (const { elements } of modelData) {
+        const el = elements.find((e) => e.id === element.id);
+        if (el) {
+          useCanvasStore.getState().requestElementInsert({
+            elementId: el.id,
+            elementType: el.type,
+            name: el.name,
+            description: el.description,
+            status: el.status,
+          });
+          toast.success(`Added "${el.name}" to ${diagram.name}`);
+          return;
+        }
+      }
+    },
+    [modelData, openTab],
+  );
+
   const handlers: ExplorerHandlers = {
     onOpenDiagram,
     onSelectElement,
@@ -290,6 +329,8 @@ export function ExplorerPanel({
     onNewDiagram: setDiagramDialogModel,
     onEditDiagram: (model, diagram) => setEditDiagram({ model, diagram }),
     onTransition: setTransitionModel,
+    onAddElementToDiagram,
+    diagrams: modelData.flatMap((m) => m.diagrams),
   };
 
   return (

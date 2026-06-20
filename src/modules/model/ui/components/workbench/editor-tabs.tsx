@@ -2,6 +2,10 @@
 
 import { cn } from "@/modules/shared/ui/libs/cn";
 import { LayoutDashboard, X } from "lucide-react";
+import { type DragEventHandler, useCallback } from "react";
+import { toast } from "sonner";
+import { getDiagramPalette } from "../../helpers/diagram";
+import { useCanvasStore } from "../../stores/canvas";
 import { useWorkbenchStore } from "../../stores/workbench";
 
 /**
@@ -9,6 +13,7 @@ import { useWorkbenchStore } from "../../stores/workbench";
  *
  * نوار تب‌های مرورگرمانند برای ناحیه ویرایشگر.
  * هر تب یک دیاگرام باز است؛ تنها یک تب در هر زمان فعال است.
+ * از拖 و افت المنت‌ها از کانواس دیگر پشتیبانی می‌کند.
  */
 export function EditorTabs() {
   const tabs = useWorkbenchStore((s) => s.tabs);
@@ -16,12 +21,56 @@ export function EditorTabs() {
   const setActiveTab = useWorkbenchStore((s) => s.setActiveTab);
   const closeTab = useWorkbenchStore((s) => s.closeTab);
 
+  const handleDragOver: DragEventHandler = useCallback((e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  }, []);
+
   if (tabs.length === 0) return null;
 
   return (
     <div className="flex h-9 shrink-0 items-stretch overflow-x-auto border-b bg-muted/40">
       {tabs.map((tab) => {
         const isActive = tab.diagramId === activeDiagramId;
+
+        const handleDrop: DragEventHandler = (e) => {
+          e.preventDefault();
+
+          const data = e.dataTransfer.getData("application/canvas-node");
+          if (!data) return;
+
+          try {
+            const { elementId, elementType, name } = JSON.parse(data);
+
+            // Don't drop on same diagram
+            if (tab.diagramId === activeDiagramId) return;
+
+            // Validate element type against target diagram palette
+            const palette = getDiagramPalette(tab.type);
+            if (!palette.elementTypes.includes(elementType)) {
+              toast.error(
+                `Cannot add "${name}" to ${tab.type} diagram. ` +
+                  `This diagram only supports: ${palette.elementTypes.join(", ")}`,
+              );
+              return;
+            }
+
+            // Switch to target tab and request insert
+            setActiveTab(tab.diagramId);
+            useCanvasStore.getState().requestElementInsert({
+              elementId,
+              elementType,
+              name,
+              description: "",
+              status: "DRAFT",
+            });
+
+            toast.success(`Added "${name}" to ${tab.type} diagram`);
+          } catch {
+            // ignore
+          }
+        };
+
         return (
           <div
             key={tab.diagramId}
@@ -32,6 +81,8 @@ export function EditorTabs() {
                 : "text-muted-foreground hover:bg-background/60",
             )}
             onClick={() => setActiveTab(tab.diagramId)}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
             onKeyDown={(e) => {
               if (e.key === "Enter") setActiveTab(tab.diagramId);
             }}

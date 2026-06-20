@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import {
   applyEdgeChanges,
   applyNodeChanges,
@@ -14,36 +15,36 @@ import {
   type OnNodeDrag,
   type OnNodesChange,
   ReactFlow,
-  useReactFlow,
 } from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
 import { type DragEventHandler, useCallback, useEffect, useRef } from "react";
+import { toast } from "sonner";
+import { ConnectionPolicy } from "../../domain/policies/connection";
+import { useConnectElements } from "../clients/connect-elements";
+import { useCreateElement } from "../clients/create-element";
+import { getElementRelationsKey } from "../clients/get-element-relations";
+import { useUpdateDiagramLayout } from "../clients/update-diagram-layout";
+import { getDiagramPalette } from "../helpers/diagram";
 import {
   getElementTypeInfo,
   getElementVisual,
   getNodeTypeForElement,
 } from "../helpers/element";
+import { useRemoveElementSync } from "../hooks/use-remove-element";
+import { useRemoveRelationshipSync } from "../hooks/use-remove-relationship";
+import { useSaveManager } from "../hooks/use-save-manager";
 import {
   type CanvasEdge,
   type CanvasNode,
   useCanvasStore,
 } from "../stores/canvas";
-
-import "@xyflow/react/dist/style.css";
-import { toast } from "sonner";
-import { ConnectionPolicy } from "../../domain/policies/connection";
-import { useConnectElements } from "../clients/connect-elements";
-import { useCreateElement } from "../clients/create-element";
-import { useUpdateDiagramLayout } from "../clients/update-diagram-layout";
-import { useRemoveElementSync } from "../hooks/use-remove-element";
-import { useRemoveRelationshipSync } from "../hooks/use-remove-relationship";
-import { useSaveManager } from "../hooks/use-save-manager";
+import { useWorkbenchStore } from "../stores/workbench";
 import type { Diagram, ElementLayout } from "../types/diagram";
 import type { Element, ElementTypeValue } from "../types/element";
 import type {
   Relationship,
   RelationshipTypeValue,
 } from "../types/relationship";
-import { useWorkbenchStore } from "../stores/workbench";
 import { ArchitectureEdge } from "./architecture-edge";
 import { ArchitectureNode } from "./architecture-node";
 import { ConnectionDialog } from "./connection-dialog";
@@ -160,20 +161,15 @@ export function DiagramCanvasInner({
 
   // Auto-select element when selectedElementId changes (e.g. from explorer navigation)
   const selectedElementId = useWorkbenchStore((s) => s.selectedElementId);
-  const { setCenter } = useReactFlow();
   useEffect(() => {
     if (selectedElementId) {
-      const node = nodes.find((n) => n.id === selectedElementId);
+      const currentNodes = useCanvasStore.getState().nodes;
+      const node = currentNodes.find((n) => n.id === selectedElementId);
       if (node) {
         selectNode(selectedElementId);
-        setCenter(
-          node.position.x + (node.width ?? 0) / 2,
-          node.position.y + (node.height ?? 0) / 2,
-          { zoom: 1.5, duration: 400 },
-        );
       }
     }
-  }, [selectedElementId, nodes, selectNode, setCenter]);
+  }, [selectedElementId, selectNode]);
 
   const createElement = useCreateElement();
 
@@ -181,22 +177,26 @@ export function DiagramCanvasInner({
 
   const updateDiagramLayout = useUpdateDiagramLayout();
 
+  const queryClient = useQueryClient();
+
   const getNodeColor = useCallback((node: CanvasNode) => {
     return getElementVisual(node?.data?.elementType)?.strokeColor || "#94a3b8";
   }, []);
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => {
-      setNodes(applyNodeChanges(changes, nodes) as CanvasNode[]);
+      const currentNodes = useCanvasStore.getState().nodes;
+      setNodes(applyNodeChanges(changes, currentNodes) as CanvasNode[]);
     },
-    [nodes, setNodes],
+    [setNodes],
   );
 
   const onEdgesChange: OnEdgesChange = useCallback(
     (changes) => {
-      setEdges(applyEdgeChanges(changes, edges) as CanvasEdge[]);
+      const currentEdges = useCanvasStore.getState().edges;
+      setEdges(applyEdgeChanges(changes, currentEdges) as CanvasEdge[]);
     },
-    [edges, setEdges],
+    [setEdges],
   );
 
   const onNodeClick: NodeMouseHandler<CanvasNode> = useCallback(
@@ -330,22 +330,99 @@ export function DiagramCanvasInner({
     (event) => {
       event.preventDefault();
 
-      const elementType = event.dataTransfer.getData(
-        "application/element-type",
-      ) as ElementTypeValue;
-
-      if (!elementType || !reactFlowRef.current) return;
+      if (!reactFlowRef.current || !modelId || !diagramId) return;
 
       const bounds = reactFlowRef.current.getBoundingClientRect();
-
       const position = {
         y: event.clientY - bounds.top - 30,
         x: event.clientX - bounds.left - 80,
       };
 
-      if (!modelId || !diagramId) {
+      // ─── Explorer element drop (existing element) ────────────────────────
+      const explorerData = event.dataTransfer.getData(
+        "application/explorer-element",
+      );
+      if (explorerData) {
+        try {
+          const { elementId, elementType, name, status, description } =
+            JSON.parse(explorerData);
+
+          const currentNodes = useCanvasStore.getState().nodes;
+          const already = currentNodes.find((n) => n.id === elementId);
+          if (already) {
+            toast.info(`"${name}" is already on this diagram`);
+            return;
+          }
+
+          // Validate element type against diagram palette
+          const activeTab = useWorkbenchStore
+            .getState()
+            .tabs.find((t) => t.diagramId === diagramId);
+          if (activeTab) {
+            const diagPalette = getDiagramPalette(activeTab.type);
+            if (!diagPalette.elementTypes.includes(elementType)) {
+              toast.error(
+                `Cannot add "${name}" to ${activeTab.type} diagram. ` +
+                  `This diagram only supports: ${diagPalette.elementTypes.join(", ")}`,
+              );
+              return;
+            }
+          }
+
+          pushHistory();
+
+          const elementLayouts: ElementLayout[] = currentNodes.map((node) => ({
+            position: node.position,
+            elementId: node.data.elementId,
+            size: { width: node.width ?? 160, height: node.height ?? 60 },
+          }));
+
+          updateDiagramLayout.mutate(
+            {
+              id: String(diagramId),
+              elementLayouts: [
+                ...elementLayouts,
+                { position, elementId, size: { width: 160, height: 60 } },
+              ],
+            },
+            {
+              onSuccess: () => {
+                addNode({
+                  id: elementId,
+                  type: getNodeTypeForElement(elementType),
+                  position,
+                  data: {
+                    name,
+                    elementId,
+                    elementType,
+                    modelId: String(modelId),
+                    description: description ?? "",
+                    status: status ?? "DRAFT",
+                  },
+                });
+                selectNode(elementId);
+                // Refresh the Semantic Browser's "Appears in Diagrams" list.
+                queryClient.invalidateQueries({
+                  queryKey: getElementRelationsKey(elementId),
+                });
+                toast.success(`Added "${name}" to diagram`);
+              },
+              onError: ({ message }) =>
+                toast.error(message || "Error adding element to diagram"),
+            },
+          );
+        } catch {
+          // ignore parse errors
+        }
         return;
       }
+
+      // ─── Palette drop (new element) ──────────────────────────────────────
+      const elementType = event.dataTransfer.getData(
+        "application/element-type",
+      ) as ElementTypeValue;
+
+      if (!elementType) return;
 
       pushHistory();
 
@@ -360,11 +437,14 @@ export function DiagramCanvasInner({
         },
         {
           onSuccess: ({ data: element }) => {
-            const elementLayouts: ElementLayout[] = nodes.map((node) => ({
-              position: node.position,
-              elementId: node.data.elementId,
-              size: { width: node.width ?? 160, height: node.height ?? 60 },
-            }));
+            const currentNodes = useCanvasStore.getState().nodes;
+            const elementLayouts: ElementLayout[] = currentNodes.map(
+              (node) => ({
+                position: node.position,
+                elementId: node.data.elementId,
+                size: { width: node.width ?? 160, height: node.height ?? 60 },
+              }),
+            );
 
             const elementLayoutItem = {
               position,
@@ -412,7 +492,8 @@ export function DiagramCanvasInner({
       createElement,
       updateDiagramLayout,
       addNode,
-      nodes,
+      selectNode,
+      queryClient,
     ],
   );
 
@@ -436,7 +517,8 @@ export function DiagramCanvasInner({
     // فقط برای دیاگرام فعال؛ المنت باید به همان model تعلق داشته باشد.
     const consume = () => clearInsertRequest();
 
-    const already = nodes.find((n) => n.id === insertRequest.elementId);
+    const currentNodes = useCanvasStore.getState().nodes;
+    const already = currentNodes.find((n) => n.id === insertRequest.elementId);
     if (already) {
       selectNode(already.id);
       consume();
@@ -447,11 +529,11 @@ export function DiagramCanvasInner({
 
     // قرار دادن المنت با کمی آفست تا روی هم نیفتند.
     const position = {
-      x: 80 + (nodes.length % 6) * 40,
-      y: 80 + (nodes.length % 6) * 40,
+      x: 80 + (currentNodes.length % 6) * 40,
+      y: 80 + (currentNodes.length % 6) * 40,
     };
 
-    const existingLayouts: ElementLayout[] = nodes.map((node) => ({
+    const existingLayouts: ElementLayout[] = currentNodes.map((node) => ({
       position: node.position,
       elementId: node.data.elementId,
       size: { width: node.width ?? 160, height: node.height ?? 60 },
@@ -485,6 +567,10 @@ export function DiagramCanvasInner({
             },
           });
           selectNode(insertRequest.elementId);
+          // Refresh the Semantic Browser's "Appears in Diagrams" list.
+          queryClient.invalidateQueries({
+            queryKey: getElementRelationsKey(insertRequest.elementId),
+          });
         },
         onError: ({ message }) =>
           toast.error(message || "Error adding element to diagram"),
@@ -496,12 +582,12 @@ export function DiagramCanvasInner({
     insertRequest,
     diagramId,
     modelId,
-    nodes,
     pushHistory,
     updateDiagramLayout,
     addNode,
     selectNode,
     clearInsertRequest,
+    queryClient,
   ]);
 
   useEffect(() => {

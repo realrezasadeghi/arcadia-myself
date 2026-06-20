@@ -26,6 +26,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useShallow } from "zustand/shallow";
+import { getElementRelationsKey } from "../clients/get-element-relations";
 import {
   getTraceLinksByElementIdKey,
   useGetTraceLinksByElementId,
@@ -134,6 +135,7 @@ function NodeProperties({ projectId, node }: NodeProperties) {
   const [traceDialogOpen, setTraceDialogOpen] = useState(false);
   const [description, setDescription] = useState(node?.data.description);
 
+  const queryClient = useQueryClient();
   const updateElement = useUpdateElement();
 
   const elementType = useMemo(
@@ -180,13 +182,17 @@ function NodeProperties({ projectId, node }: NodeProperties) {
             name: data.name,
             description: data.description,
           });
+          // Keep the Semantic Browser in sync with the edited element.
+          queryClient.invalidateQueries({
+            queryKey: getElementRelationsKey(data.id),
+          });
         },
         onError: ({ message }) => {
           toast.error(message || "Error saving changes");
         },
       },
     );
-  }, [updateElement, name, description, updateNodeData, node.data]);
+  }, [updateElement, name, description, updateNodeData, node.data, queryClient]);
 
   return (
     <>

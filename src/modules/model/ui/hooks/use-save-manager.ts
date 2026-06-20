@@ -20,8 +20,6 @@ const MAX_PENDING = 5;
  * immediately so layout edits are never lost.
  */
 export function useSaveManager() {
-  const { diagramId, nodes } = useCanvasStore();
-
   const updateDiagramLayout = useUpdateDiagramLayout();
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -30,12 +28,14 @@ export function useSaveManager() {
     useModelStore();
 
   const flush = useCallback(async () => {
-    if (!diagramId) return;
+    const currentDiagramId = useCanvasStore.getState().diagramId;
+    const currentNodes = useCanvasStore.getState().nodes;
+    if (!currentDiagramId) return;
     if (timerRef.current) clearTimeout(timerRef.current);
 
     setSaveStatus("saving");
 
-    const layouts = nodes.map((n) => ({
+    const layouts = currentNodes.map((n) => ({
       position: n.position,
       elementId: n.data.elementId,
       size: { width: n.width ?? 160, height: n.height ?? 60 },
@@ -43,7 +43,7 @@ export function useSaveManager() {
 
     updateDiagramLayout.mutate(
       {
-        id: diagramId,
+        id: currentDiagramId,
         elementLayouts: layouts,
       },
       {
@@ -57,7 +57,7 @@ export function useSaveManager() {
         },
       },
     );
-  }, [diagramId, nodes, setSaveStatus, resetPending, updateDiagramLayout]);
+  }, [setSaveStatus, resetPending, updateDiagramLayout]);
 
   // نگه‌داشتن آخرین نسخه‌ی flush برای فراخوانی هنگام unmount
   const flushRef = useRef(flush);

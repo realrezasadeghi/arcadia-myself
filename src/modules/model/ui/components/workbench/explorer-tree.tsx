@@ -38,10 +38,15 @@ import {
   getElementTypesForLayer,
   getElementVisual,
 } from "../../helpers/element";
+import { getDiagramPalette } from "../../helpers/diagram";
 import { getLayerInfo } from "../../helpers/layer";
 import { useWorkbenchStore } from "../../stores/workbench";
 import type { Diagram } from "../../types/diagram";
-import type { Element, ElementTypeValue } from "../../types/element";
+import type {
+  Element,
+  ElementStatus,
+  ElementTypeValue,
+} from "../../types/element";
 import type { LayerValue } from "../../types/layer";
 import type { Model } from "../../types/model";
 
@@ -76,6 +81,8 @@ type ElementTreeNode = {
   id: string;
   name: string;
   type: ElementTypeValue;
+  status: ElementStatus;
+  description?: string;
   children: ElementTreeNode[];
 };
 
@@ -84,7 +91,14 @@ function buildElementTree(elements: Element[]): ElementTreeNode[] {
   const roots: ElementTreeNode[] = [];
 
   for (const el of elements) {
-    map.set(el.id, { id: el.id, name: el.name, type: el.type, children: [] });
+    map.set(el.id, {
+      id: el.id,
+      name: el.name,
+      type: el.type,
+      status: el.status,
+      description: el.description,
+      children: [],
+    });
   }
 
   for (const el of elements) {
@@ -111,6 +125,8 @@ export type ExplorerHandlers = {
   onDeleteElement: (element: ElementTreeNode) => void;
   onDeleteDiagram: (diagram: Diagram) => void;
   onTransition: (model: Model) => void;
+  onAddElementToDiagram: (element: ElementTreeNode, diagram: Diagram) => void;
+  diagrams?: Diagram[];
 };
 
 type ModelDataItem = {
@@ -241,18 +257,31 @@ function ElementTreeItem({
   const visual = getElementVisual(node.type);
   const isSelected = selectedElementId === node.id;
 
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData("application/explorer-element", JSON.stringify({
+      elementId: node.id,
+      elementType: node.type,
+      name: node.name,
+      status: node.status,
+      description: node.description ?? "",
+    }));
+    e.dataTransfer.effectAllowed = "copy";
+  };
+
   return (
     <div>
       <ContextMenu>
         <ContextMenuTrigger asChild>
           <button
             type="button"
+            draggable
+            onDragStart={handleDragStart}
             onClick={() => {
               handlers.onSelectElement(node.id);
               if (hasChildren) setOpen((v) => !v);
             }}
             className={cn(
-              "flex w-full items-center gap-1 rounded-sm px-2 py-1 text-xs text-left transition-colors hover:bg-muted",
+              "flex w-full items-center gap-1 rounded-sm px-2 py-1 text-xs text-left transition-colors hover:bg-muted cursor-grab active:cursor-grabbing",
               isSelected && "bg-primary/10 text-primary",
             )}
             style={{ paddingLeft: `${12 + depth * 14}px` }}
@@ -280,6 +309,43 @@ function ElementTreeItem({
         </ContextMenuTrigger>
         <ContextMenuContent>
           <ContextMenuLabel>{node.name}</ContextMenuLabel>
+          <ContextMenuSeparator />
+          <ContextMenuSub>
+            <ContextMenuSubTrigger>
+              <Plus className="size-3.5" />
+              Add to Diagram
+            </ContextMenuSubTrigger>
+            <ContextMenuSubContent>
+              {handlers.diagrams?.map((diagram) => {
+                const palette = getDiagramPalette(diagram.type);
+                const isAllowed = palette.elementTypes.includes(node.type);
+                return (
+                  <ContextMenuItem
+                    key={diagram.id}
+                    disabled={!isAllowed}
+                    onSelect={() =>
+                      handlers.onAddElementToDiagram(node, diagram)
+                    }
+                  >
+                    <LayoutDashboard className="size-3.5" />
+                    <span className="flex-1">{diagram.name}</span>
+                    {!isAllowed && (
+                      <span className="text-[9px] text-muted-foreground">
+                        {diagram.type}
+                      </span>
+                    )}
+                  </ContextMenuItem>
+                );
+              })}
+              {(!handlers.diagrams || handlers.diagrams.length === 0) && (
+                <ContextMenuItem disabled>
+                  <span className="text-muted-foreground">
+                    No diagrams in this layer
+                  </span>
+                </ContextMenuItem>
+              )}
+            </ContextMenuSubContent>
+          </ContextMenuSub>
           <ContextMenuSeparator />
           <ContextMenuItem
             variant="destructive"

@@ -1,6 +1,6 @@
 import { cn } from "@/modules/shared/ui/libs/cn";
 import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
-import { memo } from "react";
+import { type DragEventHandler, memo, useCallback } from "react";
 import { getElementTypeInfo, getElementVisual } from "../helpers/element";
 import type { ElementNodeData } from "../stores/canvas";
 
@@ -22,12 +22,29 @@ function ArchitectureNodeComponent({
   const isEllipse = spec.shape === "ellipse";
   const isRounded = spec.shape === "rounded-rectangle";
 
+  const handleDragStart: DragEventHandler = useCallback(
+    (e) => {
+      e.dataTransfer.setData(
+        "application/canvas-node",
+        JSON.stringify({
+          elementId: data.elementId,
+          elementType: data.elementType,
+          name: data.name,
+        }),
+      );
+      e.dataTransfer.effectAllowed = "copy";
+    },
+    [data],
+  );
+
   return (
     <div
+      draggable
+      onDragStart={handleDragStart}
       className={cn(
         "relative flex items-center justify-center min-w-35 min-h-13 px-3 py-2",
         "border-2 text-[11px] font-medium leading-tight text-center select-none",
-        "transition-shadow duration-150",
+        "transition-shadow duration-150 cursor-grab active:cursor-grabbing",
         isEllipse ? "rounded-full" : isRounded ? "rounded-xl" : "rounded-sm",
         selected && "shadow-[0_0_0_2px_hsl(var(--primary))]",
         STATUS_RING[data.status] ?? "",

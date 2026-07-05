@@ -1,43 +1,26 @@
 import { Entity } from "@/modules/shared/domain/entity";
 import { DiagramType } from "../value-objects/diagram-type";
 
-export interface Viewport {
-  x: number;
-  y: number;
-  zoom: number;
-}
-
-export interface ElementLayout {
-  elementId: string;
-  position: { x: number; y: number };
-  size: { width: number; height: number };
-}
-
 interface DiagramProps {
   modelId: string;
   type: DiagramType;
   name: string;
   description?: string;
-  viewport: Viewport;
-  elementLayouts: Map<string, ElementLayout>;
   createdAt: Date;
   updatedAt: Date;
 }
 
 /**
- * Diagram — Entity
+ * Diagram — Entity (Metadata only)
  *
- * یک نمای بصری از المنت‌های یک لایه.
- * یک المنت می‌تواند در چندین Diagram نمایش داشته باشد (layout جدا است).
- * Business behavior: مدیریت layout المنت‌ها، تغییر viewport.
+ * Visual layout (viewport, element positions) is stored separately
+ * in the DiagramLayout value object / diagram_layouts table.
  */
 export class Diagram extends Entity<string> {
   private _name: string;
   private _description?: string;
   private readonly _modelId: string;
   private readonly _type: DiagramType;
-  private _viewport: Viewport;
-  private readonly _elementLayouts: Map<string, ElementLayout>;
   private _updatedAt: Date;
   readonly createdAt: Date;
 
@@ -47,8 +30,6 @@ export class Diagram extends Entity<string> {
     this._type = props.type;
     this._name = props.name;
     this._description = props.description;
-    this._viewport = { ...props.viewport };
-    this._elementLayouts = props.elementLayouts;
     this.createdAt = props.createdAt;
     this._updatedAt = props.updatedAt;
   }
@@ -67,8 +48,6 @@ export class Diagram extends Entity<string> {
       type: DiagramType.from(props.type),
       name: props.name.trim(),
       description: props.description ?? "",
-      viewport: { x: 0, y: 0, zoom: 1 },
-      elementLayouts: new Map(),
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -80,22 +59,14 @@ export class Diagram extends Entity<string> {
     type: string;
     name: string;
     description: string;
-    viewport: Viewport;
-    elementLayouts: ElementLayout[];
     createdAt: string;
     updatedAt: string;
   }): Diagram {
-    const layouts = new Map<string, ElementLayout>();
-    for (const l of props.elementLayouts) {
-      layouts.set(l.elementId, l);
-    }
     return new Diagram(props.id, {
       modelId: props.modelId,
       type: DiagramType.from(props.type),
       name: props.name,
       description: props.description,
-      viewport: props.viewport,
-      elementLayouts: layouts,
       createdAt: new Date(props.createdAt),
       updatedAt: new Date(props.updatedAt),
     });
@@ -113,15 +84,8 @@ export class Diagram extends Entity<string> {
   get description(): string | undefined {
     return this._description;
   }
-  get viewport(): Readonly<Viewport> {
-    return this._viewport;
-  }
   get updatedAt(): Date {
     return this._updatedAt;
-  }
-
-  get elementLayouts(): ReadonlyArray<ElementLayout> {
-    return Array.from(this._elementLayouts.values());
   }
 
   rename(name: string): void {
@@ -135,47 +99,6 @@ export class Diagram extends Entity<string> {
     this._touch();
   }
 
-  updateViewport(viewport: Viewport): void {
-    this._viewport = { ...viewport };
-    this._touch();
-  }
-
-  /** قرار دادن المنت در دیاگرام با موقعیت مشخص */
-  placeElement(
-    elementId: string,
-    position: { x: number; y: number },
-    size?: { width: number; height: number },
-  ): void {
-    this._elementLayouts.set(elementId, {
-      elementId,
-      position,
-      size: size ?? { width: 160, height: 60 },
-    });
-    this._touch();
-  }
-
-  moveElement(elementId: string, position: { x: number; y: number }): void {
-    const existing = this._elementLayouts.get(elementId);
-    if (!existing)
-      throw new Error(`Element ${elementId} does't exist in diagram.`);
-    this._elementLayouts.set(elementId, { ...existing, position });
-    this._touch();
-  }
-
-  /** حذف layout یک المنت از دیاگرام (المنت خودش حذف نمی‌شود) */
-  removeElementLayout(elementId: string): void {
-    this._elementLayouts.delete(elementId);
-    this._touch();
-  }
-
-  hasElement(elementId: string): boolean {
-    return this._elementLayouts.has(elementId);
-  }
-
-  getElementLayout(elementId: string): ElementLayout | null {
-    return this._elementLayouts.get(elementId) ?? null;
-  }
-
   toJSON() {
     return {
       id: this._id,
@@ -183,8 +106,6 @@ export class Diagram extends Entity<string> {
       type: this._type.value,
       name: this._name,
       description: this._description,
-      viewport: this._viewport,
-      elementLayouts: Array.from(this._elementLayouts.values()),
       createdAt: this.createdAt.toISOString(),
       updatedAt: this._updatedAt.toISOString(),
     };

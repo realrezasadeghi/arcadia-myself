@@ -21,7 +21,14 @@ export type ElementTypeValue =
   | "PhysicalComponent"
   | "PhysicalNode"
   | "PhysicalFunction"
-  | "PhysicalActor";
+  | "PhysicalActor"
+  | "Class"
+  | "Interface"
+  | "DataType"
+  | "Enumeration"
+  | "PrimitiveType"
+  | "Collection"
+  | "ExchangeItem";
 
 export type ElementTypeInfo = {
   value: ElementTypeValue;

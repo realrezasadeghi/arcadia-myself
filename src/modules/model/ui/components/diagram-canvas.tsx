@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getClassDiagramData } from "../../presentation/server-actions/class-diagram/get-class-diagram-data";
 import { getDiagramById } from "../../presentation/server-actions/get-diagram-by-id";
 import { getElementsByModelId } from "../../presentation/server-actions/get-elements-by-model-id";
 import { getRelationshipsByModelId } from "../../presentation/server-actions/get-relationships-by-model-id";
@@ -20,9 +21,14 @@ export async function DiagramCanvas({ params }: DiagramCanvasProps) {
     notFound();
   }
 
-  const [elements, relationships] = await Promise.all([
+  const isClassDiagram = diagram.data.type === "CLASS";
+
+  const [elements, relationships, classData] = await Promise.all([
     getElementsByModelId(diagram.data.modelId),
     getRelationshipsByModelId(diagram.data.modelId),
+    isClassDiagram
+      ? getClassDiagramData(diagram.data.modelId)
+      : Promise.resolve(null),
   ]);
 
   const mappedElements = elements?.data?.map((element) => ({
@@ -42,6 +48,7 @@ export async function DiagramCanvas({ params }: DiagramCanvasProps) {
       diagram={diagram?.data}
       elements={mappedElements || []}
       relationships={relationships?.data || []}
+      classData={classData?.data ?? undefined}
     />
   );
 }

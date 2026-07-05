@@ -77,6 +77,42 @@ export const RELATIONSHIP_TYPES: RelationshipTypeInfo[] = [
     labelFa: "ترکیب",
     allowedFor: ["OA", "SA", "LA", "PA"],
   },
+  {
+    value: "ClassAssociation",
+    label: "Association",
+    labelFa: "ارتباط",
+    allowedFor: ["SA", "LA", "PA"],
+  },
+  {
+    value: "ClassAggregation",
+    label: "Aggregation",
+    labelFa: "تراکم",
+    allowedFor: ["SA", "LA", "PA"],
+  },
+  {
+    value: "ClassComposition",
+    label: "Composition",
+    labelFa: "ترکیب کلاسی",
+    allowedFor: ["SA", "LA", "PA"],
+  },
+  {
+    value: "ClassGeneralization",
+    label: "Generalization",
+    labelFa: "تعمیم",
+    allowedFor: ["SA", "LA", "PA"],
+  },
+  {
+    value: "ClassDependency",
+    label: "Dependency",
+    labelFa: "وابستگی",
+    allowedFor: ["SA", "LA", "PA"],
+  },
+  {
+    value: "ClassRealization",
+    label: "Realization",
+    labelFa: "تحقق",
+    allowedFor: ["SA", "LA", "PA"],
+  },
 ];
 
 export const RELATIONSHIP_VISUAL: Record<
@@ -136,7 +172,41 @@ export const RELATIONSHIP_VISUAL: Record<
   Composition: {
     strokeColor: "#7D3C98",
     strokeWidth: 1.5,
-    arrowEnd: "diamond", // یا "none" بسته به نمایش
+    arrowEnd: "diamond",
     strokeDash: "none",
+  },
+  ClassAssociation: {
+    strokeColor: "#2874A6",
+    strokeWidth: 1.5,
+    arrowEnd: "arrow",
+  },
+  ClassAggregation: {
+    strokeColor: "#2874A6",
+    strokeWidth: 1.5,
+    arrowEnd: "diamond",
+    strokeDash: "none",
+  },
+  ClassComposition: {
+    strokeColor: "#2874A6",
+    strokeWidth: 1.5,
+    arrowEnd: "diamond",
+    strokeDash: "none",
+  },
+  ClassGeneralization: {
+    strokeColor: "#2874A6",
+    strokeWidth: 1.5,
+    arrowEnd: "open-arrow",
+  },
+  ClassDependency: {
+    strokeColor: "#2874A6",
+    strokeWidth: 1,
+    arrowEnd: "open-arrow",
+    strokeDash: "5,3",
+  },
+  ClassRealization: {
+    strokeColor: "#2874A6",
+    strokeWidth: 1,
+    arrowEnd: "open-arrow",
+    strokeDash: "5,3",
   },
 };

@@ -1,5 +1,5 @@
 import type { DiagramTypeInfo, DiagramTypeValue } from "../types/diagram";
-import { LayerValue } from "../types/layer";
+import type { LayerValue } from "../types/layer";
 
 export const DIAGRAM_TYPES: DiagramTypeInfo[] = [
   {
@@ -104,11 +104,17 @@ export const DIAGRAM_TYPES: DiagramTypeInfo[] = [
     labelFa: "سناریو فیزیکی",
     layer: "PA",
   },
+  {
+    value: "CLASS",
+    label: "Class Diagram",
+    labelFa: "دیاگرام کلاس",
+    layer: "SA",
+  },
 ];
 
 export const DIAGRAMS_BY_LAYER: Record<LayerValue, DiagramTypeValue[]> = {
   OA: ["OEB", "OAB", "OPD", "OCD", "OIS"],
-  SA: ["SAB", "SDFB", "SCD", "SS"],
+  SA: ["SAB", "SDFB", "SCD", "SS", "CLASS"],
   LA: ["LAB", "LDFB", "LCB", "LS"],
   PA: ["PAB", "PDFB", "PCB", "PS"],
 };

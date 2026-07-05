@@ -1,41 +1,25 @@
+import { eq } from "drizzle-orm";
 import type {
   CreateDiagramPayload,
   FindByIdQuery,
   FindByModelIdQuery,
   IDiagramRepository,
   RemoveDiagramPayload,
-  UpdateDiagramLayoutPayload,
   UpdateDiagramPayload,
 } from "@/modules/model/application/ports/diagram";
-import {
-  Diagram,
-  type ElementLayout,
-  type Viewport,
-} from "@/modules/model/domain/entities/diagram";
-import { eq } from "drizzle-orm";
+import { Diagram } from "@/modules/model/domain/entities/diagram";
 import { db } from "../client";
 import { diagrams } from "../schemas/diagram";
 
 type DiagramRow = typeof diagrams.$inferSelect;
 
 function toEntity(row: DiagramRow): Diagram {
-  // Parse JSON strings back to objects
-  const viewport: Viewport = row.viewport
-    ? (row.viewport as Viewport)
-    : { x: 0, y: 0, zoom: 1 };
-
-  const elementLayouts: ElementLayout[] = row.elementLayouts
-    ? (row.elementLayouts as ElementLayout[])
-    : [];
-
   return Diagram.reconstitute({
     id: row.id,
     modelId: row.modelId,
     type: row.type,
     name: row.name,
     description: row.description ?? "",
-    viewport,
-    elementLayouts,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   });
@@ -65,8 +49,6 @@ export class DrizzleDiagramRepository implements IDiagramRepository {
         type: payload.type.value,
         name: payload.name,
         description: payload.description ?? "",
-        viewport: JSON.stringify({ x: 0, y: 0, zoom: 1 }),
-        elementLayouts: [],
       })
       .returning();
 
@@ -91,28 +73,6 @@ export class DrizzleDiagramRepository implements IDiagramRepository {
     const [updated] = response;
     if (!updated) throw new Error(`Diagram not found with id : ${payload.id}`);
     return toEntity(updated);
-  }
-
-  async updateLayout(payload: UpdateDiagramLayoutPayload): Promise<Diagram> {
-    const now = new Date();
-    const updateData: any = { updatedAt: now };
-
-    if (payload.viewport !== undefined) {
-      updateData.viewport = payload.viewport;
-    }
-
-    if (payload.elementLayouts !== undefined) {
-      updateData.elementLayouts = payload.elementLayouts;
-    }
-
-    const response = await db
-      .update(diagrams)
-      .set(updateData)
-      .where(eq(diagrams.id, payload.id))
-      .returning();
-    const [row] = response;
-    if (!row) throw new Error(`Diagram not found with id : ${payload.id}`);
-    return toEntity(row);
   }
 
   async remove(payload: RemoveDiagramPayload): Promise<boolean> {

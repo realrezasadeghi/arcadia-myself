@@ -1,4 +1,5 @@
 import { Entity } from "@/modules/shared/domain/entity";
+import type { SemanticElement } from "../core/interfaces";
 import { ElementType } from "../value-objects/element-type";
 import { Layer } from "../value-objects/layer";
 
@@ -27,7 +28,7 @@ type ModelElementProps = {
 /**
  * ModelElement — Entity
  */
-export class ModelElement extends Entity<string> {
+export class ModelElement extends Entity<string> implements SemanticElement {
   private _name: string;
   private _description?: string;
   private readonly _modelId: string;
@@ -66,8 +67,8 @@ export class ModelElement extends Entity<string> {
     const elementType = ElementType.from(props.type);
     const layer = Layer.from(props.layer);
 
-    // اطمینان از تطابق type با layer
-    if (!elementType.layer.equals(layer)) {
+    // Ensure type is valid for this layer
+    if (!elementType.isValidForLayer(layer)) {
       throw new Error(
         `Element type "${elementType.label}" does not belong to layer "${layer.label}"`,
       );

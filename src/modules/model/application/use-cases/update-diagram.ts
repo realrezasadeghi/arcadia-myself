@@ -1,6 +1,5 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
-import type { ElementLayout, Viewport } from "../../domain/entities/diagram";
 import type { IDiagramRepository } from "../ports/diagram";
 
 export type UpdateDiagramPayload = {
@@ -18,20 +17,18 @@ export type UpdateDiagramResponse = {
   id: string;
   modelId: string;
   type: string;
-  viewport: Viewport;
   name: string;
   description?: string;
   updatedAt: string;
   createdAt: string;
-  elementLayouts: ElementLayout[];
 };
 
 /**
  * UpdateDiagramUseCase
  *
  * Business rules:
- * 1. دیاگرام باید وجود داشته باشد
- * 2. نام اگر داده شود نمی‌تواند خالی باشد
+ * 1. Diagram must exist
+ * 2. Name cannot be empty if provided
  */
 export class UpdateDiagramUseCase
   implements IUseCase<UpdateDiagramPayload, UpdateDiagramResponse>

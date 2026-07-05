@@ -17,7 +17,8 @@ export type DiagramTypeValue =
   | "PAB"
   | "PDFB"
   | "PCB"
-  | "PS";
+  | "PS"
+  | "CLASS";
 
 export type DiagramTypeInfo = {
   value: DiagramTypeValue;

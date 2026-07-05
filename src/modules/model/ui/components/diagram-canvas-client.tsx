@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import { useGetDiagramById } from "../clients/get-diagram-by-id";
 import { useGetElementsByModelId } from "../clients/get-elements-by-model-id";
 import { useGetRelationshipsByModelId } from "../clients/get-relationships-by-model-id";
+import { useGetClassDiagramData } from "../clients/get-class-diagram-data";
 import type { Diagram } from "../types/diagram";
 import type { Element } from "../types/element";
 import type { Relationship } from "../types/relationship";
@@ -17,11 +18,10 @@ type DiagramCanvasClientProps = {
 };
 
 /**
- * نسخه‌ی client از DiagramCanvas.
+ * Client-side diagram data fetcher.
  *
- * در معماری مبتنی بر تب (Workbench) دیاگرام‌ها بدون navigation سرور باز می‌شوند،
- * بنابراین داده‌ها سمت client و از طریق React Query واکشی می‌شوند
- * (به‌جای server component اصلی `diagram-canvas.tsx`).
+ * Fetches diagram, elements, relationships via React Query.
+ * For CLASS diagrams, also fetches class-specific data (attributes, operations, associations).
  */
 export function DiagramCanvasClient({
   diagramId,
@@ -35,6 +35,12 @@ export function DiagramCanvasClient({
     if (!diagramQuery.data) return null;
     return diagramQuery.data as Diagram;
   }, [diagramQuery.data]);
+
+  const isClassDiagram = diagram?.type === "CLASS";
+
+  const classDataQuery = useGetClassDiagramData(
+    isClassDiagram ? modelId : undefined,
+  );
 
   const elements = useMemo<Element[]>(() => {
     return (elementsQuery.data ?? []).map((element) => ({
@@ -58,10 +64,14 @@ export function DiagramCanvasClient({
   const isLoading =
     diagramQuery.isLoading ||
     elementsQuery.isLoading ||
-    relationshipsQuery.isLoading;
+    relationshipsQuery.isLoading ||
+    (isClassDiagram && classDataQuery.isLoading);
 
   const isError =
-    diagramQuery.isError || elementsQuery.isError || relationshipsQuery.isError;
+    diagramQuery.isError ||
+    elementsQuery.isError ||
+    relationshipsQuery.isError ||
+    (isClassDiagram && classDataQuery.isError);
 
   if (isLoading) {
     return (
@@ -85,6 +95,7 @@ export function DiagramCanvasClient({
       diagram={diagram}
       elements={elements}
       relationships={relationships}
+      classData={classDataQuery.data}
     />
   );
 }

@@ -1,5 +1,5 @@
-import type { DiagramTypeValue } from "@/modules/model/ui/types/diagram";
 import { z } from "zod";
+import type { DiagramTypeValue } from "@/modules/model/ui/types/diagram";
 
 export const diagramFormSchema = z.object({
   type: z.enum<DiagramTypeValue[]>(
@@ -21,6 +21,7 @@ export const diagramFormSchema = z.object({
       "PDFB",
       "PCB",
       "PS",
+      "CLASS",
     ],
     {
       error: "نوع دیاگرام نامعتبر است",

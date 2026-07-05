@@ -40,14 +40,27 @@ export type CanvasNodeType =
   | "actor-node"
   | "function-node"
   | "component-node"
-  | "architecture-node";
+  | "architecture-node"
+  | "class-node";
 
 /**
- * نوع node سفارشی React Flow را بر اساس دسته‌ی المنت Arcadia برمی‌گرداند.
- * بازیگر/موجودیت → actor، تابع/فعالیت → function، مؤلفه → component،
- * بقیه (Mission, Capability, Node, Port, System, Process) → fallback عمومی.
+ * Maps an Arcadia element type to the React Flow custom node type.
+ * All element types — architecture AND class diagram — go through here.
  */
 export function getNodeTypeForElement(type: ElementTypeValue): CanvasNodeType {
+  // Class diagram types
+  if (
+    type === "Class" ||
+    type === "Interface" ||
+    type === "DataType" ||
+    type === "Enumeration" ||
+    type === "PrimitiveType" ||
+    type === "Collection" ||
+    type === "ExchangeItem"
+  ) {
+    return "class-node";
+  }
+  // Architecture types
   if (type.endsWith("Actor") || type.endsWith("Entity")) return "actor-node";
   if (type.endsWith("Function") || type.endsWith("Activity"))
     return "function-node";

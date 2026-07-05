@@ -1,4 +1,8 @@
+export { classAssociations } from "./class-association";
+export { classAttributes } from "./class-attribute";
+export { classOperations } from "./class-operation";
 export { diagrams } from "./diagram";
+export { diagramLayouts } from "./diagram-layout";
 export { elements } from "./element";
 export { models } from "./model";
 export { relationships } from "./relationship";

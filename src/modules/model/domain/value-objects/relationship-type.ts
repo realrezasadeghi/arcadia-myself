@@ -13,7 +13,13 @@ export type RelationshipTypeValue =
   | "PhysicalExchange"
   | "PhysicalLink"
   | "DeploymentLink"
-  | "Composition";
+  | "Composition"
+  | "ClassAssociation"
+  | "ClassAggregation"
+  | "ClassComposition"
+  | "ClassGeneralization"
+  | "ClassDependency"
+  | "ClassRealization";
 
 export type TraceLinkTypeValue =
   | "Realization"
@@ -38,7 +44,41 @@ const RELATIONSHIP_META: Record<RelationshipTypeValue, RelationshipMeta> = {
   PhysicalLink: { label: "Physical Link", labelFa: "پیوند فیزیکی" },
   DeploymentLink: { label: "Deployment Link", labelFa: "پیوند استقرار" },
   Composition: { label: "Composition", labelFa: "ترکیب" },
+  ClassAssociation: {
+    label: "Association",
+    labelFa: "ارتباط",
+  },
+  ClassAggregation: {
+    label: "Aggregation",
+    labelFa: "تراکم",
+  },
+  ClassComposition: {
+    label: "Composition",
+    labelFa: "ترکیب کلاسی",
+  },
+  ClassGeneralization: {
+    label: "Generalization",
+    labelFa: "تعمیم",
+  },
+  ClassDependency: {
+    label: "Dependency",
+    labelFa: "وابستگی",
+  },
+  ClassRealization: {
+    label: "Realization",
+    labelFa: "تحقق",
+  },
 };
+
+/** Class diagram relationship types */
+const CLASS_RELATIONSHIP_TYPES: ReadonlySet<RelationshipTypeValue> = new Set([
+  "ClassAssociation",
+  "ClassAggregation",
+  "ClassComposition",
+  "ClassGeneralization",
+  "ClassDependency",
+  "ClassRealization",
+]);
 
 const ALL_RELATIONSHIP_VALUES = Object.keys(
   RELATIONSHIP_META,
@@ -51,8 +91,7 @@ interface RelationshipTypeProps {
 /**
  * RelationshipType — Value Object
  *
- * نوع یک ارتباط بین المنت‌ها در لایه‌های Arcadia.
- * اطلاعات بصری (رنگ خط، نوع فلش) در presentation/config/visual.config.ts هستند.
+ * Relationship types for all Arcadia layers and class diagrams.
  */
 export class RelationshipType extends ValueObject<RelationshipTypeProps> {
   protected validate(props: RelationshipTypeProps): void {
@@ -72,6 +111,12 @@ export class RelationshipType extends ValueObject<RelationshipTypeProps> {
     );
   }
 
+  static classTypes(): RelationshipType[] {
+    return Array.from(CLASS_RELATIONSHIP_TYPES).map(
+      (v) => new RelationshipType({ value: v }),
+    );
+  }
+
   get value(): RelationshipTypeValue {
     return this.props.value;
   }
@@ -82,6 +127,25 @@ export class RelationshipType extends ValueObject<RelationshipTypeProps> {
 
   get labelFa(): string {
     return RELATIONSHIP_META[this.props.value].labelFa;
+  }
+
+  isClassType(): boolean {
+    return CLASS_RELATIONSHIP_TYPES.has(this.props.value);
+  }
+
+  isGeneralization(): boolean {
+    return this.props.value === "ClassGeneralization";
+  }
+
+  isAggregation(): boolean {
+    return (
+      this.props.value === "ClassAggregation" ||
+      this.props.value === "ClassComposition"
+    );
+  }
+
+  isRealization(): boolean {
+    return this.props.value === "ClassRealization";
   }
 
   toString(): string {

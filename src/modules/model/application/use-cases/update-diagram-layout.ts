@@ -1,7 +1,10 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
-import type { ElementLayout, Viewport } from "../../domain/entities/diagram";
-import type { IDiagramRepository } from "../ports/diagram";
+import type {
+  ElementLayout,
+  Viewport,
+} from "../../domain/value-objects/diagram-layout";
+import type { IDiagramLayoutRepository } from "../ports/diagram-layout";
 
 export type UpdateDiagramLayoutPayload = {
   payload: {
@@ -15,14 +18,8 @@ export type UpdateDiagramLayoutPayload = {
 };
 
 export type UpdateDiagramLayoutResponse = {
-  id: string;
-  modelId: string;
-  type: string;
+  diagramId: string;
   viewport: Viewport;
-  name: string;
-  description?: string;
-  updatedAt: string;
-  createdAt: string;
   elementLayouts: ElementLayout[];
 };
 
@@ -30,34 +27,52 @@ export type UpdateDiagramLayoutResponse = {
  * UpdateDiagramLayoutUseCase
  *
  * Business rules:
- * 1. دیاگرام باید وجود داشته باشد
- * 2. layout شامل موقعیت و اندازه المنت‌ها و viewport می‌شود
+ * 1. Layout must exist (or be created on first save)
+ * 2. Layout is independent of Diagram metadata
  */
 export class UpdateDiagramLayoutUseCase
   implements IUseCase<UpdateDiagramLayoutPayload, UpdateDiagramLayoutResponse>
 {
-  constructor(private readonly diagramRepository: IDiagramRepository) {}
+  constructor(
+    private readonly diagramLayoutRepository: IDiagramLayoutRepository,
+  ) {}
 
   async execute({
     payload,
   }: UpdateDiagramLayoutPayload): Promise<UpdateDiagramLayoutResponse> {
     try {
-      const diagram = await this.diagramRepository.findById({ id: payload.id });
-      if (!diagram)
-        throw new Error(`Diagram not found with id : ${payload.id}`);
-
-      diagram.updateViewport({ ...diagram.viewport, ...payload.viewport });
-
-      const response = await this.diagramRepository.updateLayout({
-        id: payload.id,
-        viewport: diagram.viewport,
-        elementLayouts: [
-          ...diagram.elementLayouts,
-          ...(payload?.elementLayouts ?? []),
-        ],
+      let layout = await this.diagramLayoutRepository.findByDiagramId({
+        diagramId: payload.id,
       });
 
-      return response.toJSON();
+      // Auto-create layout if it doesn't exist yet (backward compat)
+      if (!layout) {
+        await this.diagramLayoutRepository.create({ diagramId: payload.id });
+        layout = await this.diagramLayoutRepository.findByDiagramId({
+          diagramId: payload.id,
+        });
+      }
+
+      if (!layout) {
+        throw new Error(`Failed to create layout for diagram: ${payload.id}`);
+      }
+
+      await this.diagramLayoutRepository.update({
+        diagramId: payload.id,
+        viewport: payload.viewport,
+        elementPositions: payload.elementLayouts,
+      });
+
+      // Re-fetch to get the updated state
+      const updated = await this.diagramLayoutRepository.findByDiagramId({
+        diagramId: payload.id,
+      });
+
+      return {
+        diagramId: payload.id,
+        viewport: updated?.viewport ?? { x: 0, y: 0, zoom: 1 },
+        elementLayouts: updated?.elementLayouts ?? [],
+      };
     } catch (error) {
       throw new Error(
         resolveErrorMessage(error, "Error in update diagram layout"),

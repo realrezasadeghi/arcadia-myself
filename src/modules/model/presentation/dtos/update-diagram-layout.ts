@@ -1,4 +1,4 @@
-import type { ElementLayout, Viewport } from "../../domain/entities/diagram";
+import type { ElementLayout, Viewport } from "../../domain/value-objects/diagram-layout";
 
 export type UpdateDiagramLayoutDTOProps = {
   id: string;
@@ -57,7 +57,6 @@ export class UpdateDiagramLayoutDTO {
       throw new Error("Viewport zoom must be a positive number");
     }
 
-    // Optionally clamp or allow any finite number for x,y
     return { x, y, zoom };
   }
 
@@ -69,14 +68,13 @@ export class UpdateDiagramLayoutDTO {
       throw new Error("Element layouts must be an array");
     }
 
-    if (layouts.length === 0) return undefined; // treat empty array as undefined
+    if (layouts.length === 0) return undefined;
 
     for (const layout of layouts) {
       if (!layout || typeof layout !== "object") {
         throw new Error("Each element layout must be an object");
       }
 
-      // Validate elementId
       if (!layout.elementId || typeof layout.elementId !== "string") {
         throw new Error(
           "Each element layout must have a valid elementId (string)",
@@ -90,7 +88,6 @@ export class UpdateDiagramLayoutDTO {
         throw new Error("Element ID cannot exceed 255 characters");
       }
 
-      // Validate position
       const { position } = layout;
       if (!position || typeof position !== "object") {
         throw new Error("Each element layout must have a position object");
@@ -102,7 +99,6 @@ export class UpdateDiagramLayoutDTO {
         throw new Error("Position.y must be a valid number");
       }
 
-      // Validate size
       const { size } = layout;
       if (!size || typeof size !== "object") {
         throw new Error("Each element layout must have a size object");

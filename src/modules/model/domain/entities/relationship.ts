@@ -1,4 +1,5 @@
 import { Entity } from "@/modules/shared/domain/entity";
+import type { SemanticRelation } from "../core/interfaces";
 import { RelationshipType } from "../value-objects/relationship-type";
 
 export type ExchangeKind = "FLOW" | "EVENT" | "OPERATION";
@@ -28,7 +29,7 @@ interface RelationshipProps {
  * یک رابطه بین دو المنت در یک لایه.
  * Validation قبل از ساخت توسط ConnectionPolicy انجام می‌شود.
  */
-export class Relationship extends Entity<string> {
+export class Relationship extends Entity<string> implements SemanticRelation {
   private _name: string;
   private _description?: string;
   private _properties: RelationshipProperties;
@@ -110,6 +111,12 @@ export class Relationship extends Entity<string> {
     return this._sourceElementId;
   }
   get targetElementId(): string {
+    return this._targetElementId;
+  }
+  get sourceId(): string {
+    return this._sourceElementId;
+  }
+  get targetId(): string {
     return this._targetElementId;
   }
   get name(): string {

@@ -1,7 +1,11 @@
-import { env } from "@/modules/shared/config/env";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
+import { env } from "@/modules/shared/config/env";
 import {
+  classAssociations,
+  classAttributes,
+  classOperations,
+  diagramLayouts,
   diagrams,
   elements,
   models,
@@ -18,7 +22,11 @@ export const db = drizzle(pool, {
     diagrams,
     elements,
     models,
+    diagramLayouts,
     relationships,
     traceLinks,
+    classAttributes,
+    classOperations,
+    classAssociations,
   },
 });

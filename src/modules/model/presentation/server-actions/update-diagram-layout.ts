@@ -6,7 +6,7 @@ import {
   type UpdateDiagramLayoutResponse,
   UpdateDiagramLayoutUseCase,
 } from "../../application/use-cases/update-diagram-layout";
-import { diagramRepository } from "../../infrastructure/persistence/drizzle/repositories";
+import { diagramLayoutRepository } from "../../infrastructure/persistence/drizzle/repositories";
 import {
   UpdateDiagramLayoutDTO,
   type UpdateDiagramLayoutDTOProps,
@@ -24,7 +24,7 @@ export async function updateDiagramLayout(
 
     const dto = UpdateDiagramLayoutDTO.create(payload);
     const updateDiagramLayoutUseCase = new UpdateDiagramLayoutUseCase(
-      diagramRepository,
+      diagramLayoutRepository,
     );
 
     const response = await updateDiagramLayoutUseCase.execute({

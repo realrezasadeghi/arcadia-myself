@@ -114,6 +114,34 @@ export const ELEMENT_TYPES: ElementTypeInfo[] = [
     labelFa: "بازیگر فیزیکی",
     layer: "PA",
   },
+  // ─── Information Modeling (valid in SA, LA, PA) ───────────────────────────
+  { value: "Class", label: "Class", labelFa: "کلاس", layer: "SA" },
+  { value: "Interface", label: "Interface", labelFa: "رابط", layer: "SA" },
+  {
+    value: "DataType",
+    label: "DataType",
+    labelFa: "نوع داده",
+    layer: "SA",
+  },
+  {
+    value: "Enumeration",
+    label: "Enumeration",
+    labelFa: "شمارشی",
+    layer: "SA",
+  },
+  {
+    value: "PrimitiveType",
+    label: "Primitive Type",
+    labelFa: "نوع اولیه",
+    layer: "SA",
+  },
+  { value: "Collection", label: "Collection", labelFa: "مجموعه", layer: "SA" },
+  {
+    value: "ExchangeItem",
+    label: "Exchange Item",
+    labelFa: "آیتم تبادل",
+    layer: "SA",
+  },
 ];
 
 export const ELEMENT_VISUAL: Record<ElementTypeValue, ElementVisualSpec> = {
@@ -237,7 +265,60 @@ export const ELEMENT_VISUAL: Record<ElementTypeValue, ElementVisualSpec> = {
     fillColorDark: "#2d3436",
     strokeColor: "#717D7E",
   },
+  // ─── Information Modeling ──────────────────────────────────────────────────
+  Class: {
+    shape: "rectangle",
+    fillColor: "#D6EAF8",
+    fillColorDark: "#1a3a52",
+    strokeColor: "#2874A6",
+  },
+  Interface: {
+    shape: "rectangle",
+    fillColor: "#E8DAEF",
+    fillColorDark: "#2d1a3d",
+    strokeColor: "#7D3C98",
+  },
+  DataType: {
+    shape: "rectangle",
+    fillColor: "#D5F5E3",
+    fillColorDark: "#0d2b1a",
+    strokeColor: "#1E8449",
+  },
+  Enumeration: {
+    shape: "rectangle",
+    fillColor: "#FCF3CF",
+    fillColorDark: "#3d3200",
+    strokeColor: "#D4AC0D",
+  },
+  PrimitiveType: {
+    shape: "rectangle",
+    fillColor: "#FDEBD0",
+    fillColorDark: "#3d1a00",
+    strokeColor: "#E67E22",
+  },
+  Collection: {
+    shape: "rectangle",
+    fillColor: "#FADBD8",
+    fillColorDark: "#3d1a1a",
+    strokeColor: "#E74C3C",
+  },
+  ExchangeItem: {
+    shape: "rectangle",
+    fillColor: "#D5D8DC",
+    fillColorDark: "#2d3436",
+    strokeColor: "#717D7E",
+  },
 };
+
+export const INFORMATION_ELEMENT_TYPES: ElementTypeValue[] = [
+  "Class",
+  "Interface",
+  "DataType",
+  "Enumeration",
+  "PrimitiveType",
+  "Collection",
+  "ExchangeItem",
+];
 
 export const ELEMENTS_BY_LAYER: Record<LayerValue, ElementTypeValue[]> = {
   OA: [
@@ -255,12 +336,19 @@ export const ELEMENTS_BY_LAYER: Record<LayerValue, ElementTypeValue[]> = {
     "SystemCapability",
     "SystemComponent",
     "FunctionPort",
+    ...INFORMATION_ELEMENT_TYPES,
   ],
-  LA: ["LogicalComponent", "LogicalActor", "LogicalFunction"],
+  LA: [
+    "LogicalComponent",
+    "LogicalActor",
+    "LogicalFunction",
+    ...INFORMATION_ELEMENT_TYPES,
+  ],
   PA: [
     "PhysicalComponent",
     "PhysicalNode",
     "PhysicalFunction",
     "PhysicalActor",
+    ...INFORMATION_ELEMENT_TYPES,
   ],
 };

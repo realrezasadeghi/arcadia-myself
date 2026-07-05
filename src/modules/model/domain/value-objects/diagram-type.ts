@@ -18,7 +18,8 @@ export type DiagramTypeValue =
   | "PAB"
   | "PDFB"
   | "PCB"
-  | "PS";
+  | "PS"
+  | "CLASS";
 
 interface DiagramTypeMeta {
   label: string;
@@ -130,6 +131,12 @@ const META: Record<DiagramTypeValue, DiagramTypeMeta> = {
     layer: Layer.PA,
     description: "سناریوی رفتاری فیزیکی",
   },
+  CLASS: {
+    label: "Class Diagram",
+    labelFa: "دیاگرام کلاس",
+    layer: Layer.SA,
+    description: "دیاگرام کلاس و اطلاعات",
+  },
 };
 
 const ALL_VALUES = Object.keys(META) as DiagramTypeValue[];
@@ -178,6 +185,10 @@ export class DiagramType extends ValueObject<DiagramTypeProps> {
 
   isBreakdown(): boolean {
     return this.props.value.endsWith("B") || this.props.value.endsWith("CB");
+  }
+
+  isClassDiagram(): boolean {
+    return this.props.value === "CLASS";
   }
 
   toString(): string {

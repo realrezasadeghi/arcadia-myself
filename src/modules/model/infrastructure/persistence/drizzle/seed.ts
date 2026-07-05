@@ -15,6 +15,7 @@ import { randomUUID } from "crypto";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
 import {
+  diagramLayouts,
   diagrams,
   elements,
   models,
@@ -795,8 +796,42 @@ export async function seedIFEProject(
         type: "OCD",
         name: "IFE OCD",
         description: "Operational capability diagram",
+      },
+
+      // ── SAB ─────────────────────────────────────────────────────────────────
+      {
+        id: diagramIds.sab,
+        modelId: modelIds.sa,
+        type: "SAB",
+        name: "IFE SAB",
+        description: "System architecture diagram",
+      },
+
+      // ── LAB ─────────────────────────────────────────────────────────────────
+      {
+        id: diagramIds.lab,
+        modelId: modelIds.la,
+        type: "LAB",
+        name: "IFE LAB",
+        description: "Logical architecture",
+      },
+
+      // ── PAB ─────────────────────────────────────────────────────────────────
+      {
+        id: diagramIds.pab,
+        modelId: modelIds.pa,
+        type: "PAB",
+        name: "IFE PAB",
+        description: "Physical architecture",
+      },
+    ]);
+
+    // ── Diagram Layouts ──────────────────────────────────────────────────────
+    await db.insert(diagramLayouts).values([
+      {
+        diagramId: diagramIds.ocd,
         viewport: { x: 0, y: 0, zoom: 1 },
-        elementLayouts: [
+        elementPositions: [
           {
             elementId: oa.passenger,
             position: { x: 80, y: 80 },
@@ -835,15 +870,10 @@ export async function seedIFEProject(
         ],
       },
 
-      // ── SAB ─────────────────────────────────────────────────────────────────
       {
-        id: diagramIds.sab,
-        modelId: modelIds.sa,
-        type: "SAB",
-        name: "IFE SAB",
-        description: "System architecture diagram",
+        diagramId: diagramIds.sab,
         viewport: { x: 0, y: 0, zoom: 1 },
-        elementLayouts: [
+        elementPositions: [
           {
             elementId: sa.actorPassenger,
             position: { x: 80, y: 120 },
@@ -877,15 +907,10 @@ export async function seedIFEProject(
         ],
       },
 
-      // ── LAB ─────────────────────────────────────────────────────────────────
       {
-        id: diagramIds.lab,
-        modelId: modelIds.la,
-        type: "LAB",
-        name: "IFE LAB",
-        description: "Logical architecture",
+        diagramId: diagramIds.lab,
         viewport: { x: 0, y: 0, zoom: 1 },
-        elementLayouts: [
+        elementPositions: [
           {
             elementId: la.sdu,
             position: { x: 100, y: 160 },
@@ -914,15 +939,10 @@ export async function seedIFEProject(
         ],
       },
 
-      // ── PAB ─────────────────────────────────────────────────────────────────
       {
-        id: diagramIds.pab,
-        modelId: modelIds.pa,
-        type: "PAB",
-        name: "IFE PAB",
-        description: "Physical architecture",
+        diagramId: diagramIds.pab,
         viewport: { x: 0, y: 0, zoom: 1 },
-        elementLayouts: [
+        elementPositions: [
           {
             elementId: pa.hardwareSDU,
             position: { x: 100, y: 200 },

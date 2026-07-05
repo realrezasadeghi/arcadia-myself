@@ -122,6 +122,25 @@ const DIAGRAM_PALETTE: Record<DiagramTypeValue, DiagramPalette> = {
     elementTypes: ["PhysicalActor", "PhysicalFunction"],
     relationshipTypes: ["PhysicalExchange"],
   },
+  CLASS: {
+    elementTypes: [
+      "Class",
+      "Interface",
+      "DataType",
+      "Enumeration",
+      "PrimitiveType",
+      "Collection",
+      "ExchangeItem",
+    ],
+    relationshipTypes: [
+      "ClassAssociation",
+      "ClassAggregation",
+      "ClassComposition",
+      "ClassGeneralization",
+      "ClassDependency",
+      "ClassRealization",
+    ],
+  },
 };
 
 /**

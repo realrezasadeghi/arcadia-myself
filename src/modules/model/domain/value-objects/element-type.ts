@@ -32,11 +32,22 @@ type PAElementValue =
   | "PhysicalActor"
   | "FunctionPort";
 
+/** Information modeling types — valid in SA, LA, and PA */
+type InformationElementValue =
+  | "Class"
+  | "Interface"
+  | "DataType"
+  | "Enumeration"
+  | "PrimitiveType"
+  | "Collection"
+  | "ExchangeItem";
+
 export type ElementTypeValue =
   | OAElementValue
   | SAElementValue
   | LAElementValue
-  | PAElementValue;
+  | PAElementValue
+  | InformationElementValue;
 
 // ─── META ─────────────────────────────────────────────────────────────────────
 
@@ -138,10 +149,38 @@ const META: Record<ElementTypeValue, ElementTypeMeta> = {
     labelFa: "بازیگر فیزیکی",
     layer: Layer.PA,
   },
+  // Information Modeling (valid in SA, LA, PA — default layer: SA)
+  Class: { label: "Class", labelFa: "کلاس", layer: Layer.SA },
+  Interface: { label: "Interface", labelFa: "رابط", layer: Layer.SA },
+  DataType: { label: "DataType", labelFa: "نوع داده", layer: Layer.SA },
+  Enumeration: {
+    label: "Enumeration",
+    labelFa: "شمارشی",
+    layer: Layer.SA,
+  },
+  PrimitiveType: {
+    label: "Primitive Type",
+    labelFa: "نوع اولیه",
+    layer: Layer.SA,
+  },
+  Collection: { label: "Collection", labelFa: "مجموعه", layer: Layer.SA },
+  ExchangeItem: {
+    label: "Exchange Item",
+    labelFa: "آیتم تبادل",
+    layer: Layer.SA,
+  },
 };
 
-// FunctionPort appears in SA, LA, PA — we handle it with the same meta for all
-// In the real project the layer is determined by the parent element's layer
+/** Types that can appear in multiple layers (SA, LA, PA) */
+const INFORMATION_TYPES: ReadonlySet<InformationElementValue> = new Set([
+  "Class",
+  "Interface",
+  "DataType",
+  "Enumeration",
+  "PrimitiveType",
+  "Collection",
+  "ExchangeItem",
+]);
 
 const LAYER_MAP: Record<ElementTypeValue, Layer> = Object.fromEntries(
   (Object.keys(META) as ElementTypeValue[]).map((k) => [k, META[k].layer]),
@@ -168,9 +207,29 @@ export class ElementType extends ValueObject<ElementTypeProps> {
   }
 
   static allForLayer(layer: Layer): ElementType[] {
-    return ALL_VALUES.filter((v) => LAYER_MAP[v].equals(layer)).map(
-      (v) => new ElementType({ value: v }),
-    );
+    return ALL_VALUES.filter((v) => {
+      if (INFORMATION_TYPES.has(v as InformationElementValue)) {
+        return (
+          layer.equals(layer) &&
+          (layer.equals(Layer.SA) ||
+            layer.equals(Layer.LA) ||
+            layer.equals(Layer.PA))
+        );
+      }
+      return LAYER_MAP[v].equals(layer);
+    }).map((v) => new ElementType({ value: v }));
+  }
+
+  /** Check if this element type is valid for a given layer */
+  isValidForLayer(layer: Layer): boolean {
+    if (INFORMATION_TYPES.has(this.props.value as InformationElementValue)) {
+      return (
+        layer.equals(Layer.SA) ||
+        layer.equals(Layer.LA) ||
+        layer.equals(Layer.PA)
+      );
+    }
+    return LAYER_MAP[this.props.value].equals(layer);
   }
 
   get value(): ElementTypeValue {
@@ -208,6 +267,22 @@ export class ElementType extends ValueObject<ElementTypeProps> {
   }
   isPort(): boolean {
     return this.props.value === "FunctionPort";
+  }
+  isInformationType(): boolean {
+    return INFORMATION_TYPES.has(this.props.value as InformationElementValue);
+  }
+  isClass(): boolean {
+    return this.props.value === "Class";
+  }
+  isInterface(): boolean {
+    return this.props.value === "Interface";
+  }
+  isDataType(): boolean {
+    return (
+      this.props.value === "DataType" ||
+      this.props.value === "PrimitiveType" ||
+      this.props.value === "Enumeration"
+    );
   }
 
   toString(): string {

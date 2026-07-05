@@ -8,6 +8,7 @@ import {
   CreateDiagramUseCase,
 } from "../../application/use-cases/create-diagram";
 import {
+  diagramLayoutRepository,
   diagramRepository,
   modelRepository,
 } from "../../infrastructure/persistence/drizzle/repositories";
@@ -30,6 +31,7 @@ export async function createDiagram(
 
     const createDiagramUseCase = new CreateDiagramUseCase(
       diagramRepository,
+      diagramLayoutRepository,
       modelRepository,
     );
 

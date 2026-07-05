@@ -12,7 +12,13 @@ export type RelationshipTypeValue =
   | "PhysicalExchange"
   | "PhysicalLink"
   | "DeploymentLink"
-  | "Composition";
+  | "Composition"
+  | "ClassAssociation"
+  | "ClassAggregation"
+  | "ClassComposition"
+  | "ClassGeneralization"
+  | "ClassDependency"
+  | "ClassRealization";
 
 export type RelationshipTypeInfo = {
   value: RelationshipTypeValue;

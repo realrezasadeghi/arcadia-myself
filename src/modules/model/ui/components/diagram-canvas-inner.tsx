@@ -17,7 +17,13 @@ import {
   ReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { type DragEventHandler, useCallback, useEffect, useRef } from "react";
+import {
+  type DragEventHandler,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { toast } from "sonner";
 import { ConnectionPolicy } from "../../domain/policies/connection";
 import { useConnectElements } from "../clients/connect-elements";
@@ -48,30 +54,67 @@ import type {
 import { ArchitectureEdge } from "./architecture-edge";
 import { ArchitectureNode } from "./architecture-node";
 import { ConnectionDialog } from "./connection-dialog";
+import { AssociationEdge } from "./edges/association-edge";
 import { ActorNode } from "./nodes/actor-node";
+import { ClassNode } from "./nodes/class-node";
 import { ComponentNode } from "./nodes/component-node";
 import { FunctionNode } from "./nodes/function-node";
+import { ClassNodeForm } from "./class-diagram/class-node-form";
+import { AttributeForm } from "./class-diagram/attribute-form";
+import { OperationForm } from "./class-diagram/operation-form";
+import { AssociationForm } from "./class-diagram/association-form";
 
+// ─── Single unified node type registry ────────────────────────────────────────
 const NODE_TYPES = {
   "architecture-node": ArchitectureNode,
   "actor-node": ActorNode,
   "function-node": FunctionNode,
   "component-node": ComponentNode,
+  "class-node": ClassNode,
 } as const;
-const EDGE_TYPES = { "architecture-edge": ArchitectureEdge } as const;
+
+// ─── Single unified edge type registry ────────────────────────────────────────
+const EDGE_TYPES = {
+  "architecture-edge": ArchitectureEdge,
+  "association-edge": AssociationEdge,
+} as const;
 
 export type DiagramCanvasInnerProps = {
   diagram: Diagram;
   elements: Element[];
   relationships: Relationship[];
+  classData?: {
+    classElements: Array<{
+      id: string;
+      name: string;
+      type: string;
+      description: string | null;
+    }>;
+    associations: Array<{
+      id: string;
+      type: string;
+      sourceClassId: string;
+      targetClassId: string;
+      name: string | null;
+      sourceMultiplicityLower: number;
+      sourceMultiplicityUpper: number | null;
+      targetMultiplicityLower: number;
+      targetMultiplicityUpper: number | null;
+      sourceRole: string | null;
+      targetRole: string | null;
+      isNavigable: boolean;
+    }>;
+  };
 };
 
 export function DiagramCanvasInner({
   diagram,
   elements,
   relationships,
+  classData,
 }: DiagramCanvasInnerProps) {
   const reactFlowRef = useRef<HTMLDivElement>(null);
+  const isClassDiagram = diagram.type === "CLASS";
 
   const { notifyChange } = useSaveManager();
 
@@ -101,17 +144,45 @@ export function DiagramCanvasInner({
   } = useCanvasStore();
 
   const { removeElement } = useRemoveElementSync();
-
   const { removeRelationship } = useRemoveRelationshipSync();
 
-  // Build canvas nodes/edges when all data is ready
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // ─── Class diagram form state ───────────────────────────────────────────────
+  const [classNodeFormOpen, setClassNodeFormOpen] = useState(false);
+  const [classNodeFormMode, setClassNodeFormMode] = useState<"create" | "edit">(
+    "create",
+  );
+  const [classEditingNodeId, setClassEditingNodeId] = useState<string | null>(
+    null,
+  );
+
+  const [classAttrFormOpen, setClassAttrFormOpen] = useState(false);
+  const [classEditingAttrId, setClassEditingAttrId] = useState<string | null>(
+    null,
+  );
+  const [classAttrClassElementId, setClassAttrClassElementId] = useState("");
+
+  const [classOpFormOpen, setClassOpFormOpen] = useState(false);
+  const [classEditingOpId, setClassEditingOpId] = useState<string | null>(null);
+  const [classOpClassElementId, setClassOpClassElementId] = useState("");
+
+  const [classAssocFormOpen, setClassAssocFormOpen] = useState(false);
+  const [classEditingAssocId, setClassEditingAssocId] = useState<string | null>(
+    null,
+  );
+  const [classPendingConnection, setClassPendingConnection] = useState<{
+    source: string;
+    target: string;
+  } | null>(null);
+
+  // ─── Initialize canvas (ONE system for ALL diagram types) ───────────────────
+  // biome-ignore lint/correctness/useExhaustiveDependencies: initCanvas/reset are stable
   useEffect(() => {
     const layoutMap = new Map(
       diagram.elementLayouts.map((l) => [l.elementId, l]),
     );
 
-    const nodes: CanvasNode[] = elements
+    // Build nodes from elements + layout
+    const elementNodes: CanvasNode[] = elements
       .filter((element) => layoutMap.has(element.id))
       .map((element) => {
         const layout = layoutMap.get(element.id)!;
@@ -132,9 +203,10 @@ export function DiagramCanvasInner({
         };
       });
 
-    const nodeIds = new Set(nodes.map((n) => n.id));
+    const nodeIds = new Set(elementNodes.map((n) => n.id));
 
-    const edges: CanvasEdge[] = relationships
+    // Build edges from relationships
+    const elementEdges: CanvasEdge[] = relationships
       .filter(
         (relationship) =>
           nodeIds.has(relationship.sourceElementId) &&
@@ -142,7 +214,7 @@ export function DiagramCanvasInner({
       )
       .map((relationship) => ({
         id: relationship.id,
-        type: "architecture-edge",
+        type: "architecture-edge" as const,
         source: relationship.sourceElementId,
         target: relationship.targetElementId,
         data: {
@@ -154,10 +226,31 @@ export function DiagramCanvasInner({
         },
       }));
 
-    initCanvas(diagram.id, diagram.modelId, nodes, edges);
+    // For class diagrams, also add association edges from classData
+    if (isClassDiagram && classData) {
+      for (const assoc of classData.associations) {
+        if (nodeIds.has(assoc.sourceClassId) && nodeIds.has(assoc.targetClassId)) {
+          elementEdges.push({
+            id: assoc.id,
+            type: "association-edge" as const,
+            source: assoc.sourceClassId,
+            target: assoc.targetClassId,
+            data: {
+              name: assoc.name ?? "",
+              modelId: diagram.modelId,
+              relationshipId: assoc.id,
+              relationshipType: assoc.type as RelationshipTypeValue,
+              description: "",
+            },
+          });
+        }
+      }
+    }
+
+    initCanvas(diagram.id, diagram.modelId, elementNodes, elementEdges);
 
     return () => reset();
-  }, [initCanvas, reset]);
+  }, [initCanvas, reset, isClassDiagram, classData]);
 
   // Auto-select element when selectedElementId changes (e.g. from explorer navigation)
   const selectedElementId = useWorkbenchStore((s) => s.selectedElementId);
@@ -172,16 +265,15 @@ export function DiagramCanvasInner({
   }, [selectedElementId, selectNode]);
 
   const createElement = useCreateElement();
-
   const connectElements = useConnectElements();
-
   const updateDiagramLayout = useUpdateDiagramLayout();
-
   const queryClient = useQueryClient();
 
   const getNodeColor = useCallback((node: CanvasNode) => {
     return getElementVisual(node?.data?.elementType)?.strokeColor || "#94a3b8";
   }, []);
+
+  // ─── Node/Edge change handlers (ONE system for ALL) ─────────────────────────
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => {
@@ -202,7 +294,6 @@ export function DiagramCanvasInner({
   const onNodeClick: NodeMouseHandler<CanvasNode> = useCallback(
     (_, node) => {
       selectNode(node.id);
-      // همگام‌سازی انتخاب با Workbench (برای Semantic Browser و درخت)
       useWorkbenchStore.getState().selectElement(node.id);
     },
     [selectNode],
@@ -224,6 +315,21 @@ export function DiagramCanvasInner({
     [updateNodePosition, pushHistory, notifyChange],
   );
 
+  // ─── Double-click: class diagrams open edit form ────────────────────────────
+
+  const onNodeDoubleClick = useCallback(
+    (_: unknown, node: { id: string }) => {
+      if (!isClassDiagram) return;
+      setClassEditingNodeId(node.id);
+      setClassNodeFormMode("edit");
+      setClassNodeFormOpen(true);
+    },
+    [isClassDiagram],
+  );
+
+  // ─── Connection handling ────────────────────────────────────────────────────
+
+  // Architecture diagram: create relationship via ConnectionPolicy
   const createRelationship = useCallback(
     (payload: {
       name: string;
@@ -231,12 +337,8 @@ export function DiagramCanvasInner({
       targetElementId: string;
       type: RelationshipTypeValue;
     }) => {
-      if (!modelId) {
-        return;
-      }
-
+      if (!modelId) return;
       pushHistory();
-
       connectElements.mutate(
         {
           modelId,
@@ -272,10 +374,22 @@ export function DiagramCanvasInner({
     [pushHistory, modelId, connectElements, addEdge],
   );
 
+  // Unified onConnect: routes to architecture or class diagram logic
   const handleConnect: OnConnect = useCallback(
     (connection) => {
       if (!connection.source || !connection.target) return;
 
+      // Class diagram: open association form
+      if (isClassDiagram) {
+        setClassPendingConnection({
+          source: connection.source,
+          target: connection.target,
+        });
+        setClassAssocFormOpen(true);
+        return;
+      }
+
+      // Architecture diagram: use ConnectionPolicy
       const sourceNode = nodes.find((n) => n.id === connection.source);
       const targetNode = nodes.find((n) => n.id === connection.target);
       if (!sourceNode || !targetNode) return;
@@ -310,7 +424,7 @@ export function DiagramCanvasInner({
         targetNodeId: connection.target,
       });
     },
-    [nodes, setPendingConnection, createRelationship],
+    [nodes, setPendingConnection, createRelationship, isClassDiagram],
   );
 
   const handleConfirm = useCallback(
@@ -326,6 +440,8 @@ export function DiagramCanvasInner({
     [pendingConnection, createRelationship],
   );
 
+  // ─── Drop handling (palette + explorer) ─────────────────────────────────────
+
   const handleDrop: DragEventHandler<HTMLDivElement> = useCallback(
     (event) => {
       event.preventDefault();
@@ -338,7 +454,7 @@ export function DiagramCanvasInner({
         x: event.clientX - bounds.left - 80,
       };
 
-      // ─── Explorer element drop (existing element) ────────────────────────
+      // Explorer element drop (existing element)
       const explorerData = event.dataTransfer.getData(
         "application/explorer-element",
       );
@@ -354,7 +470,6 @@ export function DiagramCanvasInner({
             return;
           }
 
-          // Validate element type against diagram palette
           const activeTab = useWorkbenchStore
             .getState()
             .tabs.find((t) => t.diagramId === diagramId);
@@ -401,7 +516,6 @@ export function DiagramCanvasInner({
                   },
                 });
                 selectNode(elementId);
-                // Refresh the Semantic Browser's "Appears in Diagrams" list.
                 queryClient.invalidateQueries({
                   queryKey: getElementRelationsKey(elementId),
                 });
@@ -417,7 +531,7 @@ export function DiagramCanvasInner({
         return;
       }
 
-      // ─── Palette drop (new element) ──────────────────────────────────────
+      // Palette drop (new element)
       const elementType = event.dataTransfer.getData(
         "application/element-type",
       ) as ElementTypeValue;
@@ -505,16 +619,12 @@ export function DiagramCanvasInner({
     [],
   );
 
-  /**
-   * مصرف درخواست افزودن یک المنت *موجود* به دیاگرام فعال (از Project Explorer).
-   * مانند ابزار Insert در Capella: فقط نمای گرافیکی اضافه می‌شود، المنت جدیدی
-   * ساخته نمی‌شود. اگر المنت از قبل روی canvas باشد، فقط انتخاب می‌شود.
-   */
+  // ─── Insert request handler ─────────────────────────────────────────────────
+
   useEffect(() => {
     if (!insertRequest) return;
     if (!diagramId || !modelId) return;
 
-    // فقط برای دیاگرام فعال؛ المنت باید به همان model تعلق داشته باشد.
     const consume = () => clearInsertRequest();
 
     const currentNodes = useCanvasStore.getState().nodes;
@@ -527,7 +637,6 @@ export function DiagramCanvasInner({
 
     pushHistory();
 
-    // قرار دادن المنت با کمی آفست تا روی هم نیفتند.
     const position = {
       x: 80 + (currentNodes.length % 6) * 40,
       y: 80 + (currentNodes.length % 6) * 40,
@@ -567,7 +676,6 @@ export function DiagramCanvasInner({
             },
           });
           selectNode(insertRequest.elementId);
-          // Refresh the Semantic Browser's "Appears in Diagrams" list.
           queryClient.invalidateQueries({
             queryKey: getElementRelationsKey(insertRequest.elementId),
           });
@@ -590,15 +698,15 @@ export function DiagramCanvasInner({
     queryClient,
   ]);
 
+  // ─── Keyboard shortcuts ─────────────────────────────────────────────────────
+
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      // Undo: Ctrl+Z
       if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
         e.preventDefault();
         undo();
         return;
       }
-      // Redo: Ctrl+Shift+Z or Ctrl+Y
       if (
         ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "z") ||
         ((e.ctrlKey || e.metaKey) && e.key === "y")
@@ -607,7 +715,6 @@ export function DiagramCanvasInner({
         redo();
         return;
       }
-      // Delete selected
       if (
         (e.key === "Delete" || e.key === "Backspace") &&
         e.target === document.body
@@ -649,6 +756,7 @@ export function DiagramCanvasInner({
           onConnect={handleConnect}
           onEdgesChange={onEdgesChange}
           onNodeDragStop={onNodeDragStop}
+          onNodeDoubleClick={onNodeDoubleClick}
           fitViewOptions={{ padding: 0.15 }}
         >
           <Background
@@ -672,12 +780,57 @@ export function DiagramCanvasInner({
           />
         </ReactFlow>
       </div>
-      <ConnectionDialog
-        open={!!pendingConnection}
-        onConfirm={handleConfirm}
-        onOpenChange={() => setPendingConnection(null)}
-        allowedTypes={pendingConnection?.allowedTypes ?? []}
-      />
+
+      {/* Architecture diagram: connection type selector */}
+      {!isClassDiagram && (
+        <ConnectionDialog
+          open={!!pendingConnection}
+          onConfirm={handleConfirm}
+          onOpenChange={() => setPendingConnection(null)}
+          allowedTypes={pendingConnection?.allowedTypes ?? []}
+        />
+      )}
+
+      {/* Class diagram: attribute/operation/association forms */}
+      {isClassDiagram && classData && (
+        <>
+          <ClassNodeForm
+            open={classNodeFormOpen}
+            mode={classNodeFormMode}
+            modelId={diagram.modelId}
+            editNodeId={classEditingNodeId}
+            existingElements={classData.classElements}
+            onClose={() => setClassNodeFormOpen(false)}
+          />
+
+          <AttributeForm
+            open={classAttrFormOpen}
+            classElementId={classAttrClassElementId}
+            editAttrId={classEditingAttrId}
+            onClose={() => setClassAttrFormOpen(false)}
+          />
+
+          <OperationForm
+            open={classOpFormOpen}
+            classElementId={classOpClassElementId}
+            editOpId={classEditingOpId}
+            onClose={() => setClassOpFormOpen(false)}
+          />
+
+          <AssociationForm
+            open={classAssocFormOpen}
+            modelId={diagram.modelId}
+            editAssocId={classEditingAssocId}
+            pendingConnection={classPendingConnection}
+            existingElements={classData.classElements}
+            onClose={() => {
+              setClassAssocFormOpen(false);
+              setClassPendingConnection(null);
+              setClassEditingAssocId(null);
+            }}
+          />
+        </>
+      )}
     </>
   );
 }

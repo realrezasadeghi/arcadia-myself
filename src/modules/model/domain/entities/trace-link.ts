@@ -1,4 +1,5 @@
 import { Entity } from "@/modules/shared/domain/entity";
+import type { SemanticTraceLink } from "../core/interfaces";
 import { Layer } from "../value-objects/layer";
 import { TraceLinkType } from "../value-objects/trace-link";
 
@@ -24,7 +25,7 @@ interface TraceLinkProps {
  *   PA realizes LA  → PhysicalComponent —[Realization]→ LogicalComponent
  *   LA Allocation   → LogicalFunction —[Allocation]→ LogicalComponent (same model)
  */
-export class TraceLink extends Entity<string> {
+export class TraceLink extends Entity<string> implements SemanticTraceLink {
   private _description?: string;
   private readonly _projectId: string;
   private readonly _sourceModelId: string;

@@ -8,6 +8,7 @@ import {
   GetDiagramsByModelUseCase,
 } from "../../application/use-cases/get-diagrams-by-model-id";
 import {
+  diagramLayoutRepository,
   diagramRepository,
   modelRepository,
 } from "../../infrastructure/persistence/drizzle/repositories";
@@ -30,6 +31,7 @@ export async function getDiagramsByModelId(
 
     const getDiagramsByModelIdUseCase = new GetDiagramsByModelUseCase(
       diagramRepository,
+      diagramLayoutRepository,
       modelRepository,
     );
 

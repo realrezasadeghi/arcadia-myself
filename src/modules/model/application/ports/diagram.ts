@@ -1,8 +1,4 @@
-import type {
-  Diagram,
-  ElementLayout,
-  Viewport,
-} from "../../domain/entities/diagram";
+import type { Diagram } from "../../domain/entities/diagram";
 import type { DiagramType } from "../../domain/value-objects/diagram-type";
 
 export type FindByModelIdQuery = {
@@ -26,12 +22,6 @@ export type UpdateDiagramPayload = {
   description?: string;
 };
 
-export type UpdateDiagramLayoutPayload = {
-  id: string;
-  viewport?: Viewport;
-  elementLayouts?: ElementLayout[];
-};
-
 export type RemoveDiagramPayload = {
   id: string;
 };
@@ -41,6 +31,5 @@ export interface IDiagramRepository {
   findById(query: FindByIdQuery): Promise<Diagram | null>;
   create(payload: CreateDiagramPayload): Promise<Diagram>;
   update(payload: UpdateDiagramPayload): Promise<Diagram>;
-  updateLayout(payload: UpdateDiagramLayoutPayload): Promise<Diagram>;
   remove(payload: RemoveDiagramPayload): Promise<boolean>;
 }

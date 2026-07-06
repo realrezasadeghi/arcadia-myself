@@ -8,6 +8,7 @@ import { RELATIONSHIP_VISUAL } from "../../constants/relationship";
 import {
   getDiagramPalette,
   getDiagramTypesForLayer,
+  isScenarioDiagramType,
 } from "../../helpers/diagram";
 import {
   getElementTypeInfo,
@@ -17,6 +18,7 @@ import { getLayerInfo } from "../../helpers/layer";
 import { getRelationshipTypeInfo } from "../../helpers/relationship";
 import { useWorkbenchStore } from "../../stores/workbench";
 import { ElementShapeList } from "../element-shape-list";
+import { ScenarioPalette } from "../scenario-palette";
 
 /**
  * PalettePanel
@@ -31,6 +33,7 @@ export function PalettePanel() {
   const currentLayer = useWorkbenchStore((s) => s.currentLayer);
 
   const layer = activeTab?.layer ?? currentLayer;
+  const isScenario = activeTab ? isScenarioDiagramType(activeTab.type) : false;
 
   const palette = useMemo(
     () => (activeTab ? getDiagramPalette(activeTab.type) : null),
@@ -58,6 +61,15 @@ export function PalettePanel() {
   );
 
   const layerInfo = getLayerInfo(layer);
+
+  // Show scenario palette for scenario diagrams
+  if (isScenario) {
+    return (
+      <aside className="flex h-full min-h-0 flex-col border-l bg-card">
+        <ScenarioPalette />
+      </aside>
+    );
+  }
 
   return (
     <aside className="flex h-full min-h-0 flex-col border-l bg-card">

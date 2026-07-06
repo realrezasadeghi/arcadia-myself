@@ -147,3 +147,9 @@ export function getDiagramPalette(typeValue: string): DiagramPalette {
     relationshipTypes: palette.relationshipTypes,
   };
 }
+
+const SCENARIO_DIAGRAM_TYPES = new Set(["OIS", "SS", "LS", "PS"]);
+
+export function isScenarioDiagramType(typeValue: string): boolean {
+  return SCENARIO_DIAGRAM_TYPES.has(typeValue);
+}

@@ -3,3 +3,7 @@ export { elements } from "./element";
 export { models } from "./model";
 export { relationships } from "./relationship";
 export { traceLinks } from "./trace-link";
+export { scenarioDiagrams } from "./scenario-diagram";
+export { scenarioLifelines } from "./scenario-lifeline";
+export { scenarioMessages } from "./scenario-message";
+export { scenarioFragments } from "./scenario-fragment";

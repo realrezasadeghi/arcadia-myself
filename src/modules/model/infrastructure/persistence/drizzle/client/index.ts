@@ -7,6 +7,10 @@ import {
   models,
   relationships,
   traceLinks,
+  scenarioDiagrams,
+  scenarioLifelines,
+  scenarioMessages,
+  scenarioFragments,
 } from "../schemas";
 
 const pool = new Pool({
@@ -20,5 +24,9 @@ export const db = drizzle(pool, {
     models,
     relationships,
     traceLinks,
+    scenarioDiagrams,
+    scenarioLifelines,
+    scenarioMessages,
+    scenarioFragments,
   },
 });

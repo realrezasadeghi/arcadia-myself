@@ -2,7 +2,10 @@
 
 import { LayoutTemplate } from "lucide-react";
 import { useWorkbenchStore } from "../../stores/workbench";
+import { isScenarioDiagramType } from "../../helpers/diagram";
 import { DiagramCanvasClient } from "../diagram-canvas-client";
+import { ScenarioCanvasClient } from "../scenario-canvas-client";
+import { ScenarioToolbar } from "../scenario-toolbar";
 import { EditorTabs } from "./editor-tabs";
 import { EditorToolbar } from "./editor-toolbar";
 
@@ -18,19 +21,30 @@ export function EditorArea() {
   const activeDiagramId = useWorkbenchStore((s) => s.activeDiagramId);
 
   const activeTab = tabs.find((t) => t.diagramId === activeDiagramId) ?? null;
+  const isScenario = activeTab ? isScenarioDiagramType(activeTab.type) : false;
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-muted/20">
-      {activeTab && <EditorToolbar tab={activeTab} />}
+      {activeTab && (
+        isScenario ? <ScenarioToolbar /> : <EditorToolbar tab={activeTab} />
+      )}
       <EditorTabs />
 
       <div className="relative min-h-0 flex-1">
         {activeTab ? (
-          <DiagramCanvasClient
-            key={activeTab.diagramId}
-            diagramId={activeTab.diagramId}
-            modelId={activeTab.modelId}
-          />
+          isScenario ? (
+            <ScenarioCanvasClient
+              key={activeTab.diagramId}
+              diagramId={activeTab.diagramId}
+              modelId={activeTab.modelId}
+            />
+          ) : (
+            <DiagramCanvasClient
+              key={activeTab.diagramId}
+              diagramId={activeTab.diagramId}
+              modelId={activeTab.modelId}
+            />
+          )
         ) : (
           <EditorEmptyState />
         )}

@@ -2,6 +2,7 @@ import { getProjectById } from "@/modules/project/presentation/server-actions/ge
 import { getDiagramsByModelId } from "../../../presentation/server-actions/get-diagrams-by-model-id";
 import { getElementsByModelId } from "../../../presentation/server-actions/get-elements-by-model-id";
 import { getModelsByProjectId } from "../../../presentation/server-actions/get-models-by-project-id";
+import { getScenarioDiagramsByModelId } from "../../../presentation/server-actions/scenario/get-diagrams-by-model-id";
 import { Workbench, type WorkbenchModelData } from "./workbench";
 
 type WorkbenchViewProps = {
@@ -28,10 +29,25 @@ export async function WorkbenchView({ params }: WorkbenchViewProps) {
 
   const modelData: WorkbenchModelData[] = await Promise.all(
     models.map(async (model) => {
-      const [elementsResult, diagramsResult] = await Promise.all([
-        getElementsByModelId(model.id),
-        getDiagramsByModelId(model.id),
-      ]);
+      const [elementsResult, diagramsResult, scenarioDiagramsResult] =
+        await Promise.all([
+          getElementsByModelId(model.id),
+          getDiagramsByModelId(model.id),
+          getScenarioDiagramsByModelId(model.id),
+        ]);
+
+      const architectureDiagrams = diagramsResult.data ?? [];
+      const scenarioDiagrams = (scenarioDiagramsResult.data ?? []).map((d) => ({
+        id: d.id,
+        modelId: d.modelId,
+        type: d.type as import("../../types/diagram").DiagramTypeValue,
+        name: d.name,
+        description: d.description,
+        viewport: { x: d.viewport.x, y: d.viewport.y, zoom: d.viewport.zoom },
+        elementLayouts: [],
+        createdAt: d.createdAt,
+        updatedAt: d.updatedAt,
+      }));
 
       return {
         model,
@@ -46,7 +62,7 @@ export async function WorkbenchView({ params }: WorkbenchViewProps) {
           createdAt: el.createdAt,
           updatedAt: el.updatedAt,
         })),
-        diagrams: diagramsResult.data ?? [],
+        diagrams: [...architectureDiagrams, ...scenarioDiagrams],
       };
     }),
   );

@@ -31,6 +31,7 @@ import {
   Trash2,
   User,
   Users,
+  MessageSquare,
 } from "lucide-react";
 import { useState } from "react";
 import { LAYERS } from "../../constants/layer";
@@ -38,7 +39,7 @@ import {
   getElementTypesForLayer,
   getElementVisual,
 } from "../../helpers/element";
-import { getDiagramPalette } from "../../helpers/diagram";
+import { getDiagramPalette, isScenarioDiagramType } from "../../helpers/diagram";
 import { getLayerInfo } from "../../helpers/layer";
 import { useWorkbenchStore } from "../../stores/workbench";
 import type { Diagram } from "../../types/diagram";
@@ -386,6 +387,7 @@ function DiagramTreeItem({
 }) {
   const activeDiagramId = useWorkbenchStore((s) => s.activeDiagramId);
   const isActive = activeDiagramId === diagram.id;
+  const isScenario = isScenarioDiagramType(diagram.type);
 
   return (
     <ContextMenu>
@@ -399,7 +401,11 @@ function DiagramTreeItem({
           )}
           style={{ paddingLeft: "26px" }}
         >
-          <LayoutDashboard className="size-3 shrink-0 text-muted-foreground" />
+          {isScenario ? (
+            <MessageSquare className="size-3 shrink-0 text-muted-foreground" />
+          ) : (
+            <LayoutDashboard className="size-3 shrink-0 text-muted-foreground" />
+          )}
           <span className="truncate flex-1 text-left">{diagram.name}</span>
           <span className="text-[9px] text-muted-foreground shrink-0">
             {diagram.type}

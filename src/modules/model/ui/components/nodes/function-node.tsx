@@ -1,6 +1,6 @@
 import { cn } from "@/modules/shared/ui/libs/cn";
 import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
-import { memo } from "react";
+import { type DragEventHandler, memo, useCallback } from "react";
 import { getElementTypeInfo, getElementVisual } from "../../helpers/element";
 import type { ElementNodeData } from "../../stores/canvas";
 
@@ -18,10 +18,27 @@ function FunctionNodeComponent({
   const typeInfo = getElementTypeInfo(data.elementType);
   const spec = getElementVisual(data.elementType);
 
+  const handleDragStart: DragEventHandler = useCallback(
+    (e) => {
+      e.dataTransfer.setData(
+        "application/canvas-node",
+        JSON.stringify({
+          elementId: data.elementId,
+          elementType: data.elementType,
+          name: data.name,
+        }),
+      );
+      e.dataTransfer.effectAllowed = "copy";
+    },
+    [data],
+  );
+
   return (
     <div
+      draggable
+      onDragStart={handleDragStart}
       className={cn(
-        "relative min-w-36 overflow-hidden rounded-lg border-2 bg-background select-none",
+        "relative min-w-36 overflow-hidden rounded-lg border-2 bg-background select-none cursor-grab active:cursor-grabbing",
         selected && "shadow-[0_0_0_2px_hsl(var(--primary))]",
         data.status === "DEPRECATED" && "opacity-60",
       )}

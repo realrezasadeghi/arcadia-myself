@@ -175,7 +175,11 @@ export function TransitionWizard({
       {
         onSuccess: ({ data }) => {
           toast.success(
-            `Transitioned to ${targetLayerInfo.label}: ${data.createdElements} elements, ${data.createdTraceLinks} realization links`,
+            `Transitioned to ${targetLayerInfo.label}: ${data.createdElements} elements created with realization links.`,
+            {
+              description: `Create a ${targetLayer} diagram in the Explorer tree to visualize these elements.`,
+              duration: 5000,
+            },
           );
           onCompleted();
         },

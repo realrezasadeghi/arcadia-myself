@@ -8,18 +8,19 @@ import {
   EmptyTitle,
 } from "@/modules/shared/ui/components/ui/empty";
 import { FolderOpen, Plus } from "lucide-react";
+import Link from "next/link";
 
-interface ProjectsEmptyStateProps {
+interface ProjectListEmptyProps {
   title: string;
   description: string;
-  onProjectCreate?: () => void;
+  showCreateButton?: boolean;
 }
 
 export function ProjectListEmpty({
   title,
   description,
-  onProjectCreate,
-}: ProjectsEmptyStateProps) {
+  showCreateButton,
+}: ProjectListEmptyProps) {
   return (
     <Empty className="py-16">
       <EmptyHeader>
@@ -29,11 +30,13 @@ export function ProjectListEmpty({
         <EmptyTitle>{title}</EmptyTitle>
         <EmptyDescription>{description}</EmptyDescription>
       </EmptyHeader>
-      {onProjectCreate && (
+      {showCreateButton && (
         <EmptyContent>
-          <Button onClick={onProjectCreate} variant="outline" className="gap-2">
-            <Plus className="size-4" />
-            Create Project
+          <Button asChild variant="outline" className="gap-2">
+            <Link href="/dashboard/project/new">
+              <Plus className="size-4" />
+              Create Project
+            </Link>
           </Button>
         </EmptyContent>
       )}

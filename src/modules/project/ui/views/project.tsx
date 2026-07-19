@@ -1,8 +1,9 @@
-import { getAllProjects } from "../../presentation/server-actions/get-all";
-import { ProjectContainer } from "../components/project-container";
-
-export async function ProjectView() {
-  const { data: projects } = await getAllProjects();
-
-  return <ProjectContainer projects={projects || []} />;
+/**
+ * @deprecated This view is no longer used.
+ * The project list page now directly uses:
+ * - ProjectToolbar (server component)
+ * - ProjectListSection (server component with Suspense)
+ */
+export function ProjectView() {
+  return null;
 }

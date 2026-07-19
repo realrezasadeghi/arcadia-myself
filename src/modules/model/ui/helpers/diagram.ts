@@ -123,8 +123,30 @@ const DIAGRAM_PALETTE: Record<DiagramTypeValue, DiagramPalette> = {
     relationshipTypes: ["PhysicalExchange"],
   },
   EPBB: {
-    elementTypes: ["EPBSComponent"],
-    relationshipTypes: ["Composition"],
+    elementTypes: [
+      "EPBSArchitecture",
+      "ConfigurationItem",
+      "ConfigurationItemPart",
+      "ConfigurationItemInterface",
+    ],
+    relationshipTypes: ["Composition", "ProvidedInterface", "RequiredInterface", "Generalization"],
+  },
+  EAB: {
+    elementTypes: [
+      "EPBSArchitecture",
+      "ConfigurationItem",
+      "ConfigurationItemPart",
+      "ConfigurationItemInterface",
+    ],
+    relationshipTypes: ["Composition", "ProvidedInterface", "RequiredInterface", "Generalization"],
+  },
+  ECB: {
+    elementTypes: [
+      "ConfigurationItem",
+      "ConfigurationItemPart",
+      "ConfigurationItemInterface",
+    ],
+    relationshipTypes: ["ProvidedInterface", "RequiredInterface", "Generalization"],
   },
 };
 

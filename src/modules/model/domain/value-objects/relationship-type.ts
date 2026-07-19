@@ -13,7 +13,8 @@ export type RelationshipTypeValue =
   | "PhysicalExchange"
   | "PhysicalLink"
   | "DeploymentLink"
-  | "Composition";
+  | "Composition"
+  | "Generalization";
 
 export type TraceLinkTypeValue =
   | "Realization"
@@ -38,6 +39,7 @@ const RELATIONSHIP_META: Record<RelationshipTypeValue, RelationshipMeta> = {
   PhysicalLink: { label: "Physical Link", labelFa: "پیوند فیزیکی" },
   DeploymentLink: { label: "Deployment Link", labelFa: "پیوند استقرار" },
   Composition: { label: "Composition", labelFa: "ترکیب" },
+  Generalization: { label: "Generalization", labelFa: "تعمیم" },
 };
 
 const ALL_RELATIONSHIP_VALUES = Object.keys(

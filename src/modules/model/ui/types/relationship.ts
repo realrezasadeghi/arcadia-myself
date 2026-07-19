@@ -12,7 +12,8 @@ export type RelationshipTypeValue =
   | "PhysicalExchange"
   | "PhysicalLink"
   | "DeploymentLink"
-  | "Composition";
+  | "Composition"
+  | "Generalization";
 
 export type RelationshipTypeInfo = {
   value: RelationshipTypeValue;

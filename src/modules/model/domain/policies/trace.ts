@@ -129,10 +129,19 @@ const RULES: TraceRule[] = [
   {
     type: "Realization",
     sourceLayer: Layer.EPBS,
-    sourceTypes: ["EPBSComponent"],
+    sourceTypes: ["ConfigurationItem"],
     targetLayer: Layer.PA,
-    targetTypes: ["PhysicalComponent"],
-    descriptionFa: "مؤلفه محصول نهایی، مؤلفه فیزیکی را محقق می‌کند",
+    targetTypes: ["PhysicalComponent", "PhysicalActor"],
+    descriptionFa: "مورد پیکربندی، مؤلفه فیزیکی یا بازیگر فیزیکی را محقق می‌کند",
+  },
+  // ─── EPBS Owned (parent breakdown) ──────────────────────────────────────
+  {
+    type: "Owned",
+    sourceLayer: Layer.EPBS,
+    sourceTypes: ["ConfigurationItem", "ConfigurationItemPart"],
+    targetLayer: Layer.EPBS,
+    targetTypes: ["ConfigurationItem", "ConfigurationItemPart"],
+    descriptionFa: "مورد پیکربندی یا بخش آن، زیرمجموعه است",
   },
 ];
 

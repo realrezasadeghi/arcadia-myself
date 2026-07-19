@@ -6,7 +6,8 @@ export type TraceLinkTypeValue =
   | "Allocation"
   | "Deployment"
   | "Involvement"
-  | "Refinement";
+  | "Refinement"
+  | "Owned";
 
 export type TraceLinkTypeInfo = {
   value: TraceLinkTypeValue;

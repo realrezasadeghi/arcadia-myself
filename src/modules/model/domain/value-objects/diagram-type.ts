@@ -19,6 +19,8 @@ export type DiagramTypeValue =
   | "PDFB"
   | "PCB"
   | "PS"
+  | "EAB"
+  | "ECB"
   | "EPBB";
 
 interface DiagramTypeMeta {
@@ -136,6 +138,18 @@ const META: Record<DiagramTypeValue, DiagramTypeMeta> = {
     labelFa: "تجزیه محصول نهایی",
     layer: Layer.EPBS,
     description: "سلسله‌مراتب مؤلفه‌های محصول نهایی",
+  },
+  EAB: {
+    label: "EPBS Architecture Blank",
+    labelFa: "معماری محصول نهایی",
+    layer: Layer.EPBS,
+    description: "دیاگرام اصلی معماری محصول نهایی",
+  },
+  ECB: {
+    label: "EPBS Context/Interface Diagram",
+    labelFa: "دیاگرام زمینه/رابط محصول نهایی",
+    layer: Layer.EPBS,
+    description: "موجودیت‌های پیکربندی و رابط‌های بین آن‌ها",
   },
 };
 

@@ -116,9 +116,27 @@ export const ELEMENT_TYPES: ElementTypeInfo[] = [
   },
   // ─── EPBS ─────────────────────────────────────────────────────────────────
   {
-    value: "EPBSComponent",
-    label: "EPBS Component",
-    labelFa: "مؤلفه محصول نهایی",
+    value: "EPBSArchitecture",
+    label: "EPBS Architecture",
+    labelFa: "معماری محصول نهایی",
+    layer: "EPBS",
+  },
+  {
+    value: "ConfigurationItem",
+    label: "Configuration Item",
+    labelFa: "مورد پیکربندی",
+    layer: "EPBS",
+  },
+  {
+    value: "ConfigurationItemPart",
+    label: "Configuration Item Part",
+    labelFa: "بخش مورد پیکربندی",
+    layer: "EPBS",
+  },
+  {
+    value: "ConfigurationItemInterface",
+    label: "Configuration Item Interface",
+    labelFa: "رابط مورد پیکربندی",
     layer: "EPBS",
   },
 ];
@@ -245,11 +263,29 @@ export const ELEMENT_VISUAL: Record<ElementTypeValue, ElementVisualSpec> = {
     strokeColor: "#717D7E",
   },
   // ─── EPBS ─────────────────────────────────────────────────────────────────
-  EPBSComponent: {
+  EPBSArchitecture: {
     shape: "rounded-rectangle",
     fillColor: "#FADBD8",
     fillColorDark: "#3d1a1a",
     strokeColor: "#E74C3C",
+  },
+  ConfigurationItem: {
+    shape: "rounded-rectangle",
+    fillColor: "#FADBD8",
+    fillColorDark: "#3d1a1a",
+    strokeColor: "#E74C3C",
+  },
+  ConfigurationItemPart: {
+    shape: "rounded-rectangle",
+    fillColor: "#FDEBD0",
+    fillColorDark: "#3d2a00",
+    strokeColor: "#E67E22",
+  },
+  ConfigurationItemInterface: {
+    shape: "rounded-rectangle",
+    fillColor: "#D6EAF8",
+    fillColorDark: "#1a3a52",
+    strokeColor: "#2E86C1",
   },
 };
 
@@ -277,5 +313,10 @@ export const ELEMENTS_BY_LAYER: Record<LayerValue, ElementTypeValue[]> = {
     "PhysicalFunction",
     "PhysicalActor",
   ],
-  EPBS: ["EPBSComponent"],
+  EPBS: [
+    "EPBSArchitecture",
+    "ConfigurationItem",
+    "ConfigurationItemPart",
+    "ConfigurationItemInterface",
+  ],
 };

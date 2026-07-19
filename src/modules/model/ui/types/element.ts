@@ -22,7 +22,10 @@ export type ElementTypeValue =
   | "PhysicalNode"
   | "PhysicalFunction"
   | "PhysicalActor"
-  | "EPBSComponent";
+  | "EPBSArchitecture"
+  | "ConfigurationItem"
+  | "ConfigurationItemPart"
+  | "ConfigurationItemInterface";
 
 export type ElementTypeInfo = {
   value: ElementTypeValue;

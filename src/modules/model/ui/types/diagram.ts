@@ -18,7 +18,9 @@ export type DiagramTypeValue =
   | "PDFB"
   | "PCB"
   | "PS"
-  | "EPBB";
+  | "EPBB"
+  | "EAB"
+  | "ECB";
 
 export type DiagramTypeInfo = {
   value: DiagramTypeValue;

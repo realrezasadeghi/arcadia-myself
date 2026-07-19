@@ -22,6 +22,8 @@ export const diagramFormSchema = z.object({
       "PCB",
       "PS",
       "EPBB",
+      "EAB",
+      "ECB",
     ],
     {
       error: "نوع دیاگرام نامعتبر است",

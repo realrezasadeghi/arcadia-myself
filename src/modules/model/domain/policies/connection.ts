@@ -156,13 +156,41 @@ const RULES: ConnectionRule[] = [
     allowedTargets: ["PhysicalComponent"],
     descriptionFa: "تخصیص تابع فیزیکی به مؤلفه فیزیکی",
   },
-  // ─── EPBS ──────────────────────────────────────────────────────────────────
+  // ─── EPBS ────────────────────────────────────────────────────────────────────
   {
     relationshipType: "Composition",
     layer: Layer.EPBS,
-    allowedSources: ["EPBSComponent"],
-    allowedTargets: ["EPBSComponent"],
-    descriptionFa: "ترکیب بین مؤلفه‌های محصول نهایی",
+    allowedSources: ["ConfigurationItem"],
+    allowedTargets: ["ConfigurationItem", "ConfigurationItemPart"],
+    descriptionFa: "ترکیب بین مورد پیکربندی و بخش‌های آن",
+  },
+  {
+    relationshipType: "Composition",
+    layer: Layer.EPBS,
+    allowedSources: ["ConfigurationItemPart"],
+    allowedTargets: ["ConfigurationItemPart"],
+    descriptionFa: "ترکیب بین بخش‌های مورد پیکربندی",
+  },
+  {
+    relationshipType: "ProvidedInterface",
+    layer: Layer.EPBS,
+    allowedSources: ["ConfigurationItemInterface"],
+    allowedTargets: ["ConfigurationItemInterface"],
+    descriptionFa: "رابط ارائه‌شده توسط رابط مورد پیکربندی",
+  },
+  {
+    relationshipType: "RequiredInterface",
+    layer: Layer.EPBS,
+    allowedSources: ["ConfigurationItemInterface"],
+    allowedTargets: ["ConfigurationItemInterface"],
+    descriptionFa: "رابط مورد نیاز رابط مورد پیکربندی",
+  },
+  {
+    relationshipType: "Generalization",
+    layer: Layer.EPBS,
+    allowedSources: ["ConfigurationItem", "ConfigurationItemPart"],
+    allowedTargets: ["ConfigurationItem", "ConfigurationItemPart"],
+    descriptionFa: "تعمیم بین موارد پیکربندی",
   },
 ];
 

@@ -12,6 +12,7 @@ export const TRACE_LINK_TYPES: TraceLinkTypeInfo[] = [
   { value: "Deployment", label: "Deployment", labelFa: "استقرار" },
   { value: "Involvement", label: "Involvement", labelFa: "مشارکت" },
   { value: "Refinement", label: "Refinement", labelFa: "اصلاح" },
+  { value: "Owned", label: "Owned", labelFa: "مالکیت" },
 ];
 
 export const TRACE_RULES: TraceLinkRule[] = [
@@ -142,10 +143,20 @@ export const TRACE_RULES: TraceLinkRule[] = [
     type: "Realization",
     typeLabelFa: "تحقق",
     sourceLayer: "EPBS",
-    sourceTypes: ["EPBSComponent"],
+    sourceTypes: ["ConfigurationItem"],
     targetLayer: "PA",
     targetLayerLabelFa: "معماری فیزیکی",
-    targetTypes: ["PhysicalComponent"],
+    targetTypes: ["PhysicalComponent", "PhysicalActor"],
+  },
+  // EPBS Owned (parent breakdown)
+  {
+    type: "Owned",
+    typeLabelFa: "مالکیت",
+    sourceLayer: "EPBS",
+    sourceTypes: ["ConfigurationItem", "ConfigurationItemPart"],
+    targetLayer: "EPBS",
+    targetLayerLabelFa: "ساختار محصول نهایی",
+    targetTypes: ["ConfigurationItem", "ConfigurationItemPart"],
   },
 ];
 
@@ -179,6 +190,12 @@ export const TRACE_VISUAL: Record<TraceLinkTypeValue, TraceLinkVisualSpec> = {
     strokeWidth: 1,
     arrowEnd: "open-arrow",
     strokeDash: "5,3",
+  },
+  Owned: {
+    strokeColor: "#27AE60",
+    strokeWidth: 1,
+    arrowEnd: "open-arrow",
+    strokeDash: "2,4",
   },
 };
 

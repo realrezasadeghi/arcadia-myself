@@ -26,6 +26,7 @@ type ValidationContext = {
     name: string;
     parentId: string | null;
     status: string;
+    properties?: Record<string, unknown>;
   }>;
   traceLinks: Array<{
     id: string;
@@ -136,7 +137,7 @@ export class ValidationPolicy {
             id: nextId(),
             severity: "error",
             rule: "realization-direction",
-            message: `Realization must go from lower to higher abstraction`,
+            message: `Realization trace must go from more concrete (higher order) to more abstract (lower order) layer`,
             elementId: src.id,
             elementName: src.name,
             elementType: src.type,
@@ -174,20 +175,149 @@ export class ValidationPolicy {
       }
     }
 
-    // ── Rule 4b: EPBS should have at least one EPBSComponent ──────────────
+    // ── Rule 4b: EPBS should have at least one EPBSArchitecture ──────────────
     const epbsElements = elementsByLayer.get("EPBS") ?? [];
     if (epbsElements.length > 0) {
-      const hasEPBSComponent = epbsElements.some(
-        (e) => e.type === "EPBSComponent",
+      const hasEPBSArchitecture = epbsElements.some(
+        (e) => e.type === "EPBSArchitecture",
       );
-      if (!hasEPBSComponent) {
+      if (!hasEPBSArchitecture) {
         issues.push({
           id: nextId(),
           severity: "info",
-          rule: "missing-epbs-component",
-          message: "EPBS layer has no EPBS Component element",
+          rule: "missing-epbs-architecture",
+          message: "EPBS layer has no EPBS Architecture element",
           layer: "EPBS",
         });
+      }
+    }
+
+    // ── Rule 4c: EPBS should have at least one ConfigurationItem ────────────
+    if (epbsElements.length > 0) {
+      const hasConfigurationItem = epbsElements.some(
+        (e) => e.type === "ConfigurationItem",
+      );
+      if (!hasConfigurationItem) {
+        issues.push({
+          id: nextId(),
+          severity: "warning",
+          rule: "missing-configuration-item",
+          message: "EPBS layer has no Configuration Item element",
+          layer: "EPBS",
+        });
+      }
+    }
+
+    // ── Rule 4d: Every ConfigurationItem must have a kind ───────────────────
+    for (const el of epbsElements) {
+      if (el.type === "ConfigurationItem") {
+        // The kind would be in extensionProperties
+        const kind = el.properties?.configurationItemKind;
+        if (!kind) {
+          issues.push({
+            id: nextId(),
+            severity: "error",
+            rule: "configuration-item-missing-kind",
+            message: `ConfigurationItem "${el.name}" must have a kind (System, Subsystem, Hardware, Software)`,
+            elementId: el.id,
+            elementName: el.name,
+            elementType: el.type,
+            layer: "EPBS",
+          });
+        }
+      }
+    }
+
+    // ── Rule 4e: Every ConfigurationItem must trace to at least one PhysicalComponent/Actor ─────────
+    if (epbsElements.length > 0) {
+      const traceLinksBySource = new Map<string, typeof ctx.traceLinks>();
+      for (const trace of ctx.traceLinks) {
+        if (!traceLinksBySource.has(trace.sourceElementId)) {
+          traceLinksBySource.set(trace.sourceElementId, []);
+        }
+        traceLinksBySource.get(trace.sourceElementId)!.push(trace);
+      }
+
+      for (const el of epbsElements) {
+        if (el.type === "ConfigurationItem") {
+          const traces = traceLinksBySource.get(el.id) ?? [];
+          const hasRealizationToPA = traces.some(
+            (t) =>
+              t.type === "Realization" &&
+              (t.targetLayer === "PA" || t.targetLayer === "LA")
+          );
+          if (!hasRealizationToPA) {
+            issues.push({
+              id: nextId(),
+              severity: "warning",
+              rule: "unrealized-configuration-item",
+              message: `ConfigurationItem "${el.name}" has no realization trace to PhysicalComponent or PhysicalActor`,
+              elementId: el.id,
+              elementName: el.name,
+              elementType: el.type,
+              layer: "EPBS",
+            });
+          }
+        }
+      }
+    }
+
+    // ── Rule 4f: ConfigurationItemInterface must have ProvidedInterface/RequiredInterface ────────
+    if (epbsElements.length > 0) {
+      const interfaces = epbsElements.filter(
+        (e) => e.type === "ConfigurationItemInterface",
+      );
+      const relationshipsBySource = new Map<string, typeof ctx.relationships>();
+      for (const rel of ctx.relationships) {
+        if (!relationshipsBySource.has(rel.sourceElementId)) {
+          relationshipsBySource.set(rel.sourceElementId, []);
+        }
+        relationshipsBySource.get(rel.sourceElementId)!.push(rel);
+      }
+
+      for (const iface of interfaces) {
+        const rels = relationshipsBySource.get(iface.id) ?? [];
+        const hasProvidedOrRequired = rels.some(
+          (r) =>
+            r.type === "ProvidedInterface" || r.type === "RequiredInterface",
+        );
+        if (!hasProvidedOrRequired) {
+          issues.push({
+            id: nextId(),
+            severity: "warning",
+            rule: "interface-missing-connection",
+            message: `ConfigurationItemInterface "${iface.name}" has no ProvidedInterface or RequiredInterface connection`,
+            elementId: iface.id,
+            elementName: iface.name,
+            elementType: iface.type,
+            layer: "EPBS",
+          });
+        }
+      }
+    }
+
+    // ── Rule 4g: No orphan ConfigurationItem (no parent, no children, no trace) ──────────────────
+    for (const el of epbsElements) {
+      if (
+        el.type === "ConfigurationItem" &&
+        el.parentId === null &&
+        !epbsElements.some((e) => e.parentId === el.id)
+      ) {
+        const hasTrace = ctx.traceLinks.some(
+          (t) => t.sourceElementId === el.id || t.targetElementId === el.id,
+        );
+        if (!hasTrace) {
+          issues.push({
+            id: nextId(),
+            severity: "warning",
+            rule: "orphan-configuration-item",
+            message: `ConfigurationItem "${el.name}" is orphaned (no parent, no children, no traces)`,
+            elementId: el.id,
+            elementName: el.name,
+            elementType: el.type,
+            layer: "EPBS",
+          });
+        }
       }
     }
 

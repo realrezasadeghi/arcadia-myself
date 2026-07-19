@@ -14,6 +14,7 @@ import {
 import { cn } from "@/modules/shared/ui/libs/cn";
 import {
   Activity,
+  Box,
   Boxes,
   ChevronDown,
   ChevronRight,
@@ -23,6 +24,7 @@ import {
   HardDrive,
   Layers,
   LayoutDashboard,
+  Link,
   type LucideIcon,
   Monitor,
   Pencil,
@@ -62,7 +64,10 @@ const ELEMENT_ICONS: Partial<Record<ElementTypeValue, LucideIcon>> = {
   PhysicalActor: User,
   PhysicalNode: HardDrive,
   PhysicalComponent: HardDrive,
-  EPBSComponent: Boxes,
+  EPBSArchitecture: Boxes,
+  ConfigurationItem: Boxes,
+  ConfigurationItemPart: Box,
+  ConfigurationItemInterface: Link,
 };
 
 function getElemIcon(type: ElementTypeValue): LucideIcon {

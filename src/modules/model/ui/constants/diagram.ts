@@ -110,6 +110,18 @@ export const DIAGRAM_TYPES: DiagramTypeInfo[] = [
     labelFa: "تجزیه محصول نهایی",
     layer: "EPBS",
   },
+  {
+    value: "EAB",
+    label: "EPBS Architecture Blank",
+    labelFa: "معماری محصول نهایی",
+    layer: "EPBS",
+  },
+  {
+    value: "ECB",
+    label: "EPBS Context/Interface Diagram",
+    labelFa: "دیاگرام زمینه/رابط محصول نهایی",
+    layer: "EPBS",
+  },
 ];
 
 export const DIAGRAMS_BY_LAYER: Record<LayerValue, DiagramTypeValue[]> = {
@@ -117,5 +129,5 @@ export const DIAGRAMS_BY_LAYER: Record<LayerValue, DiagramTypeValue[]> = {
   SA: ["SAB", "SDFB", "SCD", "SS"],
   LA: ["LAB", "LDFB", "LCB", "LS"],
   PA: ["PAB", "PDFB", "PCB", "PS"],
-  EPBS: ["EPBB"],
+  EPBS: ["EPBB", "EAB", "ECB"],
 };

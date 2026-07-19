@@ -87,7 +87,10 @@ export class CreateElementDTO {
       "SystemCapability",
       "SystemComponent",
       "SystemFunction",
-      "EPBSComponent",
+      "EPBSArchitecture",
+      "ConfigurationItem",
+      "ConfigurationItemPart",
+      "ConfigurationItemInterface",
     ];
 
     if (!validTypes.includes(type)) {

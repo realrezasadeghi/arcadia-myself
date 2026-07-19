@@ -56,7 +56,7 @@ const TARGET_TYPE_MAP: Record<
     LogicalFunction: "PhysicalFunction",
   },
   PA: {
-    PhysicalComponent: "EPBSComponent",
+    PhysicalComponent: "ConfigurationItem",
   },
   EPBS: {},
 };

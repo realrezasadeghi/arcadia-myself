@@ -77,6 +77,12 @@ export const RELATIONSHIP_TYPES: RelationshipTypeInfo[] = [
     labelFa: "ترکیب",
     allowedFor: ["OA", "SA", "LA", "PA", "EPBS"],
   },
+  {
+    value: "Generalization",
+    label: "Generalization",
+    labelFa: "تعمیم",
+    allowedFor: ["OA", "SA", "LA", "PA", "EPBS"],
+  },
 ];
 
 export const RELATIONSHIP_VISUAL: Record<
@@ -137,6 +143,12 @@ export const RELATIONSHIP_VISUAL: Record<
     strokeColor: "#7D3C98",
     strokeWidth: 1.5,
     arrowEnd: "diamond", // یا "none" بسته به نمایش
+    strokeDash: "none",
+  },
+  Generalization: {
+    strokeColor: "#2E86C1",
+    strokeWidth: 1.5,
+    arrowEnd: "open-arrow",
     strokeDash: "none",
   },
 };

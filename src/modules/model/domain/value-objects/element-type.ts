@@ -32,7 +32,11 @@ type PAElementValue =
   | "PhysicalActor"
   | "FunctionPort";
 
-type EPBSElementValue = "EPBSComponent";
+type EPBSElementValue =
+  | "EPBSArchitecture"
+  | "ConfigurationItem"
+  | "ConfigurationItemPart"
+  | "ConfigurationItemInterface";
 
 export type ElementTypeValue =
   | OAElementValue
@@ -142,9 +146,24 @@ const META: Record<ElementTypeValue, ElementTypeMeta> = {
     layer: Layer.PA,
   },
   // EPBS
-  EPBSComponent: {
-    label: "EPBS Component",
-    labelFa: "مؤلفه محصول نهایی",
+  EPBSArchitecture: {
+    label: "EPBS Architecture",
+    labelFa: "معماری محصول نهایی",
+    layer: Layer.EPBS,
+  },
+  ConfigurationItem: {
+    label: "Configuration Item",
+    labelFa: "مورد پیکربندی",
+    layer: Layer.EPBS,
+  },
+  ConfigurationItemPart: {
+    label: "Configuration Item Part",
+    labelFa: "بخش مورد پیکربندی",
+    layer: Layer.EPBS,
+  },
+  ConfigurationItemInterface: {
+    label: "Configuration Item Interface",
+    labelFa: "رابط مورد پیکربندی",
     layer: Layer.EPBS,
   },
 };
@@ -217,6 +236,18 @@ export class ElementType extends ValueObject<ElementTypeProps> {
   }
   isPort(): boolean {
     return this.props.value === "FunctionPort";
+  }
+  isEpbsArchitecture(): boolean {
+    return this.props.value === "EPBSArchitecture";
+  }
+  isConfigurationItem(): boolean {
+    return this.props.value === "ConfigurationItem";
+  }
+  isConfigurationItemPart(): boolean {
+    return this.props.value === "ConfigurationItemPart";
+  }
+  isConfigurationItemInterface(): boolean {
+    return this.props.value === "ConfigurationItemInterface";
   }
 
   toString(): string {

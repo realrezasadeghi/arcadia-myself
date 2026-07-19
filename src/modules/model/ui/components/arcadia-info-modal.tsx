@@ -399,15 +399,16 @@ function ElementCard({ elementValue }: { elementValue: string }) {
   const t = useTranslations("arcadiaGuide");
   const visual = ELEMENT_VISUAL[elementValue as keyof typeof ELEMENT_VISUAL];
 
-  const layerBadge = elementValue.includes("Operational")
+const layerBadge = elementValue.includes("Operational")
     ? "OA"
     : elementValue.includes("System") || elementValue === "FunctionPort"
       ? "SA"
       : elementValue.includes("Logical")
         ? "LA"
-        : elementValue === "EPBSComponent"
-          ? "EPBS"
-          : "PA";
+        : elementValue.startsWith("Configuration") ||
+            elementValue === "EPBSArchitecture"
+        ? "EPBS"
+        : "PA";
 
   return (
     <div

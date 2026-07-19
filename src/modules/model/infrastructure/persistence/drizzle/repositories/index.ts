@@ -1,3 +1,4 @@
+import { DrizzleClassDiagramRepository } from "./class-diagram";
 import { DrizzleDiagramRepository } from "./diagram";
 import { DrizzleElementRepository } from "./element";
 import { DrizzleModelRepository } from "./model";
@@ -13,3 +14,5 @@ export const elementRepository = new DrizzleElementRepository();
 export const traceLinkRepository = new DrizzleTraceLinkRepository();
 
 export const relationshipRepository = new DrizzleRelationshipRepository();
+
+export const classDiagramRepository = new DrizzleClassDiagramRepository();

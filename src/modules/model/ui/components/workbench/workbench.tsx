@@ -1,6 +1,13 @@
 "use client";
 
 import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/modules/shared/ui/components/ui/breadcrumb";
+import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
@@ -13,14 +20,14 @@ import {
 import { cn } from "@/modules/shared/ui/libs/cn";
 import { ReactFlowProvider } from "@xyflow/react";
 import {
-  BookOpen,
-  Columns2,
+  Home,
   PanelBottom,
   PanelLeft,
   PanelRight,
   ShieldCheck,
   Workflow,
 } from "lucide-react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { getDiagramLayer } from "../../helpers/diagram";
@@ -284,6 +291,7 @@ function ResizeHandle({ className }: { className?: string }) {
 
 function WorkbenchMenuBar({ projectName }: { projectName: string }) {
   const panels = useWorkbenchStore((s) => s.panels);
+  const projectId = useWorkbenchStore((s) => s.projectId);
   const togglePanel = useWorkbenchStore((s) => s.togglePanel);
 
   const toggles: {
@@ -300,17 +308,33 @@ function WorkbenchMenuBar({ projectName }: { projectName: string }) {
 
   return (
     <div className="flex h-9 shrink-0 items-center gap-2 border-b bg-muted/40 px-3">
-      <Columns2 className="size-4 text-primary" />
+      <Breadcrumb className="flex-1 min-w-0">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/dashboard" className="flex items-center gap-1">
+                <Home className="h-3 w-3" />
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/dashboard/project">Projects</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href={`/dashboard/project/${projectId}`}>
+                {projectName}
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
-      <span className="text-xs font-semibold tracking-wide text-foreground">
-        {projectName}
-      </span>
-
-      <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-        Capella Workbench
-      </span>
-
-      <div className="ms-auto flex items-center gap-1">
+      <div className="flex items-center gap-1">
         <ArcadiaInfoModal />
         <div className="w-px h-4 bg-border mx-1" />
         {toggles.map(({ key, label, icon: Icon }) => (

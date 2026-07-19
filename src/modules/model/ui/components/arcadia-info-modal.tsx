@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/modules/shared/ui/components/ui/dialog";
+import { Input } from "@/modules/shared/ui/components/ui/input";
 import { ScrollArea } from "@/modules/shared/ui/components/ui/scroll-area";
 import {
   Tabs,
@@ -26,11 +27,13 @@ import {
   Layers,
   Lightbulb,
   Puzzle,
+  Search,
   Shapes,
   Target,
+  X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { DIAGRAMS_BY_LAYER } from "../constants/diagram";
 import { ELEMENT_VISUAL, ELEMENTS_BY_LAYER } from "../constants/element";
 import { LAYER_COLORS, LAYERS } from "../constants/layer";
@@ -44,6 +47,7 @@ export function ArcadiaInfoModal() {
   const [activeTab, setActiveTab] = useState<"diagrams" | "elements">(
     "diagrams",
   );
+  const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -97,6 +101,26 @@ export function ArcadiaInfoModal() {
           })}
         </div>
 
+        {/* Search Bar */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={t("searchPlaceholder")}
+            className="h-9 pl-9 pr-9 text-sm"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
         <Tabs
           value={activeTab}
           onValueChange={(v) => setActiveTab(v as "diagrams" | "elements")}
@@ -124,13 +148,13 @@ export function ArcadiaInfoModal() {
 
           <TabsContent value="diagrams" className="mt-2 flex-1 w-full">
             <ScrollArea className="h-[50vh]">
-              <DiagramList selectedLayer={selectedLayer} />
+              <DiagramList selectedLayer={selectedLayer} searchQuery={searchQuery} />
             </ScrollArea>
           </TabsContent>
 
           <TabsContent value="elements" className="mt-2 flex-1 w-full">
             <ScrollArea className="h-[50vh]">
-              <ElementList selectedLayer={selectedLayer} />
+              <ElementList selectedLayer={selectedLayer} searchQuery={searchQuery} />
             </ScrollArea>
           </TabsContent>
         </Tabs>
@@ -141,18 +165,48 @@ export function ArcadiaInfoModal() {
 
 // ─── Diagram List ──────────────────────────────────────────────────────────────
 
-function DiagramList({ selectedLayer }: { selectedLayer: LayerValue | "ALL" }) {
+function DiagramList({ selectedLayer, searchQuery }: { selectedLayer: LayerValue | "ALL"; searchQuery: string }) {
   const t = useTranslations("arcadiaGuide");
   const layers =
     selectedLayer === "ALL"
       ? LAYERS
       : LAYERS.filter((l) => l.value === selectedLayer);
 
+  const query = searchQuery.toLowerCase().trim();
+
+  const allFiltered = layers.flatMap((layer) => {
+    const diagramTypes = DIAGRAMS_BY_LAYER[layer.value];
+    if (query) {
+      return diagramTypes.filter((dv) => {
+        const label = t(`diagramTypes.${dv}.label` as never).toLowerCase();
+        const desc = t(`diagramTypes.${dv}.desc` as never).toLowerCase();
+        return label.includes(query) || desc.includes(query) || dv.toLowerCase().includes(query);
+      });
+    }
+    return diagramTypes;
+  });
+
+  if (query && allFiltered.length === 0) {
+    return (
+      <EmptyState icon={Search} message={t("noResults")} query={searchQuery} />
+    );
+  }
+
   return (
     <div className="space-y-6 pr-4">
       {layers.map((layer) => {
         const diagramTypes = DIAGRAMS_BY_LAYER[layer.value];
         const colors = LAYER_COLORS[layer.value];
+
+        const filteredTypes = query
+          ? diagramTypes.filter((dv) => {
+              const label = t(`diagramTypes.${dv}.label` as never).toLowerCase();
+              const desc = t(`diagramTypes.${dv}.desc` as never).toLowerCase();
+              return label.includes(query) || desc.includes(query) || dv.toLowerCase().includes(query);
+            })
+          : diagramTypes;
+
+        if (filteredTypes.length === 0) return null;
 
         return (
           <div key={layer.value} className="space-y-3">
@@ -174,7 +228,7 @@ function DiagramList({ selectedLayer }: { selectedLayer: LayerValue | "ALL" }) {
             </div>
 
             <div className="grid gap-3 pl-2">
-              {diagramTypes.map((diagramValue) => (
+              {filteredTypes.map((diagramValue) => (
                 <DiagramCard key={diagramValue} diagramValue={diagramValue} />
               ))}
             </div>
@@ -266,18 +320,48 @@ function DiagramCard({ diagramValue }: { diagramValue: string }) {
 
 // ─── Element List ──────────────────────────────────────────────────────────────
 
-function ElementList({ selectedLayer }: { selectedLayer: LayerValue | "ALL" }) {
+function ElementList({ selectedLayer, searchQuery }: { selectedLayer: LayerValue | "ALL"; searchQuery: string }) {
   const t = useTranslations("arcadiaGuide");
   const layers =
     selectedLayer === "ALL"
       ? LAYERS
       : LAYERS.filter((l) => l.value === selectedLayer);
 
+  const query = searchQuery.toLowerCase().trim();
+
+  const allFiltered = layers.flatMap((layer) => {
+    const elementTypes = ELEMENTS_BY_LAYER[layer.value];
+    if (query) {
+      return elementTypes.filter((ev) => {
+        const label = t(`elementTypes.${ev}.label` as never).toLowerCase();
+        const desc = t(`elementTypes.${ev}.desc` as never).toLowerCase();
+        return label.includes(query) || desc.includes(query) || ev.toLowerCase().includes(query);
+      });
+    }
+    return elementTypes;
+  });
+
+  if (query && allFiltered.length === 0) {
+    return (
+      <EmptyState icon={Search} message={t("noResults")} query={searchQuery} />
+    );
+  }
+
   return (
     <div className="space-y-6 pr-4">
       {layers.map((layer) => {
         const elementTypes = ELEMENTS_BY_LAYER[layer.value];
         const colors = LAYER_COLORS[layer.value];
+
+        const filteredTypes = query
+          ? elementTypes.filter((ev) => {
+              const label = t(`elementTypes.${ev}.label` as never).toLowerCase();
+              const desc = t(`elementTypes.${ev}.desc` as never).toLowerCase();
+              return label.includes(query) || desc.includes(query) || ev.toLowerCase().includes(query);
+            })
+          : elementTypes;
+
+        if (filteredTypes.length === 0) return null;
 
         return (
           <div key={layer.value} className="space-y-3">
@@ -299,7 +383,7 @@ function ElementList({ selectedLayer }: { selectedLayer: LayerValue | "ALL" }) {
             </div>
 
             <div className="grid gap-3 pl-2">
-              {elementTypes.map((elementValue) => (
+              {filteredTypes.map((elementValue) => (
                 <ElementCard key={elementValue} elementValue={elementValue} />
               ))}
             </div>
@@ -321,7 +405,9 @@ function ElementCard({ elementValue }: { elementValue: string }) {
       ? "SA"
       : elementValue.includes("Logical")
         ? "LA"
-        : "PA";
+        : elementValue === "EPBSComponent"
+          ? "EPBS"
+          : "PA";
 
   return (
     <div
@@ -397,6 +483,28 @@ function ElementCard({ elementValue }: { elementValue: string }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── Empty State ───────────────────────────────────────────────────────────────
+
+function EmptyState({
+  icon: Icon,
+  message,
+  query,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  message: string;
+  query: string;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-3">
+        <Icon className="h-6 w-6 text-muted-foreground" />
+      </div>
+      <p className="text-sm font-medium text-muted-foreground">{message}</p>
+      <p className="text-xs text-muted-foreground/70 mt-1">"{query}"</p>
     </div>
   );
 }

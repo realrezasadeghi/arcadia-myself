@@ -114,6 +114,13 @@ export const ELEMENT_TYPES: ElementTypeInfo[] = [
     labelFa: "بازیگر فیزیکی",
     layer: "PA",
   },
+  // ─── EPBS ─────────────────────────────────────────────────────────────────
+  {
+    value: "EPBSComponent",
+    label: "EPBS Component",
+    labelFa: "مؤلفه محصول نهایی",
+    layer: "EPBS",
+  },
 ];
 
 export const ELEMENT_VISUAL: Record<ElementTypeValue, ElementVisualSpec> = {
@@ -237,6 +244,13 @@ export const ELEMENT_VISUAL: Record<ElementTypeValue, ElementVisualSpec> = {
     fillColorDark: "#2d3436",
     strokeColor: "#717D7E",
   },
+  // ─── EPBS ─────────────────────────────────────────────────────────────────
+  EPBSComponent: {
+    shape: "rounded-rectangle",
+    fillColor: "#FADBD8",
+    fillColorDark: "#3d1a1a",
+    strokeColor: "#E74C3C",
+  },
 };
 
 export const ELEMENTS_BY_LAYER: Record<LayerValue, ElementTypeValue[]> = {
@@ -263,4 +277,5 @@ export const ELEMENTS_BY_LAYER: Record<LayerValue, ElementTypeValue[]> = {
     "PhysicalFunction",
     "PhysicalActor",
   ],
+  EPBS: ["EPBSComponent"],
 };

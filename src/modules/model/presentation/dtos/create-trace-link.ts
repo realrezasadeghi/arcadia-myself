@@ -126,7 +126,7 @@ export class CreateTraceLinkDTO {
       throw new Error(`${fieldName} cannot be empty`);
     }
 
-    const validLayers = ["OA", "SA", "LA", "PA"];
+    const validLayers = ["OA", "SA", "LA", "PA", "EPBS"];
 
     if (!validLayers.includes(trimmed)) {
       throw new Error(`${fieldName} must be one of: ${validLayers.join(", ")}`);

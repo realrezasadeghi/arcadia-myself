@@ -174,6 +174,23 @@ export class ValidationPolicy {
       }
     }
 
+    // ── Rule 4b: EPBS should have at least one EPBSComponent ──────────────
+    const epbsElements = elementsByLayer.get("EPBS") ?? [];
+    if (epbsElements.length > 0) {
+      const hasEPBSComponent = epbsElements.some(
+        (e) => e.type === "EPBSComponent",
+      );
+      if (!hasEPBSComponent) {
+        issues.push({
+          id: nextId(),
+          severity: "info",
+          rule: "missing-epbs-component",
+          message: "EPBS layer has no EPBS Component element",
+          layer: "EPBS",
+        });
+      }
+    }
+
     // ── Rule 5: Parent-child consistency ───────────────────────────────────
     const elementById = new Map(ctx.elements.map((e) => [e.id, e]));
     for (const el of ctx.elements) {

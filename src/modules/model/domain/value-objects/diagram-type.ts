@@ -18,7 +18,8 @@ export type DiagramTypeValue =
   | "PAB"
   | "PDFB"
   | "PCB"
-  | "PS";
+  | "PS"
+  | "EPBB";
 
 interface DiagramTypeMeta {
   label: string;
@@ -129,6 +130,12 @@ const META: Record<DiagramTypeValue, DiagramTypeMeta> = {
     labelFa: "سناریو فیزیکی",
     layer: Layer.PA,
     description: "سناریوی رفتاری فیزیکی",
+  },
+  EPBB: {
+    label: "EPBS Breakdown",
+    labelFa: "تجزیه محصول نهایی",
+    layer: Layer.EPBS,
+    description: "سلسله‌مراتب مؤلفه‌های محصول نهایی",
   },
 };
 

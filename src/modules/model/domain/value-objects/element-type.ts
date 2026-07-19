@@ -32,11 +32,14 @@ type PAElementValue =
   | "PhysicalActor"
   | "FunctionPort";
 
+type EPBSElementValue = "EPBSComponent";
+
 export type ElementTypeValue =
   | OAElementValue
   | SAElementValue
   | LAElementValue
-  | PAElementValue;
+  | PAElementValue
+  | EPBSElementValue;
 
 // ─── META ─────────────────────────────────────────────────────────────────────
 
@@ -137,6 +140,12 @@ const META: Record<ElementTypeValue, ElementTypeMeta> = {
     label: "Physical Actor",
     labelFa: "بازیگر فیزیکی",
     layer: Layer.PA,
+  },
+  // EPBS
+  EPBSComponent: {
+    label: "EPBS Component",
+    labelFa: "مؤلفه محصول نهایی",
+    layer: Layer.EPBS,
   },
 };
 

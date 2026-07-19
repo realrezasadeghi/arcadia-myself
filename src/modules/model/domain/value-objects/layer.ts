@@ -1,6 +1,6 @@
 import { ValueObject } from "@/modules/shared/domain/value-object";
 
-export type LayerValue = "OA" | "SA" | "LA" | "PA";
+export type LayerValue = "OA" | "SA" | "LA" | "PA" | "EPBS";
 
 interface LayerProps {
   value: LayerValue;
@@ -17,6 +17,11 @@ const LAYER_META: Record<LayerValue, LayerMeta> = {
   SA: { labelFa: "تحلیل سیستم", label: "System Analysis", order: 2 },
   LA: { labelFa: "معماری منطقی", label: "Logical Architecture", order: 3 },
   PA: { labelFa: "معماری فیزیکی", label: "Physical Architecture", order: 4 },
+  EPBS: {
+    labelFa: "ساختار محصول نهایی",
+    label: "End-Product Breakdown Structure",
+    order: 5,
+  },
 };
 
 /**
@@ -30,16 +35,18 @@ export class Layer extends ValueObject<LayerProps> {
   static readonly SA = new Layer({ value: "SA" });
   static readonly LA = new Layer({ value: "LA" });
   static readonly PA = new Layer({ value: "PA" });
+  static readonly EPBS = new Layer({ value: "EPBS" });
 
   private static readonly ALL: Layer[] = [
     Layer.OA,
     Layer.SA,
     Layer.LA,
     Layer.PA,
+    Layer.EPBS,
   ];
 
   protected validate(props: LayerProps): void {
-    if (!["OA", "SA", "LA", "PA"].includes(props.value)) {
+    if (!["OA", "SA", "LA", "PA", "EPBS"].includes(props.value)) {
       throw new Error(`Invalid layer value : ${props.value}`);
     }
   }

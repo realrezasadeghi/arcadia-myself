@@ -62,6 +62,7 @@ const ELEMENT_ICONS: Partial<Record<ElementTypeValue, LucideIcon>> = {
   PhysicalActor: User,
   PhysicalNode: HardDrive,
   PhysicalComponent: HardDrive,
+  EPBSComponent: Boxes,
 };
 
 function getElemIcon(type: ElementTypeValue): LucideIcon {
@@ -73,6 +74,7 @@ const LAYER_COLORS: Record<LayerValue, string> = {
   SA: "#CA6F1E",
   LA: "#1E8449",
   PA: "#6C3483",
+  EPBS: "#E74C3C",
 };
 
 // ─── Element tree builder ───────────────────────────────────────────────────
@@ -452,7 +454,7 @@ function ModelNode({
   const tree = buildElementTree(elements);
   const folders = categorizeRoots(tree);
   const elementTypes = getElementTypesForLayer(model.layer);
-  const canTransition = model.layer !== "PA";
+  const canTransition = model.layer !== "EPBS";
   const nextLayerLabel = getNextLayerLabel(model.layer);
 
   return (
@@ -567,7 +569,7 @@ function ModelNode({
 }
 
 function getNextLayerLabel(layer: LayerValue): string {
-  const order: LayerValue[] = ["OA", "SA", "LA", "PA"];
+  const order: LayerValue[] = ["OA", "SA", "LA", "PA", "EPBS"];
   const idx = order.indexOf(layer);
   const next = order[idx + 1];
   return next ? getLayerInfo(next).label : "";

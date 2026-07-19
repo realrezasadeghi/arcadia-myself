@@ -344,10 +344,10 @@ export function ExplorerPanel({
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="ms-auto flex size-5 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
-              disabled={createModel.isPending}
-              aria-label="New model"
               title="New model"
+              aria-label="New model"
+              disabled={createModel.isPending}
+              className="ms-auto flex size-5 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
             >
               <Plus className="size-3.5" />
             </button>

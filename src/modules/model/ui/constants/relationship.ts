@@ -75,7 +75,7 @@ export const RELATIONSHIP_TYPES: RelationshipTypeInfo[] = [
     value: "Composition",
     label: "Composition",
     labelFa: "ترکیب",
-    allowedFor: ["OA", "SA", "LA", "PA"],
+    allowedFor: ["OA", "SA", "LA", "PA", "EPBS"],
   },
 ];
 

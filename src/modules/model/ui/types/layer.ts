@@ -1,4 +1,4 @@
-export type LayerValue = "OA" | "SA" | "LA" | "PA";
+export type LayerValue = "OA" | "SA" | "LA" | "PA" | "EPBS";
 
 export interface LayerInfo {
   value: LayerValue;

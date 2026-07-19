@@ -43,6 +43,10 @@ const LAYER_BADGES = [
     label: "PA",
     className: "bg-purple-600 text-white",
   },
+  {
+    label: "EPBS",
+    className: "bg-rose-600 text-white",
+  },
 ];
 
 interface ProjectCardProps {

@@ -89,6 +89,7 @@ const LAYER_COLORS: Record<LayerValue, string> = {
   SA: "#CA6F1E",
   LA: "#1E8449",
   PA: "#6C3483",
+  EPBS: "#E74C3C",
 };
 
 const LAYER_BG_COLORS: Record<LayerValue, string> = {
@@ -96,6 +97,7 @@ const LAYER_BG_COLORS: Record<LayerValue, string> = {
   SA: "hover:bg-amber-50 dark:hover:bg-amber-950/30",
   LA: "hover:bg-emerald-50 dark:hover:bg-emerald-950/30",
   PA: "hover:bg-purple-50 dark:hover:bg-purple-950/30",
+  EPBS: "hover:bg-rose-50 dark:hover:bg-rose-950/30",
 };
 
 // ─── Sub-components ─────────────────────────────────────────────────────────

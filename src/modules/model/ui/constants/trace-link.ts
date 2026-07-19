@@ -137,6 +137,16 @@ export const TRACE_RULES: TraceLinkRule[] = [
     targetLayerLabelFa: "تحلیل عملیاتی",
     targetTypes: ["OperationalCapability"],
   },
+  // EPBS realizes PA
+  {
+    type: "Realization",
+    typeLabelFa: "تحقق",
+    sourceLayer: "EPBS",
+    sourceTypes: ["EPBSComponent"],
+    targetLayer: "PA",
+    targetLayerLabelFa: "معماری فیزیکی",
+    targetTypes: ["PhysicalComponent"],
+  },
 ];
 
 export const TRACE_VISUAL: Record<TraceLinkTypeValue, TraceLinkVisualSpec> = {
@@ -180,4 +190,5 @@ export const LAYER_PAIRS: Array<{
   { upper: "OA", lower: "SA", label: "OA → SA" },
   { upper: "SA", lower: "LA", label: "SA → LA" },
   { upper: "LA", lower: "PA", label: "LA → PA" },
+  { upper: "EPBS", lower: "PA", label: "EPBS → PA" },
 ];

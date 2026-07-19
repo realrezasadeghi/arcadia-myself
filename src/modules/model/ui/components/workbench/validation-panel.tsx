@@ -23,6 +23,7 @@ const LAYER_COLORS: Record<LayerValue, string> = {
   SA: "#CA6F1E",
   LA: "#1E8449",
   PA: "#6C3483",
+  EPBS: "#E74C3C",
 };
 
 const SEVERITY_CONFIG: Record<

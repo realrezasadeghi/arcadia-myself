@@ -75,7 +75,7 @@ export class CreateModelDTO {
   }
 
   private static validateLayer(layer: string): string {
-    const validLayers: string[] = ["OA", "SA", "LA", "PA"];
+    const validLayers: string[] = ["OA", "SA", "LA", "PA", "EPBS"];
 
     if (!validLayers.includes(layer)) {
       throw new Error(`Layer must be one of: ${validLayers.join(", ")}`);

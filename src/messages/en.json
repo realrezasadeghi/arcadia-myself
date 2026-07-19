@@ -114,11 +114,14 @@
     "usedFor": "Used For",
     "capellaEquiv": "Capella Equivalent",
     "example": "Example",
+    "searchPlaceholder": "Search diagrams, elements...",
+    "noResults": "No results found",
     "layers": {
       "OA": "Operational Analysis",
       "SA": "System Analysis",
       "LA": "Logical Architecture",
-      "PA": "Physical Architecture"
+      "PA": "Physical Architecture",
+      "EPBS": "End-Product Breakdown Structure"
     },
     "diagramTypes": {
       "OEB": {
@@ -256,6 +259,14 @@
         "contains": "Lifelines, Messages, Scenario steps",
         "usedFor": "Validating physical component interactions",
         "capella": "Physical Scenario (PS)"
+      },
+      "EPBB": {
+        "label": "EPBS Breakdown",
+        "desc": "Hierarchical decomposition of end-product components — the final deliverables.",
+        "purpose": "Define the end-product breakdown structure for development contracts and integration.",
+        "contains": "EPBS Components, Composition relationships",
+        "usedFor": "Organizing deliverables and defining integration contracts",
+        "capella": "EPBS Breakdown (EPBB)"
       }
     },
     "elementTypes": {
@@ -372,6 +383,12 @@
         "desc": "An external entity at the physical architecture level.",
         "purpose": "Identify external interactions at the physical level.",
         "example": "External API, Legacy system, Human operator"
+      },
+      "EPBSComponent": {
+        "label": "EPBS Component",
+        "desc": "An end-product deliverable — the final item to be developed or procured.",
+        "purpose": "Define the end-product items that collect all properties and requirements from upper layers.",
+        "example": "Software package, Hardware unit, Documentation set"
       }
     }
   }

@@ -156,6 +156,14 @@ const RULES: ConnectionRule[] = [
     allowedTargets: ["PhysicalComponent"],
     descriptionFa: "تخصیص تابع فیزیکی به مؤلفه فیزیکی",
   },
+  // ─── EPBS ──────────────────────────────────────────────────────────────────
+  {
+    relationshipType: "Composition",
+    layer: Layer.EPBS,
+    allowedSources: ["EPBSComponent"],
+    allowedTargets: ["EPBSComponent"],
+    descriptionFa: "ترکیب بین مؤلفه‌های محصول نهایی",
+  },
 ];
 
 /**
@@ -175,24 +183,15 @@ export class ConnectionPolicy {
     relationshipType: RelationshipType,
   ): void {
     const rule = RULES.find(
-      (r) => r.relationshipType === relationshipType.value,
+      (r) =>
+        r.relationshipType === relationshipType.value &&
+        r.allowedSources.includes(sourceType.value) &&
+        r.allowedTargets.includes(targetType.value),
     );
 
     if (!rule) {
       throw new Error(
-        `Relationship type "${relationshipType.value}" is not defined.`,
-      );
-    }
-
-    if (!rule.allowedSources.includes(sourceType.value)) {
-      throw new Error(
-        `Source element "${sourceType.labelFa}" is not allowed for relationship "${relationshipType.labelFa}".`,
-      );
-    }
-
-    if (!rule.allowedTargets.includes(targetType.value)) {
-      throw new Error(
-        `Target element "${targetType.labelFa}" is not allowed for relationship "${relationshipType.labelFa}".`,
+        `Connection from "${sourceType.labelFa}" to "${targetType.labelFa}" via "${relationshipType.labelFa}" is not allowed.`,
       );
     }
   }

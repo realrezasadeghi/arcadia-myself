@@ -55,14 +55,18 @@ const TARGET_TYPE_MAP: Record<
     LogicalComponent: "PhysicalComponent",
     LogicalFunction: "PhysicalFunction",
   },
-  PA: {},
+  PA: {
+    PhysicalComponent: "EPBSComponent",
+  },
+  EPBS: {},
 };
 
 const NEXT_LAYER: Record<LayerValue, LayerValue | null> = {
   OA: "SA",
   SA: "LA",
   LA: "PA",
-  PA: null,
+  PA: "EPBS",
+  EPBS: null,
 };
 
 const LAYER_COLORS: Record<LayerValue, string> = {
@@ -70,6 +74,7 @@ const LAYER_COLORS: Record<LayerValue, string> = {
   SA: "#CA6F1E",
   LA: "#1E8449",
   PA: "#6C3483",
+  EPBS: "#E74C3C",
 };
 
 type RowState = {

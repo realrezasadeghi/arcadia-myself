@@ -87,6 +87,7 @@ export class CreateElementDTO {
       "SystemCapability",
       "SystemComponent",
       "SystemFunction",
+      "EPBSComponent",
     ];
 
     if (!validTypes.includes(type)) {
@@ -150,7 +151,7 @@ export class CreateElementDTO {
     }
 
     // Adjust the list of valid layers based on your domain
-    const validLayers: LayerValue[] = ["OA", "SA", "LA", "PA"];
+    const validLayers: LayerValue[] = ["OA", "SA", "LA", "PA", "EPBS"];
 
     if (!validLayers.includes(layer)) {
       throw new Error(

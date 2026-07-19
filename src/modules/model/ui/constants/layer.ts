@@ -25,6 +25,12 @@ export const LAYERS: LayerInfo[] = [
     labelFa: "معماری فیزیکی",
     order: 4,
   },
+  {
+    value: "EPBS",
+    label: "End-Product Breakdown",
+    labelFa: "ساختار محصول نهایی",
+    order: 5,
+  },
 ];
 
 export const LAYER_COLORS: Record<
@@ -54,5 +60,11 @@ export const LAYER_COLORS: Record<
     text: "text-purple-700",
     border: "border-purple-200",
     activeBg: "bg-purple-100",
+  },
+  EPBS: {
+    bg: "bg-rose-50",
+    text: "text-rose-700",
+    border: "border-rose-200",
+    activeBg: "bg-rose-100",
   },
 };

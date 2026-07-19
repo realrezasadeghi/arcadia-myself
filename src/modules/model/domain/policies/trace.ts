@@ -125,6 +125,15 @@ const RULES: TraceRule[] = [
     targetTypes: ["OperationalCapability"],
     descriptionFa: "موجودیت در قابلیت عملیاتی مشارکت دارد",
   },
+  // ─── EPBS realizes PA ─────────────────────────────────────────────────────
+  {
+    type: "Realization",
+    sourceLayer: Layer.EPBS,
+    sourceTypes: ["EPBSComponent"],
+    targetLayer: Layer.PA,
+    targetTypes: ["PhysicalComponent"],
+    descriptionFa: "مؤلفه محصول نهایی، مؤلفه فیزیکی را محقق می‌کند",
+  },
 ];
 
 export class TracePolicy {

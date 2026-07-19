@@ -10,6 +10,7 @@ const LAYER_COLORS: Record<LayerValue, string> = {
   SA: "#CA6F1E",
   LA: "#1E8449",
   PA: "#6C3483",
+  EPBS: "#E74C3C",
 };
 
 type LayerSwitcherProps = {
@@ -23,7 +24,7 @@ export function LayerSwitcher({
   currentLayer,
   onLayerChange,
 }: LayerSwitcherProps) {
-  const layers: LayerValue[] = ["OA", "SA", "LA", "PA"];
+  const layers: LayerValue[] = ["OA", "SA", "LA", "PA", "EPBS"];
 
   return (
     <div className="flex items-center gap-1 border-b bg-muted/20 px-3 py-1">

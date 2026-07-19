@@ -122,6 +122,10 @@ const DIAGRAM_PALETTE: Record<DiagramTypeValue, DiagramPalette> = {
     elementTypes: ["PhysicalActor", "PhysicalFunction"],
     relationshipTypes: ["PhysicalExchange"],
   },
+  EPBB: {
+    elementTypes: ["EPBSComponent"],
+    relationshipTypes: ["Composition"],
+  },
 };
 
 /**

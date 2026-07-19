@@ -21,7 +21,8 @@ export type ElementTypeValue =
   | "PhysicalComponent"
   | "PhysicalNode"
   | "PhysicalFunction"
-  | "PhysicalActor";
+  | "PhysicalActor"
+  | "EPBSComponent";
 
 export type ElementTypeInfo = {
   value: ElementTypeValue;

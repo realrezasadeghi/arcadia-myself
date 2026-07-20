@@ -143,10 +143,10 @@ export function ProjectFormDialog({
                 disabled={isPending}
                 onClick={() => onOpenChange(false)}
               >
-                انصراف
+                Cancel
               </Button>
               <Button type="submit" loading={isPending}>
-                {isEdit ? "ذخیره تغییرات" : "ایجاد پروژه"}
+                {isEdit ? "Save Changes" : "Create Project"}
               </Button>
             </DialogFooter>
           </form>

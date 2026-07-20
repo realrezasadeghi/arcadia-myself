@@ -6,9 +6,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/modules/shared/ui/components/ui/breadcrumb";
-import { Button } from "@/modules/shared/ui/components/ui/button";
-import { Home, Plus } from "lucide-react";
+import { Home } from "lucide-react";
 import Link from "next/link";
+import { NewProjectButton } from "./new-project-button";
 import { SearchInput } from "./search-input";
 
 type ProjectToolbarProps = {
@@ -45,12 +45,7 @@ export function ProjectToolbar({ searchQuery }: ProjectToolbarProps) {
           </div>
           <div className="flex gap-3 items-center">
             <SearchInput defaultValue={searchQuery} />
-            <Button asChild className="gap-2">
-              <Link href="/dashboard/project/new">
-                <Plus className="h-4 w-4" />
-                New Project
-              </Link>
-            </Button>
+            <NewProjectButton />
           </div>
         </div>
       </div>

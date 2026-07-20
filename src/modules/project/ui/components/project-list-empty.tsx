@@ -1,4 +1,3 @@
-import { Button } from "@/modules/shared/ui/components/ui/button";
 import {
   Empty,
   EmptyContent,
@@ -7,8 +6,12 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/modules/shared/ui/components/ui/empty";
-import { FolderOpen, Plus } from "lucide-react";
-import Link from "next/link";
+import { FolderOpen } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const NewProjectButton = dynamic(() =>
+  import("./new-project-button").then((mod) => mod.NewProjectButton),
+);
 
 interface ProjectListEmptyProps {
   title: string;
@@ -32,12 +35,7 @@ export function ProjectListEmpty({
       </EmptyHeader>
       {showCreateButton && (
         <EmptyContent>
-          <Button asChild variant="outline" className="gap-2">
-            <Link href="/dashboard/project/new">
-              <Plus className="size-4" />
-              Create Project
-            </Link>
-          </Button>
+          <NewProjectButton />
         </EmptyContent>
       )}
     </Empty>

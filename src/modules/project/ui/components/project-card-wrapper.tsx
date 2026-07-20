@@ -1,13 +1,16 @@
 "use client";
 
-import type { Project } from "../types/project";
-import { ProjectCard } from "./project-card";
-import { RemoveProjectDialog } from "./remove-project-dialog";
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
+import type { Project } from "../types/project";
+import { ProjectCard } from "./project-card";
 
 const ProjectFormDialog = dynamic(() =>
   import("./project-form-dialog").then((mod) => mod.ProjectFormDialog),
+);
+
+const RemoveProjectDialog = dynamic(() =>
+  import("./remove-project-dialog").then((mod) => mod.RemoveProjectDialog),
 );
 
 type ProjectCardWrapperProps = {

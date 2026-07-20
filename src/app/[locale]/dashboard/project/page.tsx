@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
-import { Suspense } from "react";
 import { ProjectListSection } from "@/modules/project/ui/components/project-list-section";
 import { ProjectListSkeleton } from "@/modules/project/ui/components/project-list-skeleton";
 import { ProjectToolbar } from "@/modules/project/ui/components/project-toolbar";
+import type { Metadata } from "next";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Projects",

@@ -4,10 +4,7 @@ export function ProjectListSkeleton({ count = 8 }: { count?: number }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {Array.from({ length: count }).map((_, i) => (
-        <div
-          key={i.toString()}
-          className="rounded-xl border bg-card p-5"
-        >
+        <div key={i.toString()} className="rounded-xl border bg-card p-5">
           {/* Top: icon + actions */}
           <div className="flex items-start justify-between mb-4">
             <Skeleton className="h-11 w-11 rounded-lg" />

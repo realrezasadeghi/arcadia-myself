@@ -26,10 +26,10 @@ export const diagramFormSchema = z.object({
       "ECB",
     ],
     {
-      error: "نوع دیاگرام نامعتبر است",
+      error: "Diagram type is invalid",
     },
   ),
-  name: z.string().min(1, "نام دیاگرام الزامی است"),
+  name: z.string().min(1, "Diagram name is required"),
   description: z.string().optional(),
 });
 

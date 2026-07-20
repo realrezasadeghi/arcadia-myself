@@ -3,12 +3,12 @@ import { z } from "zod";
 export const projectFormSchema = z.object({
   name: z
     .string()
-    .min(1, "نام پروژه الزامی است")
-    .min(3, "نام پروژه باید حداقل ۳ کاراکتر باشد")
-    .max(100, "نام پروژه نمی‌تواند بیشتر از ۱۰۰ کاراکتر باشد"),
+    .min(1, "Project name is required")
+    .min(3, "Project name must be at least 3 characters")
+    .max(100, "Project name cannot exceed 100 characters"),
   description: z
     .string()
-    .max(500, "توضیحات نمی‌تواند بیشتر از ۵۰۰ کاراکتر باشد")
+    .max(500, "Description cannot exceed 500 characters")
     .optional(),
   isSeed: z.boolean().optional(),
 });

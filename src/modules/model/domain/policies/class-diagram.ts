@@ -35,8 +35,7 @@ type ValidationContext = {
     sourceElementId: string;
     targetElementId: string;
     relationshipType: string;
-    isAggregate: boolean;
-    isComposite: boolean;
+    aggregationKind: "NONE" | "SHARED" | "COMPOSITE";
     sourceMultiplicityLower: number;
     sourceMultiplicityUpper: string;
     targetMultiplicityLower: number;
@@ -139,14 +138,17 @@ export class ClassDiagramPolicy {
 
     // Rule 4: ENUM must have at least one literal (checked elsewhere via hasLiterals)
 
-    // Rule 5: COMPOSITION implies AGGREGATION flag
+    // Rule 5: COMPOSITE aggregation implies ASSOCIATION relationship
     for (const rel of ctx.relationships) {
-      if (rel.isComposite && !rel.isAggregate) {
+      if (
+        rel.aggregationKind === "COMPOSITE" &&
+        rel.relationshipType !== "ASSOCIATION"
+      ) {
         issues.push({
           id: nextId(),
           severity: "error",
-          rule: "composition-implies-aggregation",
-          message: `COMPOSITION relationship must have isAggregate=true`,
+          rule: "composition-implies-association",
+          message: `COMPOSITE aggregation kind requires ASSOCIATION relationship type`,
           relationshipId: rel.id,
           elementId: rel.sourceElementId,
           layer: rel.layer as LayerValue,
@@ -240,9 +242,8 @@ export class ClassDiagramPolicy {
     // Rule 9: Interface cannot be source of COMPOSITION/AGGREGATION (Capella rule)
     for (const rel of ctx.relationships) {
       if (
-        (rel.relationshipType === "COMPOSITION" ||
-          rel.relationshipType === "AGGREGATION") &&
-        rel.isAggregate
+        rel.relationshipType === "ASSOCIATION" &&
+        (rel.aggregationKind === "COMPOSITE" || rel.aggregationKind === "SHARED")
       ) {
         const source = elementById.get(rel.sourceElementId);
         if (source && source.type === "INTERFACE") {

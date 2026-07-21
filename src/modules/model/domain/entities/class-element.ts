@@ -73,12 +73,6 @@ export class ClassElement extends Entity<string> {
     const layer = props.layer instanceof Layer ? props.layer : Layer.from(props.layer);
     const elementType = ClassElementType.from(props.elementType);
 
-    if (!elementType.layer.equals(layer)) {
-      throw new Error(
-        `Element type "${elementType.label}" does not belong to layer "${layer.label}"`
-      );
-    }
-
     // Validate isAbstract only allowed on CLASS
     if (props.isAbstract && !elementType.isClass()) {
       throw new Error("Only CLASS elements can be abstract");

@@ -14,6 +14,21 @@ export interface ElementLayout {
   size: { width: number; height: number };
 }
 
+export interface RelationshipLayout {
+  relationshipId: string;
+  labelX: number | null;
+  labelY: number | null;
+  sourceRoleLabelX: number | null;
+  sourceRoleLabelY: number | null;
+  targetRoleLabelX: number | null;
+  targetRoleLabelY: number | null;
+  sourceMultLabelX: number | null;
+  sourceMultLabelY: number | null;
+  targetMultLabelX: number | null;
+  targetMultLabelY: number | null;
+  waypoints: Array<{ x: number; y: number }>;
+}
+
 export type ClassDiagramStatus = "DRAFT" | "VALIDATED" | "DEPRECATED";
 
 interface ClassDiagramProps {
@@ -23,6 +38,7 @@ interface ClassDiagramProps {
   description: string | undefined;
   viewport: Viewport;
   elementLayouts: Map<string, ElementLayout>;
+  relationshipLayouts: Map<string, RelationshipLayout>;
   status: ClassDiagramStatus;
   createdAt: Date;
   updatedAt: Date;
@@ -42,6 +58,7 @@ export class ClassDiagram extends Entity<string> {
   private readonly _layer: Layer;
   private _viewport: Viewport;
   private readonly _elementLayouts: Map<string, ElementLayout>;
+  private readonly _relationshipLayouts: Map<string, RelationshipLayout>;
   private _status: ClassDiagramStatus;
   private _updatedAt: Date;
   readonly createdAt: Date;
@@ -54,6 +71,7 @@ export class ClassDiagram extends Entity<string> {
     this._description = props.description;
     this._viewport = { ...props.viewport };
     this._elementLayouts = new Map(props.elementLayouts);
+    this._relationshipLayouts = new Map(props.relationshipLayouts);
     this._status = props.status;
     this.createdAt = props.createdAt;
     this._updatedAt = props.updatedAt;
@@ -78,6 +96,7 @@ export class ClassDiagram extends Entity<string> {
       description: props.description?.trim(),
       viewport: { x: 0, y: 0, zoom: 1 },
       elementLayouts: new Map(),
+      relationshipLayouts: new Map(),
       status: "DRAFT",
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -92,13 +111,18 @@ export class ClassDiagram extends Entity<string> {
     description: string | undefined;
     viewport: Viewport;
     elementLayouts: ElementLayout[];
+    relationshipLayouts: RelationshipLayout[];
     status: ClassDiagramStatus;
     createdAt: string;
     updatedAt: string;
   }): ClassDiagram {
-    const layouts = new Map<string, ElementLayout>();
+    const elementLayouts = new Map<string, ElementLayout>();
     for (const l of props.elementLayouts) {
-      layouts.set(l.elementId, l);
+      elementLayouts.set(l.elementId, l);
+    }
+    const relationshipLayouts = new Map<string, RelationshipLayout>();
+    for (const r of props.relationshipLayouts) {
+      relationshipLayouts.set(r.relationshipId, r);
     }
     return new ClassDiagram(props.id, {
       modelId: props.modelId,
@@ -106,7 +130,8 @@ export class ClassDiagram extends Entity<string> {
       name: props.name,
       description: props.description,
       viewport: props.viewport,
-      elementLayouts: layouts,
+      elementLayouts,
+      relationshipLayouts,
       status: props.status,
       createdAt: new Date(props.createdAt),
       updatedAt: new Date(props.updatedAt),
@@ -137,6 +162,10 @@ export class ClassDiagram extends Entity<string> {
 
   get elementLayouts(): ReadonlyArray<ElementLayout> {
     return Array.from(this._elementLayouts.values());
+  }
+
+  get relationshipLayouts(): ReadonlyArray<RelationshipLayout> {
+    return Array.from(this._relationshipLayouts.values());
   }
 
   // Aggregate root methods - mutations return DomainEvents
@@ -205,6 +234,86 @@ export class ClassDiagram extends Entity<string> {
     return this._elementLayouts.has(elementId);
   }
 
+  // Relationship Layout methods
+
+  placeRelationship(
+    relationshipId: string,
+    layout: {
+      labelX?: number | null;
+      labelY?: number | null;
+      sourceRoleLabelX?: number | null;
+      sourceRoleLabelY?: number | null;
+      targetRoleLabelX?: number | null;
+      targetRoleLabelY?: number | null;
+      sourceMultLabelX?: number | null;
+      sourceMultLabelY?: number | null;
+      targetMultLabelX?: number | null;
+      targetMultLabelY?: number | null;
+      waypoints?: Array<{ x: number; y: number }>;
+    } = {}
+  ): DomainEvent[] {
+    this._relationshipLayouts.set(relationshipId, {
+      relationshipId,
+      labelX: layout.labelX ?? null,
+      labelY: layout.labelY ?? null,
+      sourceRoleLabelX: layout.sourceRoleLabelX ?? null,
+      sourceRoleLabelY: layout.sourceRoleLabelY ?? null,
+      targetRoleLabelX: layout.targetRoleLabelX ?? null,
+      targetRoleLabelY: layout.targetRoleLabelY ?? null,
+      sourceMultLabelX: layout.sourceMultLabelX ?? null,
+      sourceMultLabelY: layout.sourceMultLabelY ?? null,
+      targetMultLabelX: layout.targetMultLabelX ?? null,
+      targetMultLabelY: layout.targetMultLabelY ?? null,
+      waypoints: layout.waypoints ?? [],
+    });
+    this._touch();
+    return [
+      new ClassDiagramRelationshipPlacedEvent(this._id, relationshipId, layout),
+    ];
+  }
+
+  updateRelationshipLayout(
+    relationshipId: string,
+    layout: {
+      labelX?: number | null;
+      labelY?: number | null;
+      sourceRoleLabelX?: number | null;
+      sourceRoleLabelY?: number | null;
+      targetRoleLabelX?: number | null;
+      targetRoleLabelY?: number | null;
+      sourceMultLabelX?: number | null;
+      sourceMultLabelY?: number | null;
+      targetMultLabelX?: number | null;
+      targetMultLabelY?: number | null;
+      waypoints?: Array<{ x: number; y: number }>;
+    }
+  ): DomainEvent[] {
+    const existing = this._relationshipLayouts.get(relationshipId);
+    if (!existing)
+      throw new Error(`Relationship ${relationshipId} not placed in this diagram`);
+    
+    this._relationshipLayouts.set(relationshipId, {
+      ...existing,
+      ...layout,
+    });
+    this._touch();
+    return [new ClassDiagramRelationshipLayoutUpdatedEvent(this._id, relationshipId, layout)];
+  }
+
+  removeRelationshipLayout(relationshipId: string): DomainEvent[] {
+    this._relationshipLayouts.delete(relationshipId);
+    this._touch();
+    return [new ClassDiagramRelationshipLayoutRemovedEvent(this._id, relationshipId)];
+  }
+
+  getRelationshipLayout(relationshipId: string): RelationshipLayout | null {
+    return this._relationshipLayouts.get(relationshipId) ?? null;
+  }
+
+  hasRelationship(relationshipId: string): boolean {
+    return this._relationshipLayouts.has(relationshipId);
+  }
+
   validate(): DomainEvent[] {
     if (this._status === "DEPRECATED")
       throw new Error("Cannot validate a deprecated class diagram");
@@ -229,6 +338,7 @@ export class ClassDiagram extends Entity<string> {
       description: this._description,
       viewport: this._viewport,
       elementLayouts: Array.from(this._elementLayouts.values()),
+      relationshipLayouts: Array.from(this._relationshipLayouts.values()),
       status: this._status,
       createdAt: this.createdAt.toISOString(),
       updatedAt: this._updatedAt.toISOString(),
@@ -307,6 +417,59 @@ export class ClassDiagramElementLayoutRemovedEvent extends DomainEvent {
     public readonly elementId: string,
   ) {
     super("ClassDiagramElementLayoutRemoved");
+  }
+}
+
+export class ClassDiagramRelationshipPlacedEvent extends DomainEvent {
+  constructor(
+    public readonly diagramId: string,
+    public readonly relationshipId: string,
+    public readonly layout: {
+      labelX?: number | null;
+      labelY?: number | null;
+      sourceRoleLabelX?: number | null;
+      sourceRoleLabelY?: number | null;
+      targetRoleLabelX?: number | null;
+      targetRoleLabelY?: number | null;
+      sourceMultLabelX?: number | null;
+      sourceMultLabelY?: number | null;
+      targetMultLabelX?: number | null;
+      targetMultLabelY?: number | null;
+      waypoints?: Array<{ x: number; y: number }>;
+    },
+  ) {
+    super("ClassDiagramRelationshipPlaced");
+  }
+}
+
+export class ClassDiagramRelationshipLayoutUpdatedEvent extends DomainEvent {
+  constructor(
+    public readonly diagramId: string,
+    public readonly relationshipId: string,
+    public readonly layout: {
+      labelX?: number | null;
+      labelY?: number | null;
+      sourceRoleLabelX?: number | null;
+      sourceRoleLabelY?: number | null;
+      targetRoleLabelX?: number | null;
+      targetRoleLabelY?: number | null;
+      sourceMultLabelX?: number | null;
+      sourceMultLabelY?: number | null;
+      targetMultLabelX?: number | null;
+      targetMultLabelY?: number | null;
+      waypoints?: Array<{ x: number; y: number }>;
+    },
+  ) {
+    super("ClassDiagramRelationshipLayoutUpdated");
+  }
+}
+
+export class ClassDiagramRelationshipLayoutRemovedEvent extends DomainEvent {
+  constructor(
+    public readonly diagramId: string,
+    public readonly relationshipId: string,
+  ) {
+    super("ClassDiagramRelationshipLayoutRemoved");
   }
 }
 

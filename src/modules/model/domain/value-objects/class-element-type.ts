@@ -1,5 +1,4 @@
 import { ValueObject } from "@/modules/shared/domain/value-object";
-import { Layer } from "./layer";
 
 export type ClassElementTypeValue =
   | "CLASS"
@@ -19,19 +18,18 @@ interface ClassElementTypeProps {
 interface ClassElementTypeMeta {
   label: string;
   labelFa: string;
-  layer: Layer;
 }
 
 const META: Record<ClassElementTypeValue, ClassElementTypeMeta> = {
-  CLASS: { label: "Class", labelFa: "کلاس", layer: Layer.OA },
-  INTERFACE: { label: "Interface", labelFa: "رابط", layer: Layer.OA },
-  ENUM: { label: "Enumeration", labelFa: "شمارش", layer: Layer.OA },
-  DATA_TYPE: { label: "Data Type", labelFa: "نوع داده", layer: Layer.OA },
-  PRIMITIVE: { label: "Primitive", labelFa: "ابتدایی", layer: Layer.OA },
-  COLLECTION: { label: "Collection", labelFa: "مجموعه", layer: Layer.OA },
-  UNION: { label: "Union", labelFa: "اتحاد", layer: Layer.OA },
-  PACKAGE: { label: "Package", labelFa: "پکیج", layer: Layer.OA },
-  GROUP: { label: "Group", labelFa: "گروه", layer: Layer.OA },
+  CLASS: { label: "Class", labelFa: "کلاس" },
+  INTERFACE: { label: "Interface", labelFa: "رابط" },
+  ENUM: { label: "Enumeration", labelFa: "شمارش" },
+  DATA_TYPE: { label: "Data Type", labelFa: "نوع داده" },
+  PRIMITIVE: { label: "Primitive", labelFa: "ابتدایی" },
+  COLLECTION: { label: "Collection", labelFa: "مجموعه" },
+  UNION: { label: "Union", labelFa: "اتحاد" },
+  PACKAGE: { label: "Package", labelFa: "پکیج" },
+  GROUP: { label: "Group", labelFa: "گروه" },
 };
 
 const ALL_VALUES = Object.keys(META) as ClassElementTypeValue[];
@@ -83,9 +81,6 @@ export class ClassElementType extends ValueObject<ClassElementTypeProps> {
   }
   get labelFa(): string {
     return META[this.props.value].labelFa;
-  }
-  get layer(): Layer {
-    return META[this.props.value].layer;
   }
 
   isClass(): boolean {

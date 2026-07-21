@@ -17,7 +17,7 @@ import { ElementShape } from "./element-shape";
 export type ElementShapeListProps = {
   layer: LayerValue;
   /** اگر داده شود، فقط همین نوع‌ها نمایش داده می‌شوند (پالت مخصوص نوع دیاگرام). */
-  types?: ElementTypeValue[];
+  types?: (ElementTypeValue | string)[];
 };
 
 export function ElementShapeList({ layer, types }: ElementShapeListProps) {

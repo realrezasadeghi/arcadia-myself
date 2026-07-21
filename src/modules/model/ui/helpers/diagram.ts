@@ -22,8 +22,8 @@ export function getDiagramLayer(typeValue: string): LayerValue {
 // ─── Per-diagram-type palette (Capella-style toolboxes) ───────────────────────
 
 export type DiagramPalette = {
-  elementTypes: ElementTypeValue[];
-  relationshipTypes: RelationshipTypeValue[];
+  elementTypes: string[];
+  relationshipTypes: string[];
 };
 
 /**
@@ -148,28 +148,44 @@ const DIAGRAM_PALETTE: Record<DiagramTypeValue, DiagramPalette> = {
     ],
     relationshipTypes: ["ProvidedInterface", "RequiredInterface", "Generalization"],
   },
+  // ─── Class Diagram (CDB) ───
+  CDB: {
+    elementTypes: ["CLASS", "INTERFACE", "ENUM", "DATA_TYPE", "PRIMITIVE", "COLLECTION", "UNION", "PACKAGE", "GROUP"],
+    relationshipTypes: ["ASSOCIATION", "GENERALIZATION", "REALIZATION", "DEPENDENCY"],
+  },
 };
 
 /**
  * پالت یک نوع دیاگرام را برمی‌گرداند. المنت‌ها به نوع‌های معتبرِ همان لایه فیلتر
  * می‌شوند و در صورت نبود نگاشت، به همه‌ی نوع‌های لایه برمی‌گردد (fallback).
+ * برای Class Diagram (CDB) نگاشت اختصاصی دارد.
  */
 export function getDiagramPalette(typeValue: string): DiagramPalette {
   const layer = getDiagramLayer(typeValue);
-  const validTypes = new Set(
+  
+  // Class Diagram (CDB) uses its own element types, not layer-based ones
+  if (typeValue === "CDB") {
+    const palette = DIAGRAM_PALETTE.CDB;
+    return {
+      elementTypes: palette.elementTypes,
+      relationshipTypes: palette.relationshipTypes,
+    };
+  }
+
+  const validTypes = new Set<string>(
     getElementTypesForLayer(layer).map((e) => e.value),
   );
 
   const palette = DIAGRAM_PALETTE[typeValue as DiagramTypeValue];
   if (!palette) {
     return {
-      elementTypes: [...validTypes] as ElementTypeValue[],
+      elementTypes: [...validTypes] as string[],
       relationshipTypes: [],
     };
   }
 
   return {
-    elementTypes: palette.elementTypes.filter((t) => validTypes.has(t)),
+    elementTypes: palette.elementTypes.filter((t) => validTypes.has(t)) as string[],
     relationshipTypes: palette.relationshipTypes,
   };
 }

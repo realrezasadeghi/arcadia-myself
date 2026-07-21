@@ -5,6 +5,7 @@ export type UpdateClassPropertyDTOProps = {
   typeLiteral?: string;
   isStatic?: boolean;
   isReadOnly?: boolean;
+  isDerived?: boolean;
   visibility?: "public" | "private" | "protected" | "package";
   multiplicityLower?: number;
   multiplicityUpper?: string;
@@ -20,6 +21,7 @@ export class UpdateClassPropertyDTO {
   public readonly typeLiteral?: string;
   public readonly isStatic?: boolean;
   public readonly isReadOnly?: boolean;
+  public readonly isDerived?: boolean;
   public readonly visibility?: "public" | "private" | "protected" | "package";
   public readonly multiplicityLower?: number;
   public readonly multiplicityUpper?: string;
@@ -34,6 +36,7 @@ export class UpdateClassPropertyDTO {
     this.typeLiteral = props.typeLiteral;
     this.isStatic = props.isStatic;
     this.isReadOnly = props.isReadOnly;
+    this.isDerived = props.isDerived;
     this.visibility = props.visibility;
     this.multiplicityLower = props.multiplicityLower;
     this.multiplicityUpper = props.multiplicityUpper;
@@ -50,6 +53,7 @@ export class UpdateClassPropertyDTO {
       typeLiteral: props.typeLiteral,
       isStatic: props.isStatic,
       isReadOnly: props.isReadOnly,
+      isDerived: props.isDerived,
       visibility: props.visibility ? UpdateClassPropertyDTO.validateVisibility(props.visibility) : undefined,
       multiplicityLower: props.multiplicityLower !== undefined ? UpdateClassPropertyDTO.validateMultiplicityLower(props.multiplicityLower) : undefined,
       multiplicityUpper: props.multiplicityUpper,

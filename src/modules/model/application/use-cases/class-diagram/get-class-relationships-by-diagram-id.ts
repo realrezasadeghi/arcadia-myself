@@ -17,8 +17,7 @@ export type GetClassRelationshipsByModelIdUseCaseResponse = {
   targetElementId: string;
   name: string;
   relationshipType: string;
-  isAggregate: boolean;
-  isComposite: boolean;
+  aggregationKind: string;
   sourceMultiplicityLower: number;
   sourceMultiplicityUpper: string;
   targetMultiplicityLower: number;

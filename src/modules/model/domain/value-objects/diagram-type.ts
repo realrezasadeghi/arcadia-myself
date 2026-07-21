@@ -21,7 +21,8 @@ export type DiagramTypeValue =
   | "PS"
   | "EAB"
   | "ECB"
-  | "EPBB";
+  | "EPBB"
+  | "CDB";
 
 interface DiagramTypeMeta {
   label: string;
@@ -150,6 +151,12 @@ const META: Record<DiagramTypeValue, DiagramTypeMeta> = {
     labelFa: "دیاگرام زمینه/رابط محصول نهایی",
     layer: Layer.EPBS,
     description: "موجودیت‌های پیکربندی و رابط‌های بین آن‌ها",
+  },
+  CDB: {
+    label: "Class Diagram",
+    labelFa: "دیاگرام کلاس",
+    layer: Layer.SA,
+    description: "دیاگرام کلاس UML برای مدل‌سازی ساختار داده",
   },
 };
 

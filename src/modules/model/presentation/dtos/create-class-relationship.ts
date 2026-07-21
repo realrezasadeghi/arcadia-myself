@@ -4,9 +4,10 @@ export type CreateClassRelationshipDTOProps = {
   sourceElementId: string;
   targetElementId: string;
   name?: string;
-  relationshipType: "ASSOCIATION" | "AGGREGATION" | "COMPOSITION" | "GENERALIZATION" | "REALIZATION" | "DEPENDENCY";
-  isAggregate?: boolean;
-  isComposite?: boolean;
+  relationshipType: "ASSOCIATION" | "GENERALIZATION" | "REALIZATION" | "DEPENDENCY";
+  aggregationKind?: "NONE" | "SHARED" | "COMPOSITE";
+  isDisjoint?: boolean;
+  isComplete?: boolean;
   sourceMultiplicityLower?: number;
   sourceMultiplicityUpper?: string;
   targetMultiplicityLower?: number;
@@ -24,9 +25,10 @@ export class CreateClassRelationshipDTO {
   public readonly sourceElementId: string;
   public readonly targetElementId: string;
   public readonly name: string;
-  public readonly relationshipType: "ASSOCIATION" | "AGGREGATION" | "COMPOSITION" | "GENERALIZATION" | "REALIZATION" | "DEPENDENCY";
-  public readonly isAggregate: boolean;
-  public readonly isComposite: boolean;
+  public readonly relationshipType: "ASSOCIATION" | "GENERALIZATION" | "REALIZATION" | "DEPENDENCY";
+  public readonly aggregationKind: "NONE" | "SHARED" | "COMPOSITE";
+  public readonly isDisjoint: boolean;
+  public readonly isComplete: boolean;
   public readonly sourceMultiplicityLower: number;
   public readonly sourceMultiplicityUpper: string;
   public readonly targetMultiplicityLower: number;
@@ -44,12 +46,13 @@ export class CreateClassRelationshipDTO {
     this.targetElementId = props.targetElementId;
     this.name = props.name ?? "";
     this.relationshipType = props.relationshipType;
-    this.isAggregate = props.isAggregate ?? false;
-    this.isComposite = props.isComposite ?? false;
+    this.aggregationKind = props.aggregationKind ?? "NONE";
+    this.isDisjoint = props.isDisjoint ?? false;
+    this.isComplete = props.isComplete ?? false;
     this.sourceMultiplicityLower = props.sourceMultiplicityLower ?? 1;
-    this.sourceMultiplicityUpper = props.sourceMultiplicityUpper ?? "1";
+    this.sourceMultiplicityUpper = props.sourceMultiplicityUpper ?? "*";
     this.targetMultiplicityLower = props.targetMultiplicityLower ?? 1;
-    this.targetMultiplicityUpper = props.targetMultiplicityUpper ?? "1";
+    this.targetMultiplicityUpper = props.targetMultiplicityUpper ?? "*";
     this.sourceRole = props.sourceRole ?? "";
     this.targetRole = props.targetRole ?? "";
     this.isNavigableSource = props.isNavigableSource ?? true;
@@ -65,8 +68,9 @@ export class CreateClassRelationshipDTO {
       targetElementId: CreateClassRelationshipDTO.validateRequiredString(props.targetElementId, "Target Element ID"),
       name: props.name,
       relationshipType: CreateClassRelationshipDTO.validateRelationshipType(props.relationshipType),
-      isAggregate: props.isAggregate,
-      isComposite: props.isComposite,
+      aggregationKind: CreateClassRelationshipDTO.validateAggregationKind(props.aggregationKind),
+      isDisjoint: props.isDisjoint,
+      isComplete: props.isComplete,
       sourceMultiplicityLower: props.sourceMultiplicityLower,
       sourceMultiplicityUpper: props.sourceMultiplicityUpper,
       targetMultiplicityLower: props.targetMultiplicityLower,
@@ -96,11 +100,9 @@ export class CreateClassRelationshipDTO {
 
   private static validateRelationshipType(
     type: string
-  ): "ASSOCIATION" | "AGGREGATION" | "COMPOSITION" | "GENERALIZATION" | "REALIZATION" | "DEPENDENCY" {
+  ): "ASSOCIATION" | "GENERALIZATION" | "REALIZATION" | "DEPENDENCY" {
     const validTypes = [
       "ASSOCIATION",
-      "AGGREGATION",
-      "COMPOSITION",
       "GENERALIZATION",
       "REALIZATION",
       "DEPENDENCY",
@@ -109,5 +111,15 @@ export class CreateClassRelationshipDTO {
       throw new Error(`Relationship type must be one of: ${validTypes.join(", ")}`);
     }
     return type as any;
+  }
+
+  private static validateAggregationKind(
+    kind?: string
+  ): "NONE" | "SHARED" | "COMPOSITE" {
+    const valid = ["NONE", "SHARED", "COMPOSITE"];
+    if (kind && !valid.includes(kind)) {
+      throw new Error(`Aggregation kind must be one of: ${valid.join(", ")}`);
+    }
+    return (kind ?? "NONE") as any;
   }
 }

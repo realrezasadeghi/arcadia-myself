@@ -12,6 +12,7 @@ interface ClassOperationProps {
   returnTypeLiteral: string;
   isStatic: boolean;
   isAbstract: boolean;
+  isQuery: boolean;
   visibility: ClassVisibility;
   ordering: number;
   status: ClassOperationStatus;
@@ -28,6 +29,7 @@ export class ClassOperation extends Entity<string> {
   private _returnTypeLiteral: string;
   private _isStatic: boolean;
   private _isAbstract: boolean;
+  private _isQuery: boolean;
   private _visibility: ClassVisibility;
   private _ordering: number;
   private _status: ClassOperationStatus;
@@ -44,6 +46,7 @@ export class ClassOperation extends Entity<string> {
     this._returnTypeLiteral = props.returnTypeLiteral;
     this._isStatic = props.isStatic;
     this._isAbstract = props.isAbstract;
+    this._isQuery = props.isQuery;
     this._visibility = props.visibility;
     this._ordering = props.ordering;
     this._status = props.status;
@@ -61,6 +64,7 @@ export class ClassOperation extends Entity<string> {
     returnTypeLiteral?: string;
     isStatic?: boolean;
     isAbstract?: boolean;
+    isQuery?: boolean;
     visibility?: string;
     ordering?: number;
     status?: ClassOperationStatus;
@@ -76,6 +80,7 @@ export class ClassOperation extends Entity<string> {
       returnTypeLiteral: props.returnTypeLiteral ?? "",
       isStatic: props.isStatic ?? false,
       isAbstract: props.isAbstract ?? false,
+      isQuery: props.isQuery ?? false,
       visibility: ClassVisibility.from(props.visibility ?? "public"),
       ordering: props.ordering ?? 0,
       status: props.status ?? "DRAFT",
@@ -94,6 +99,7 @@ export class ClassOperation extends Entity<string> {
     returnTypeLiteral: string;
     isStatic: boolean;
     isAbstract: boolean;
+    isQuery: boolean;
     visibility: string;
     ordering: number;
     status: ClassOperationStatus;
@@ -109,6 +115,7 @@ export class ClassOperation extends Entity<string> {
       returnTypeLiteral: props.returnTypeLiteral,
       isStatic: props.isStatic,
       isAbstract: props.isAbstract,
+      isQuery: props.isQuery,
       visibility: ClassVisibility.from(props.visibility),
       ordering: props.ordering,
       status: props.status,
@@ -140,6 +147,9 @@ export class ClassOperation extends Entity<string> {
   }
   get isAbstract(): boolean {
     return this._isAbstract;
+  }
+  get isQuery(): boolean {
+    return this._isQuery;
   }
   get visibility(): ClassVisibility {
     return this._visibility;
@@ -180,6 +190,11 @@ export class ClassOperation extends Entity<string> {
     this._touch();
   }
 
+  setQuery(isQuery: boolean): void {
+    this._isQuery = isQuery;
+    this._touch();
+  }
+
   setVisibility(visibility: string): void {
     this._visibility = ClassVisibility.from(visibility);
     this._touch();
@@ -213,6 +228,7 @@ export class ClassOperation extends Entity<string> {
       returnTypeLiteral: this._returnTypeLiteral,
       isStatic: this._isStatic,
       isAbstract: this._isAbstract,
+      isQuery: this._isQuery,
       visibility: this._visibility.value,
       ordering: this._ordering,
       status: this._status,

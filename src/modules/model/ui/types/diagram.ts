@@ -20,7 +20,8 @@ export type DiagramTypeValue =
   | "PS"
   | "EPBB"
   | "EAB"
-  | "ECB";
+  | "ECB"
+  | "CDB";
 
 export type DiagramTypeInfo = {
   value: DiagramTypeValue;

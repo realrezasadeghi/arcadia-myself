@@ -7,6 +7,7 @@ export type CreateClassPropertyDTOProps = {
   typeLiteral?: string;
   isStatic?: boolean;
   isReadOnly?: boolean;
+  isDerived?: boolean;
   visibility?: "public" | "private" | "protected" | "package";
   multiplicityLower?: number;
   multiplicityUpper?: string;
@@ -24,6 +25,7 @@ export class CreateClassPropertyDTO {
   public readonly typeLiteral: string;
   public readonly isStatic: boolean;
   public readonly isReadOnly: boolean;
+  public readonly isDerived: boolean;
   public readonly visibility: "public" | "private" | "protected" | "package";
   public readonly multiplicityLower: number;
   public readonly multiplicityUpper: string;
@@ -40,6 +42,7 @@ export class CreateClassPropertyDTO {
     this.typeLiteral = props.typeLiteral ?? "";
     this.isStatic = props.isStatic ?? false;
     this.isReadOnly = props.isReadOnly ?? false;
+    this.isDerived = props.isDerived ?? false;
     this.visibility = props.visibility ?? "public";
     this.multiplicityLower = props.multiplicityLower ?? 1;
     this.multiplicityUpper = props.multiplicityUpper ?? "1";
@@ -58,6 +61,7 @@ export class CreateClassPropertyDTO {
       typeLiteral: props.typeLiteral,
       isStatic: props.isStatic,
       isReadOnly: props.isReadOnly,
+      isDerived: props.isDerived,
       visibility: CreateClassPropertyDTO.validateVisibility(props.visibility),
       multiplicityLower: CreateClassPropertyDTO.validateMultiplicityLower(props.multiplicityLower),
       multiplicityUpper: props.multiplicityUpper ?? "1",

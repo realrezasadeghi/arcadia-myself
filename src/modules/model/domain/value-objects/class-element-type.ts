@@ -7,6 +7,8 @@ export type ClassElementTypeValue =
   | "ENUM"
   | "DATA_TYPE"
   | "PRIMITIVE"
+  | "COLLECTION"
+  | "UNION"
   | "PACKAGE"
   | "GROUP";
 
@@ -26,6 +28,8 @@ const META: Record<ClassElementTypeValue, ClassElementTypeMeta> = {
   ENUM: { label: "Enumeration", labelFa: "شمارش", layer: Layer.OA },
   DATA_TYPE: { label: "Data Type", labelFa: "نوع داده", layer: Layer.OA },
   PRIMITIVE: { label: "Primitive", labelFa: "ابتدایی", layer: Layer.OA },
+  COLLECTION: { label: "Collection", labelFa: "مجموعه", layer: Layer.OA },
+  UNION: { label: "Union", labelFa: "اتحاد", layer: Layer.OA },
   PACKAGE: { label: "Package", labelFa: "پکیج", layer: Layer.OA },
   GROUP: { label: "Group", labelFa: "گروه", layer: Layer.OA },
 };
@@ -38,6 +42,8 @@ export class ClassElementType extends ValueObject<ClassElementTypeProps> {
   static readonly ENUM = new ClassElementType({ value: "ENUM" });
   static readonly DATA_TYPE = new ClassElementType({ value: "DATA_TYPE" });
   static readonly PRIMITIVE = new ClassElementType({ value: "PRIMITIVE" });
+  static readonly COLLECTION = new ClassElementType({ value: "COLLECTION" });
+  static readonly UNION = new ClassElementType({ value: "UNION" });
   static readonly PACKAGE = new ClassElementType({ value: "PACKAGE" });
   static readonly GROUP = new ClassElementType({ value: "GROUP" });
 
@@ -47,6 +53,8 @@ export class ClassElementType extends ValueObject<ClassElementTypeProps> {
     ClassElementType.ENUM,
     ClassElementType.DATA_TYPE,
     ClassElementType.PRIMITIVE,
+    ClassElementType.COLLECTION,
+    ClassElementType.UNION,
     ClassElementType.PACKAGE,
     ClassElementType.GROUP,
   ];
@@ -91,6 +99,12 @@ export class ClassElementType extends ValueObject<ClassElementTypeProps> {
   }
   isDataType(): boolean {
     return this.props.value === "DATA_TYPE" || this.props.value === "PRIMITIVE";
+  }
+  isCollection(): boolean {
+    return this.props.value === "COLLECTION";
+  }
+  isUnion(): boolean {
+    return this.props.value === "UNION";
   }
   isPackage(): boolean {
     return this.props.value === "PACKAGE" || this.props.value === "GROUP";

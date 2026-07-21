@@ -1,4 +1,5 @@
 import { Entity } from "@/modules/shared/domain/entity";
+import { ClassParameterDirection } from "../value-objects/class-parameter-direction";
 
 export type ClassOperationParameterStatus = "DRAFT" | "VALIDATED" | "DEPRECATED";
 
@@ -11,6 +12,7 @@ interface ClassOperationParameterProps {
   multiplicityLower: number;
   multiplicityUpper: string;
   defaultValue: string | null;
+  direction: ClassParameterDirection;
   isOrdered: boolean;
   isUnique: boolean;
   ordering: number;
@@ -28,6 +30,7 @@ export class ClassOperationParameter extends Entity<string> {
   private _multiplicityLower: number;
   private _multiplicityUpper: string;
   private _defaultValue: string | null;
+  private _direction: ClassParameterDirection;
   private _isOrdered: boolean;
   private _isUnique: boolean;
   private _ordering: number;
@@ -45,6 +48,7 @@ export class ClassOperationParameter extends Entity<string> {
     this._multiplicityLower = props.multiplicityLower;
     this._multiplicityUpper = props.multiplicityUpper;
     this._defaultValue = props.defaultValue;
+    this._direction = props.direction;
     this._isOrdered = props.isOrdered;
     this._isUnique = props.isUnique;
     this._ordering = props.ordering;
@@ -63,6 +67,7 @@ export class ClassOperationParameter extends Entity<string> {
     multiplicityLower?: number;
     multiplicityUpper?: string;
     defaultValue?: string | null;
+    direction?: "IN" | "OUT" | "INOUT";
     isOrdered?: boolean;
     isUnique?: boolean;
     ordering?: number;
@@ -79,6 +84,7 @@ export class ClassOperationParameter extends Entity<string> {
       multiplicityLower: props.multiplicityLower ?? 1,
       multiplicityUpper: props.multiplicityUpper ?? "1",
       defaultValue: props.defaultValue ?? null,
+      direction: ClassParameterDirection.from(props.direction ?? "IN"),
       isOrdered: props.isOrdered ?? false,
       isUnique: props.isUnique ?? false,
       ordering: props.ordering ?? 0,
@@ -98,6 +104,7 @@ export class ClassOperationParameter extends Entity<string> {
     multiplicityLower: number;
     multiplicityUpper: string;
     defaultValue: string | null;
+    direction: string;
     isOrdered: boolean;
     isUnique: boolean;
     ordering: number;
@@ -114,6 +121,7 @@ export class ClassOperationParameter extends Entity<string> {
       multiplicityLower: props.multiplicityLower,
       multiplicityUpper: props.multiplicityUpper,
       defaultValue: props.defaultValue,
+      direction: ClassParameterDirection.from(props.direction),
       isOrdered: props.isOrdered,
       isUnique: props.isUnique,
       ordering: props.ordering,
@@ -152,6 +160,9 @@ export class ClassOperationParameter extends Entity<string> {
   }
   get isUnique(): boolean {
     return this._isUnique;
+  }
+  get direction(): ClassParameterDirection {
+    return this._direction;
   }
   get ordering(): number {
     return this._ordering;
@@ -196,6 +207,11 @@ export class ClassOperationParameter extends Entity<string> {
     this._touch();
   }
 
+  setDirection(direction: ClassParameterDirection): void {
+    this._direction = direction;
+    this._touch();
+  }
+
   setOrdering(ordering: number): void {
     this._ordering = ordering;
     this._touch();
@@ -224,6 +240,7 @@ export class ClassOperationParameter extends Entity<string> {
       multiplicityLower: this._multiplicityLower,
       multiplicityUpper: this._multiplicityUpper,
       defaultValue: this._defaultValue,
+      direction: this._direction.value,
       isOrdered: this._isOrdered,
       isUnique: this._isUnique,
       ordering: this._ordering,

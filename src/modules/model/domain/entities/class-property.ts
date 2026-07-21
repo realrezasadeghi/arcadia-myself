@@ -13,6 +13,8 @@ interface ClassPropertyProps {
   typeLiteral: string;
   isStatic: boolean;
   isReadOnly: boolean;
+  isDerived: boolean;
+  isID: boolean;
   visibility: ClassVisibility;
   multiplicityLower: number;
   multiplicityUpper: string;
@@ -33,6 +35,8 @@ export class ClassProperty extends Entity<string> {
   private _typeLiteral: string;
   private _isStatic: boolean;
   private _isReadOnly: boolean;
+  private _isDerived: boolean;
+  private _isID: boolean;
   private _visibility: ClassVisibility;
   private _multiplicityLower: number;
   private _multiplicityUpper: string;
@@ -53,6 +57,8 @@ export class ClassProperty extends Entity<string> {
     this._typeLiteral = props.typeLiteral;
     this._isStatic = props.isStatic;
     this._isReadOnly = props.isReadOnly;
+    this._isDerived = props.isDerived;
+    this._isID = props.isID;
     this._visibility = props.visibility;
     this._multiplicityLower = props.multiplicityLower;
     this._multiplicityUpper = props.multiplicityUpper;
@@ -74,6 +80,8 @@ export class ClassProperty extends Entity<string> {
     typeLiteral?: string;
     isStatic?: boolean;
     isReadOnly?: boolean;
+    isDerived?: boolean;
+    isID?: boolean;
     visibility?: ClassVisibility;
     multiplicityLower?: number;
     multiplicityUpper?: string;
@@ -93,6 +101,8 @@ export class ClassProperty extends Entity<string> {
       typeLiteral: props.typeLiteral ?? "",
       isStatic: props.isStatic ?? false,
       isReadOnly: props.isReadOnly ?? false,
+      isDerived: props.isDerived ?? false,
+      isID: props.isID ?? false,
       visibility: props.visibility ?? ClassVisibility.PUBLIC,
       multiplicityLower: props.multiplicityLower ?? 1,
       multiplicityUpper: props.multiplicityUpper ?? "1",
@@ -115,6 +125,8 @@ export class ClassProperty extends Entity<string> {
     typeLiteral: string;
     isStatic: boolean;
     isReadOnly: boolean;
+    isDerived: boolean;
+    isID: boolean;
     visibility: ClassVisibility;
     multiplicityLower: number;
     multiplicityUpper: string;
@@ -134,6 +146,8 @@ export class ClassProperty extends Entity<string> {
       typeLiteral: props.typeLiteral,
       isStatic: props.isStatic,
       isReadOnly: props.isReadOnly,
+      isDerived: props.isDerived,
+      isID: props.isID,
       visibility: props.visibility,
       multiplicityLower: props.multiplicityLower,
       multiplicityUpper: props.multiplicityUpper,
@@ -169,6 +183,12 @@ export class ClassProperty extends Entity<string> {
   }
   get isReadOnly(): boolean {
     return this._isReadOnly;
+  }
+  get isDerived(): boolean {
+    return this._isDerived;
+  }
+  get isID(): boolean {
+    return this._isID;
   }
   get visibility(): ClassVisibility {
     return this._visibility;
@@ -218,6 +238,16 @@ export class ClassProperty extends Entity<string> {
 
   setReadOnly(isReadOnly: boolean): void {
     this._isReadOnly = isReadOnly;
+    this._touch();
+  }
+
+  setDerived(isDerived: boolean): void {
+    this._isDerived = isDerived;
+    this._touch();
+  }
+
+  setID(isID: boolean): void {
+    this._isID = isID;
     this._touch();
   }
 
@@ -271,6 +301,8 @@ export class ClassProperty extends Entity<string> {
       typeLiteral: this._typeLiteral,
       isStatic: this._isStatic,
       isReadOnly: this._isReadOnly,
+      isDerived: this._isDerived,
+      isID: this._isID,
       visibility: this._visibility.value,
       multiplicityLower: this._multiplicityLower,
       multiplicityUpper: this._multiplicityUpper,

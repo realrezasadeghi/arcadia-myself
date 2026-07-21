@@ -2,6 +2,7 @@ import { Entity } from "@/modules/shared/domain/entity";
 import { ClassRelationshipType } from "../value-objects/class-relationship-type";
 import { Layer } from "../value-objects/layer";
 import { ClassStatus } from "../value-objects/class-status";
+import { AggregationKind } from "../value-objects/aggregation-kind";
 import { DomainEvent } from "@/modules/shared/domain/event";
 
 export type ClassRelationshipStatus = "DRAFT" | "VALIDATED" | "DEPRECATED";
@@ -13,8 +14,10 @@ interface ClassRelationshipProps {
   targetElementId: string;
   name: string;
   relationshipType: ClassRelationshipType;
-  isAggregate: boolean;
-  isComposite: boolean;
+  aggregationKind: AggregationKind;
+  isDisjoint: boolean;
+  isComplete: boolean;
+  isDerived: boolean;
   sourceMultiplicityLower: number;
   sourceMultiplicityUpper: string;
   targetMultiplicityLower: number;
@@ -31,7 +34,7 @@ interface ClassRelationshipProps {
 
 /**
  * ClassRelationship — relationship between two ClassElements; owned by Model.
- * Capella alignment: ASSOCIATION + isAggregate/isComposite flags instead of
+ * Capella alignment: ASSOCIATION + AggregationKind instead of
  * separate AGGREGATION/COMPOSITION relationship types.
  */
 export class ClassRelationship extends Entity<string> {
@@ -41,8 +44,10 @@ export class ClassRelationship extends Entity<string> {
   private readonly _sourceElementId: string;
   private readonly _targetElementId: string;
   private _relationshipType: ClassRelationshipType;
-  private _isAggregate: boolean;
-  private _isComposite: boolean;
+  private _aggregationKind: AggregationKind;
+  private _isDisjoint: boolean;
+  private _isComplete: boolean;
+  private _isDerived: boolean;
   private _sourceMultiplicityLower: number;
   private _sourceMultiplicityUpper: string;
   private _targetMultiplicityLower: number;
@@ -64,8 +69,10 @@ export class ClassRelationship extends Entity<string> {
     this._targetElementId = props.targetElementId;
     this._name = props.name;
     this._relationshipType = props.relationshipType;
-    this._isAggregate = props.isAggregate;
-    this._isComposite = props.isComposite;
+    this._aggregationKind = props.aggregationKind;
+    this._isDisjoint = props.isDisjoint;
+    this._isComplete = props.isComplete;
+    this._isDerived = props.isDerived;
     this._sourceMultiplicityLower = props.sourceMultiplicityLower;
     this._sourceMultiplicityUpper = props.sourceMultiplicityUpper;
     this._targetMultiplicityLower = props.targetMultiplicityLower;
@@ -88,8 +95,10 @@ export class ClassRelationship extends Entity<string> {
     targetElementId: string;
     name?: string;
     relationshipType: string;
-    isAggregate?: boolean;
-    isComposite?: boolean;
+    aggregationKind?: "NONE" | "SHARED" | "COMPOSITE";
+    isDisjoint?: boolean;
+    isComplete?: boolean;
+    isDerived?: boolean;
     sourceMultiplicityLower?: number;
     sourceMultiplicityUpper?: string;
     targetMultiplicityLower?: number;
@@ -108,13 +117,7 @@ export class ClassRelationship extends Entity<string> {
 
     const layer = props.layer instanceof Layer ? props.layer : Layer.from(props.layer);
     const relationshipType = ClassRelationshipType.from(props.relationshipType);
-
-    const isAggregate = props.isAggregate ?? false;
-    const isComposite = props.isComposite ?? false;
-
-    if (isComposite && !isAggregate) {
-      throw new Error("Composition requires aggregation flag (isAggregate)");
-    }
+    const aggregationKind = AggregationKind.from(props.aggregationKind ?? "NONE");
 
     return new ClassRelationship(props.id, {
       modelId: props.modelId,
@@ -123,8 +126,10 @@ export class ClassRelationship extends Entity<string> {
       targetElementId: props.targetElementId,
       name: props.name ?? "",
       relationshipType,
-      isAggregate,
-      isComposite,
+      aggregationKind,
+      isDisjoint: props.isDisjoint ?? false,
+      isComplete: props.isComplete ?? false,
+      isDerived: props.isDerived ?? false,
       sourceMultiplicityLower: props.sourceMultiplicityLower ?? 1,
       sourceMultiplicityUpper: props.sourceMultiplicityUpper ?? "*",
       targetMultiplicityLower: props.targetMultiplicityLower ?? 1,
@@ -148,8 +153,10 @@ export class ClassRelationship extends Entity<string> {
     targetElementId: string;
     name: string;
     relationshipType: string;
-    isAggregate: boolean;
-    isComposite: boolean;
+    aggregationKind: string;
+    isDisjoint: boolean;
+    isComplete: boolean;
+    isDerived: boolean;
     sourceMultiplicityLower: number;
     sourceMultiplicityUpper: string;
     targetMultiplicityLower: number;
@@ -170,8 +177,10 @@ export class ClassRelationship extends Entity<string> {
       targetElementId: props.targetElementId,
       name: props.name,
       relationshipType: ClassRelationshipType.from(props.relationshipType),
-      isAggregate: props.isAggregate,
-      isComposite: props.isComposite,
+      aggregationKind: AggregationKind.from(props.aggregationKind),
+      isDisjoint: props.isDisjoint,
+      isComplete: props.isComplete,
+      isDerived: props.isDerived,
       sourceMultiplicityLower: props.sourceMultiplicityLower,
       sourceMultiplicityUpper: props.sourceMultiplicityUpper,
       targetMultiplicityLower: props.targetMultiplicityLower,
@@ -205,11 +214,17 @@ export class ClassRelationship extends Entity<string> {
   get relationshipType(): ClassRelationshipType {
     return this._relationshipType;
   }
-  get isAggregate(): boolean {
-    return this._isAggregate;
+  get aggregationKind(): AggregationKind {
+    return this._aggregationKind;
   }
-  get isComposite(): boolean {
-    return this._isComposite;
+  get isDisjoint(): boolean {
+    return this._isDisjoint;
+  }
+  get isComplete(): boolean {
+    return this._isComplete;
+  }
+  get isDerived(): boolean {
+    return this._isDerived;
   }
   get sourceMultiplicityLower(): number {
     return this._sourceMultiplicityLower;
@@ -257,20 +272,34 @@ export class ClassRelationship extends Entity<string> {
     return [new ClassRelationshipTypeChangedEvent(this._id, relationshipType.value)];
   }
 
-  setAggregateFlags(isAggregate: boolean, isComposite: boolean): DomainEvent[] {
-    if (isComposite && !isAggregate) {
-      throw new Error("Composition requires aggregation flag (isAggregate)");
-    }
-    this._isAggregate = isAggregate;
-    this._isComposite = isComposite;
+  setAggregationKind(aggregationKind: AggregationKind): DomainEvent[] {
+    this._aggregationKind = aggregationKind;
     this._touch();
     return [
-      new ClassRelationshipAggregateFlagsChangedEvent(
+      new ClassRelationshipAggregationKindChangedEvent(
         this._id,
-        isAggregate,
-        isComposite
+        aggregationKind.value
       ),
     ];
+  }
+
+  setGeneralizationConstraints(isDisjoint: boolean, isComplete: boolean): DomainEvent[] {
+    this._isDisjoint = isDisjoint;
+    this._isComplete = isComplete;
+    this._touch();
+    return [
+      new ClassRelationshipGeneralizationConstraintsChangedEvent(
+        this._id,
+        isDisjoint,
+        isComplete
+      ),
+    ];
+  }
+
+  setDerived(isDerived: boolean): DomainEvent[] {
+    this._isDerived = isDerived;
+    this._touch();
+    return [new ClassRelationshipDerivedChangedEvent(this._id, isDerived)];
   }
 
   setSourceMultiplicity(lower: number, upper: string): DomainEvent[] {
@@ -363,8 +392,10 @@ export class ClassRelationship extends Entity<string> {
       targetElementId: this._targetElementId,
       name: this._name,
       relationshipType: this._relationshipType.value,
-      isAggregate: this._isAggregate,
-      isComposite: this._isComposite,
+      aggregationKind: this._aggregationKind.value,
+      isDisjoint: this._isDisjoint,
+      isComplete: this._isComplete,
+      isDerived: this._isDerived,
       sourceMultiplicityLower: this._sourceMultiplicityLower,
       sourceMultiplicityUpper: this._sourceMultiplicityUpper,
       targetMultiplicityLower: this._targetMultiplicityLower,
@@ -414,13 +445,31 @@ export class ClassRelationshipTypeChangedEvent extends DomainEvent {
   }
 }
 
-export class ClassRelationshipAggregateFlagsChangedEvent extends DomainEvent {
+export class ClassRelationshipAggregationKindChangedEvent extends DomainEvent {
   constructor(
     public readonly relationshipId: string,
-    public readonly isAggregate: boolean,
-    public readonly isComposite: boolean
+    public readonly aggregationKind: string
   ) {
-    super("ClassRelationshipAggregateFlagsChanged");
+    super("ClassRelationshipAggregationKindChanged");
+  }
+}
+
+export class ClassRelationshipGeneralizationConstraintsChangedEvent extends DomainEvent {
+  constructor(
+    public readonly relationshipId: string,
+    public readonly isDisjoint: boolean,
+    public readonly isComplete: boolean
+  ) {
+    super("ClassRelationshipGeneralizationConstraintsChanged");
+  }
+}
+
+export class ClassRelationshipDerivedChangedEvent extends DomainEvent {
+  constructor(
+    public readonly relationshipId: string,
+    public readonly isDerived: boolean
+  ) {
+    super("ClassRelationshipDerivedChanged");
   }
 }
 

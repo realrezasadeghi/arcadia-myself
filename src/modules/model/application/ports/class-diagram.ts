@@ -121,8 +121,9 @@ export type CreateClassRelationshipPayload = {
   targetElementId: string;
   name?: string;
   relationshipType: string;
-  isAggregate?: boolean;
-  isComposite?: boolean;
+  aggregationKind?: "NONE" | "SHARED" | "COMPOSITE";
+  isDisjoint?: boolean;
+  isComplete?: boolean;
   sourceMultiplicityLower?: number;
   sourceMultiplicityUpper?: string;
   targetMultiplicityLower?: number;
@@ -138,8 +139,9 @@ export type UpdateClassRelationshipPayload = {
   id: string;
   name?: string;
   relationshipType?: string;
-  isAggregate?: boolean;
-  isComposite?: boolean;
+  aggregationKind?: "NONE" | "SHARED" | "COMPOSITE";
+  isDisjoint?: boolean;
+  isComplete?: boolean;
   sourceMultiplicityLower?: number;
   sourceMultiplicityUpper?: string;
   targetMultiplicityLower?: number;
@@ -165,6 +167,7 @@ export type CreateClassPropertyPayload = {
   typeLiteral?: string;
   isStatic?: boolean;
   isReadOnly?: boolean;
+  isDerived?: boolean;
   visibility?: string;
   multiplicityLower?: number;
   multiplicityUpper?: string;
@@ -180,6 +183,7 @@ export type UpdateClassPropertyPayload = {
   typeLiteral?: string;
   isStatic?: boolean;
   isReadOnly?: boolean;
+  isDerived?: boolean;
   visibility?: string;
   multiplicityLower?: number;
   multiplicityUpper?: string;
@@ -232,6 +236,7 @@ export type CreateClassOperationParameterPayload = {
   multiplicityLower?: number;
   multiplicityUpper?: string;
   defaultValue?: string;
+  direction?: "IN" | "OUT" | "INOUT";
   isOrdered?: boolean;
   isUnique?: boolean;
   ordering?: number;
@@ -245,6 +250,7 @@ export type UpdateClassOperationParameterPayload = {
   multiplicityLower?: number;
   multiplicityUpper?: string;
   defaultValue?: string;
+  direction?: "IN" | "OUT" | "INOUT";
   isOrdered?: boolean;
   isUnique?: boolean;
   ordering?: number;

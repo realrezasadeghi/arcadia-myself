@@ -24,6 +24,7 @@ export const diagramFormSchema = z.object({
       "EPBB",
       "EAB",
       "ECB",
+      "CDB",
     ],
     {
       error: "Diagram type is invalid",

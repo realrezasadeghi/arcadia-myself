@@ -6,6 +6,7 @@ export type UpdateClassOperationParameterDTOProps = {
   multiplicityLower?: number;
   multiplicityUpper?: string;
   defaultValue?: string;
+  direction?: "IN" | "OUT" | "INOUT";
   isOrdered?: boolean;
   isUnique?: boolean;
   ordering?: number;
@@ -19,6 +20,7 @@ export class UpdateClassOperationParameterDTO {
   public readonly multiplicityLower?: number;
   public readonly multiplicityUpper?: string;
   public readonly defaultValue?: string;
+  public readonly direction?: "IN" | "OUT" | "INOUT";
   public readonly isOrdered?: boolean;
   public readonly isUnique?: boolean;
   public readonly ordering?: number;
@@ -31,6 +33,7 @@ export class UpdateClassOperationParameterDTO {
     this.multiplicityLower = props.multiplicityLower;
     this.multiplicityUpper = props.multiplicityUpper;
     this.defaultValue = props.defaultValue;
+    this.direction = props.direction;
     this.isOrdered = props.isOrdered;
     this.isUnique = props.isUnique;
     this.ordering = props.ordering;
@@ -45,6 +48,7 @@ export class UpdateClassOperationParameterDTO {
       multiplicityLower: props.multiplicityLower !== undefined ? UpdateClassOperationParameterDTO.validateMultiplicityLower(props.multiplicityLower) : undefined,
       multiplicityUpper: props.multiplicityUpper,
       defaultValue: props.defaultValue,
+      direction: props.direction ? UpdateClassOperationParameterDTO.validateDirection(props.direction) : undefined,
       isOrdered: props.isOrdered,
       isUnique: props.isUnique,
       ordering: props.ordering,
@@ -68,5 +72,13 @@ export class UpdateClassOperationParameterDTO {
   private static validateMultiplicityLower(lower: number): number {
     if (lower < 0) throw new Error("Multiplicity lower must be >= 0");
     return lower;
+  }
+
+  private static validateDirection(direction: string): "IN" | "OUT" | "INOUT" {
+    const valid = ["IN", "OUT", "INOUT"];
+    if (!valid.includes(direction)) {
+      throw new Error(`Direction must be one of: ${valid.join(", ")}`);
+    }
+    return direction as any;
   }
 }

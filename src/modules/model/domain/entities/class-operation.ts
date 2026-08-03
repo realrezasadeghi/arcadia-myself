@@ -8,8 +8,11 @@ interface ClassOperationProps {
   modelId: string;
   layer: string;
   name: string;
+  description: string;
   returnTypeClassElementId: string | null;
   returnTypeLiteral: string;
+  returnMultiplicityLower: number;
+  returnMultiplicityUpper: string;
   isStatic: boolean;
   isAbstract: boolean;
   isQuery: boolean;
@@ -22,11 +25,14 @@ interface ClassOperationProps {
 
 export class ClassOperation extends Entity<string> {
   private _name: string;
+  private _description: string;
   private readonly _classElementId: string;
   private readonly _modelId: string;
   private readonly _layer: string;
   private _returnTypeClassElementId: string | null;
   private _returnTypeLiteral: string;
+  private _returnMultiplicityLower: number;
+  private _returnMultiplicityUpper: string;
   private _isStatic: boolean;
   private _isAbstract: boolean;
   private _isQuery: boolean;
@@ -42,8 +48,11 @@ export class ClassOperation extends Entity<string> {
     this._modelId = props.modelId;
     this._layer = props.layer;
     this._name = props.name;
+    this._description = props.description;
     this._returnTypeClassElementId = props.returnTypeClassElementId;
     this._returnTypeLiteral = props.returnTypeLiteral;
+    this._returnMultiplicityLower = props.returnMultiplicityLower;
+    this._returnMultiplicityUpper = props.returnMultiplicityUpper;
     this._isStatic = props.isStatic;
     this._isAbstract = props.isAbstract;
     this._isQuery = props.isQuery;
@@ -60,8 +69,11 @@ export class ClassOperation extends Entity<string> {
     modelId: string;
     layer: string;
     name: string;
+    description?: string;
     returnTypeClassElementId?: string | null;
     returnTypeLiteral?: string;
+    returnMultiplicityLower?: number;
+    returnMultiplicityUpper?: string;
     isStatic?: boolean;
     isAbstract?: boolean;
     isQuery?: boolean;
@@ -76,8 +88,11 @@ export class ClassOperation extends Entity<string> {
       modelId: props.modelId,
       layer: props.layer,
       name: props.name.trim(),
+      description: props.description ?? "",
       returnTypeClassElementId: props.returnTypeClassElementId ?? null,
       returnTypeLiteral: props.returnTypeLiteral ?? "",
+      returnMultiplicityLower: props.returnMultiplicityLower ?? 1,
+      returnMultiplicityUpper: props.returnMultiplicityUpper ?? "1",
       isStatic: props.isStatic ?? false,
       isAbstract: props.isAbstract ?? false,
       isQuery: props.isQuery ?? false,
@@ -95,8 +110,11 @@ export class ClassOperation extends Entity<string> {
     modelId: string;
     layer: string;
     name: string;
+    description: string;
     returnTypeClassElementId: string | null;
     returnTypeLiteral: string;
+    returnMultiplicityLower: number;
+    returnMultiplicityUpper: string;
     isStatic: boolean;
     isAbstract: boolean;
     isQuery: boolean;
@@ -111,8 +129,11 @@ export class ClassOperation extends Entity<string> {
       modelId: props.modelId,
       layer: props.layer,
       name: props.name,
+      description: props.description,
       returnTypeClassElementId: props.returnTypeClassElementId,
       returnTypeLiteral: props.returnTypeLiteral,
+      returnMultiplicityLower: props.returnMultiplicityLower,
+      returnMultiplicityUpper: props.returnMultiplicityUpper,
       isStatic: props.isStatic,
       isAbstract: props.isAbstract,
       isQuery: props.isQuery,
@@ -136,11 +157,20 @@ export class ClassOperation extends Entity<string> {
   get name(): string {
     return this._name;
   }
+  get description(): string {
+    return this._description;
+  }
   get returnTypeClassElementId(): string | null {
     return this._returnTypeClassElementId;
   }
   get returnTypeLiteral(): string {
     return this._returnTypeLiteral;
+  }
+  get returnMultiplicityLower(): number {
+    return this._returnMultiplicityLower;
+  }
+  get returnMultiplicityUpper(): string {
+    return this._returnMultiplicityUpper;
   }
   get isStatic(): boolean {
     return this._isStatic;
@@ -170,6 +200,11 @@ export class ClassOperation extends Entity<string> {
     this._touch();
   }
 
+  setDescription(description: string): void {
+    this._description = description;
+    this._touch();
+  }
+
   setReturnTypeClassElementId(returnTypeClassElementId: string | null): void {
     this._returnTypeClassElementId = returnTypeClassElementId;
     this._touch();
@@ -177,6 +212,13 @@ export class ClassOperation extends Entity<string> {
 
   setReturnTypeLiteral(returnTypeLiteral: string): void {
     this._returnTypeLiteral = returnTypeLiteral;
+    this._touch();
+  }
+
+  setReturnMultiplicity(lower: number, upper: string): void {
+    if (lower < 0) throw new Error("Return multiplicity lower must be >= 0");
+    this._returnMultiplicityLower = lower;
+    this._returnMultiplicityUpper = upper;
     this._touch();
   }
 
@@ -224,8 +266,11 @@ export class ClassOperation extends Entity<string> {
       modelId: this._modelId,
       layer: this._layer,
       name: this._name,
+      description: this._description,
       returnTypeClassElementId: this._returnTypeClassElementId,
       returnTypeLiteral: this._returnTypeLiteral,
+      returnMultiplicityLower: this._returnMultiplicityLower,
+      returnMultiplicityUpper: this._returnMultiplicityUpper,
       isStatic: this._isStatic,
       isAbstract: this._isAbstract,
       isQuery: this._isQuery,

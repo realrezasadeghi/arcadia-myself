@@ -5,6 +5,6 @@ type RemoveClassRelationshipVariables = { id: string; modelId: string };
 
 export function useRemoveClassRelationship() {
   return useServerMutation<boolean, RemoveClassRelationshipVariables>({
-    mutationFn: ({ id, modelId }) => removeClassRelationship(id, modelId),
+    mutationFn: ({ id, modelId }) => removeClassRelationship({ id, modelId }),
   });
 }

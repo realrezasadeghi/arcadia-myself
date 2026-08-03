@@ -1,7 +1,6 @@
 "use server";
 
-import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
-import { fail, type IRes, ok } from "@/modules/shared/utils/response";
+import { withAuth } from "@/modules/auth/presentation/with-auth";
 import {
   type CreateTraceLinkResponse,
   CreateTraceLinkUseCase,
@@ -15,16 +14,8 @@ import {
   type CreateTraceLinkDTOProps,
 } from "../dtos/create-trace-link";
 
-export async function createTraceLink(
-  payload: CreateTraceLinkDTOProps,
-): Promise<IRes<CreateTraceLinkResponse>> {
-  try {
-    const token = await cookiesStorageService.get("token");
-
-    if (!token) {
-      throw new Error("Token is required");
-    }
-
+export const createTraceLink = withAuth(
+  async (payload: CreateTraceLinkDTOProps, { token }): Promise<CreateTraceLinkResponse> => {
     const createTraceLinkUseCase = new CreateTraceLinkUseCase(
       traceLinkRepository,
       elementRepository,
@@ -37,8 +28,6 @@ export async function createTraceLink(
       context: { token },
     });
 
-    return ok(response);
-  } catch (error) {
-    return fail(error);
-  }
-}
+    return response;
+  },
+);

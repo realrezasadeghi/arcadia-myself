@@ -1,8 +1,6 @@
 "use server";
 
-import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
-import { fail, type IRes, ok } from "@/modules/shared/utils/response";
-import { updateTag } from "next/cache";
+import { withAuth } from "@/modules/auth/presentation/with-auth";
 import {
   type CreateModelResponse,
   CreateModelUseCase,
@@ -10,16 +8,8 @@ import {
 import { modelRepository } from "../../infrastructure/persistence/drizzle/repositories";
 import { CreateModelDTO, type CreateModelDTOProps } from "../dtos/create-model";
 
-export async function createModel(
-  payload: CreateModelDTOProps,
-): Promise<IRes<CreateModelResponse>> {
-  try {
-    const token = await cookiesStorageService.get("token");
-
-    if (!token) {
-      throw new Error("Token is required");
-    }
-
+export const createModel = withAuth(
+  async (payload: CreateModelDTOProps, { token }): Promise<CreateModelResponse> => {
     const dto = CreateModelDTO.create(payload);
 
     const createModelUseCase = new CreateModelUseCase(modelRepository);
@@ -29,10 +19,6 @@ export async function createModel(
       context: { token },
     });
 
-    updateTag(`get-models-by-project-id-${payload.projectId}`);
-
-    return ok(response);
-  } catch (error) {
-    return fail(error);
-  }
-}
+    return response;
+  },
+);

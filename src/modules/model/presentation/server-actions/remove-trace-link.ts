@@ -1,23 +1,17 @@
 "use server";
 
-import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
-import { fail, type IRes, ok } from "@/modules/shared/utils/response";
-import { updateTag } from "next/cache";
+import { withAuth } from "@/modules/auth/presentation/with-auth";
 import { RemoveTraceLinkUseCase } from "../../application/use-cases/remove-trace-link";
 import { traceLinkRepository } from "../../infrastructure/persistence/drizzle/repositories";
 
-export async function removeTraceLink(payload: {
+export type RemoveTraceLinkPayload = {
   id: string;
   sourceElementId: string;
   targetElementId: string;
-}): Promise<IRes<boolean>> {
-  try {
-    const token = await cookiesStorageService.get("token");
+};
 
-    if (!token) {
-      throw new Error("Token is required");
-    }
-
+export const removeTraceLink = withAuth(
+  async (payload: RemoveTraceLinkPayload, { token }): Promise<boolean> => {
     if (!payload.id) {
       throw new Error("Trace link id is required");
     }
@@ -31,12 +25,6 @@ export async function removeTraceLink(payload: {
       context: { token },
     });
 
-    updateTag(`get-trace-links-by-element-id-${payload.sourceElementId}`);
-
-    updateTag(`get-trace-links-by-element-id-${payload.targetElementId}`);
-
-    return ok(response);
-  } catch (error) {
-    return fail(error);
-  }
-}
+    return response;
+  },
+);

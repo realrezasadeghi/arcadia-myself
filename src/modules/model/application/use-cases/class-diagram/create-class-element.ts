@@ -19,7 +19,9 @@ export type CreateClassElementUseCaseResponse = {
   modelId: string;
   layer: string;
   name: string;
+  description: string;
   elementType: string;
+  visibility: string;
   isAbstract: boolean;
   isStatic: boolean;
   parentId: string | null;

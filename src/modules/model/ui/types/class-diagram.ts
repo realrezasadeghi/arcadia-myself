@@ -115,6 +115,7 @@ export type ClassOperationData = {
   isAbstract: boolean;
   isQuery: boolean;
   visibility: ClassVisibilityValue;
+  parameters?: ClassOperationParameterData[];
   ordering: number;
   status: ClassStatus;
   createdAt: string;

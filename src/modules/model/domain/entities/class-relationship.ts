@@ -13,6 +13,7 @@ interface ClassRelationshipProps {
   sourceElementId: string;
   targetElementId: string;
   name: string;
+  description: string;
   relationshipType: ClassRelationshipType;
   aggregationKind: AggregationKind;
   isDisjoint: boolean;
@@ -39,6 +40,7 @@ interface ClassRelationshipProps {
  */
 export class ClassRelationship extends Entity<string> {
   private _name: string;
+  private _description: string;
   private readonly _modelId: string;
   private readonly _layer: Layer;
   private readonly _sourceElementId: string;
@@ -68,6 +70,7 @@ export class ClassRelationship extends Entity<string> {
     this._sourceElementId = props.sourceElementId;
     this._targetElementId = props.targetElementId;
     this._name = props.name;
+    this._description = props.description;
     this._relationshipType = props.relationshipType;
     this._aggregationKind = props.aggregationKind;
     this._isDisjoint = props.isDisjoint;
@@ -94,6 +97,7 @@ export class ClassRelationship extends Entity<string> {
     sourceElementId: string;
     targetElementId: string;
     name?: string;
+    description?: string;
     relationshipType: string;
     aggregationKind?: "NONE" | "SHARED" | "COMPOSITE";
     isDisjoint?: boolean;
@@ -125,6 +129,7 @@ export class ClassRelationship extends Entity<string> {
       sourceElementId: props.sourceElementId,
       targetElementId: props.targetElementId,
       name: props.name ?? "",
+      description: props.description ?? "",
       relationshipType,
       aggregationKind,
       isDisjoint: props.isDisjoint ?? false,
@@ -152,6 +157,7 @@ export class ClassRelationship extends Entity<string> {
     sourceElementId: string;
     targetElementId: string;
     name: string;
+    description: string;
     relationshipType: string;
     aggregationKind: string;
     isDisjoint: boolean;
@@ -176,6 +182,7 @@ export class ClassRelationship extends Entity<string> {
       sourceElementId: props.sourceElementId,
       targetElementId: props.targetElementId,
       name: props.name,
+      description: props.description,
       relationshipType: ClassRelationshipType.from(props.relationshipType),
       aggregationKind: AggregationKind.from(props.aggregationKind),
       isDisjoint: props.isDisjoint,
@@ -210,6 +217,9 @@ export class ClassRelationship extends Entity<string> {
   }
   get name(): string {
     return this._name;
+  }
+  get description(): string {
+    return this._description;
   }
   get relationshipType(): ClassRelationshipType {
     return this._relationshipType;
@@ -264,6 +274,15 @@ export class ClassRelationship extends Entity<string> {
     this._name = name;
     this._touch();
     return [new ClassRelationshipRenamedEvent(this._id, name)];
+  }
+
+  setDescription(description: string): DomainEvent[] {
+    const oldDescription = this._description;
+    this._description = description;
+    this._touch();
+    return oldDescription !== description
+      ? [new ClassRelationshipDescriptionChangedEvent(this._id, description)]
+      : [];
   }
 
   setRelationshipType(relationshipType: ClassRelationshipType): DomainEvent[] {
@@ -391,6 +410,7 @@ export class ClassRelationship extends Entity<string> {
       sourceElementId: this._sourceElementId,
       targetElementId: this._targetElementId,
       name: this._name,
+      description: this._description,
       relationshipType: this._relationshipType.value,
       aggregationKind: this._aggregationKind.value,
       isDisjoint: this._isDisjoint,
@@ -534,5 +554,14 @@ export class ClassRelationshipValidatedEvent extends DomainEvent {
 export class ClassRelationshipDeprecatedEvent extends DomainEvent {
   constructor(public readonly relationshipId: string) {
     super("ClassRelationshipDeprecated");
+  }
+}
+
+export class ClassRelationshipDescriptionChangedEvent extends DomainEvent {
+  constructor(
+    public readonly relationshipId: string,
+    public readonly description: string
+  ) {
+    super("ClassRelationshipDescriptionChanged");
   }
 }

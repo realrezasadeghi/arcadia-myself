@@ -3,6 +3,6 @@ import { removeDiagram } from "../../presentation/server-actions/remove-diagram"
 
 export function useRemoveDiagram() {
   return useServerMutation({
-    mutationFn: removeDiagram,
+    mutationFn: (id: string) => removeDiagram(id),
   });
 }

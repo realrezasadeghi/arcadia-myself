@@ -15,6 +15,7 @@ export type GetClassPropertiesByElementIdUseCaseResponse = {
   modelId: string;
   layer: string;
   name: string;
+  description: string;
   typeClassElementId: string | null;
   typeLiteral: string;
   isStatic: boolean;
@@ -24,7 +25,10 @@ export type GetClassPropertiesByElementIdUseCaseResponse = {
   visibility: string;
   multiplicityLower: number;
   multiplicityUpper: string;
+  isOrdered: boolean;
+  isUnique: boolean;
   collectionKind: string;
+  aggregationKind: string;
   defaultValue: string;
   ordering: number;
   status: string;

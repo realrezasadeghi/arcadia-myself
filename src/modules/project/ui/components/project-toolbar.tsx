@@ -8,14 +8,15 @@ import {
 } from "@/modules/shared/ui/components/ui/breadcrumb";
 import { Home } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 import { NewProjectButton } from "./new-project-button";
 import { SearchInput } from "./search-input";
 
 type ProjectToolbarProps = {
-  searchQuery: string;
+  searchParams: Promise<{ search?: string }>;
 };
 
-export function ProjectToolbar({ searchQuery }: ProjectToolbarProps) {
+export function ProjectToolbar({ searchParams }: ProjectToolbarProps) {
   return (
     <div className="sticky bg-background top-0 z-10 border-b">
       <div className="px-6 py-4">
@@ -44,7 +45,9 @@ export function ProjectToolbar({ searchQuery }: ProjectToolbarProps) {
             </p>
           </div>
           <div className="flex gap-3 items-center">
-            <SearchInput defaultValue={searchQuery} />
+            <Suspense fallback={<div></div>}>
+              <SearchInput params={searchParams} />
+            </Suspense>
             <NewProjectButton />
           </div>
         </div>

@@ -22,10 +22,10 @@ export function getRelationshipTypeInfo(
 }
 
 export function getEdgeVisual(
-  type: RelationshipTypeValue,
+  type: RelationshipTypeValue | string,
 ): RelationshipVisualSpec {
   return (
-    RELATIONSHIP_VISUAL[type] ?? {
+    RELATIONSHIP_VISUAL[type as RelationshipTypeValue] ?? {
       strokeColor: "#94a3b8",
       strokeWidth: 1.5,
       arrowEnd: "arrow",

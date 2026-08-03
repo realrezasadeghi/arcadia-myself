@@ -12,7 +12,7 @@ import { userRepository } from "../../infrastructure/repositories";
 export async function getMe(): Promise<IRes<GetMeResponse>> {
   "use cache: private";
 
-  cacheTag("GET_EM");
+  cacheTag("GET_ME");
   try {
     const token = await cookiesStorageService.get("token");
     if (!token) {

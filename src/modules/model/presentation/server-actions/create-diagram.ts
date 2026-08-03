@@ -1,8 +1,6 @@
 "use server";
 
-import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
-import { fail, type IRes, ok } from "@/modules/shared/utils/response";
-import { updateTag } from "next/cache";
+import { withAuth } from "@/modules/auth/presentation/with-auth";
 import {
   type CreateDiagramResponse,
   CreateDiagramUseCase,
@@ -16,16 +14,8 @@ import {
   type CreateDiagramDTOProps,
 } from "../dtos/create-diagram";
 
-export async function createDiagram(
-  payload: CreateDiagramDTOProps,
-): Promise<IRes<CreateDiagramResponse>> {
-  try {
-    const token = await cookiesStorageService.get("token");
-
-    if (!token) {
-      throw new Error("Token is required");
-    }
-
+export const createDiagram = withAuth(
+  async (payload: CreateDiagramDTOProps, { token }): Promise<CreateDiagramResponse> => {
     const dto = CreateDiagramDTO.create(payload);
 
     const createDiagramUseCase = new CreateDiagramUseCase(
@@ -38,10 +28,6 @@ export async function createDiagram(
       context: { token },
     });
 
-    updateTag(`get-diagrams-by-model-id-${payload.modelId}`);
-
-    return ok(response);
-  } catch (error) {
-    return fail(error);
-  }
-}
+    return response;
+  },
+);

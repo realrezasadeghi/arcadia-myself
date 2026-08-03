@@ -1,7 +1,6 @@
 "use server";
 
-import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
-import { fail, type IRes, ok } from "@/modules/shared/utils/response";
+import { withAuth } from "@/modules/auth/presentation/with-auth";
 import {
   UpdateTraceLinkDescriptionUseCase,
   type UpdateTraceLinkResponse,
@@ -12,16 +11,8 @@ import {
   type UpdateTraceLinkDTOProps,
 } from "../dtos/update-trace-link";
 
-export async function updateTraceLink(
-  payload: UpdateTraceLinkDTOProps,
-): Promise<IRes<UpdateTraceLinkResponse>> {
-  try {
-    const token = await cookiesStorageService.get("token");
-
-    if (!token) {
-      throw new Error("Token is required");
-    }
-
+export const updateTraceLink = withAuth(
+  async (payload: UpdateTraceLinkDTOProps, { token }): Promise<UpdateTraceLinkResponse> => {
     const dto = UpdateTraceLinkDTO.create(payload);
 
     const updateTraceLinkUseCase = new UpdateTraceLinkDescriptionUseCase(
@@ -33,8 +24,6 @@ export async function updateTraceLink(
       context: { token },
     });
 
-    return ok(response);
-  } catch (error) {
-    return fail(error);
-  }
-}
+    return response;
+  },
+);

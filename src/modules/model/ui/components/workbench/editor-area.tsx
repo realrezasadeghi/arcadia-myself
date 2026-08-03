@@ -30,6 +30,7 @@ export function EditorArea() {
             key={activeTab.diagramId}
             diagramId={activeTab.diagramId}
             modelId={activeTab.modelId}
+            diagramType={activeTab.type}
           />
         ) : (
           <EditorEmptyState />

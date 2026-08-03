@@ -1,8 +1,6 @@
 "use server";
 
-import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
-import { fail, type IRes, ok } from "@/modules/shared/utils/response";
-import { updateTag } from "next/cache";
+import { withAuth } from "@/modules/auth/presentation/with-auth";
 import {
   type UpdateClassRelationshipUseCaseResponse,
   UpdateClassRelationshipUseCase,
@@ -13,16 +11,8 @@ import {
   type UpdateClassRelationshipDTOProps,
 } from "../dtos/update-class-relationship";
 
-export async function updateClassRelationship(
-  payload: UpdateClassRelationshipDTOProps,
-): Promise<IRes<UpdateClassRelationshipUseCaseResponse>> {
-  try {
-    const token = await cookiesStorageService.get("token");
-
-    if (!token) {
-      throw new Error("Token is required");
-    }
-
+export const updateClassRelationship = withAuth(
+  async (payload: UpdateClassRelationshipDTOProps, { token }): Promise<UpdateClassRelationshipUseCaseResponse> => {
     const dto = UpdateClassRelationshipDTO.create(payload);
 
     const useCase = new UpdateClassRelationshipUseCase(classDiagramRepository);
@@ -32,10 +22,6 @@ export async function updateClassRelationship(
       context: { token },
     });
 
-    updateTag(`get-class-relationships-by-model-id-${payload.modelId}`);
-
-    return ok(response);
-  } catch (error) {
-    return fail(error);
-  }
-}
+    return response;
+  },
+);

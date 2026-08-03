@@ -1,18 +1,11 @@
 "use server";
 
-import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
-import { fail, type IRes, ok } from "@/modules/shared/utils/response";
+import { withAuth } from "@/modules/auth/presentation/with-auth";
 import { RemoveElementUseCase } from "../../application/use-cases/remove-element";
 import { elementRepository } from "../../infrastructure/persistence/drizzle/repositories";
 
-export async function removeElement(id: string): Promise<IRes<boolean>> {
-  try {
-    const token = await cookiesStorageService.get("token");
-
-    if (!token) {
-      throw new Error("Token is required");
-    }
-
+export const removeElement = withAuth(
+  async (id: string, { token }): Promise<boolean> => {
     if (!id) {
       throw new Error("Element id is required");
     }
@@ -24,8 +17,6 @@ export async function removeElement(id: string): Promise<IRes<boolean>> {
       context: { token },
     });
 
-    return ok(response);
-  } catch (error) {
-    return fail(error);
-  }
-}
+    return response;
+  },
+);

@@ -15,10 +15,14 @@ export type UpdateClassOperationUseCaseResponse = {
   modelId: string;
   layer: string;
   name: string;
+  description: string;
   returnTypeClassElementId: string | null;
   returnTypeLiteral: string;
+  returnMultiplicityLower: number;
+  returnMultiplicityUpper: string;
   isStatic: boolean;
   isAbstract: boolean;
+  isQuery: boolean;
   visibility: string;
   ordering: number;
   status: string;

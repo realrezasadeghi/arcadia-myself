@@ -1,6 +1,7 @@
 import { Entity } from "@/modules/shared/domain/entity";
-import { ClassVisibility } from "../value-objects/class-visibility";
+import { AggregationKind } from "../value-objects/aggregation-kind";
 import { ClassCollectionKind } from "../value-objects/class-collection-kind";
+import { ClassVisibility } from "../value-objects/class-visibility";
 
 export type ClassPropertyStatus = "DRAFT" | "VALIDATED" | "DEPRECATED";
 
@@ -9,6 +10,7 @@ interface ClassPropertyProps {
   modelId: string;
   layer: string;
   name: string;
+  description: string;
   typeClassElementId: string | null;
   typeLiteral: string;
   isStatic: boolean;
@@ -18,6 +20,9 @@ interface ClassPropertyProps {
   visibility: ClassVisibility;
   multiplicityLower: number;
   multiplicityUpper: string;
+  isOrdered: boolean;
+  isUnique: boolean;
+  aggregationKind: AggregationKind;
   collectionKind: ClassCollectionKind;
   defaultValue: string;
   ordering: number;
@@ -31,6 +36,7 @@ export class ClassProperty extends Entity<string> {
   private _modelId: string;
   private _layer: string;
   private _name: string;
+  private _description: string;
   private _typeClassElementId: string | null;
   private _typeLiteral: string;
   private _isStatic: boolean;
@@ -40,7 +46,10 @@ export class ClassProperty extends Entity<string> {
   private _visibility: ClassVisibility;
   private _multiplicityLower: number;
   private _multiplicityUpper: string;
+  private _isOrdered: boolean;
+  private _isUnique: boolean;
   private _collectionKind: ClassCollectionKind;
+  private _aggregationKind: AggregationKind;
   private _defaultValue: string;
   private _ordering: number;
   private _status: ClassPropertyStatus;
@@ -53,6 +62,7 @@ export class ClassProperty extends Entity<string> {
     this._modelId = props.modelId;
     this._layer = props.layer;
     this._name = props.name;
+    this._description = props.description;
     this._typeClassElementId = props.typeClassElementId;
     this._typeLiteral = props.typeLiteral;
     this._isStatic = props.isStatic;
@@ -62,7 +72,10 @@ export class ClassProperty extends Entity<string> {
     this._visibility = props.visibility;
     this._multiplicityLower = props.multiplicityLower;
     this._multiplicityUpper = props.multiplicityUpper;
+    this._isOrdered = props.isOrdered;
+    this._isUnique = props.isUnique;
     this._collectionKind = props.collectionKind;
+    this._aggregationKind = props.aggregationKind;
     this._defaultValue = props.defaultValue;
     this._ordering = props.ordering;
     this._status = props.status;
@@ -76,6 +89,7 @@ export class ClassProperty extends Entity<string> {
     modelId: string;
     layer: string;
     name: string;
+    description?: string;
     typeClassElementId?: string | null;
     typeLiteral?: string;
     isStatic?: boolean;
@@ -85,7 +99,10 @@ export class ClassProperty extends Entity<string> {
     visibility?: ClassVisibility;
     multiplicityLower?: number;
     multiplicityUpper?: string;
+    isOrdered?: boolean;
+    isUnique?: boolean;
     collectionKind?: ClassCollectionKind;
+    aggregationKind?: AggregationKind;
     defaultValue?: string;
     ordering?: number;
     status?: ClassPropertyStatus;
@@ -97,6 +114,7 @@ export class ClassProperty extends Entity<string> {
       modelId: props.modelId,
       layer: props.layer,
       name: props.name.trim(),
+      description: props.description ?? "",
       typeClassElementId: props.typeClassElementId ?? null,
       typeLiteral: props.typeLiteral ?? "",
       isStatic: props.isStatic ?? false,
@@ -106,7 +124,10 @@ export class ClassProperty extends Entity<string> {
       visibility: props.visibility ?? ClassVisibility.PUBLIC,
       multiplicityLower: props.multiplicityLower ?? 1,
       multiplicityUpper: props.multiplicityUpper ?? "1",
+      isOrdered: props.isOrdered ?? false,
+      isUnique: props.isUnique ?? false,
       collectionKind: props.collectionKind ?? ClassCollectionKind.NONE,
+      aggregationKind: props.aggregationKind ?? AggregationKind.NONE,
       defaultValue: props.defaultValue ?? "",
       ordering: props.ordering ?? 0,
       status: props.status ?? "DRAFT",
@@ -121,6 +142,7 @@ export class ClassProperty extends Entity<string> {
     modelId: string;
     layer: string;
     name: string;
+    description: string;
     typeClassElementId: string | null;
     typeLiteral: string;
     isStatic: boolean;
@@ -130,7 +152,10 @@ export class ClassProperty extends Entity<string> {
     visibility: ClassVisibility;
     multiplicityLower: number;
     multiplicityUpper: string;
+    isOrdered: boolean;
+    isUnique: boolean;
     collectionKind: ClassCollectionKind;
+    aggregationKind: AggregationKind;
     defaultValue: string;
     ordering: number;
     status: ClassPropertyStatus;
@@ -142,6 +167,7 @@ export class ClassProperty extends Entity<string> {
       modelId: props.modelId,
       layer: props.layer,
       name: props.name,
+      description: props.description,
       typeClassElementId: props.typeClassElementId,
       typeLiteral: props.typeLiteral,
       isStatic: props.isStatic,
@@ -151,7 +177,10 @@ export class ClassProperty extends Entity<string> {
       visibility: props.visibility,
       multiplicityLower: props.multiplicityLower,
       multiplicityUpper: props.multiplicityUpper,
+      isOrdered: props.isOrdered,
+      isUnique: props.isUnique,
       collectionKind: props.collectionKind,
+      aggregationKind: props.aggregationKind,
       defaultValue: props.defaultValue,
       ordering: props.ordering,
       status: props.status,
@@ -171,6 +200,9 @@ export class ClassProperty extends Entity<string> {
   }
   get name(): string {
     return this._name;
+  }
+  get description(): string {
+    return this._description;
   }
   get typeClassElementId(): string | null {
     return this._typeClassElementId;
@@ -199,8 +231,17 @@ export class ClassProperty extends Entity<string> {
   get multiplicityUpper(): string {
     return this._multiplicityUpper;
   }
+  get isOrdered(): boolean {
+    return this._isOrdered;
+  }
+  get isUnique(): boolean {
+    return this._isUnique;
+  }
   get collectionKind(): ClassCollectionKind {
     return this._collectionKind;
+  }
+  get aggregationKind(): AggregationKind {
+    return this._aggregationKind;
   }
   get defaultValue(): string {
     return this._defaultValue;
@@ -218,6 +259,11 @@ export class ClassProperty extends Entity<string> {
   rename(name: string): void {
     if (!name.trim()) throw new Error("Property name can't be empty");
     this._name = name.trim();
+    this._touch();
+  }
+
+  setDescription(description: string): void {
+    this._description = description;
     this._touch();
   }
 
@@ -268,6 +314,11 @@ export class ClassProperty extends Entity<string> {
     this._touch();
   }
 
+  setAggregationKind(aggregationKind: AggregationKind): void {
+    this._aggregationKind = aggregationKind;
+    this._touch();
+  }
+
   setDefaultValue(value: string): void {
     this._defaultValue = value;
     this._touch();
@@ -297,6 +348,7 @@ export class ClassProperty extends Entity<string> {
       modelId: this._modelId,
       layer: this._layer,
       name: this._name,
+      description: this._description,
       typeClassElementId: this._typeClassElementId,
       typeLiteral: this._typeLiteral,
       isStatic: this._isStatic,
@@ -306,7 +358,10 @@ export class ClassProperty extends Entity<string> {
       visibility: this._visibility.value,
       multiplicityLower: this._multiplicityLower,
       multiplicityUpper: this._multiplicityUpper,
+      isOrdered: this._isOrdered,
+      isUnique: this._isUnique,
       collectionKind: this._collectionKind.value,
+      aggregationKind: this._aggregationKind.value,
       defaultValue: this._defaultValue,
       ordering: this._ordering,
       status: this._status,

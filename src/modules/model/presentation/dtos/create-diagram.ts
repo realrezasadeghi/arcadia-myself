@@ -18,8 +18,7 @@ type DiagramType =
   | "PS"
   | "EPBB"
   | "EAB"
-  | "ECB"
-  | "CDB";
+  | "ECB";
 
 export type CreateDiagramDTOProps = {
   type: DiagramType;
@@ -77,7 +76,6 @@ export class CreateDiagramDTO {
       "EPBB",
       "EAB",
       "ECB",
-      "CDB",
     ];
 
     if (!validTypes.includes(type as DiagramType)) {

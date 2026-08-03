@@ -54,7 +54,7 @@ import type { Model } from "../../types/model";
 
 // ─── Element icon map ─────────────────────────────────────────────────────────
 
-const ELEMENT_ICONS: Partial<Record<ElementTypeValue, LucideIcon>> = {
+const ELEMENT_ICONS: Partial<Record<ElementTypeValue | string, LucideIcon>> = {
   Mission: Monitor,
   OperationalEntity: Users,
   OperationalActor: User,
@@ -68,9 +68,19 @@ const ELEMENT_ICONS: Partial<Record<ElementTypeValue, LucideIcon>> = {
   ConfigurationItem: Boxes,
   ConfigurationItemPart: Box,
   ConfigurationItemInterface: Link,
+  // Class diagram types
+  CLASS: Box,
+  INTERFACE: Link,
+  ENUM: Boxes,
+  DATA_TYPE: Boxes,
+  PRIMITIVE: Boxes,
+  COLLECTION: Boxes,
+  UNION: Boxes,
+  PACKAGE: Folder,
+  GROUP: Folder,
 };
 
-function getElemIcon(type: ElementTypeValue): LucideIcon {
+function getElemIcon(type: ElementTypeValue | string): LucideIcon {
   return ELEMENT_ICONS[type] ?? Monitor;
 }
 
@@ -87,10 +97,12 @@ const LAYER_COLORS: Record<LayerValue, string> = {
 type ElementTreeNode = {
   id: string;
   name: string;
-  type: ElementTypeValue;
+  type: ElementTypeValue | string;
   status: ElementStatus;
   description?: string;
   children: ElementTreeNode[];
+  /** Present when this is a class diagram element */
+  modelId?: string;
 };
 
 function buildElementTree(elements: Element[]): ElementTreeNode[] {
@@ -104,6 +116,7 @@ function buildElementTree(elements: Element[]): ElementTreeNode[] {
       type: el.type,
       status: el.status,
       description: el.description,
+      modelId: (el as any).modelId,
       children: [],
     });
   }
@@ -155,7 +168,7 @@ type CategoryFolder = {
   key: string;
   label: string;
   icon: LucideIcon;
-  match: (type: ElementTypeValue) => boolean;
+  match: (type: ElementTypeValue | string) => boolean;
 };
 
 const CATEGORY_FOLDERS: CategoryFolder[] = [
@@ -183,6 +196,13 @@ const CATEGORY_FOLDERS: CategoryFolder[] = [
     label: "Capabilities",
     icon: Target,
     match: (t) => t.endsWith("Capability"),
+  },
+  {
+    key: "class-elements",
+    label: "Class Diagram Elements",
+    icon: Box,
+    match: (t) =>
+      ["CLASS", "INTERFACE", "ENUM", "DATA_TYPE", "PRIMITIVE", "COLLECTION", "UNION", "PACKAGE", "GROUP"].includes(t),
   },
   // catch-all — Mission, OperationalProcess, FunctionPort, …
   { key: "other", label: "Other", icon: Folder, match: () => true },
@@ -453,6 +473,7 @@ function ModelNode({
   const { model, elements, diagrams } = data;
   const [isOpen, setIsOpen] = useState(true);
   const [openDiagrams, setOpenDiagrams] = useState(true);
+  const [openClassDiagrams, setOpenClassDiagrams] = useState(true);
 
   const layerInfo = getLayerInfo(model.layer);
   const color = LAYER_COLORS[model.layer];
@@ -461,6 +482,10 @@ function ModelNode({
   const elementTypes = getElementTypesForLayer(model.layer);
   const canTransition = model.layer !== "EPBS";
   const nextLayerLabel = getNextLayerLabel(model.layer);
+
+  // Separate architecture diagrams from class diagrams
+  const archDiagrams = diagrams.filter((d) => d.type !== "CDB");
+  const classDiagrams = diagrams.filter((d) => d.type === "CDB");
 
   return (
     <div className="mb-0.5" data-layer={model.layer}>
@@ -540,7 +565,8 @@ function ModelNode({
             />
           ))}
 
-          {diagrams.length > 0 && (
+          {/* Architecture Diagrams */}
+          {archDiagrams.length > 0 && (
             <div className="mt-0.5">
               <button
                 type="button"
@@ -554,10 +580,39 @@ function ModelNode({
                   <ChevronRight className="size-2.5 shrink-0" />
                 )}
                 <LayoutDashboard className="size-3 shrink-0" />
-                <span>Diagrams ({diagrams.length})</span>
+                <span>Architecture Diagrams ({archDiagrams.length})</span>
               </button>
               {openDiagrams &&
-                diagrams.map((diagram) => (
+                archDiagrams.map((diagram) => (
+                  <DiagramTreeItem
+                    key={diagram.id}
+                    model={model}
+                    diagram={diagram}
+                    handlers={handlers}
+                  />
+                ))}
+            </div>
+          )}
+
+          {/* Class Diagrams (CDB) */}
+          {classDiagrams.length > 0 && (
+            <div className="mt-0.5">
+              <button
+                type="button"
+                onClick={() => setOpenClassDiagrams(!openClassDiagrams)}
+                className="flex w-full items-center gap-1 rounded-sm px-2 py-1 text-[10px] text-muted-foreground text-left transition-colors hover:bg-muted"
+                style={{ paddingLeft: "26px" }}
+              >
+                {openClassDiagrams ? (
+                  <ChevronDown className="size-2.5 shrink-0" />
+                ) : (
+                  <ChevronRight className="size-2.5 shrink-0" />
+                )}
+                <Box className="size-3 shrink-0" />
+                <span>Class Diagrams ({classDiagrams.length})</span>
+              </button>
+              {openClassDiagrams &&
+                classDiagrams.map((diagram) => (
                   <DiagramTreeItem
                     key={diagram.id}
                     model={model}

@@ -16,6 +16,7 @@ import {
 import { useReactFlow } from "@xyflow/react";
 import {
   Download,
+  LayoutGrid,
   Maximize2,
   Redo2,
   Trash2,
@@ -25,6 +26,7 @@ import {
 } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { getLayerInfo } from "../helpers/layer";
+import { useClassDiagramLayout } from "../hooks/use-class-diagram-layout";
 import { useDiagramExport } from "../hooks/use-diagram-export";
 import { useRemoveElementSync } from "../hooks/use-remove-element";
 import { useRemoveRelationshipSync } from "../hooks/use-remove-relationship";
@@ -53,6 +55,8 @@ export function DiagramToolbarActions({
     useRemoveRelationshipSync();
 
   const { zoomIn, zoomOut, fitView } = useReactFlow();
+
+  const { applyLayout } = useClassDiagramLayout();
 
   const { exportHtml, exportJson } = useDiagramExport({
     diagramName,
@@ -190,6 +194,23 @@ export function DiagramToolbarActions({
           </Button>
         </TooltipTrigger>
         <TooltipContent>Fit view</TooltipContent>
+      </Tooltip>
+
+      <Separator orientation="vertical" className="h-5 w-0.5" />
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="size-7"
+            onClick={applyLayout}
+            title="Auto-arrange class diagram"
+          >
+            <LayoutGrid className="size-3.5" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Auto Layout</TooltipContent>
       </Tooltip>
     </div>
   );

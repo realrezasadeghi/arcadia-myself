@@ -1,8 +1,6 @@
 "use server";
 
-import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
-import { fail, type IRes, ok } from "@/modules/shared/utils/response";
-import { updateTag } from "next/cache";
+import { withAuth } from "@/modules/auth/presentation/with-auth";
 import {
   type CreateElementResponse,
   CreateElementUseCase,
@@ -16,16 +14,8 @@ import {
   type CreateElementDTOProps,
 } from "../dtos/create-element";
 
-export async function createElement(
-  payload: CreateElementDTOProps,
-): Promise<IRes<CreateElementResponse>> {
-  try {
-    const token = await cookiesStorageService.get("token");
-
-    if (!token) {
-      throw new Error("Token is required");
-    }
-
+export const createElement = withAuth(
+  async (payload: CreateElementDTOProps, { token }): Promise<CreateElementResponse> => {
     const dto = CreateElementDTO.create(payload);
 
     const createElementUseCase = new CreateElementUseCase(
@@ -38,10 +28,6 @@ export async function createElement(
       context: { token },
     });
 
-    updateTag(`get-elements-by-model-id-${payload.modelId}`);
-
-    return ok(response);
-  } catch (error) {
-    return fail(error);
-  }
-}
+    return response;
+  },
+);

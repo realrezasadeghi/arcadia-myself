@@ -1,23 +1,12 @@
 "use server";
 
-import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
-import { extractUserIdFromJwt } from "@/modules/shared/libs/extract-jwt";
-import { fail, ok } from "@/modules/shared/utils/response";
-import { updateTag } from "next/cache";
+import { withAuth } from "@/modules/auth/presentation/with-auth";
 import { UpdateProjectUseCase } from "../../application/use-cases/update";
 import { projectRepository } from "../../infrastructure/remote";
 import { UpdateProjectDTO, type UpdateProjectDTOProps } from "../dtos/update";
 
-export async function update(payload: UpdateProjectDTOProps) {
-  try {
-    const token = await cookiesStorageService.get("token");
-
-    if (!token) {
-      throw new Error("Token is required");
-    }
-
-    const userId = extractUserIdFromJwt(token);
-
+export const update = withAuth(
+  async (payload: UpdateProjectDTOProps, { token, userId }) => {
     const dto = UpdateProjectDTO.create(payload);
 
     const updateProjectUseCase = new UpdateProjectUseCase(projectRepository);
@@ -31,10 +20,7 @@ export async function update(payload: UpdateProjectDTOProps) {
       },
     });
 
-    updateTag("GET_ALL_PROJECTS");
-
-    return ok(response);
-  } catch (error) {
-    return fail(error);
-  }
-}
+    return response;
+  },
+  { extractUserId: true },
+);

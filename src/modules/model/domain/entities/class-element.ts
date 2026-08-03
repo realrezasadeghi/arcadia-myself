@@ -1,5 +1,6 @@
 import { Entity } from "@/modules/shared/domain/entity";
 import { ClassElementType } from "../value-objects/class-element-type";
+import { ClassVisibility } from "../value-objects/class-visibility";
 import { Layer } from "../value-objects/layer";
 import { ClassStatus } from "../value-objects/class-status";
 import { DomainEvent } from "@/modules/shared/domain/event";
@@ -10,7 +11,9 @@ interface ClassElementProps {
   modelId: string;
   layer: Layer;
   name: string;
+  description: string;
   elementType: ClassElementType;
+  visibility: ClassVisibility;
   isAbstract: boolean;
   isStatic: boolean;
   parentId: string | null;
@@ -28,9 +31,11 @@ interface ClassElementProps {
  */
 export class ClassElement extends Entity<string> {
   private _name: string;
+  private _description: string;
   private readonly _modelId: string;
   private readonly _layer: Layer;
   private readonly _elementType: ClassElementType;
+  private _visibility: ClassVisibility;
   private _isAbstract: boolean;
   private _isStatic: boolean;
   private _parentId: string | null;
@@ -45,7 +50,9 @@ export class ClassElement extends Entity<string> {
     this._modelId = props.modelId;
     this._layer = props.layer;
     this._name = props.name;
+    this._description = props.description;
     this._elementType = props.elementType;
+    this._visibility = props.visibility;
     this._isAbstract = props.isAbstract;
     this._isStatic = props.isStatic;
     this._parentId = props.parentId;
@@ -61,7 +68,9 @@ export class ClassElement extends Entity<string> {
     modelId: string;
     layer: Layer | string;
     name: string;
+    description?: string;
     elementType: string;
+    visibility?: string;
     isAbstract?: boolean;
     isStatic?: boolean;
     parentId?: string | null;
@@ -72,6 +81,7 @@ export class ClassElement extends Entity<string> {
 
     const layer = props.layer instanceof Layer ? props.layer : Layer.from(props.layer);
     const elementType = ClassElementType.from(props.elementType);
+    const visibility = ClassVisibility.from(props.visibility ?? "public");
 
     // Validate isAbstract only allowed on CLASS
     if (props.isAbstract && !elementType.isClass()) {
@@ -82,7 +92,9 @@ export class ClassElement extends Entity<string> {
       modelId: props.modelId,
       layer,
       name: props.name.trim(),
+      description: props.description ?? "",
       elementType,
+      visibility,
       isAbstract: props.isAbstract ?? false,
       isStatic: props.isStatic ?? false,
       parentId: props.parentId ?? null,
@@ -99,7 +111,9 @@ export class ClassElement extends Entity<string> {
     modelId: string;
     layer: string;
     name: string;
+    description: string;
     elementType: string;
+    visibility: string;
     isAbstract: boolean;
     isStatic: boolean;
     parentId: string | null;
@@ -113,7 +127,9 @@ export class ClassElement extends Entity<string> {
       modelId: props.modelId,
       layer: Layer.from(props.layer),
       name: props.name,
+      description: props.description,
       elementType: ClassElementType.from(props.elementType),
+      visibility: ClassVisibility.from(props.visibility),
       isAbstract: props.isAbstract,
       isStatic: props.isStatic,
       parentId: props.parentId,
@@ -135,8 +151,14 @@ export class ClassElement extends Entity<string> {
   get name(): string {
     return this._name;
   }
+  get description(): string {
+    return this._description;
+  }
   get elementType(): ClassElementType {
     return this._elementType;
+  }
+  get visibility(): ClassVisibility {
+    return this._visibility;
   }
   get isAbstract(): boolean {
     return this._isAbstract;
@@ -171,6 +193,22 @@ export class ClassElement extends Entity<string> {
     this._name = name.trim();
     this._touch();
     return [new ClassElementRenamedEvent(this._id, oldName, this._name)];
+  }
+
+  setDescription(description: string): DomainEvent[] {
+    const oldDescription = this._description;
+    this._description = description;
+    this._touch();
+    return oldDescription !== description
+      ? [new ClassElementDescriptionChangedEvent(this._id, description)]
+      : [];
+  }
+
+  setVisibility(visibility: ClassVisibility): DomainEvent[] {
+    const changed = this._visibility.value !== visibility.value;
+    this._visibility = visibility;
+    this._touch();
+    return changed ? [new ClassElementVisibilityChangedEvent(this._id, visibility.value)] : [];
   }
 
   setAbstract(isAbstract: boolean): DomainEvent[] {
@@ -234,7 +272,9 @@ export class ClassElement extends Entity<string> {
       modelId: this._modelId,
       layer: this._layer.value,
       name: this._name,
+      description: this._description,
       elementType: this._elementType.value,
+      visibility: this._visibility.value,
       isAbstract: this._isAbstract,
       isStatic: this._isStatic,
       parentId: this._parentId,
@@ -330,5 +370,23 @@ export class ClassElementValidatedEvent extends DomainEvent {
 export class ClassElementDeprecatedEvent extends DomainEvent {
   constructor(public readonly elementId: string) {
     super("ClassElementDeprecated");
+  }
+}
+
+export class ClassElementDescriptionChangedEvent extends DomainEvent {
+  constructor(
+    public readonly elementId: string,
+    public readonly description: string
+  ) {
+    super("ClassElementDescriptionChanged");
+  }
+}
+
+export class ClassElementVisibilityChangedEvent extends DomainEvent {
+  constructor(
+    public readonly elementId: string,
+    public readonly visibility: string
+  ) {
+    super("ClassElementVisibilityChanged");
   }
 }

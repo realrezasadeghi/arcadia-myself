@@ -1,4 +1,6 @@
 import { getProjectById } from "@/modules/project/presentation/server-actions/get-by-id";
+import { getClassElementsByModelId } from "../../../presentation/server-actions/get-class-elements-by-model-id";
+import { getClassDiagramsByModelId } from "../../../presentation/server-actions/get-class-diagrams-by-model-id";
 import { getDiagramsByModelId } from "../../../presentation/server-actions/get-diagrams-by-model-id";
 import { getElementsByModelId } from "../../../presentation/server-actions/get-elements-by-model-id";
 import { getModelsByProjectId } from "../../../presentation/server-actions/get-models-by-project-id";
@@ -8,13 +10,6 @@ type WorkbenchViewProps = {
   params: Promise<{ id: string }>;
 };
 
-/**
- * WorkbenchView (Server Component)
- *
- * درخت کامل پروژه را سمت سرور واکشی می‌کند و به Workbench (client) می‌دهد.
- * پس از mutationها، client با router.refresh() این server component را
- * دوباره اجرا می‌کند تا props تازه شوند (state کلاینت حفظ می‌شود).
- */
 export async function WorkbenchView({ params }: WorkbenchViewProps) {
   const { id: projectId } = await params;
 
@@ -28,25 +23,55 @@ export async function WorkbenchView({ params }: WorkbenchViewProps) {
 
   const modelData: WorkbenchModelData[] = await Promise.all(
     models.map(async (model) => {
-      const [elementsResult, diagramsResult] = await Promise.all([
-        getElementsByModelId(model.id),
-        getDiagramsByModelId(model.id),
-      ]);
+      const [elementsResult, diagramsResult, classElementsResult, classDiagramsResult] =
+        await Promise.all([
+          getElementsByModelId(model.id),
+          getDiagramsByModelId(model.id),
+          getClassElementsByModelId(model.id),
+          getClassDiagramsByModelId(model.id),
+        ]);
+
+      const archElements = (elementsResult.data ?? []).map((el) => ({
+        id: el.id,
+        modelId: el.modelId,
+        type: el.type,
+        name: el.name,
+        description: el.description,
+        parentId: el.parentId,
+        status: el.properties.status,
+        createdAt: el.createdAt,
+        updatedAt: el.updatedAt,
+      }));
+
+      const classElements = (classElementsResult.data ?? []).map((el) => ({
+        id: el.id,
+        modelId: el.modelId,
+        type: el.elementType as any,
+        name: el.name,
+        description: undefined,
+        parentId: el.parentId,
+        status: el.status as "DRAFT" | "VALIDATED" | "DEPRECATED",
+        createdAt: el.createdAt,
+        updatedAt: el.updatedAt,
+      }));
+
+      // Map class diagrams to the same Diagram shape as architecture diagrams
+      const classDiagrams = (classDiagramsResult.data ?? []).map((d) => ({
+        id: d.id,
+        modelId: d.modelId,
+        type: "CDB" as const,
+        name: d.name,
+        description: d.description,
+        viewport: d.viewport,
+        elementLayouts: d.elementLayouts,
+        createdAt: d.createdAt,
+        updatedAt: d.updatedAt,
+      }));
 
       return {
         model,
-        elements: (elementsResult.data ?? []).map((el) => ({
-          id: el.id,
-          modelId: el.modelId,
-          type: el.type,
-          name: el.name,
-          description: el.description,
-          parentId: el.parentId,
-          status: el.properties.status,
-          createdAt: el.createdAt,
-          updatedAt: el.updatedAt,
-        })),
-        diagrams: diagramsResult.data ?? [],
+        elements: [...archElements, ...classElements],
+        diagrams: [...(diagramsResult.data ?? []), ...classDiagrams],
       };
     }),
   );

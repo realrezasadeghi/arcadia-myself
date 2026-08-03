@@ -5,6 +5,6 @@ type RemoveClassDiagramVariables = { id: string; modelId: string };
 
 export function useRemoveClassDiagram() {
   return useServerMutation<boolean, RemoveClassDiagramVariables>({
-    mutationFn: ({ id, modelId }) => removeClassDiagram(id, modelId),
+    mutationFn: ({ id, modelId }) => removeClassDiagram({ id, modelId }),
   });
 }

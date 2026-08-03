@@ -18,4 +18,6 @@ export {
   classStatusEnum,
   classVisibilityEnum,
   classCollectionKindEnum,
+  classParameterDirectionEnum,
+  aggregationKindEnum,
 } from "./class-diagram";

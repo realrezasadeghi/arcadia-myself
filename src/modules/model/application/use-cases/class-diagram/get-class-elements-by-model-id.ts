@@ -14,6 +14,8 @@ export type GetClassElementsByModelIdUseCaseResponse = {
   modelId: string;
   layer: string;
   name: string;
+  description: string;
+  visibility: string;
   elementType: string;
   isAbstract: boolean;
   isStatic: boolean;

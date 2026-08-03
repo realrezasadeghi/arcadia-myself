@@ -83,6 +83,16 @@ export type UpdateClassDiagramPayload = {
   description?: string;
 };
 
+export type UpdateClassDiagramLayoutPayload = {
+  id: string;
+  viewport?: { x: number; y: number; zoom: number };
+  elementLayouts?: Array<{
+    elementId: string;
+    position: { x: number; y: number };
+    size: { width: number; height: number };
+  }>;
+};
+
 export type RemoveClassDiagramPayload = {
   id: string;
 };
@@ -91,7 +101,9 @@ export type CreateClassElementPayload = {
   modelId: string;
   layer: string;
   name: string;
+  description?: string;
   elementType: string;
+  visibility?: string;
   isAbstract?: boolean;
   isStatic?: boolean;
   parentId?: string | null;
@@ -102,7 +114,9 @@ export type CreateClassElementPayload = {
 export type UpdateClassElementPayload = {
   id: string;
   name?: string;
+  description?: string;
   elementType?: string;
+  visibility?: string;
   isAbstract?: boolean;
   isStatic?: boolean;
   parentId?: string | null;
@@ -120,6 +134,7 @@ export type CreateClassRelationshipPayload = {
   sourceElementId: string;
   targetElementId: string;
   name?: string;
+  description?: string;
   relationshipType: string;
   aggregationKind?: "NONE" | "SHARED" | "COMPOSITE";
   isDisjoint?: boolean;
@@ -138,6 +153,7 @@ export type CreateClassRelationshipPayload = {
 export type UpdateClassRelationshipPayload = {
   id: string;
   name?: string;
+  description?: string;
   relationshipType?: string;
   aggregationKind?: "NONE" | "SHARED" | "COMPOSITE";
   isDisjoint?: boolean;
@@ -163,6 +179,7 @@ export type CreateClassPropertyPayload = {
   modelId: string;
   layer: string;
   name: string;
+  description?: string;
   typeClassElementId?: string | null;
   typeLiteral?: string;
   isStatic?: boolean;
@@ -171,7 +188,10 @@ export type CreateClassPropertyPayload = {
   visibility?: string;
   multiplicityLower?: number;
   multiplicityUpper?: string;
+  isOrdered?: boolean;
+  isUnique?: boolean;
   collectionKind?: string;
+  aggregationKind?: "NONE" | "SHARED" | "COMPOSITE";
   defaultValue?: string;
   ordering?: number;
 };
@@ -179,6 +199,7 @@ export type CreateClassPropertyPayload = {
 export type UpdateClassPropertyPayload = {
   id: string;
   name?: string;
+  description?: string;
   typeClassElementId?: string | null;
   typeLiteral?: string;
   isStatic?: boolean;
@@ -187,7 +208,10 @@ export type UpdateClassPropertyPayload = {
   visibility?: string;
   multiplicityLower?: number;
   multiplicityUpper?: string;
+  isOrdered?: boolean;
+  isUnique?: boolean;
   collectionKind?: string;
+  aggregationKind?: "NONE" | "SHARED" | "COMPOSITE";
   defaultValue?: string;
   ordering?: number;
 };
@@ -202,8 +226,11 @@ export type CreateClassOperationPayload = {
   modelId: string;
   layer: string;
   name: string;
+  description?: string;
   returnTypeClassElementId?: string | null;
   returnTypeLiteral?: string;
+  returnMultiplicityLower?: number;
+  returnMultiplicityUpper?: string;
   isStatic?: boolean;
   isAbstract?: boolean;
   visibility?: string;
@@ -213,8 +240,11 @@ export type CreateClassOperationPayload = {
 export type UpdateClassOperationPayload = {
   id: string;
   name?: string;
+  description?: string;
   returnTypeClassElementId?: string | null;
   returnTypeLiteral?: string;
+  returnMultiplicityLower?: number;
+  returnMultiplicityUpper?: string;
   isStatic?: boolean;
   isAbstract?: boolean;
   visibility?: string;
@@ -236,7 +266,7 @@ export type CreateClassOperationParameterPayload = {
   multiplicityLower?: number;
   multiplicityUpper?: string;
   defaultValue?: string;
-  direction?: "IN" | "OUT" | "INOUT";
+  direction?: "IN" | "OUT" | "INOUT" | "RETURN";
   isOrdered?: boolean;
   isUnique?: boolean;
   ordering?: number;
@@ -250,7 +280,7 @@ export type UpdateClassOperationParameterPayload = {
   multiplicityLower?: number;
   multiplicityUpper?: string;
   defaultValue?: string;
-  direction?: "IN" | "OUT" | "INOUT";
+  direction?: "IN" | "OUT" | "INOUT" | "RETURN";
   isOrdered?: boolean;
   isUnique?: boolean;
   ordering?: number;
@@ -285,6 +315,7 @@ export type RemoveClassEnumerationLiteralPayload = {
 export type CreateClassElementLayoutPayload = {
   classDiagramId: string;
   classElementId: string;
+  description?: string;
   x?: number;
   y?: number;
   width?: number;
@@ -293,6 +324,7 @@ export type CreateClassElementLayoutPayload = {
 
 export type UpdateClassElementLayoutPayload = {
   id: string;
+  description?: string;
   x?: number;
   y?: number;
   width?: number;
@@ -330,6 +362,7 @@ export interface IClassDiagramRepository {
   findById(query: FindClassDiagramByIdQuery): Promise<ClassDiagram | null>;
   create(payload: CreateClassDiagramPayload): Promise<ClassDiagram>;
   update(payload: UpdateClassDiagramPayload): Promise<ClassDiagram>;
+  updateLayout(payload: UpdateClassDiagramLayoutPayload): Promise<ClassDiagram>;
   remove(payload: RemoveClassDiagramPayload): Promise<boolean>;
 
   // Element operations (owned by Model)

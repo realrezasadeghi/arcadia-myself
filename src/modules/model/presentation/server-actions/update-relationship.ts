@@ -1,7 +1,6 @@
 "use server";
 
-import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
-import { fail, type IRes, ok } from "@/modules/shared/utils/response";
+import { withAuth } from "@/modules/auth/presentation/with-auth";
 import {
   type UpdateRelationshipResponse,
   UpdateRelationshipUseCase,
@@ -12,16 +11,8 @@ import {
   type UpdateRelationshipDTOProps,
 } from "../dtos/update-relationship";
 
-export async function updateRelationship(
-  payload: UpdateRelationshipDTOProps,
-): Promise<IRes<UpdateRelationshipResponse>> {
-  try {
-    const token = await cookiesStorageService.get("token");
-
-    if (!token) {
-      throw new Error("Token is required");
-    }
-
+export const updateRelationship = withAuth(
+  async (payload: UpdateRelationshipDTOProps, { token }): Promise<UpdateRelationshipResponse> => {
     const dto = UpdateRelationshipDTO.create(payload);
 
     const updateRelationshipUseCase = new UpdateRelationshipUseCase(
@@ -33,8 +24,6 @@ export async function updateRelationship(
       context: { token },
     });
 
-    return ok(response);
-  } catch (error) {
-    return fail(error);
-  }
-}
+    return response;
+  },
+);

@@ -22,6 +22,7 @@ export type CreateClassRelationshipUseCaseResponse = {
   sourceElementId: string;
   targetElementId: string;
   name: string;
+  description: string;
   relationshipType: string;
   aggregationKind: string;
   sourceMultiplicityLower: number;

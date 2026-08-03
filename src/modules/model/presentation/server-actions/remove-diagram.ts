@@ -1,19 +1,13 @@
 "use server";
 
-import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
-import { fail, type IRes, ok } from "@/modules/shared/utils/response";
-import { updateTag } from "next/cache";
+import { withAuth } from "@/modules/auth/presentation/with-auth";
 import { RemoveDiagramUseCase } from "../../application/use-cases/remove-diagram";
-import { diagramRepository } from "../../infrastructure/persistence/drizzle/repositories";
+import {
+  diagramRepository,
+} from "../../infrastructure/persistence/drizzle/repositories";
 
-export async function removeDiagram(id: string): Promise<IRes<boolean>> {
-  try {
-    const token = await cookiesStorageService.get("token");
-
-    if (!token) {
-      throw new Error("Token is required");
-    }
-
+export const removeDiagram = withAuth(
+  async (id: string, { token }): Promise<boolean> => {
     if (!id) {
       throw new Error("Diagram id is required");
     }
@@ -25,10 +19,6 @@ export async function removeDiagram(id: string): Promise<IRes<boolean>> {
       context: { token },
     });
 
-    updateTag(`get-diagrams-by-model-id-${id}`);
-
-    return ok(response);
-  } catch (error) {
-    return fail(error);
-  }
-}
+    return response;
+  },
+);

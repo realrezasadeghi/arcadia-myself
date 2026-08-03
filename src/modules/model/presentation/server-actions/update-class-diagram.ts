@@ -1,8 +1,6 @@
 "use server";
 
-import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
-import { fail, type IRes, ok } from "@/modules/shared/utils/response";
-import { updateTag } from "next/cache";
+import { withAuth } from "@/modules/auth/presentation/with-auth";
 import {
   type UpdateClassDiagramUseCaseResponse,
   UpdateClassDiagramUseCase,
@@ -10,16 +8,8 @@ import {
 import { classDiagramRepository } from "../../infrastructure/persistence/drizzle/repositories";
 import { UpdateClassDiagramDTO, type UpdateClassDiagramDTOProps } from "../dtos/update-class-diagram";
 
-export async function updateClassDiagram(
-  payload: UpdateClassDiagramDTOProps,
-): Promise<IRes<UpdateClassDiagramUseCaseResponse>> {
-  try {
-    const token = await cookiesStorageService.get("token");
-
-    if (!token) {
-      throw new Error("Token is required");
-    }
-
+export const updateClassDiagram = withAuth(
+  async (payload: UpdateClassDiagramDTOProps, { token }): Promise<UpdateClassDiagramUseCaseResponse> => {
     const dto = UpdateClassDiagramDTO.create(payload);
 
     const useCase = new UpdateClassDiagramUseCase(classDiagramRepository);
@@ -29,10 +19,6 @@ export async function updateClassDiagram(
       context: { token },
     });
 
-    updateTag(`get-class-diagrams-by-model-id-${payload.modelId}`);
-
-    return ok(response);
-  } catch (error) {
-    return fail(error);
-  }
-}
+    return response;
+  },
+);

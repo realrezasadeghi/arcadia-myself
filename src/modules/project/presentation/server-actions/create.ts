@@ -1,9 +1,6 @@
 "use server";
 
-import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
-import { extractUserIdFromJwt } from "@/modules/shared/libs/extract-jwt";
-import { fail, type IRes, ok } from "@/modules/shared/utils/response";
-import { updateTag } from "next/cache";
+import { withAuth } from "@/modules/auth/presentation/with-auth";
 import {
   type CreateProjectResponse,
   CreateProjectUseCase,
@@ -11,18 +8,8 @@ import {
 import { projectRepository } from "../../infrastructure/remote";
 import { CreateProjectDTO, type CreateProjectDTOProps } from "../dtos/create";
 
-export async function create(
-  payload: CreateProjectDTOProps,
-): Promise<IRes<CreateProjectResponse>> {
-  try {
-    const token = await cookiesStorageService.get("token");
-
-    if (!token) {
-      throw new Error("Token is required");
-    }
-
-    const userId = extractUserIdFromJwt(token);
-
+export const create = withAuth(
+  async (payload: CreateProjectDTOProps, { token, userId }): Promise<CreateProjectResponse> => {
     const dto = CreateProjectDTO.create(payload);
 
     const createProjectUseCase = new CreateProjectUseCase(projectRepository);
@@ -35,10 +22,7 @@ export async function create(
       },
     });
 
-    updateTag("GET_ALL_PROJECTS");
-
-    return ok(response);
-  } catch (error) {
-    return fail(error);
-  }
-}
+    return response;
+  },
+  { extractUserId: true },
+);

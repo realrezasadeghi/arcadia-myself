@@ -1,29 +1,21 @@
 "use server";
 
-import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
-import { fail, type IRes, ok } from "@/modules/shared/utils/response";
+import { withAuth } from "@/modules/auth/presentation/with-auth";
 import { RemoveRelationshipUseCase } from "../../application/use-cases/remove-relationship";
 import { relationshipRepository } from "../../infrastructure/persistence/drizzle/repositories";
 
-export async function removeRelationship({
-  modelId,
-  relationshipId,
-}: {
+export type RemoveRelationshipPayload = {
   modelId: string;
   relationshipId: string;
-}): Promise<IRes<boolean>> {
-  try {
-    const token = await cookiesStorageService.get("token");
+};
 
-    if (!token) {
-      throw new Error("Token is required");
-    }
-
-    if (!modelId) {
+export const removeRelationship = withAuth(
+  async (payload: RemoveRelationshipPayload, { token }): Promise<boolean> => {
+    if (!payload.modelId) {
       throw new Error("Model id is required");
     }
 
-    if (!relationshipId) {
+    if (!payload.relationshipId) {
       throw new Error("Relationship id is required");
     }
 
@@ -32,12 +24,10 @@ export async function removeRelationship({
     );
 
     const response = await removeRelationshipUseCase.execute({
-      payload: { modelId, relationshipId },
+      payload: { modelId: payload.modelId, relationshipId: payload.relationshipId },
       context: { token },
     });
 
-    return ok(response);
-  } catch (error) {
-    return fail(error);
-  }
-}
+    return response;
+  },
+);

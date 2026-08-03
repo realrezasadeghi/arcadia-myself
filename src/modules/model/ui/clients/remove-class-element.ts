@@ -5,6 +5,6 @@ type RemoveClassElementVariables = { id: string; modelId: string };
 
 export function useRemoveClassElement() {
   return useServerMutation<boolean, RemoveClassElementVariables>({
-    mutationFn: ({ id, modelId }) => removeClassElement(id, modelId),
+    mutationFn: ({ id, modelId }) => removeClassElement({ id, modelId }),
   });
 }

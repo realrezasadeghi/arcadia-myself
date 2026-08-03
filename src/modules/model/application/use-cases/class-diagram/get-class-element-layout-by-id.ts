@@ -13,6 +13,7 @@ export type GetClassElementLayoutByIdUseCaseResponse = {
   id: string;
   classDiagramId: string;
   classElementId: string;
+  description: string;
   x: number;
   y: number;
   width: number;

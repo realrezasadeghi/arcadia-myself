@@ -13,15 +13,13 @@ type Props = {
 };
 
 export default async function Page({ searchParams }: Props) {
-  const { search } = await searchParams;
-
   return (
     <div className="min-h-screen bg-background">
-      <ProjectToolbar searchQuery={search ?? ""} />
+      <ProjectToolbar searchParams={searchParams} />
 
       <div className="p-6">
         <Suspense fallback={<ProjectListSkeleton />}>
-          <ProjectListSection searchQuery={search ?? ""} />
+          <ProjectListSection searchParams={searchParams} />
         </Suspense>
       </div>
     </div>

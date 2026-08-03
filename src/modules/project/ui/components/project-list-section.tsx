@@ -3,29 +3,31 @@ import { ProjectCardWrapper } from "./project-card-wrapper";
 import { ProjectListEmpty } from "./project-list-empty";
 
 type ProjectListSectionProps = {
-  searchQuery: string;
+  searchParams: Promise<{ search?: string }>;
 };
 
 export async function ProjectListSection({
-  searchQuery,
+  searchParams,
 }: ProjectListSectionProps) {
   const { data: projects } = await getAllProjects();
   const allProjects = projects ?? [];
 
-  const filteredProjects = searchQuery
+  const { search } = await searchParams;
+
+  const filteredProjects = search
     ? allProjects.filter(
         (p) =>
-          p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.description?.toLowerCase().includes(searchQuery.toLowerCase()),
+          p.name.toLowerCase().includes(search.toLowerCase()) ||
+          p.description?.toLowerCase().includes(search.toLowerCase()),
       )
     : allProjects;
 
   if (allProjects.length === 0) {
     return (
       <ProjectListEmpty
+        showCreateButton
         title="No projects yet"
         description="Create your first project to start designing system architectures."
-        showCreateButton
       />
     );
   }
@@ -34,7 +36,7 @@ export async function ProjectListSection({
     return (
       <ProjectListEmpty
         title="No results found"
-        description={`No projects match "${searchQuery}". Try a different search term.`}
+        description={`No projects match "${search}". Try a different search term.`}
       />
     );
   }

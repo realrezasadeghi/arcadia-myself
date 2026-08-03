@@ -2,7 +2,7 @@
 
 import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
 import { fail, type IRes, ok } from "@/modules/shared/utils/response";
-import { updateTag } from "next/cache";
+import { cacheTag } from "next/cache";
 import {
   type GetClassDiagramsByModelIdUseCaseResponse,
   GetClassDiagramsByModelIdUseCase,
@@ -12,6 +12,8 @@ import { classDiagramRepository } from "../../infrastructure/persistence/drizzle
 export async function getClassDiagramsByModelId(
   modelId: string,
 ): Promise<IRes<GetClassDiagramsByModelIdUseCaseResponse>> {
+  "use cache: private";
+  cacheTag(`get-class-diagrams-by-model-id-${modelId}`);
   try {
     const token = await cookiesStorageService.get("token");
 

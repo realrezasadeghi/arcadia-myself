@@ -1,5 +1,6 @@
 // Class Diagram hooks
 export { useClassDiagramsByModelId } from "./get-class-diagrams-by-model-id";
+export { useGetClassDiagramById } from "./get-class-diagram-by-id";
 export { useCreateClassDiagram } from "./create-class-diagram";
 export { useUpdateClassDiagram } from "./update-class-diagram";
 export { useRemoveClassDiagram } from "./remove-class-diagram";

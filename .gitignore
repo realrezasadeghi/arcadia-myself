@@ -41,3 +41,11 @@ yarn-error.log*
 next-env.d.ts
 
 drizzle
+
+.mimocode/
+
+.ai
+
+.claude
+
+.idea

@@ -1,8 +1,6 @@
 "use server";
 
-import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
-import { fail, type IRes, ok } from "@/modules/shared/utils/response";
-import { updateTag } from "next/cache";
+import { withAuth } from "@/modules/auth/presentation/with-auth";
 import {
   type ConnectElementsResponse,
   ConnectElementsUseCase,
@@ -16,16 +14,8 @@ import {
   type ConnectElementsDTOProps,
 } from "../dtos/connect-elements";
 
-export async function connectElements(
-  payload: ConnectElementsDTOProps,
-): Promise<IRes<ConnectElementsResponse>> {
-  try {
-    const token = await cookiesStorageService.get("token");
-
-    if (!token) {
-      throw new Error("Token is required");
-    }
-
+export const connectElements = withAuth(
+  async (payload: ConnectElementsDTOProps, { token }): Promise<ConnectElementsResponse> => {
     const dto = ConnectElementsDTO.create(payload);
 
     const connectElementsUseCase = new ConnectElementsUseCase(
@@ -38,12 +28,6 @@ export async function connectElements(
       context: { token },
     });
 
-    updateTag(`get-elements-by-model-id-${payload.modelId}`);
-
-    updateTag(`get-relationships-by-model-id-${payload.modelId}`);
-
-    return ok(response);
-  } catch (error) {
-    return fail(error);
-  }
-}
+    return response;
+  },
+);

@@ -2,6 +2,7 @@ import type { Edge, Node, XYPosition } from "@xyflow/react";
 import { create } from "zustand";
 import type { ElementTypeValue } from "../types/element";
 import type { RelationshipTypeValue } from "../types/relationship";
+import type { ClassElementTypeValue, ClassRelationshipTypeValue } from "../types/class-diagram";
 
 export type ElementNodeData = {
   name: string;
@@ -12,6 +13,56 @@ export type ElementNodeData = {
   status: "DRAFT" | "VALIDATED" | "DEPRECATED";
 };
 
+/** Class diagram node data — extends base with UML-specific fields. */
+export type ClassNodeData = {
+  name: string;
+  modelId: string;
+  elementId: string;
+  description?: string;
+  elementType: ClassElementTypeValue;
+  status: "DRAFT" | "VALIDATED" | "DEPRECATED";
+  isAbstract?: boolean;
+  isStatic?: boolean;
+  /** Class properties shown in the attributes compartment. */
+  properties?: Array<{
+    id: string;
+    name: string;
+    typeLiteral: string;
+    visibility: "public" | "private" | "protected" | "package";
+    isStatic: boolean;
+    isReadOnly: boolean;
+    isDerived: boolean;
+    isID: boolean;
+    multiplicityLower: number;
+    multiplicityUpper: string;
+    collectionKind: string;
+    defaultValue: string;
+  }>;
+  /** Class operations shown in the operations compartment. */
+  operations?: Array<{
+    id: string;
+    name: string;
+    returnTypeLiteral: string;
+    visibility: "public" | "private" | "protected" | "package";
+    isStatic: boolean;
+    isAbstract: boolean;
+    isQuery: boolean;
+    parameters?: Array<{
+      name: string;
+      typeLiteral: string;
+      visibility: string;
+      multiplicityLower: number;
+      multiplicityUpper: string;
+    }>;
+  }>;
+  /** Enumeration literals for ENUM elements. */
+  enumerationLiterals?: Array<{
+    id: string;
+    name: string;
+    value: string;
+  }>;
+};
+
 export type RelationshipEdgeData = {
   name: string;
   modelId: string;
@@ -20,8 +71,29 @@ export type RelationshipEdgeData = {
   relationshipType: RelationshipTypeValue;
 };
 
-export type CanvasNode = Node<ElementNodeData>;
-export type CanvasEdge = Edge<RelationshipEdgeData>;
+/** Class diagram edge data — extends base with UML relationship fields. */
+export type ClassEdgeData = {
+  name: string;
+  modelId: string;
+  relationshipId: string;
+  description: string;
+  relationshipType: ClassRelationshipTypeValue;
+  aggregationKind?: "NONE" | "SHARED" | "COMPOSITE";
+  isDisjoint?: boolean;
+  isComplete?: boolean;
+  isDerived?: boolean;
+  sourceMultiplicityLower?: number;
+  sourceMultiplicityUpper?: string;
+  targetMultiplicityLower?: number;
+  targetMultiplicityUpper?: string;
+  sourceRole?: string;
+  targetRole?: string;
+  isNavigableSource?: boolean;
+  isNavigableTarget?: boolean;
+};
+
+export type CanvasNode = Node<ElementNodeData | ClassNodeData>;
+export type CanvasEdge = Edge<RelationshipEdgeData | ClassEdgeData>;
 
 export interface PendingConnection {
   sourceNodeId: string;
@@ -80,8 +152,8 @@ interface CanvasState {
   redo: () => void;
   addNode: (node: CanvasNode) => void;
   updateNodePosition: (id: string, position: XYPosition) => void;
-  updateNodeData: (id: string, data: Partial<ElementNodeData>) => void;
-  updateEdgeData: (id: string, data: Partial<RelationshipEdgeData>) => void;
+  updateNodeData: (id: string, data: Partial<ElementNodeData | ClassNodeData>) => void;
+  updateEdgeData: (id: string, data: Partial<RelationshipEdgeData | ClassEdgeData>) => void;
   removeNode: (id: string) => void;
   addEdge: (edge: CanvasEdge) => void;
   removeEdge: (id: string) => void;
@@ -184,7 +256,9 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   updateNodeData: (id, data) =>
     set((s) => ({
       nodes: s.nodes.map((n) =>
-        n.id === id ? { ...n, data: { ...n.data, ...data } } : n,
+        n.id === id
+          ? { ...n, data: { ...n.data, ...data } as ElementNodeData | ClassNodeData }
+          : n,
       ),
     })),
 
@@ -192,7 +266,7 @@ export const useCanvasStore = create<CanvasState>((set) => ({
     set((s) => ({
       edges: s.edges.map((e) =>
         e.id === id
-          ? { ...e, data: { ...e.data, ...data } as RelationshipEdgeData }
+          ? { ...e, data: { ...e.data, ...data } as RelationshipEdgeData | ClassEdgeData }
           : e,
       ),
     })),

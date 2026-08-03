@@ -1,8 +1,6 @@
 "use server";
 
-import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
-import { fail, type IRes, ok } from "@/modules/shared/utils/response";
-import { updateTag } from "next/cache";
+import { withAuth } from "@/modules/auth/presentation/with-auth";
 import {
   type UpdateElementResponse,
   UpdateElementUseCase,
@@ -13,16 +11,8 @@ import {
   type UpdateElementDTOProps,
 } from "../dtos/update-element";
 
-export async function updateElement(
-  payload: UpdateElementDTOProps,
-): Promise<IRes<UpdateElementResponse>> {
-  try {
-    const token = await cookiesStorageService.get("token");
-
-    if (!token) {
-      throw new Error("Token is required");
-    }
-
+export const updateElement = withAuth(
+  async (payload: UpdateElementDTOProps, { token }): Promise<UpdateElementResponse> => {
     const dto = UpdateElementDTO.create(payload);
 
     const updateElementUseCase = new UpdateElementUseCase(elementRepository);
@@ -32,10 +22,6 @@ export async function updateElement(
       context: { token },
     });
 
-    updateTag(`get-element-by-id-${payload.id}`);
-
-    return ok(response);
-  } catch (error) {
-    return fail(error);
-  }
-}
+    return response;
+  },
+);

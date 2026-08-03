@@ -2,7 +2,7 @@
 
 import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
 import { fail, type IRes, ok } from "@/modules/shared/utils/response";
-import { updateTag } from "next/cache";
+import { cacheTag } from "next/cache";
 import {
   type GetClassElementsByModelIdUseCaseResponse,
   GetClassElementsByModelIdUseCase,
@@ -13,6 +13,7 @@ export async function getClassElementsByModelId(
   modelId: string,
   layer?: string,
 ): Promise<IRes<GetClassElementsByModelIdUseCaseResponse>> {
+  "use cache: private";
   try {
     const token = await cookiesStorageService.get("token");
 

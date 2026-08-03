@@ -16,8 +16,11 @@ import { Check, FolderTree, Plus } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useCreateDiagram } from "../../clients/create-diagram";
+import { useCreateClassDiagram } from "../../clients/create-class-diagram";
 import { useCreateElement } from "../../clients/create-element";
 import { useCreateModel } from "../../clients/create-model";
+import { useRemoveClassDiagram } from "../../clients/remove-class-diagram";
+import { useRemoveClassElement } from "../../clients/remove-class-element";
 import { useRemoveDiagram } from "../../clients/remove-diagram";
 import { useRemoveElement } from "../../clients/remove-element";
 import { useUpdateDiagram } from "../../clients/update-diagram";
@@ -73,11 +76,27 @@ export function ExplorerPanel({
   }, [currentLayer]);
 
   const createDiagram = useCreateDiagram();
+  const createClassDiagram = useCreateClassDiagram();
   const createElement = useCreateElement();
   const createModel = useCreateModel();
   const removeDiagram = useRemoveDiagram();
+  const removeClassDiagram = useRemoveClassDiagram();
   const removeElement = useRemoveElement();
+  const removeClassElement = useRemoveClassElement();
   const updateDiagram = useUpdateDiagram();
+
+  /** Class element types stored in the class_elements table */
+  const CLASS_ELEMENT_TYPES = new Set([
+    "CLASS",
+    "INTERFACE",
+    "ENUM",
+    "DATA_TYPE",
+    "PRIMITIVE",
+    "COLLECTION",
+    "UNION",
+    "PACKAGE",
+    "GROUP",
+  ]);
 
   const existingLayers = useMemo(
     () => new Set(modelData.map((m) => m.model.layer)),
@@ -187,16 +206,39 @@ export function ExplorerPanel({
       });
       if (!ok) return;
 
-      removeElement.mutate(element.id, {
-        onSuccess: () => {
-          toast.success("Element deleted");
-          onTreeChanged();
-        },
-        onError: ({ message }) =>
-          toast.error(message || "Error deleting element"),
-      });
+      const isClassElement = CLASS_ELEMENT_TYPES.has(element.type);
+
+      if (isClassElement) {
+        // Find modelId from modelData for this class element
+        const modelId =
+          element.modelId ??
+          modelData.find((m) => m.elements.some((e) => e.id === element.id))
+            ?.model.id ??
+          "";
+
+        removeClassElement.mutate(
+          { id: element.id, modelId },
+          {
+            onSuccess: () => {
+              toast.success("Element deleted");
+              onTreeChanged();
+            },
+            onError: ({ message }) =>
+              toast.error(message || "Error deleting element"),
+          },
+        );
+      } else {
+        removeElement.mutate(element.id, {
+          onSuccess: () => {
+            toast.success("Element deleted");
+            onTreeChanged();
+          },
+          onError: ({ message }) =>
+            toast.error(message || "Error deleting element"),
+        });
+      }
     },
-    [confirm, removeElement, onTreeChanged],
+    [confirm, removeElement, removeClassElement, modelData, onTreeChanged],
   );
 
   const onDeleteDiagram = useCallback(
@@ -209,17 +251,32 @@ export function ExplorerPanel({
       });
       if (!ok) return;
 
-      removeDiagram.mutate(diagram.id, {
-        onSuccess: () => {
-          closeTab(diagram.id);
-          toast.success("Diagram deleted");
-          onTreeChanged();
-        },
-        onError: ({ message }) =>
-          toast.error(message || "Error deleting diagram"),
-      });
+      if (diagram.type === "CDB") {
+        removeClassDiagram.mutate(
+          { id: diagram.id, modelId: diagram.modelId },
+          {
+            onSuccess: () => {
+              closeTab(diagram.id);
+              toast.success("Diagram deleted");
+              onTreeChanged();
+            },
+            onError: ({ message }) =>
+              toast.error(message || "Error deleting diagram"),
+          },
+        );
+      } else {
+        removeDiagram.mutate(diagram.id, {
+          onSuccess: () => {
+            closeTab(diagram.id);
+            toast.success("Diagram deleted");
+            onTreeChanged();
+          },
+          onError: ({ message }) =>
+            toast.error(message || "Error deleting diagram"),
+        });
+      }
     },
-    [confirm, removeDiagram, closeTab, onTreeChanged],
+    [confirm, removeDiagram, removeClassDiagram, closeTab, onTreeChanged],
   );
 
   const onSubmitDiagram = useCallback(
@@ -227,32 +284,59 @@ export function ExplorerPanel({
       if (!diagramDialogModel) return;
       const model = diagramDialogModel;
 
-      createDiagram.mutate(
-        {
-          name: values.name,
-          type: values.type,
-          modelId: model.id,
-          description: values.description,
-        },
-        {
-          onSuccess: ({ data }) => {
-            setDiagramDialogModel(null);
-            openTab({
-              diagramId: data.id,
-              modelId: model.id,
-              name: data.name,
-              type: data.type,
-              layer: getDiagramLayer(data.type),
-            });
-            toast.success("Diagram created");
-            onTreeChanged();
+      if (values.type === "CDB") {
+        createClassDiagram.mutate(
+          {
+            name: values.name,
+            modelId: model.id,
+            layer: model.layer,
+            description: values.description,
           },
-          onError: ({ message }) =>
-            toast.error(message || "Error creating diagram"),
-        },
-      );
+          {
+            onSuccess: ({ data }) => {
+              setDiagramDialogModel(null);
+              openTab({
+                diagramId: data.id,
+                modelId: model.id,
+                name: data.name,
+                type: "CDB",
+                layer: getDiagramLayer("CDB"),
+              });
+              toast.success("Diagram created");
+              onTreeChanged();
+            },
+            onError: ({ message }) =>
+              toast.error(message || "Error creating diagram"),
+          },
+        );
+      } else {
+        createDiagram.mutate(
+          {
+            name: values.name,
+            type: values.type,
+            modelId: model.id,
+            description: values.description,
+          },
+          {
+            onSuccess: ({ data }) => {
+              setDiagramDialogModel(null);
+              openTab({
+                diagramId: data.id,
+                modelId: model.id,
+                name: data.name,
+                type: data.type,
+                layer: getDiagramLayer(data.type),
+              });
+              toast.success("Diagram created");
+              onTreeChanged();
+            },
+            onError: ({ message }) =>
+              toast.error(message || "Error creating diagram"),
+          },
+        );
+      }
     },
-    [createDiagram, diagramDialogModel, openTab, onTreeChanged],
+    [createDiagram, createClassDiagram, diagramDialogModel, openTab, onTreeChanged],
   );
 
   const onSubmitEditDiagram = useCallback(
@@ -352,7 +436,7 @@ export function ExplorerPanel({
               <Plus className="size-3.5" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent className="w-62" align="end">
             <DropdownMenuLabel>New Model</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {LAYERS.map((layer) => {

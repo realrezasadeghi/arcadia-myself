@@ -3,15 +3,18 @@
 import { Input } from "@/modules/shared/ui/components/ui/input";
 import { Search, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { startTransition, useCallback } from "react";
+import { startTransition, use, useCallback } from "react";
 
 type SearchInputProps = {
-  defaultValue?: string;
+  params: Promise<{ search?: string }>;
 };
 
-export function SearchInput({ defaultValue = "" }: SearchInputProps) {
+export function SearchInput({ params }: SearchInputProps) {
   const router = useRouter();
+
   const searchParams = useSearchParams();
+
+  const { search: defaultValue } = use(params);
 
   const handleSearch = useCallback(
     (value: string) => {

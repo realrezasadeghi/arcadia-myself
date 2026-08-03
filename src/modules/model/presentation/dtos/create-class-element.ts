@@ -2,7 +2,7 @@ export type CreateClassElementDTOProps = {
   modelId: string;
   layer: string;
   name: string;
-  elementType: "CLASS" | "INTERFACE" | "ENUM" | "DATA_TYPE" | "PRIMITIVE";
+  elementType: "CLASS" | "INTERFACE" | "ENUM" | "DATA_TYPE" | "PRIMITIVE" | "COLLECTION" | "UNION" | "PACKAGE" | "GROUP";
   isAbstract?: boolean;
   isStatic?: boolean;
   parentId?: string | null;
@@ -14,7 +14,7 @@ export class CreateClassElementDTO {
   public readonly modelId: string;
   public readonly layer: string;
   public readonly name: string;
-  public readonly elementType: "CLASS" | "INTERFACE" | "ENUM" | "DATA_TYPE" | "PRIMITIVE";
+  public readonly elementType: "CLASS" | "INTERFACE" | "ENUM" | "DATA_TYPE" | "PRIMITIVE" | "COLLECTION" | "UNION" | "PACKAGE" | "GROUP";
   public readonly isAbstract: boolean;
   public readonly isStatic: boolean;
   public readonly parentId: string | null;
@@ -72,17 +72,21 @@ export class CreateClassElementDTO {
 
   private static validateElementType(
     type: string
-  ): "CLASS" | "INTERFACE" | "ENUM" | "DATA_TYPE" | "PRIMITIVE" {
-    const validTypes: ("CLASS" | "INTERFACE" | "ENUM" | "DATA_TYPE" | "PRIMITIVE")[] = [
+  ): "CLASS" | "INTERFACE" | "ENUM" | "DATA_TYPE" | "PRIMITIVE" | "COLLECTION" | "UNION" | "PACKAGE" | "GROUP" {
+    const validTypes: ("CLASS" | "INTERFACE" | "ENUM" | "DATA_TYPE" | "PRIMITIVE" | "COLLECTION" | "UNION" | "PACKAGE" | "GROUP")[] = [
       "CLASS",
       "INTERFACE",
       "ENUM",
       "DATA_TYPE",
       "PRIMITIVE",
+      "COLLECTION",
+      "UNION",
+      "PACKAGE",
+      "GROUP",
     ];
     if (!validTypes.includes(type as any)) {
       throw new Error(`Element type must be one of: ${validTypes.join(", ")}`);
     }
-    return type as "CLASS" | "INTERFACE" | "ENUM" | "DATA_TYPE" | "PRIMITIVE";
+    return type as "CLASS" | "INTERFACE" | "ENUM" | "DATA_TYPE" | "PRIMITIVE" | "COLLECTION" | "UNION" | "PACKAGE" | "GROUP";
   }
 }

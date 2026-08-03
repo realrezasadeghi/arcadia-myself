@@ -1,7 +1,6 @@
 "use server";
 
-import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
-import { fail, type IRes, ok } from "@/modules/shared/utils/response";
+import { withAuth } from "@/modules/auth/presentation/with-auth";
 import {
   type UpdateDiagramResponse,
   UpdateDiagramUseCase,
@@ -12,16 +11,8 @@ import {
   type UpdateDiagramDTOProps,
 } from "../dtos/update-diagram";
 
-export async function updateDiagram(
-  payload: UpdateDiagramDTOProps,
-): Promise<IRes<UpdateDiagramResponse>> {
-  try {
-    const token = await cookiesStorageService.get("token");
-
-    if (!token) {
-      throw new Error("Token is required");
-    }
-
+export const updateDiagram = withAuth(
+  async (payload: UpdateDiagramDTOProps, { token }): Promise<UpdateDiagramResponse> => {
     const dto = UpdateDiagramDTO.create(payload);
 
     const updateDiagramUseCase = new UpdateDiagramUseCase(diagramRepository);
@@ -31,8 +22,6 @@ export async function updateDiagram(
       context: { token },
     });
 
-    return ok(response);
-  } catch (error) {
-    return fail(error);
-  }
-}
+    return response;
+  },
+);

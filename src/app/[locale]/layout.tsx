@@ -3,12 +3,11 @@ import { DirectionProvider } from "@/modules/shared/ui/components/ui/direction";
 import { Toaster } from "@/modules/shared/ui/components/ui/sonner";
 import fonts from "@/modules/shared/ui/helpers/fonts";
 import { ConfirmProvider } from "@/modules/shared/ui/providers/confirm";
+import { NextIntlProvider } from "@/modules/shared/ui/providers/next-intl";
 import { ThemeProvider } from "@/modules/shared/ui/providers/next-themes";
 import { QueryProvider } from "@/modules/shared/ui/providers/react-query";
 import type { Metadata } from "next";
-import { hasLocale, NextIntlClientProvider } from "next-intl";
-import { getMessages, setRequestLocale } from "next-intl/server";
-import { notFound } from "next/navigation";
+import { getMessages } from "next-intl/server";
 
 import "@/modules/shared/ui/assets/styles/globals.css";
 
@@ -36,31 +35,17 @@ export async function generateMetadata({
 }
 
 export default async function LocaleLayout({ children, params }: Props) {
-  const { locale } = await params;
-
-  if (!hasLocale(routing.locales, locale)) {
-    notFound();
-  }
-
-  setRequestLocale(locale);
-
-  const messages = await getMessages({ locale });
-
-  const dir = locale === "fa" ? "rtl" : "ltr";
-  const fontClass =
-    locale === "fa" ? fonts.vazirmatn.variable : fonts.inter.variable;
-
   return (
     <html
-      dir={dir}
-      lang={locale}
+      lang={"en"}
+      dir={"ltr"}
       suppressHydrationWarning
       data-scroll-behavior="smooth"
-      className={`${fontClass} h-full antialiased`}
+      className={`${fonts.inter.variable} h-full antialiased`}
     >
       <body className="min-h-full">
-        <NextIntlClientProvider messages={messages}>
-          <DirectionProvider dir={dir}>
+        <NextIntlProvider params={params}>
+          <DirectionProvider dir={"ltr"}>
             <ThemeProvider>
               <ConfirmProvider>
                 <QueryProvider>{children}</QueryProvider>
@@ -68,7 +53,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             </ThemeProvider>
             <Toaster position="bottom-right" />
           </DirectionProvider>
-        </NextIntlClientProvider>
+        </NextIntlProvider>
       </body>
     </html>
   );

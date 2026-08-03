@@ -9,13 +9,13 @@ import {
   getDiagramPalette,
   getDiagramTypesForLayer,
 } from "../../helpers/diagram";
-import {
-  getElementTypeInfo,
-  getElementTypesForLayer,
-} from "../../helpers/element";
+import { getElementTypesForLayer } from "../../helpers/element";
 import { getLayerInfo } from "../../helpers/layer";
 import { getRelationshipTypeInfo } from "../../helpers/relationship";
 import { useWorkbenchStore } from "../../stores/workbench";
+import type { ClassElementTypeValue } from "../../types/class-diagram";
+import { ClassElementShapeList } from "../class-element-shape-list";
+import { ClassRelationshipList } from "../class-relationship-list";
 import { ElementShapeList } from "../element-shape-list";
 
 /**
@@ -31,6 +31,7 @@ export function PalettePanel() {
   const currentLayer = useWorkbenchStore((s) => s.currentLayer);
 
   const layer = activeTab?.layer ?? currentLayer;
+  const isClassDiagram = activeTab?.type === "CDB";
 
   const palette = useMemo(
     () => (activeTab ? getDiagramPalette(activeTab.type) : null),
@@ -73,58 +74,72 @@ export function PalettePanel() {
           <>
             <div className="px-3 pt-2">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Nodes · {activeTab.type}
+                {isClassDiagram ? "Elements" : "Nodes"} · {activeTab.type}
               </p>
             </div>
-            <ElementShapeList layer={layer} types={palette.elementTypes} />
+
+            {isClassDiagram ? (
+              <ClassElementShapeList
+                types={palette.elementTypes as ClassElementTypeValue[]}
+              />
+            ) : (
+              <ElementShapeList layer={layer} types={palette.elementTypes} />
+            )}
 
             {relationships.length > 0 && (
               <>
                 <Separator className="my-1" />
-                <div className="px-3 pt-1">
-                  <p className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    <Spline className="size-3" />
-                    Exchanges
-                  </p>
-                </div>
-                <div className="flex flex-col gap-1 p-2">
-                  {relationships.map((rel) => {
-                    const visual = RELATIONSHIP_VISUAL[rel.value];
-                    return (
-                      <div
-                        key={rel.value}
-                        className="flex items-center gap-2 rounded-md px-2.5 py-1.5"
-                        title={`${rel.label} — drag between node handles to create`}
-                      >
-                        <svg
-                          width="20"
-                          height="8"
-                          viewBox="0 0 20 8"
-                          className="shrink-0"
-                          aria-hidden="true"
-                          role="presentation"
-                        >
-                          <line
-                            x1="1"
-                            y1="4"
-                            x2="19"
-                            y2="4"
-                            stroke={visual.strokeColor}
-                            strokeWidth={visual.strokeWidth}
-                            strokeDasharray={
-                              visual.strokeDash && visual.strokeDash !== "none"
-                                ? visual.strokeDash
-                                : undefined
-                            }
-                          />
-                        </svg>
-                        <span className="text-xs leading-tight">
-                          {rel.label}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
+                {isClassDiagram ? (
+                  <ClassRelationshipList />
+                ) : (
+                  <>
+                    <div className="px-3 pt-1">
+                      <p className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        <Spline className="size-3" />
+                        Exchanges
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-1 p-2">
+                      {relationships.map((rel) => {
+                        const visual = RELATIONSHIP_VISUAL[rel.value];
+                        return (
+                          <div
+                            key={rel.value}
+                            className="flex items-center gap-2 rounded-md px-2.5 py-1.5"
+                            title={`${rel.label} — drag between node handles to create`}
+                          >
+                            <svg
+                              width="20"
+                              height="8"
+                              viewBox="0 0 20 8"
+                              className="shrink-0"
+                              aria-hidden="true"
+                              role="presentation"
+                            >
+                              <line
+                                x1="1"
+                                y1="4"
+                                x2="19"
+                                y2="4"
+                                stroke={visual.strokeColor}
+                                strokeWidth={visual.strokeWidth}
+                                strokeDasharray={
+                                  visual.strokeDash &&
+                                  visual.strokeDash !== "none"
+                                    ? visual.strokeDash
+                                    : undefined
+                                }
+                              />
+                            </svg>
+                            <span className="text-xs leading-tight">
+                              {rel.label}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
               </>
             )}
 

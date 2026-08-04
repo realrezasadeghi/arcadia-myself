@@ -21,7 +21,10 @@ export type CreateClassOperationPayload = {
 };
 
 export const createClassOperation = withAuth(
-  async (payload: CreateClassOperationPayload, { token }): Promise<CreateClassOperationUseCaseResponse> => {
+  async (
+    payload: CreateClassOperationPayload,
+    { token },
+  ): Promise<CreateClassOperationUseCaseResponse> => {
     const useCase = new CreateClassOperationUseCase(classDiagramRepository);
 
     const response = await useCase.execute({

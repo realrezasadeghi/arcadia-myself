@@ -1,6 +1,9 @@
 import { Entity } from "@/modules/shared/domain/entity";
 
-export type ClassEnumerationLiteralStatus = "DRAFT" | "VALIDATED" | "DEPRECATED";
+export type ClassEnumerationLiteralStatus =
+  | "DRAFT"
+  | "VALIDATED"
+  | "DEPRECATED";
 
 interface ClassEnumerationLiteralProps {
   classElementId: string;
@@ -48,7 +51,8 @@ export class ClassEnumerationLiteral extends Entity<string> {
     ordering?: number;
     status?: ClassEnumerationLiteralStatus;
   }): ClassEnumerationLiteral {
-    if (!props.name.trim()) throw new Error("Enumeration literal name is required");
+    if (!props.name.trim())
+      throw new Error("Enumeration literal name is required");
 
     return new ClassEnumerationLiteral(props.id, {
       classElementId: props.classElementId,
@@ -114,7 +118,8 @@ export class ClassEnumerationLiteral extends Entity<string> {
   }
 
   rename(name: string): void {
-    if (!name.trim()) throw new Error("Enumeration literal name can't be empty");
+    if (!name.trim())
+      throw new Error("Enumeration literal name can't be empty");
     this._name = name.trim();
     this._touch();
   }

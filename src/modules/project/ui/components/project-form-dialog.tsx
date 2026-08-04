@@ -18,6 +18,7 @@ import { Form } from "@/modules/shared/ui/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useEffect, useMemo } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useCreateProject } from "../clients/create";
 import { useUpdateProject } from "../clients/update";
@@ -39,6 +40,7 @@ export function ProjectFormDialog({
   const create = useCreateProject();
   const update = useUpdateProject();
   const isPending = create.isPending || update.isPending;
+  const router = useRouter();
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),
@@ -96,6 +98,7 @@ export function ProjectFormDialog({
             onSuccess: (data) => {
               onOpenChange(false);
               toast.success(data.message);
+              router.refresh();
             },
           },
         );
@@ -107,6 +110,7 @@ export function ProjectFormDialog({
           onSuccess: ({ data, message }) => {
             onOpenChange(false);
             toast.success(message);
+            router.refresh();
             if (values.isSeed) {
               ife.mutate(String(data.id));
             }
@@ -114,7 +118,7 @@ export function ProjectFormDialog({
         });
       }
     },
-    [project, isEdit, update, create, onOpenChange, ife],
+    [project, isEdit, update, create, onOpenChange, ife, router],
   );
 
   return (

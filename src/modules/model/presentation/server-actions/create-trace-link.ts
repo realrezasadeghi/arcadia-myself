@@ -15,7 +15,10 @@ import {
 } from "../dtos/create-trace-link";
 
 export const createTraceLink = withAuth(
-  async (payload: CreateTraceLinkDTOProps, { token }): Promise<CreateTraceLinkResponse> => {
+  async (
+    payload: CreateTraceLinkDTOProps,
+    { token },
+  ): Promise<CreateTraceLinkResponse> => {
     const createTraceLinkUseCase = new CreateTraceLinkUseCase(
       traceLinkRepository,
       elementRepository,

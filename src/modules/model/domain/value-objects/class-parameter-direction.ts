@@ -6,7 +6,12 @@ interface ClassParameterDirectionProps {
   value: ClassParameterDirectionValue;
 }
 
-const ALL_DIRECTIONS: ClassParameterDirectionValue[] = ["IN", "OUT", "INOUT", "RETURN"];
+const ALL_DIRECTIONS: ClassParameterDirectionValue[] = [
+  "IN",
+  "OUT",
+  "INOUT",
+  "RETURN",
+];
 
 export class ClassParameterDirection extends ValueObject<ClassParameterDirectionProps> {
   static readonly IN = new ClassParameterDirection({ value: "IN" });

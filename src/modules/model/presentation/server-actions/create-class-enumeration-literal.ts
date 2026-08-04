@@ -17,8 +17,13 @@ export type CreateClassEnumerationLiteralPayload = {
 };
 
 export const createClassEnumerationLiteral = withAuth(
-  async (payload: CreateClassEnumerationLiteralPayload, { token }): Promise<CreateClassEnumerationLiteralUseCaseResponse> => {
-    const useCase = new CreateClassEnumerationLiteralUseCase(classDiagramRepository);
+  async (
+    payload: CreateClassEnumerationLiteralPayload,
+    { token },
+  ): Promise<CreateClassEnumerationLiteralUseCaseResponse> => {
+    const useCase = new CreateClassEnumerationLiteralUseCase(
+      classDiagramRepository,
+    );
 
     const response = await useCase.execute({
       payload: {

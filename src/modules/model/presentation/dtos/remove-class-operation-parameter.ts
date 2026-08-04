@@ -9,13 +9,21 @@ export class RemoveClassOperationParameterDTO {
     this.id = props.id;
   }
 
-  static create(props: RemoveClassOperationParameterDTOProps): RemoveClassOperationParameterDTO {
+  static create(
+    props: RemoveClassOperationParameterDTOProps,
+  ): RemoveClassOperationParameterDTO {
     return new RemoveClassOperationParameterDTO({
-      id: RemoveClassOperationParameterDTO.validateRequiredString(props.id, "Parameter ID"),
+      id: RemoveClassOperationParameterDTO.validateRequiredString(
+        props.id,
+        "Parameter ID",
+      ),
     });
   }
 
-  private static validateRequiredString(value: string, fieldName: string): string {
+  private static validateRequiredString(
+    value: string,
+    fieldName: string,
+  ): string {
     if (!value) throw new Error(`${fieldName} is required`);
     const trimmed = value.trim();
     if (!trimmed) throw new Error(`${fieldName} cannot be empty`);

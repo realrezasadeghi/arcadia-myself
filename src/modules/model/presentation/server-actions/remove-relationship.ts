@@ -24,7 +24,10 @@ export const removeRelationship = withAuth(
     );
 
     const response = await removeRelationshipUseCase.execute({
-      payload: { modelId: payload.modelId, relationshipId: payload.relationshipId },
+      payload: {
+        modelId: payload.modelId,
+        relationshipId: payload.relationshipId,
+      },
       context: { token },
     });
 

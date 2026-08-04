@@ -5,13 +5,19 @@ import {
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuSeparator,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/modules/shared/ui/components/ui/context-menu";
-import { Copy, Eye, Trash2 } from "lucide-react";
-import { useCallback } from "react";
+import { Copy, Eye, FolderOpen, Loader2, Package, Trash2 } from "lucide-react";
+import { useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import { getClassElementTypeInfo } from "../constants/class-diagram";
-import type { ClassEdgeData, ClassNodeData } from "../stores/canvas";
+import { useMoveToPackage } from "../hooks/use-move-to-package";
+import { useRemoveElementSync } from "../hooks/use-remove-element";
+import { useRemoveRelationshipSync } from "../hooks/use-remove-relationship";
+import type { ClassNodeData } from "../stores/canvas";
 import { useCanvasStore } from "../stores/canvas";
 
 type ClassDiagramContextMenuProps = {
@@ -38,23 +44,42 @@ export function ClassDiagramContextMenu({
 
 function NodeContextMenu({ nodeId }: { nodeId: string }) {
   const node = useCanvasStore((s) => s.nodes.find((n) => n.id === nodeId));
-  const removeElement = useCanvasStore((s) => s.removeNode);
+  const { removeElement, isPending } = useRemoveElementSync();
   const selectNode = useCanvasStore((s) => s.selectNode);
+  const { moveToPackage, isPending: isMoving } = useMoveToPackage();
+
+  // Get all Package nodes in the canvas (excluding current node)
+  const packages = useMemo(() => {
+    const currentNodes = useCanvasStore.getState().nodes;
+    return currentNodes.filter(
+      (n) =>
+        n.id !== nodeId &&
+        (n.data as ClassNodeData).elementType === "PACKAGE",
+    );
+  }, [nodeId]);
+
+  const handleDelete = useCallback(() => {
+    removeElement(nodeId);
+  }, [nodeId, removeElement]);
 
   if (!node) return null;
 
   const data = node.data as ClassNodeData;
-  const typeInfo = getClassElementTypeInfo(data.elementType);
+  const currentParentId = (data as any).parentId as string | null;
 
   const handleCopyId = useCallback(() => {
     navigator.clipboard.writeText(data.elementId);
     toast.success("Element ID copied");
   }, [data.elementId]);
 
-  const handleDelete = useCallback(() => {
-    removeElement(nodeId);
-    toast.success(`Deleted "${data.name}"`);
-  }, [nodeId, data.name, removeElement]);
+  const handleMoveToPackage = useCallback(
+    (packageId: string | null, packageName?: string) => {
+      moveToPackage(data.elementId, data.modelId, packageId, packageName);
+    },
+    [data.elementId, data.modelId, moveToPackage],
+  );
+
+  const typeInfo = getClassElementTypeInfo(data.elementType);
 
   return (
     <>
@@ -71,12 +96,59 @@ function NodeContextMenu({ nodeId }: { nodeId: string }) {
         <Eye className="mr-2 size-3.5" />
         Select
       </ContextMenuItem>
+
+      {/* Move to Package submenu */}
+      {data.elementType !== "PACKAGE" && packages.length > 0 && (
+        <>
+          <ContextMenuSeparator />
+          <ContextMenuSub>
+            <ContextMenuSubTrigger>
+              <FolderOpen className="mr-2 size-3.5" />
+              Move to Package
+            </ContextMenuSubTrigger>
+            <ContextMenuSubContent className="w-48">
+              {currentParentId && (
+                <ContextMenuItem
+                  onClick={() => handleMoveToPackage(null)}
+                  disabled={isMoving}
+                >
+                  <Package className="mr-2 size-3.5 opacity-50" />
+                  <span className="text-muted-foreground">Ungroup</span>
+                </ContextMenuItem>
+              )}
+              {packages.map((pkg) => {
+                const pkgData = pkg.data as ClassNodeData;
+                const isCurrentParent = pkg.id === currentParentId;
+                return (
+                  <ContextMenuItem
+                    key={pkg.id}
+                    onClick={() => handleMoveToPackage(pkg.id, pkgData.name)}
+                    disabled={isMoving || isCurrentParent}
+                  >
+                    <Package className="mr-2 size-3.5" />
+                    <span className={isCurrentParent ? "font-medium" : ""}>
+                      {pkgData.name}
+                      {isCurrentParent && " (current)"}
+                    </span>
+                  </ContextMenuItem>
+                );
+              })}
+            </ContextMenuSubContent>
+          </ContextMenuSub>
+        </>
+      )}
+
       <ContextMenuSeparator />
       <ContextMenuItem
         onClick={handleDelete}
+        disabled={isPending}
         className="text-destructive focus:text-destructive"
       >
-        <Trash2 className="mr-2 size-3.5" />
+        {isPending ? (
+          <Loader2 className="mr-2 size-3.5 animate-spin" />
+        ) : (
+          <Trash2 className="mr-2 size-3.5" />
+        )}
         Delete
       </ContextMenuItem>
     </>
@@ -85,11 +157,11 @@ function NodeContextMenu({ nodeId }: { nodeId: string }) {
 
 function EdgeContextMenu({ edgeId }: { edgeId: string }) {
   const edge = useCanvasStore((s) => s.edges.find((e) => e.id === edgeId));
-  const removeEdge = useCanvasStore((s) => s.removeEdge);
+  const { removeRelationship, isPending } = useRemoveRelationshipSync();
 
   if (!edge) return null;
 
-  const data = edge.data as ClassEdgeData;
+  const data = edge.data as import("../stores/canvas").ClassEdgeData;
 
   const handleCopyId = useCallback(() => {
     navigator.clipboard.writeText(data.relationshipId);
@@ -97,9 +169,8 @@ function EdgeContextMenu({ edgeId }: { edgeId: string }) {
   }, [data.relationshipId]);
 
   const handleDelete = useCallback(() => {
-    removeEdge(edgeId);
-    toast.success(`Deleted relationship "${data.name}"`);
-  }, [edgeId, data.name, removeEdge]);
+    removeRelationship(edgeId);
+  }, [edgeId, removeRelationship]);
 
   return (
     <>
@@ -119,9 +190,14 @@ function EdgeContextMenu({ edgeId }: { edgeId: string }) {
       <ContextMenuSeparator />
       <ContextMenuItem
         onClick={handleDelete}
+        disabled={isPending}
         className="text-destructive focus:text-destructive"
       >
-        <Trash2 className="mr-2 size-3.5" />
+        {isPending ? (
+          <Loader2 className="mr-2 size-3.5 animate-spin" />
+        ) : (
+          <Trash2 className="mr-2 size-3.5" />
+        )}
         Delete
       </ContextMenuItem>
     </>

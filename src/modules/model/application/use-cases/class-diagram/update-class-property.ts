@@ -1,6 +1,9 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
-import type { IClassDiagramRepository, UpdateClassPropertyPayload } from "../../ports/class-diagram";
+import type {
+  IClassDiagramRepository,
+  UpdateClassPropertyPayload,
+} from "../../ports/class-diagram";
 
 export type UpdateClassPropertyUseCasePayload = {
   payload: UpdateClassPropertyPayload;
@@ -37,7 +40,11 @@ export type UpdateClassPropertyUseCaseResponse = {
 };
 
 export class UpdateClassPropertyUseCase
-  implements IUseCase<UpdateClassPropertyUseCasePayload, UpdateClassPropertyUseCaseResponse>
+  implements
+    IUseCase<
+      UpdateClassPropertyUseCasePayload,
+      UpdateClassPropertyUseCaseResponse
+    >
 {
   constructor(private readonly repository: IClassDiagramRepository) {}
 
@@ -46,7 +53,9 @@ export class UpdateClassPropertyUseCase
   }: UpdateClassPropertyUseCasePayload): Promise<UpdateClassPropertyUseCaseResponse> {
     try {
       // Validate property exists and belongs to model (if classElementId is provided in payload)
-      const existing = await this.repository.findPropertyById({ id: payload.id });
+      const existing = await this.repository.findPropertyById({
+        id: payload.id,
+      });
       if (!existing) {
         throw new Error(`ClassProperty not found with id: ${payload.id}`);
       }
@@ -57,7 +66,9 @@ export class UpdateClassPropertyUseCase
       const property = await this.repository.updateProperty(payload);
       return property.toJSON();
     } catch (error) {
-      throw new Error(resolveErrorMessage(error, "Error updating class property"));
+      throw new Error(
+        resolveErrorMessage(error, "Error updating class property"),
+      );
     }
   }
 }

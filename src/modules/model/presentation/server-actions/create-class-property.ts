@@ -26,7 +26,10 @@ export type CreateClassPropertyPayload = {
 };
 
 export const createClassProperty = withAuth(
-  async (payload: CreateClassPropertyPayload, { token }): Promise<CreateClassPropertyUseCaseResponse> => {
+  async (
+    payload: CreateClassPropertyPayload,
+    { token },
+  ): Promise<CreateClassPropertyUseCaseResponse> => {
     const useCase = new CreateClassPropertyUseCase(classDiagramRepository);
 
     const response = await useCase.execute({

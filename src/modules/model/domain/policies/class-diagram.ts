@@ -1,5 +1,11 @@
-import { ClassElementType, type ClassElementTypeValue } from "../value-objects/class-element-type";
-import { ClassRelationshipType, type ClassRelationshipTypeValue } from "../value-objects/class-relationship-type";
+import {
+  ClassElementType,
+  type ClassElementTypeValue,
+} from "../value-objects/class-element-type";
+import {
+  ClassRelationshipType,
+  type ClassRelationshipTypeValue,
+} from "../value-objects/class-relationship-type";
 import { Layer, type LayerValue } from "../value-objects/layer";
 
 export type ValidationSeverity = "error" | "warning" | "info";
@@ -161,7 +167,7 @@ export class ClassDiagramPolicy {
       const checkMultiplicity = (
         lower: number,
         upper: string,
-        side: "source" | "target"
+        side: "source" | "target",
       ) => {
         if (upper !== "*" && !isNaN(Number(upper))) {
           const upperNum = Number(upper);
@@ -180,12 +186,12 @@ export class ClassDiagramPolicy {
       checkMultiplicity(
         rel.sourceMultiplicityLower,
         rel.sourceMultiplicityUpper,
-        "source"
+        "source",
       );
       checkMultiplicity(
         rel.targetMultiplicityLower,
         rel.targetMultiplicityUpper,
-        "target"
+        "target",
       );
     }
 
@@ -243,7 +249,8 @@ export class ClassDiagramPolicy {
     for (const rel of ctx.relationships) {
       if (
         rel.relationshipType === "ASSOCIATION" &&
-        (rel.aggregationKind === "COMPOSITE" || rel.aggregationKind === "SHARED")
+        (rel.aggregationKind === "COMPOSITE" ||
+          rel.aggregationKind === "SHARED")
       ) {
         const source = elementById.get(rel.sourceElementId);
         if (source && source.type === "INTERFACE") {

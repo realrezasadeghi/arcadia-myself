@@ -45,25 +45,41 @@ export class CreateClassOperationParameterDTO {
     this.ordering = props.ordering ?? 0;
   }
 
-  static create(props: CreateClassOperationParameterDTOProps): CreateClassOperationParameterDTO {
+  static create(
+    props: CreateClassOperationParameterDTOProps,
+  ): CreateClassOperationParameterDTO {
     return new CreateClassOperationParameterDTO({
-      classOperationId: CreateClassOperationParameterDTO.validateRequiredString(props.classOperationId, "Class Operation ID"),
-      modelId: CreateClassOperationParameterDTO.validateRequiredString(props.modelId, "Model ID"),
+      classOperationId: CreateClassOperationParameterDTO.validateRequiredString(
+        props.classOperationId,
+        "Class Operation ID",
+      ),
+      modelId: CreateClassOperationParameterDTO.validateRequiredString(
+        props.modelId,
+        "Model ID",
+      ),
       layer: CreateClassOperationParameterDTO.validateLayer(props.layer),
       name: CreateClassOperationParameterDTO.validateName(props.name),
       typeClassElementId: props.typeClassElementId,
       typeLiteral: props.typeLiteral,
-      multiplicityLower: CreateClassOperationParameterDTO.validateMultiplicityLower(props.multiplicityLower),
+      multiplicityLower:
+        CreateClassOperationParameterDTO.validateMultiplicityLower(
+          props.multiplicityLower,
+        ),
       multiplicityUpper: props.multiplicityUpper ?? "1",
       defaultValue: props.defaultValue,
-      direction: CreateClassOperationParameterDTO.validateDirection(props.direction),
+      direction: CreateClassOperationParameterDTO.validateDirection(
+        props.direction,
+      ),
       isOrdered: props.isOrdered,
       isUnique: props.isUnique,
       ordering: props.ordering,
     });
   }
 
-  private static validateRequiredString(value: string, fieldName: string): string {
+  private static validateRequiredString(
+    value: string,
+    fieldName: string,
+  ): string {
     if (!value) throw new Error(`${fieldName} is required`);
     const trimmed = value.trim();
     if (!trimmed) throw new Error(`${fieldName} cannot be empty`);
@@ -82,7 +98,8 @@ export class CreateClassOperationParameterDTO {
     if (!name) throw new Error("Parameter name is required");
     const trimmed = name.trim();
     if (!trimmed) throw new Error("Parameter name cannot be empty");
-    if (trimmed.length > 255) throw new Error("Name cannot exceed 255 characters");
+    if (trimmed.length > 255)
+      throw new Error("Name cannot exceed 255 characters");
     return trimmed;
   }
 

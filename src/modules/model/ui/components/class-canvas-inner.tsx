@@ -9,13 +9,16 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { type DragEventHandler, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ClassConnectionPolicy } from "../../domain/policies/class-connection";
 import { useCreateClassElement } from "../clients/create-class-element";
 import { useCreateClassRelationship } from "../clients/create-class-relationship";
+import { getClassDiagramByIdKey } from "../clients/get-class-diagram-by-id";
 import { getElementRelationsKey } from "../clients/get-element-relations";
 import { useUpdateClassDiagramLayout } from "../clients/update-class-diagram-layout";
 import { getClassElementTypeInfo } from "../constants/class-diagram";
+import { isContainerType, getDefaultSize, nodesToAbsoluteLayouts } from "../helpers/class-diagram";
 import { mapToClassRelationshipType } from "../helpers/class-diagram";
 import { getDiagramPalette } from "../helpers/diagram";
 import { getElementTypeInfo } from "../helpers/element";
@@ -33,9 +36,11 @@ import { ClassDiagramContextMenu } from "./class-diagram-context-menu";
 import { ConnectionDialog } from "./connection-dialog";
 import { ClassEdge } from "./edges/class-edge";
 import { ClassNode } from "./nodes/class/class-node";
+import { PackageNode } from "./nodes/class/package-node";
 
 const NODE_TYPES = {
   "class-node": ClassNode,
+  "package-node": PackageNode,
 } as const;
 
 const EDGE_TYPES = {
@@ -53,6 +58,7 @@ export function ClassCanvasInner({
   elements,
   relationships,
 }: ClassCanvasInnerProps) {
+  const router = useRouter();
   const createClassElement = useCreateClassElement();
   const createClassRelationship = useCreateClassRelationship();
   const updateClassDiagramLayout = useUpdateClassDiagramLayout();
@@ -60,6 +66,7 @@ export function ClassCanvasInner({
   const createRelationship = useCallback(
     (payload: {
       name: string;
+      description?: string;
       sourceElementId: string;
       targetElementId: string;
       type: RelationshipTypeValue;
@@ -68,9 +75,9 @@ export function ClassCanvasInner({
       if (!modelId) return;
 
       // Get the layer from the active tab in workbench store
-      const activeTab = useWorkbenchStore.getState().tabs.find(
-        (t) => t.diagramId === useCanvasStore.getState().diagramId,
-      );
+      const activeTab = useWorkbenchStore
+        .getState()
+        .tabs.find((t) => t.diagramId === useCanvasStore.getState().diagramId);
       const layer = activeTab?.layer ?? "LA";
 
       pushHistory();
@@ -80,6 +87,7 @@ export function ClassCanvasInner({
           modelId,
           layer,
           name: payload.name,
+          description: payload.description,
           relationshipType: payload.type as any,
           sourceElementId: payload.sourceElementId,
           targetElementId: payload.targetElementId,
@@ -142,10 +150,11 @@ export function ClassCanvasInner({
     handleDragOver,
     handleConfirm,
   } = useCanvasBehaviour({
-    onConfirm: (type, name) => {
+    onConfirm: (type, name, description) => {
       if (!pendingConnection) return;
       createRelationship({
         name,
+        description,
         type,
         sourceElementId: pendingConnection.sourceNodeId,
         targetElementId: pendingConnection.targetNodeId,
@@ -153,23 +162,45 @@ export function ClassCanvasInner({
     },
   });
 
-  // Build canvas nodes/edges from class diagram data
+  // Initialize canvas on mount, clean up on unmount
   // biome-ignore lint/correctness/useExhaustiveDependencies: initCanvas and reset are stable
+  useEffect(() => {
+    initCanvas(diagram.id, diagram.modelId, [], []);
+    return () => reset();
+  }, [initCanvas, reset, diagram.id, diagram.modelId]);
+
+  // Sync nodes/edges when elements/relationships data changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: setNodes/setEdges are stable
   useEffect(() => {
     const layoutMap = new Map(
       diagram.elementLayouts.map((l) => [l.elementId, l]),
     );
 
-    const nodes = elements
+    // Build a map of element ID to element data for parent lookups
+    const elementMap = new Map(elements.map((e) => [e.id, e]));
+
+    const newNodes = elements
       .filter((element) => layoutMap.has(element.id))
       .map((element) => {
         const layout = layoutMap.get(element.id)!;
+        const isContainer = isContainerType(element.type as any);
+        const parentId = (element as any).parentId as string | null;
+        
+        // Only set parentId if parent is also on this diagram
+        const effectiveParentId = 
+          parentId && layoutMap.has(parentId) ? parentId : undefined;
+
         return {
           id: element.id,
           width: layout.size.width,
-          type: "class-node" as const,
-          position: layout.position,
+          type: isContainer ? "package-node" : "class-node",
+          position: effectiveParentId 
+            ? { x: 0, y: 0 }  // Will be calculated relative to parent
+            : layout.position,
+          parentId: effectiveParentId,
+          extent: effectiveParentId ? ("parent" as const) : undefined,
           height: layout.size.height,
+          zIndex: isContainer ? -1 : 0,
           data: {
             name: element.name,
             elementId: element.id,
@@ -177,6 +208,7 @@ export function ClassCanvasInner({
             modelId: diagram.modelId,
             elementType: element.type,
             description: element.description,
+            parentId: parentId,
             isAbstract: (element as any).isAbstract ?? false,
             isStatic: (element as any).isStatic ?? false,
             properties: (element as any).properties ?? [],
@@ -186,9 +218,34 @@ export function ClassCanvasInner({
         };
       });
 
-    const nodeIds = new Set(nodes.map((n) => n.id));
+    // Calculate relative positions for children
+    const nodesById = new Map(newNodes.map((n) => [n.id, n]));
+    for (const node of newNodes) {
+      if (node.parentId) {
+        const parent = nodesById.get(node.parentId);
+        if (parent) {
+          // Get absolute positions for both parent and child
+          const parentAbs = layoutMap.get(parent.data.elementId)?.position ?? parent.position;
+          const childAbs = layoutMap.get(node.data.elementId)?.position ?? node.position;
+          // Child position is relative to parent
+          node.position = {
+            x: childAbs.x - parentAbs.x,
+            y: childAbs.y - parentAbs.y,
+          };
+        }
+      }
+    }
 
-    const edges = relationships
+    // Merge with existing canvas nodes: preserve nodes that were just added
+    // (exist in canvas but not yet in query data / layout map)
+    const syncedIds = new Set(newNodes.map((n) => n.id));
+    const existingNodes = useCanvasStore.getState().nodes;
+    const orphans = existingNodes.filter((n) => !syncedIds.has(n.id));
+    const mergedNodes = [...newNodes, ...orphans];
+
+    const nodeIds = new Set(newNodes.map((n) => n.id));
+
+    const newEdges = relationships
       .filter(
         (relationship) =>
           nodeIds.has(relationship.sourceElementId) &&
@@ -223,9 +280,9 @@ export function ClassCanvasInner({
         },
       }));
 
-    initCanvas(diagram.id, diagram.modelId, nodes, edges);
-    return () => reset();
-  }, [initCanvas, reset]);
+    useCanvasStore.getState().setNodes(mergedNodes);
+    useCanvasStore.getState().setEdges(newEdges);
+  }, [elements, relationships, diagram.elementLayouts, diagram.modelId]);
 
   const handleConnect = useCallback(
     (connection: { source?: string | null; target?: string | null }) => {
@@ -313,11 +370,10 @@ export function ClassCanvasInner({
 
           pushHistory();
 
-          const elementLayouts: ElementLayout[] = currentNodes.map((node) => ({
-            position: node.position,
-            elementId: node.data.elementId,
-            size: { width: node.width ?? 160, height: node.height ?? 60 },
-          }));
+          const elementLayouts = nodesToAbsoluteLayouts(currentNodes);
+
+          const isContainer = isContainerType(elementType);
+          const defaultSize = getDefaultSize(elementType);
 
           updateClassDiagramLayout.mutate(
             {
@@ -325,14 +381,14 @@ export function ClassCanvasInner({
               modelId: String(modelId),
               elementLayouts: [
                 ...elementLayouts,
-                { position, elementId, size: { width: 160, height: 60 } },
+                { position, elementId, size: defaultSize },
               ],
             },
             {
               onSuccess: () => {
                 addNode({
                   id: elementId,
-                  type: "class-node",
+                  type: isContainer ? "package-node" : "class-node",
                   position,
                   data: {
                     name,
@@ -346,6 +402,9 @@ export function ClassCanvasInner({
                 selectNode(elementId);
                 queryClient.invalidateQueries({
                   queryKey: getElementRelationsKey(elementId),
+                });
+                queryClient.invalidateQueries({
+                  queryKey: getClassDiagramByIdKey(String(diagramId)),
                 });
                 toast.success(`Added "${name}" to diagram`);
               },
@@ -369,9 +428,9 @@ export function ClassCanvasInner({
       pushHistory();
 
       // Get the layer from the active tab in workbench store
-      const activeTab = useWorkbenchStore.getState().tabs.find(
-        (t) => t.diagramId === useCanvasStore.getState().diagramId,
-      );
+      const activeTab = useWorkbenchStore
+        .getState()
+        .tabs.find((t) => t.diagramId === useCanvasStore.getState().diagramId);
       const layer = activeTab?.layer ?? "LA";
 
       createClassElement.mutate(
@@ -386,18 +445,15 @@ export function ClassCanvasInner({
           onSuccess: ({ data: element }) => {
             const el = element as any;
             const currentNodes = useCanvasStore.getState().nodes;
-            const elementLayouts: ElementLayout[] = currentNodes.map(
-              (node) => ({
-                position: node.position,
-                elementId: node.data.elementId,
-                size: { width: node.width ?? 160, height: node.height ?? 60 },
-              }),
-            );
+            const elementLayouts = nodesToAbsoluteLayouts(currentNodes);
+
+            const isContainer = isContainerType(elementType as ClassElementTypeValue);
+            const defaultSize = getDefaultSize(elementType as ClassElementTypeValue);
 
             const elementLayoutItem = {
               position,
               elementId: el.id,
-              size: { width: 160, height: 60 },
+              size: defaultSize,
             };
 
             updateClassDiagramLayout.mutate(
@@ -413,7 +469,7 @@ export function ClassCanvasInner({
                 onSuccess: () => {
                   addNode({
                     id: el.id,
-                    type: "class-node",
+                    type: isContainer ? "package-node" : "class-node",
                     position,
                     data: {
                       name: el.name,
@@ -429,6 +485,13 @@ export function ClassCanvasInner({
                       enumerationLiterals: [],
                     },
                   });
+                  queryClient.invalidateQueries({
+                    queryKey: getClassDiagramByIdKey(String(diagramId)),
+                  });
+                  queryClient.invalidateQueries({
+                    queryKey: ["class-elements"],
+                  });
+                  router.refresh();
                 },
               },
             );
@@ -474,11 +537,10 @@ export function ClassCanvasInner({
       y: 80 + (currentNodes.length % 6) * 40,
     };
 
-    const existingLayouts: ElementLayout[] = currentNodes.map((node) => ({
-      position: node.position,
-      elementId: node.data.elementId,
-      size: { width: node.width ?? 160, height: node.height ?? 60 },
-    }));
+    const existingLayouts = nodesToAbsoluteLayouts(currentNodes);
+
+    const isContainer = isContainerType(insertRequest.elementType as ClassElementTypeValue);
+    const defaultSize = getDefaultSize(insertRequest.elementType as ClassElementTypeValue);
 
     updateClassDiagramLayout.mutate(
       {
@@ -489,7 +551,7 @@ export function ClassCanvasInner({
           {
             position,
             elementId: insertRequest.elementId,
-            size: { width: 160, height: 60 },
+            size: defaultSize,
           },
         ],
       },
@@ -521,7 +583,7 @@ export function ClassCanvasInner({
 
           addNode({
             id: insertRequest.elementId,
-            type: "class-node",
+            type: isContainer ? "package-node" : "class-node",
             position,
             data: nodeData,
           });

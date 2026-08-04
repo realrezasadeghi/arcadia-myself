@@ -15,7 +15,10 @@ import {
 } from "../dtos/create-element";
 
 export const createElement = withAuth(
-  async (payload: CreateElementDTOProps, { token }): Promise<CreateElementResponse> => {
+  async (
+    payload: CreateElementDTOProps,
+    { token },
+  ): Promise<CreateElementResponse> => {
     const dto = CreateElementDTO.create(payload);
 
     const createElementUseCase = new CreateElementUseCase(

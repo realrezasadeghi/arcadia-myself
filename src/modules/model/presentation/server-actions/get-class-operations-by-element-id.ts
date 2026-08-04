@@ -18,7 +18,9 @@ export async function getClassOperationsByElementId(
       throw new Error("Token is required");
     }
 
-    const useCase = new GetClassOperationsByElementIdUseCase(classDiagramRepository);
+    const useCase = new GetClassOperationsByElementIdUseCase(
+      classDiagramRepository,
+    );
 
     const response = await useCase.execute({
       query: { classElementId },

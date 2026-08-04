@@ -18,7 +18,9 @@ export async function getClassEnumerationLiteralsByElementId(
       throw new Error("Token is required");
     }
 
-    const useCase = new GetClassEnumerationLiteralsByElementIdUseCase(classDiagramRepository);
+    const useCase = new GetClassEnumerationLiteralsByElementIdUseCase(
+      classDiagramRepository,
+    );
 
     const response = await useCase.execute({
       query: { classElementId },

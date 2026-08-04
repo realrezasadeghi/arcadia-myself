@@ -25,7 +25,12 @@ export class UpdateClassPropertyDTO {
   public readonly visibility?: "public" | "private" | "protected" | "package";
   public readonly multiplicityLower?: number;
   public readonly multiplicityUpper?: string;
-  public readonly collectionKind?: "NONE" | "SET" | "BAG" | "SEQUENCE" | "ORDERED_SET";
+  public readonly collectionKind?:
+    | "NONE"
+    | "SET"
+    | "BAG"
+    | "SEQUENCE"
+    | "ORDERED_SET";
   public readonly defaultValue?: string;
   public readonly ordering?: number;
 
@@ -47,23 +52,40 @@ export class UpdateClassPropertyDTO {
 
   static create(props: UpdateClassPropertyDTOProps): UpdateClassPropertyDTO {
     return new UpdateClassPropertyDTO({
-      id: UpdateClassPropertyDTO.validateRequiredString(props.id, "Property ID"),
-      name: props.name ? UpdateClassPropertyDTO.validateName(props.name) : undefined,
+      id: UpdateClassPropertyDTO.validateRequiredString(
+        props.id,
+        "Property ID",
+      ),
+      name: props.name
+        ? UpdateClassPropertyDTO.validateName(props.name)
+        : undefined,
       typeClassElementId: props.typeClassElementId,
       typeLiteral: props.typeLiteral,
       isStatic: props.isStatic,
       isReadOnly: props.isReadOnly,
       isDerived: props.isDerived,
-      visibility: props.visibility ? UpdateClassPropertyDTO.validateVisibility(props.visibility) : undefined,
-      multiplicityLower: props.multiplicityLower !== undefined ? UpdateClassPropertyDTO.validateMultiplicityLower(props.multiplicityLower) : undefined,
+      visibility: props.visibility
+        ? UpdateClassPropertyDTO.validateVisibility(props.visibility)
+        : undefined,
+      multiplicityLower:
+        props.multiplicityLower !== undefined
+          ? UpdateClassPropertyDTO.validateMultiplicityLower(
+              props.multiplicityLower,
+            )
+          : undefined,
       multiplicityUpper: props.multiplicityUpper,
-      collectionKind: props.collectionKind ? UpdateClassPropertyDTO.validateCollectionKind(props.collectionKind) : undefined,
+      collectionKind: props.collectionKind
+        ? UpdateClassPropertyDTO.validateCollectionKind(props.collectionKind)
+        : undefined,
       defaultValue: props.defaultValue,
       ordering: props.ordering,
     });
   }
 
-  private static validateRequiredString(value: string, fieldName: string): string {
+  private static validateRequiredString(
+    value: string,
+    fieldName: string,
+  ): string {
     if (!value) throw new Error(`${fieldName} is required`);
     const trimmed = value.trim();
     if (!trimmed) throw new Error(`${fieldName} cannot be empty`);
@@ -73,12 +95,13 @@ export class UpdateClassPropertyDTO {
   private static validateName(name: string): string {
     const trimmed = name.trim();
     if (!trimmed) throw new Error("Property name cannot be empty");
-    if (trimmed.length > 255) throw new Error("Name cannot exceed 255 characters");
+    if (trimmed.length > 255)
+      throw new Error("Name cannot exceed 255 characters");
     return trimmed;
   }
 
   private static validateVisibility(
-    visibility: string
+    visibility: string,
   ): "public" | "private" | "protected" | "package" {
     const valid = ["public", "private", "protected", "package"];
     if (!valid.includes(visibility)) {
@@ -93,7 +116,7 @@ export class UpdateClassPropertyDTO {
   }
 
   private static validateCollectionKind(
-    kind: string
+    kind: string,
   ): "NONE" | "SET" | "BAG" | "SEQUENCE" | "ORDERED_SET" {
     const valid = ["NONE", "SET", "BAG", "SEQUENCE", "ORDERED_SET"];
     if (!valid.includes(kind)) {

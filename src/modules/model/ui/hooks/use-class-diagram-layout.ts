@@ -1,16 +1,34 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import dagre from "dagre";
-import { useCanvasStore, type CanvasNode, type ClassNodeData } from "../stores/canvas";
+import {
+  useCanvasStore,
+  type CanvasNode,
+} from "../stores/canvas";
 import { useUpdateDiagramLayout } from "../clients/update-diagram-layout";
+import { useUpdateClassDiagramLayout } from "../clients/update-class-diagram-layout";
+import { CLASS_ELEMENT_TYPES } from "../constants/class-diagram";
 
 const NODE_WIDTH = 200;
 const NODE_HEIGHT = 120;
 
+const CLASS_ELEMENT_TYPE_VALUES = new Set(
+  CLASS_ELEMENT_TYPES.map((t) => t.value),
+);
+
+function isClassDiagramNode(node: CanvasNode): boolean {
+  const data = node.data as Record<string, unknown>;
+  if (!data || typeof data.elementType !== "string") return false;
+  return CLASS_ELEMENT_TYPE_VALUES.has(
+    data.elementType as (typeof CLASS_ELEMENT_TYPES)[number]["value"],
+  );
+}
+
 /**
- * Hook for applying dagre-based auto-layout to class diagram nodes.
+ * Hook for applying dagre-based auto-layout to diagram nodes.
+ * Works for both class diagrams (CDB) and architecture diagrams (OA/SA/LA/PA/EPBS).
  * Repositions all nodes on the canvas using a top-down hierarchical layout.
  */
 export function useClassDiagramLayout() {
@@ -19,7 +37,15 @@ export function useClassDiagramLayout() {
   const setNodes = useCanvasStore((s) => s.setNodes);
   const pushHistory = useCanvasStore((s) => s.pushHistory);
   const diagramId = useCanvasStore((s) => s.diagramId);
+  const modelId = useCanvasStore((s) => s.modelId);
+
   const updateDiagramLayout = useUpdateDiagramLayout();
+  const updateClassDiagramLayout = useUpdateClassDiagramLayout();
+
+  const isClassDiagram = useMemo(
+    () => nodes.length > 0 && nodes.some(isClassDiagramNode),
+    [nodes],
+  );
 
   const applyLayout = useCallback(() => {
     if (nodes.length === 0) return;
@@ -76,18 +102,39 @@ export function useClassDiagramLayout() {
         },
       }));
 
-      updateDiagramLayout.mutate(
-        { id: diagramId, elementLayouts },
-        {
-          onError: ({ message }) => {
-            toast.error(message || "Error saving layout");
+      if (isClassDiagram && modelId) {
+        updateClassDiagramLayout.mutate(
+          { id: diagramId, modelId, elementLayouts },
+          {
+            onError: ({ message }) => {
+              toast.error(message || "Error saving layout");
+            },
           },
-        },
-      );
+        );
+      } else {
+        updateDiagramLayout.mutate(
+          { id: diagramId, elementLayouts },
+          {
+            onError: ({ message }) => {
+              toast.error(message || "Error saving layout");
+            },
+          },
+        );
+      }
     }
 
     toast.success("Layout applied");
-  }, [nodes, edges, setNodes, pushHistory, diagramId, updateDiagramLayout]);
+  }, [
+    nodes,
+    edges,
+    setNodes,
+    pushHistory,
+    diagramId,
+    modelId,
+    isClassDiagram,
+    updateDiagramLayout,
+    updateClassDiagramLayout,
+  ]);
 
   return { applyLayout };
 }

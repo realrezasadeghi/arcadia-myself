@@ -3,6 +3,6 @@ import { removeClassOperationParameter } from "../../presentation/server-actions
 
 export function useRemoveClassOperationParameter() {
   return useServerMutation({
-    mutationFn: ({ id }: { id: string }) => removeClassOperationParameter(id),
+    mutationFn: removeClassOperationParameter,
   });
 }

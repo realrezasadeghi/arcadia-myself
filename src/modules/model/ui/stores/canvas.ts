@@ -2,97 +2,24 @@ import type { Edge, Node, XYPosition } from "@xyflow/react";
 import { create } from "zustand";
 import type { ElementTypeValue } from "../types/element";
 import type { RelationshipTypeValue } from "../types/relationship";
-import type { ClassElementTypeValue, ClassRelationshipTypeValue } from "../types/class-diagram";
 
-export type ElementNodeData = {
-  name: string;
-  modelId: string;
-  elementId: string;
-  description?: string;
-  elementType: ElementTypeValue;
-  status: "DRAFT" | "VALIDATED" | "DEPRECATED";
-};
+// Re-export types from typed stores for backward compatibility.
+// New code should import from arch-canvas.ts or class-canvas.ts directly.
+export {
+  type ElementNodeData,
+  type RelationshipEdgeData,
+} from "./arch-canvas";
+export {
+  type ClassNodeData,
+  type ClassEdgeData,
+} from "./class-canvas";
 
-/** Class diagram node data — extends base with UML-specific fields. */
-export type ClassNodeData = {
-  name: string;
-  modelId: string;
-  elementId: string;
-  description?: string;
-  elementType: ClassElementTypeValue;
-  status: "DRAFT" | "VALIDATED" | "DEPRECATED";
-  isAbstract?: boolean;
-  isStatic?: boolean;
-  /** Class properties shown in the attributes compartment. */
-  properties?: Array<{
-    id: string;
-    name: string;
-    typeLiteral: string;
-    visibility: "public" | "private" | "protected" | "package";
-    isStatic: boolean;
-    isReadOnly: boolean;
-    isDerived: boolean;
-    isID: boolean;
-    multiplicityLower: number;
-    multiplicityUpper: string;
-    collectionKind: string;
-    defaultValue: string;
-  }>;
-  /** Class operations shown in the operations compartment. */
-  operations?: Array<{
-    id: string;
-    name: string;
-    returnTypeLiteral: string;
-    visibility: "public" | "private" | "protected" | "package";
-    isStatic: boolean;
-    isAbstract: boolean;
-    isQuery: boolean;
-    parameters?: Array<{
-      name: string;
-      typeLiteral: string;
-      visibility: string;
-      multiplicityLower: number;
-      multiplicityUpper: string;
-    }>;
-  }>;
-  /** Enumeration literals for ENUM elements. */
-  enumerationLiterals?: Array<{
-    id: string;
-    name: string;
-    value: string;
-  }>;
-};
+import type { ElementNodeData, RelationshipEdgeData } from "./arch-canvas";
+import type { ClassNodeData, ClassEdgeData } from "./class-canvas";
 
-export type RelationshipEdgeData = {
-  name: string;
-  modelId: string;
-  relationshipId: string;
-  description: string;
-  relationshipType: RelationshipTypeValue;
-};
-
-/** Class diagram edge data — extends base with UML relationship fields. */
-export type ClassEdgeData = {
-  name: string;
-  modelId: string;
-  relationshipId: string;
-  description: string;
-  relationshipType: ClassRelationshipTypeValue;
-  aggregationKind?: "NONE" | "SHARED" | "COMPOSITE";
-  isDisjoint?: boolean;
-  isComplete?: boolean;
-  isDerived?: boolean;
-  sourceMultiplicityLower?: number;
-  sourceMultiplicityUpper?: string;
-  targetMultiplicityLower?: number;
-  targetMultiplicityUpper?: string;
-  sourceRole?: string;
-  targetRole?: string;
-  isNavigableSource?: boolean;
-  isNavigableTarget?: boolean;
-};
-
+/** @deprecated Import from arch-canvas.ts or class-canvas.ts instead. */
 export type CanvasNode = Node<ElementNodeData | ClassNodeData>;
+/** @deprecated Import from arch-canvas.ts or class-canvas.ts instead. */
 export type CanvasEdge = Edge<RelationshipEdgeData | ClassEdgeData>;
 
 export interface PendingConnection {
@@ -101,22 +28,15 @@ export interface PendingConnection {
   allowedTypes: RelationshipTypeValue[];
 }
 
-/**
- * درخواست افزودن یک المنت *موجود* (مثلاً از Project Explorer) به دیاگرام فعال.
- * این کار فقط نمای گرافیکی را اضافه می‌کند (مانند ابزار Insert در Capella) و
- * المنت جدیدی نمی‌سازد. canvas فعال این درخواست را مصرف می‌کند.
- */
 export interface ElementInsertRequest {
   elementId: string;
   elementType: ElementTypeValue;
   name: string;
   description?: string;
   status: "DRAFT" | "VALIDATED" | "DEPRECATED";
-  /** نشانه‌ی یکتا برای جلوگیری از مصرف دوباره‌ی همان درخواست. */
   token: number;
 }
 
-/** یک snapshot از وضعیت canvas برای undo/redo */
 interface CanvasSnapshot {
   nodes: CanvasNode[];
   edges: CanvasEdge[];
@@ -124,7 +44,7 @@ interface CanvasSnapshot {
 
 const MAX_HISTORY = 50;
 
-interface CanvasState {
+export interface CanvasState {
   diagramId: string | null;
   modelId: string | null;
   nodes: CanvasNode[];
@@ -152,17 +72,22 @@ interface CanvasState {
   redo: () => void;
   addNode: (node: CanvasNode) => void;
   updateNodePosition: (id: string, position: XYPosition) => void;
-  updateNodeData: (id: string, data: Partial<ElementNodeData | ClassNodeData>) => void;
-  updateEdgeData: (id: string, data: Partial<RelationshipEdgeData | ClassEdgeData>) => void;
+  updateNode: (id: string, partial: Partial<CanvasNode>) => void;
+  updateNodeData: (
+    id: string,
+    data: Partial<ElementNodeData | ClassNodeData>,
+  ) => void;
+  updateEdgeData: (
+    id: string,
+    data: Partial<RelationshipEdgeData | ClassEdgeData>,
+  ) => void;
   removeNode: (id: string) => void;
   addEdge: (edge: CanvasEdge) => void;
   removeEdge: (id: string) => void;
   selectNode: (id: string | null) => void;
   selectEdge: (id: string | null) => void;
   setPendingConnection: (conn: PendingConnection | null) => void;
-  /** درخواست افزودن یک المنت موجود به دیاگرام فعال را ثبت می‌کند. */
   requestElementInsert: (req: Omit<ElementInsertRequest, "token">) => void;
-  /** پس از مصرف درخواست توسط canvas، آن را پاک می‌کند. */
   clearInsertRequest: () => void;
   reset: () => void;
 }
@@ -199,10 +124,6 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   setNodes: (nodes) => set({ nodes }),
   setEdges: (edges) => set({ edges }),
 
-  /**
-   * snapshot وضعیت فعلی را در past ذخیره می‌کند.
-   * future را پاک می‌کند (چون مسیر جدید شروع می‌شود).
-   */
   pushHistory: () =>
     set((s) => {
       const snapshot: CanvasSnapshot = { nodes: s.nodes, edges: s.edges };
@@ -250,25 +171,30 @@ export const useCanvasStore = create<CanvasState>((set) => ({
 
   updateNodePosition: (id, position) =>
     set((s) => ({
-      nodes: s.nodes.map((n) => (n.id === id ? { ...n, position } : n)),
+      nodes: s.nodes.map((n) =>
+        n.id === id ? { ...n, position } : n,
+      ) as CanvasNode[],
+    })),
+
+  updateNode: (id, partial) =>
+    set((s) => ({
+      nodes: s.nodes.map((n) =>
+        n.id === id ? { ...n, ...partial } : n,
+      ) as CanvasNode[],
     })),
 
   updateNodeData: (id, data) =>
     set((s) => ({
       nodes: s.nodes.map((n) =>
-        n.id === id
-          ? { ...n, data: { ...n.data, ...data } as ElementNodeData | ClassNodeData }
-          : n,
-      ),
+        n.id === id ? { ...n, data: { ...n.data, ...data } } : n,
+      ) as CanvasNode[],
     })),
 
   updateEdgeData: (id, data) =>
     set((s) => ({
       edges: s.edges.map((e) =>
-        e.id === id
-          ? { ...e, data: { ...e.data, ...data } as RelationshipEdgeData | ClassEdgeData }
-          : e,
-      ),
+        e.id === id ? { ...e, data: { ...e.data, ...data } } : e,
+      ) as CanvasEdge[],
     })),
 
   removeNode: (id) =>

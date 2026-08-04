@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useUpdateDiagramLayout } from "../clients/update-diagram-layout";
+import { useUpdateClassDiagramLayout } from "../clients/update-class-diagram-layout";
+import { nodesToAbsoluteLayouts } from "../helpers/class-diagram";
 import { useCanvasStore } from "../stores/canvas";
 import { useModelStore } from "../stores/model";
 
@@ -18,9 +20,13 @@ const MAX_PENDING = 5;
  *
  * On unmount (e.g. switching editor tabs) any pending change is flushed
  * immediately so layout edits are never lost.
+ *
+ * Automatically selects the correct layout update mutation based on
+ * whether the current diagram is a class diagram (CDB) or architecture diagram.
  */
 export function useSaveManager() {
   const updateDiagramLayout = useUpdateDiagramLayout();
+  const updateClassDiagramLayout = useUpdateClassDiagramLayout();
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -29,35 +35,63 @@ export function useSaveManager() {
 
   const flush = useCallback(async () => {
     const currentDiagramId = useCanvasStore.getState().diagramId;
+    const currentModelId = useCanvasStore.getState().modelId;
     const currentNodes = useCanvasStore.getState().nodes;
     if (!currentDiagramId) return;
     if (timerRef.current) clearTimeout(timerRef.current);
 
     setSaveStatus("saving");
 
-    const layouts = currentNodes.map((n) => ({
-      position: n.position,
-      elementId: n.data.elementId,
-      size: { width: n.width ?? 160, height: n.height ?? 60 },
-    }));
+    const layouts = nodesToAbsoluteLayouts(currentNodes);
 
-    updateDiagramLayout.mutate(
-      {
-        id: currentDiagramId,
-        elementLayouts: layouts,
-      },
-      {
-        onSuccess: () => {
-          resetPending();
-          setSaveStatus("saved");
+    // Determine which mutation to use based on node type
+    const isClassDiagram =
+      currentNodes.length > 0 &&
+      (currentNodes[0]?.type === "class-node" ||
+        currentNodes[0]?.type === "package-node");
+
+    if (isClassDiagram) {
+      updateClassDiagramLayout.mutate(
+        {
+          id: currentDiagramId,
+          modelId: currentModelId!,
+          elementLayouts: layouts,
         },
-        onError: ({ message }) => {
-          setSaveStatus("error");
-          toast.error(message || "Error saving diagram");
+        {
+          onSuccess: () => {
+            resetPending();
+            setSaveStatus("saved");
+          },
+          onError: ({ message }) => {
+            setSaveStatus("error");
+            toast.error(message || "Error saving diagram");
+          },
         },
-      },
-    );
-  }, [setSaveStatus, resetPending, updateDiagramLayout]);
+      );
+    } else {
+      updateDiagramLayout.mutate(
+        {
+          id: currentDiagramId,
+          elementLayouts: layouts,
+        },
+        {
+          onSuccess: () => {
+            resetPending();
+            setSaveStatus("saved");
+          },
+          onError: ({ message }) => {
+            setSaveStatus("error");
+            toast.error(message || "Error saving diagram");
+          },
+        },
+      );
+    }
+  }, [
+    setSaveStatus,
+    resetPending,
+    updateDiagramLayout,
+    updateClassDiagramLayout,
+  ]);
 
   // نگه‌داشتن آخرین نسخه‌ی flush برای فراخوانی هنگام unmount
   const flushRef = useRef(flush);

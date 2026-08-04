@@ -1,6 +1,9 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
-import type { IClassDiagramRepository, UpdateClassElementLayoutPayload } from "../../ports/class-diagram";
+import type {
+  IClassDiagramRepository,
+  UpdateClassElementLayoutPayload,
+} from "../../ports/class-diagram";
 
 export type UpdateClassElementLayoutUseCasePayload = {
   payload: UpdateClassElementLayoutPayload;
@@ -23,7 +26,11 @@ export type UpdateClassElementLayoutUseCaseResponse = {
 };
 
 export class UpdateClassElementLayoutUseCase
-  implements IUseCase<UpdateClassElementLayoutUseCasePayload, UpdateClassElementLayoutUseCaseResponse>
+  implements
+    IUseCase<
+      UpdateClassElementLayoutUseCasePayload,
+      UpdateClassElementLayoutUseCaseResponse
+    >
 {
   constructor(private readonly repository: IClassDiagramRepository) {}
 
@@ -31,13 +38,17 @@ export class UpdateClassElementLayoutUseCase
     payload,
   }: UpdateClassElementLayoutUseCasePayload): Promise<UpdateClassElementLayoutUseCaseResponse> {
     try {
-      const existing = await this.repository.findElementLayoutById({ id: payload.id });
+      const existing = await this.repository.findElementLayoutById({
+        id: payload.id,
+      });
       if (!existing) {
         throw new Error(`ClassElementLayout not found with id: ${payload.id}`);
       }
       return (await this.repository.updateElementLayout(payload)).toJSON();
     } catch (error) {
-      throw new Error(resolveErrorMessage(error, "Error updating class element layout"));
+      throw new Error(
+        resolveErrorMessage(error, "Error updating class element layout"),
+      );
     }
   }
 }

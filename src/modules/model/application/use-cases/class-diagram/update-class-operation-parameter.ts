@@ -1,6 +1,9 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
-import type { IClassDiagramRepository, UpdateClassOperationParameterPayload } from "../../ports/class-diagram";
+import type {
+  IClassDiagramRepository,
+  UpdateClassOperationParameterPayload,
+} from "../../ports/class-diagram";
 
 export type UpdateClassOperationParameterUseCasePayload = {
   payload: UpdateClassOperationParameterPayload;
@@ -29,7 +32,11 @@ export type UpdateClassOperationParameterUseCaseResponse = {
 };
 
 export class UpdateClassOperationParameterUseCase
-  implements IUseCase<UpdateClassOperationParameterUseCasePayload, UpdateClassOperationParameterUseCaseResponse>
+  implements
+    IUseCase<
+      UpdateClassOperationParameterUseCasePayload,
+      UpdateClassOperationParameterUseCaseResponse
+    >
 {
   constructor(private readonly repository: IClassDiagramRepository) {}
 
@@ -37,13 +44,19 @@ export class UpdateClassOperationParameterUseCase
     payload,
   }: UpdateClassOperationParameterUseCasePayload): Promise<UpdateClassOperationParameterUseCaseResponse> {
     try {
-      const existing = await this.repository.findParameterById({ id: payload.id });
+      const existing = await this.repository.findParameterById({
+        id: payload.id,
+      });
       if (!existing) {
-        throw new Error(`ClassOperationParameter not found with id: ${payload.id}`);
+        throw new Error(
+          `ClassOperationParameter not found with id: ${payload.id}`,
+        );
       }
       return (await this.repository.updateParameter(payload)).toJSON();
     } catch (error) {
-      throw new Error(resolveErrorMessage(error, "Error updating class operation parameter"));
+      throw new Error(
+        resolveErrorMessage(error, "Error updating class operation parameter"),
+      );
     }
   }
 }

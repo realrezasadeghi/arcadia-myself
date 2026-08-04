@@ -131,9 +131,9 @@ export const DIAGRAM_TYPES: DiagramTypeInfo[] = [
 ];
 
 export const DIAGRAMS_BY_LAYER: Record<LayerValue, DiagramTypeValue[]> = {
-  OA: ["OEB", "OAB", "OPD", "OCD", "OIS"],
+  OA: ["OEB", "OAB", "OPD", "OCD", "OIS", "CDB"],
   SA: ["SAB", "SDFB", "SCD", "SS", "CDB"],
-  LA: ["LAB", "LDFB", "LCB", "LS"],
-  PA: ["PAB", "PDFB", "PCB", "PS"],
-  EPBS: ["EPBB", "EAB", "ECB"],
+  LA: ["LAB", "LDFB", "LCB", "LS", "CDB"],
+  PA: ["PAB", "PDFB", "PCB", "PS", "CDB"],
+  EPBS: ["EPBB", "EAB", "ECB", "CDB"],
 };

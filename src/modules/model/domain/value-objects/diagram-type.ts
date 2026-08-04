@@ -28,6 +28,8 @@ interface DiagramTypeMeta {
   label: string;
   labelFa: string;
   layer: Layer;
+  /** If set, diagram type is available in these layers (transverse, e.g. CDB). */
+  layers?: Layer[];
   description: string;
 }
 
@@ -156,6 +158,7 @@ const META: Record<DiagramTypeValue, DiagramTypeMeta> = {
     label: "Class Diagram",
     labelFa: "دیاگرام کلاس",
     layer: Layer.SA,
+    layers: [Layer.OA, Layer.SA, Layer.LA, Layer.PA, Layer.EPBS],
     description: "دیاگرام کلاس UML برای مدل‌سازی ساختار داده",
   },
 };
@@ -179,9 +182,11 @@ export class DiagramType extends ValueObject<DiagramTypeProps> {
   }
 
   static allForLayer(layer: Layer): DiagramType[] {
-    return ALL_VALUES.filter((v) => META[v].layer.equals(layer)).map(
-      (v) => new DiagramType({ value: v }),
-    );
+    return ALL_VALUES.filter((v) => {
+      const meta = META[v];
+      if (meta.layers) return meta.layers.some((l) => l.equals(layer));
+      return meta.layer.equals(layer);
+    }).map((v) => new DiagramType({ value: v }));
   }
 
   get value(): DiagramTypeValue {

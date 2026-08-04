@@ -175,25 +175,37 @@ export class ClassRelationshipLayout extends Entity<string> {
     this._touch();
   }
 
-  setSourceRoleLabelPosition(labelX: number | null, labelY: number | null): void {
+  setSourceRoleLabelPosition(
+    labelX: number | null,
+    labelY: number | null,
+  ): void {
     this._sourceRoleLabelX = labelX;
     this._sourceRoleLabelY = labelY;
     this._touch();
   }
 
-  setTargetRoleLabelPosition(labelX: number | null, labelY: number | null): void {
+  setTargetRoleLabelPosition(
+    labelX: number | null,
+    labelY: number | null,
+  ): void {
     this._targetRoleLabelX = labelX;
     this._targetRoleLabelY = labelY;
     this._touch();
   }
 
-  setSourceMultiplicityLabelPosition(labelX: number | null, labelY: number | null): void {
+  setSourceMultiplicityLabelPosition(
+    labelX: number | null,
+    labelY: number | null,
+  ): void {
     this._sourceMultLabelX = labelX;
     this._sourceMultLabelY = labelY;
     this._touch();
   }
 
-  setTargetMultiplicityLabelPosition(labelX: number | null, labelY: number | null): void {
+  setTargetMultiplicityLabelPosition(
+    labelX: number | null,
+    labelY: number | null,
+  ): void {
     this._targetMultLabelX = labelX;
     this._targetMultLabelY = labelY;
     this._touch();

@@ -12,7 +12,10 @@ import {
 } from "../dtos/update-element";
 
 export const updateElement = withAuth(
-  async (payload: UpdateElementDTOProps, { token }): Promise<UpdateElementResponse> => {
+  async (
+    payload: UpdateElementDTOProps,
+    { token },
+  ): Promise<UpdateElementResponse> => {
     const dto = UpdateElementDTO.create(payload);
 
     const updateElementUseCase = new UpdateElementUseCase(elementRepository);

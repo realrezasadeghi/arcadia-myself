@@ -1,7 +1,10 @@
 import { cn } from "@/modules/shared/ui/libs/cn";
 import { type Edge, type EdgeProps, getBezierPath } from "@xyflow/react";
 import { memo } from "react";
-import { getClassRelationshipTypeInfo, formatMultiplicity } from "../../constants/class-diagram";
+import {
+  getClassRelationshipTypeInfo,
+  formatMultiplicity,
+} from "../../constants/class-diagram";
 import type { ClassEdgeData } from "../../stores/canvas";
 
 type ClassEdgeType = Edge<ClassEdgeData>;
@@ -10,7 +13,7 @@ function DiamondMarker({
   fill = "none",
   stroke = "currentColor",
   strokeWidth = 1.5,
-  size = 10,
+  size = 12,
   id,
 }: {
   id: string;
@@ -26,13 +29,13 @@ function DiamondMarker({
         id={id}
         markerWidth={size}
         markerHeight={size}
-        refX={half}
+        refX={size - 1}
         refY={half}
         orient="auto"
         markerUnits="strokeWidth"
       >
         <path
-          d={`M ${half} 0 L ${size} ${half} L ${half} ${size} L 0 ${half} Z`}
+          d={`M 0 ${half} L ${half} 0 L ${size} ${half} L ${half} ${size} Z`}
           fill={fill}
           stroke={stroke}
           strokeWidth={strokeWidth}
@@ -45,8 +48,8 @@ function DiamondMarker({
 function ArrowMarker({
   id,
   color,
-  width = 8,
-  height = 6,
+  width = 10,
+  height = 7,
   filled = true,
 }: {
   id: string;
@@ -55,23 +58,33 @@ function ArrowMarker({
   height?: number;
   filled?: boolean;
 }) {
+  const halfH = height / 2;
+  const refX = filled ? width : width;
   return (
     <defs>
       <marker
         id={id}
         markerWidth={width}
         markerHeight={height}
-        refX={filled ? width : 0}
-        refY={height / 2}
+        refX={refX}
+        refY={halfH}
         orient="auto"
         markerUnits="strokeWidth"
       >
-        <path
-          d={`M 0 0 L ${width} ${height / 2} L 0 ${height} Z`}
-          fill={filled ? color : "none"}
-          stroke={filled ? "none" : color}
-          strokeWidth={filled ? 0 : 1.5}
-        />
+        {filled ? (
+          <path
+            d={`M 0 0 L ${width} ${halfH} L 0 ${height} Z`}
+            fill={color}
+          />
+        ) : (
+          <path
+            d={`M 0 0 L ${width} ${halfH} L 0 ${height}`}
+            fill="none"
+            stroke={color}
+            strokeWidth={1.5}
+            strokeLinejoin="round"
+          />
+        )}
       </marker>
     </defs>
   );
@@ -113,6 +126,9 @@ function ClassEdgeComponent({
   const targetRole = data.targetRole ?? "";
   const isNavigableSource = data.isNavigableSource ?? false;
   const isNavigableTarget = data.isNavigableTarget ?? false;
+  const isDerived = data.isDerived ?? false;
+
+  const derivedPrefix = isDerived ? "/" : "";
 
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
@@ -123,15 +139,14 @@ function ClassEdgeComponent({
     targetPosition,
   });
 
-  // Build marker IDs with edge prefix to avoid collisions
   const markerIds = {
-    generalization: `${id}-generalization`,
-    realization: `${id}-realization`,
-    dependency: `${id}-dependency`,
-    navSource: `${id}-nav-source`,
-    navTarget: `${id}-nav-target`,
-    aggregation: `${id}-aggregation`,
-    composition: `${id}-composition`,
+    generalization: `${id}-gen`,
+    realization: `${id}-real`,
+    dependency: `${id}-dep`,
+    navSource: `${id}-nav-src`,
+    navTarget: `${id}-nav-tgt`,
+    aggregation: `${id}-agg`,
+    composition: `${id}-comp`,
   };
 
   const sourceMarker = isComposite
@@ -152,22 +167,32 @@ function ClassEdgeComponent({
           ? markerIds.navTarget
           : undefined;
 
+  const sourceMult = formatMultiplicity(sourceMultLower, sourceMultUpper);
+  const targetMult = formatMultiplicity(targetMultLower, targetMultUpper);
+
   return (
     <>
-      {/* SVG marker definitions */}
       {isGeneralization && (
-        <ArrowMarker id={markerIds.generalization} color={strokeColor} filled={false} />
+        <ArrowMarker
+          id={markerIds.generalization}
+          color={strokeColor}
+          filled={false}
+        />
       )}
       {isRealization && (
-        <ArrowMarker id={markerIds.realization} color={strokeColor} filled={false} />
+        <ArrowMarker
+          id={markerIds.realization}
+          color={strokeColor}
+          filled={false}
+        />
       )}
       {isDependency && (
         <ArrowMarker
           id={markerIds.dependency}
           color={strokeColor}
           filled={false}
-          width={6}
-          height={4}
+          width={8}
+          height={5}
         />
       )}
       {isAssociation && isNavigableSource && (
@@ -177,13 +202,30 @@ function ClassEdgeComponent({
         <ArrowMarker id={markerIds.navTarget} color={strokeColor} />
       )}
       {isShared && (
-        <DiamondMarker id={markerIds.aggregation} fill="none" stroke={strokeColor} />
+        <DiamondMarker
+          id={markerIds.aggregation}
+          fill="white"
+          stroke={strokeColor}
+        />
       )}
       {isComposite && (
-        <DiamondMarker id={markerIds.composition} fill={strokeColor} stroke={strokeColor} />
+        <DiamondMarker
+          id={markerIds.composition}
+          fill={strokeColor}
+          stroke={strokeColor}
+        />
       )}
 
-      {/* Edge path */}
+      {/* Invisible wider hit area */}
+      <path
+        d={edgePath}
+        fill="none"
+        stroke="transparent"
+        strokeWidth={20}
+        style={{ cursor: "pointer" }}
+      />
+
+      {/* Visible edge path */}
       <path
         id={`edge-path-${id}`}
         d={edgePath}
@@ -198,71 +240,138 @@ function ClassEdgeComponent({
         markerStart={sourceMarker ? `url(#${sourceMarker})` : undefined}
         markerEnd={targetMarker ? `url(#${targetMarker})` : undefined}
         style={{
-          filter: selected ? "drop-shadow(0 0 2px hsl(var(--primary)))" : undefined,
+          filter: selected
+            ? "drop-shadow(0 0 3px rgba(37, 99, 235, 0.4))"
+            : undefined,
         }}
       />
 
-      {/* Relationship Name */}
-      {data.name && (
-        <text
-          x={labelX}
-          y={labelY - 8}
-          textAnchor="middle"
-          style={{
-            fontSize: "9px",
-            fill: strokeColor,
-            fontWeight: 500,
-            pointerEvents: "none",
-          }}
-        >
-          {data.name}
-        </text>
+      {/* Relationship Name with background */}
+      {(data.name || isDerived) && (
+        <g>
+          <text
+            x={labelX}
+            y={labelY}
+            textAnchor="middle"
+            style={{
+              fontSize: "10px",
+              fontWeight: 500,
+              pointerEvents: "none",
+            }}
+          >
+            <tspan
+              fill="white"
+              fillOpacity={0.92}
+              stroke="white"
+              strokeWidth={3}
+              strokeLinejoin="round"
+            >
+              {derivedPrefix}
+              {data.name}
+            </tspan>
+          </text>
+          <text
+            x={labelX}
+            y={labelY}
+            textAnchor="middle"
+            style={{
+              fontSize: "10px",
+              fill: strokeColor,
+              fontWeight: 500,
+              pointerEvents: "none",
+            }}
+          >
+            {derivedPrefix}
+            {data.name}
+          </text>
+        </g>
       )}
 
       {/* Source Multiplicity */}
-      {isAssociation && sourceMultLower !== 1 && (
-        <text
-          x={sourceX + (targetX - sourceX) * 0.1}
-          y={sourceY + (targetY - sourceY) * 0.1 - 6}
-          textAnchor="start"
-          style={{
-            fontSize: "8px",
-            fill: strokeColor,
-            opacity: 0.8,
-            pointerEvents: "none",
-          }}
-        >
-          {formatMultiplicity(sourceMultLower, sourceMultUpper)}
-        </text>
+      {isAssociation && sourceMult && (
+        <g>
+          <text
+            x={sourceX + (targetX - sourceX) * 0.12}
+            y={sourceY + (targetY - sourceY) * 0.12 - 4}
+            textAnchor="start"
+            style={{
+              fontSize: "9px",
+              fontWeight: 500,
+              pointerEvents: "none",
+            }}
+          >
+            <tspan
+              fill="white"
+              fillOpacity={0.88}
+              stroke="white"
+              strokeWidth={2.5}
+              strokeLinejoin="round"
+            >
+              {sourceMult}
+            </tspan>
+          </text>
+          <text
+            x={sourceX + (targetX - sourceX) * 0.12}
+            y={sourceY + (targetY - sourceY) * 0.12 - 4}
+            textAnchor="start"
+            style={{
+              fontSize: "9px",
+              fill: strokeColor,
+              pointerEvents: "none",
+            }}
+          >
+            {sourceMult}
+          </text>
+        </g>
       )}
 
       {/* Target Multiplicity */}
-      {isAssociation && targetMultLower !== 1 && (
-        <text
-          x={sourceX + (targetX - sourceX) * 0.9}
-          y={sourceY + (targetY - sourceY) * 0.9 - 6}
-          textAnchor="end"
-          style={{
-            fontSize: "8px",
-            fill: strokeColor,
-            opacity: 0.8,
-            pointerEvents: "none",
-          }}
-        >
-          {formatMultiplicity(targetMultLower, targetMultUpper)}
-        </text>
+      {isAssociation && targetMult && (
+        <g>
+          <text
+            x={sourceX + (targetX - sourceX) * 0.88}
+            y={sourceY + (targetY - sourceY) * 0.88 - 4}
+            textAnchor="end"
+            style={{
+              fontSize: "9px",
+              fontWeight: 500,
+              pointerEvents: "none",
+            }}
+          >
+            <tspan
+              fill="white"
+              fillOpacity={0.88}
+              stroke="white"
+              strokeWidth={2.5}
+              strokeLinejoin="round"
+            >
+              {targetMult}
+            </tspan>
+          </text>
+          <text
+            x={sourceX + (targetX - sourceX) * 0.88}
+            y={sourceY + (targetY - sourceY) * 0.88 - 4}
+            textAnchor="end"
+            style={{
+              fontSize: "9px",
+              fill: strokeColor,
+              pointerEvents: "none",
+            }}
+          >
+            {targetMult}
+          </text>
+        </g>
       )}
 
       {/* Source Role Name */}
       {isAssociation && sourceRole && (
         <text
-          x={sourceX + (targetX - sourceX) * 0.1}
-          y={sourceY + (targetY - sourceY) * 0.1 + 12}
+          x={sourceX + (targetX - sourceX) * 0.12}
+          y={sourceY + (targetY - sourceY) * 0.12 + 10}
           textAnchor="start"
           style={{
-            fontSize: "8px",
+            fontSize: "9px",
             fill: strokeColor,
-            opacity: 0.7,
             fontStyle: "italic",
             pointerEvents: "none",
           }}
@@ -274,30 +383,17 @@ function ClassEdgeComponent({
       {/* Target Role Name */}
       {isAssociation && targetRole && (
         <text
-          x={sourceX + (targetX - sourceX) * 0.9}
-          y={sourceY + (targetY - sourceY) * 0.9 + 12}
+          x={sourceX + (targetX - sourceX) * 0.88}
+          y={sourceY + (targetY - sourceY) * 0.88 + 10}
           textAnchor="end"
           style={{
-            fontSize: "8px",
+            fontSize: "9px",
             fill: strokeColor,
-            opacity: 0.7,
             fontStyle: "italic",
             pointerEvents: "none",
           }}
         >
           {targetRole}
-        </text>
-      )}
-
-      {/* Aggregation/Composition diamond indicator */}
-      {(isShared || isComposite) && (
-        <text
-          x={sourceX + (targetX - sourceX) * 0.05}
-          y={sourceY + (targetY - sourceY) * 0.05 - 10}
-          textAnchor="start"
-          style={{ fontSize: "10px", fill: strokeColor, pointerEvents: "none" }}
-        >
-          {isComposite ? "◆" : "◇"}
         </text>
       )}
     </>

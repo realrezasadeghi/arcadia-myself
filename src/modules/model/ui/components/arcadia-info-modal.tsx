@@ -148,13 +148,19 @@ export function ArcadiaInfoModal() {
 
           <TabsContent value="diagrams" className="mt-2 flex-1 w-full">
             <ScrollArea className="h-[50vh]">
-              <DiagramList selectedLayer={selectedLayer} searchQuery={searchQuery} />
+              <DiagramList
+                selectedLayer={selectedLayer}
+                searchQuery={searchQuery}
+              />
             </ScrollArea>
           </TabsContent>
 
           <TabsContent value="elements" className="mt-2 flex-1 w-full">
             <ScrollArea className="h-[50vh]">
-              <ElementList selectedLayer={selectedLayer} searchQuery={searchQuery} />
+              <ElementList
+                selectedLayer={selectedLayer}
+                searchQuery={searchQuery}
+              />
             </ScrollArea>
           </TabsContent>
         </Tabs>
@@ -165,7 +171,13 @@ export function ArcadiaInfoModal() {
 
 // ─── Diagram List ──────────────────────────────────────────────────────────────
 
-function DiagramList({ selectedLayer, searchQuery }: { selectedLayer: LayerValue | "ALL"; searchQuery: string }) {
+function DiagramList({
+  selectedLayer,
+  searchQuery,
+}: {
+  selectedLayer: LayerValue | "ALL";
+  searchQuery: string;
+}) {
   const t = useTranslations("arcadiaGuide");
   const layers =
     selectedLayer === "ALL"
@@ -180,7 +192,11 @@ function DiagramList({ selectedLayer, searchQuery }: { selectedLayer: LayerValue
       return diagramTypes.filter((dv) => {
         const label = t(`diagramTypes.${dv}.label` as never).toLowerCase();
         const desc = t(`diagramTypes.${dv}.desc` as never).toLowerCase();
-        return label.includes(query) || desc.includes(query) || dv.toLowerCase().includes(query);
+        return (
+          label.includes(query) ||
+          desc.includes(query) ||
+          dv.toLowerCase().includes(query)
+        );
       });
     }
     return diagramTypes;
@@ -200,9 +216,15 @@ function DiagramList({ selectedLayer, searchQuery }: { selectedLayer: LayerValue
 
         const filteredTypes = query
           ? diagramTypes.filter((dv) => {
-              const label = t(`diagramTypes.${dv}.label` as never).toLowerCase();
+              const label = t(
+                `diagramTypes.${dv}.label` as never,
+              ).toLowerCase();
               const desc = t(`diagramTypes.${dv}.desc` as never).toLowerCase();
-              return label.includes(query) || desc.includes(query) || dv.toLowerCase().includes(query);
+              return (
+                label.includes(query) ||
+                desc.includes(query) ||
+                dv.toLowerCase().includes(query)
+              );
             })
           : diagramTypes;
 
@@ -320,7 +342,13 @@ function DiagramCard({ diagramValue }: { diagramValue: string }) {
 
 // ─── Element List ──────────────────────────────────────────────────────────────
 
-function ElementList({ selectedLayer, searchQuery }: { selectedLayer: LayerValue | "ALL"; searchQuery: string }) {
+function ElementList({
+  selectedLayer,
+  searchQuery,
+}: {
+  selectedLayer: LayerValue | "ALL";
+  searchQuery: string;
+}) {
   const t = useTranslations("arcadiaGuide");
   const layers =
     selectedLayer === "ALL"
@@ -335,7 +363,11 @@ function ElementList({ selectedLayer, searchQuery }: { selectedLayer: LayerValue
       return elementTypes.filter((ev) => {
         const label = t(`elementTypes.${ev}.label` as never).toLowerCase();
         const desc = t(`elementTypes.${ev}.desc` as never).toLowerCase();
-        return label.includes(query) || desc.includes(query) || ev.toLowerCase().includes(query);
+        return (
+          label.includes(query) ||
+          desc.includes(query) ||
+          ev.toLowerCase().includes(query)
+        );
       });
     }
     return elementTypes;
@@ -355,9 +387,15 @@ function ElementList({ selectedLayer, searchQuery }: { selectedLayer: LayerValue
 
         const filteredTypes = query
           ? elementTypes.filter((ev) => {
-              const label = t(`elementTypes.${ev}.label` as never).toLowerCase();
+              const label = t(
+                `elementTypes.${ev}.label` as never,
+              ).toLowerCase();
               const desc = t(`elementTypes.${ev}.desc` as never).toLowerCase();
-              return label.includes(query) || desc.includes(query) || ev.toLowerCase().includes(query);
+              return (
+                label.includes(query) ||
+                desc.includes(query) ||
+                ev.toLowerCase().includes(query)
+              );
             })
           : elementTypes;
 
@@ -399,7 +437,7 @@ function ElementCard({ elementValue }: { elementValue: string }) {
   const t = useTranslations("arcadiaGuide");
   const visual = ELEMENT_VISUAL[elementValue as keyof typeof ELEMENT_VISUAL];
 
-const layerBadge = elementValue.includes("Operational")
+  const layerBadge = elementValue.includes("Operational")
     ? "OA"
     : elementValue.includes("System") || elementValue === "FunctionPort"
       ? "SA"
@@ -407,8 +445,8 @@ const layerBadge = elementValue.includes("Operational")
         ? "LA"
         : elementValue.startsWith("Configuration") ||
             elementValue === "EPBSArchitecture"
-        ? "EPBS"
-        : "PA";
+          ? "EPBS"
+          : "PA";
 
   return (
     <div

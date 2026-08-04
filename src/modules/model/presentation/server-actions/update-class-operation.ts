@@ -6,10 +6,16 @@ import {
   UpdateClassOperationUseCase,
 } from "../../application/use-cases/class-diagram/update-class-operation";
 import { classDiagramRepository } from "../../infrastructure/persistence/drizzle/repositories";
-import { UpdateClassOperationDTO, type UpdateClassOperationDTOProps } from "../dtos/update-class-operation";
+import {
+  UpdateClassOperationDTO,
+  type UpdateClassOperationDTOProps,
+} from "../dtos/update-class-operation";
 
 export const updateClassOperation = withAuth(
-  async (payload: UpdateClassOperationDTOProps, { token }): Promise<UpdateClassOperationUseCaseResponse> => {
+  async (
+    payload: UpdateClassOperationDTOProps,
+    { token },
+  ): Promise<UpdateClassOperationUseCaseResponse> => {
     const dto = UpdateClassOperationDTO.create(payload);
 
     const useCase = new UpdateClassOperationUseCase(classDiagramRepository);

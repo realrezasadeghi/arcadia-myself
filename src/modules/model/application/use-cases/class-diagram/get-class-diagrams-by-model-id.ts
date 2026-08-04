@@ -1,6 +1,9 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
-import type { IClassDiagramRepository, FindClassDiagramsByModelIdQuery } from "../../ports/class-diagram";
+import type {
+  IClassDiagramRepository,
+  FindClassDiagramsByModelIdQuery,
+} from "../../ports/class-diagram";
 
 export type GetClassDiagramsByModelIdUseCasePayload = {
   query: FindClassDiagramsByModelIdQuery;
@@ -27,7 +30,11 @@ export type GetClassDiagramsByModelIdUseCaseResponse = {
 }[];
 
 export class GetClassDiagramsByModelIdUseCase
-  implements IUseCase<GetClassDiagramsByModelIdUseCasePayload, GetClassDiagramsByModelIdUseCaseResponse>
+  implements
+    IUseCase<
+      GetClassDiagramsByModelIdUseCasePayload,
+      GetClassDiagramsByModelIdUseCaseResponse
+    >
 {
   constructor(private readonly repository: IClassDiagramRepository) {}
 

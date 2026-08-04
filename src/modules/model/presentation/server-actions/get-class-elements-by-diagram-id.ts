@@ -19,7 +19,9 @@ export async function getClassElementsByDiagramId(
       throw new Error("Token is required");
     }
 
-    const useCase = new GetClassElementsByModelIdUseCase(classDiagramRepository);
+    const useCase = new GetClassElementsByModelIdUseCase(
+      classDiagramRepository,
+    );
 
     const response = await useCase.execute({
       query: { modelId, layer },

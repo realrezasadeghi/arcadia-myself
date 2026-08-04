@@ -2,10 +2,9 @@
 
 import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
 import { fail, type IRes, ok } from "@/modules/shared/utils/response";
-import { updateTag } from "next/cache";
 import {
-  type GetClassDiagramByIdUseCaseResponse,
   GetClassDiagramByIdUseCase,
+  type GetClassDiagramByIdUseCaseResponse,
 } from "../../application/use-cases/class-diagram/get-class-diagram-by-id";
 import { classDiagramRepository } from "../../infrastructure/persistence/drizzle/repositories";
 

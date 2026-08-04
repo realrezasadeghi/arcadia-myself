@@ -1,6 +1,7 @@
 "use server";
 
 import { withAuth } from "@/modules/auth/presentation/with-auth";
+import { updateTag } from "next/cache";
 import {
   CreateClassDiagramUseCase,
   type CreateClassDiagramUseCaseResponse,
@@ -12,7 +13,10 @@ import {
 } from "../dtos/create-class-diagram";
 
 export const createClassDiagram = withAuth(
-  async (payload: CreateClassDiagramDTOProps, { token }): Promise<CreateClassDiagramUseCaseResponse> => {
+  async (
+    payload: CreateClassDiagramDTOProps,
+    { token },
+  ): Promise<CreateClassDiagramUseCaseResponse> => {
     const dto = CreateClassDiagramDTO.create(payload);
 
     const useCase = new CreateClassDiagramUseCase(classDiagramRepository);
@@ -21,6 +25,8 @@ export const createClassDiagram = withAuth(
       payload: dto,
       context: { token },
     });
+
+    updateTag(`get-class-diagrams-by-model-id-${payload.modelId}`);
 
     return response;
   },

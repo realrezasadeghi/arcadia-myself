@@ -115,6 +115,7 @@ export type UpdateClassElementPayload = {
   id: string;
   name?: string;
   description?: string;
+  status?: "DRAFT" | "VALIDATED" | "DEPRECATED";
   elementType?: string;
   visibility?: string;
   isAbstract?: boolean;
@@ -358,7 +359,9 @@ export type RemoveClassRelationshipLayoutPayload = {
 
 export interface IClassDiagramRepository {
   // Diagram operations
-  findByModelId(query: FindClassDiagramsByModelIdQuery): Promise<ClassDiagram[]>;
+  findByModelId(
+    query: FindClassDiagramsByModelIdQuery,
+  ): Promise<ClassDiagram[]>;
   findById(query: FindClassDiagramByIdQuery): Promise<ClassDiagram | null>;
   create(payload: CreateClassDiagramPayload): Promise<ClassDiagram>;
   update(payload: UpdateClassDiagramPayload): Promise<ClassDiagram>;
@@ -366,68 +369,122 @@ export interface IClassDiagramRepository {
   remove(payload: RemoveClassDiagramPayload): Promise<boolean>;
 
   // Element operations (owned by Model)
-  findElementsByModelId(query: FindClassElementsByModelIdQuery): Promise<ClassElement[]>;
-  findElementById(query: FindClassElementByIdQuery): Promise<ClassElement | null>;
+  findElementsByModelId(
+    query: FindClassElementsByModelIdQuery,
+  ): Promise<ClassElement[]>;
+  findElementById(
+    query: FindClassElementByIdQuery,
+  ): Promise<ClassElement | null>;
   createElement(payload: CreateClassElementPayload): Promise<ClassElement>;
   updateElement(payload: UpdateClassElementPayload): Promise<ClassElement>;
   removeElement(payload: RemoveClassElementPayload): Promise<boolean>;
 
   // Relationship operations (owned by Model)
   findRelationshipsByModelId(
-    query: FindClassRelationshipsByModelIdQuery
+    query: FindClassRelationshipsByModelIdQuery,
   ): Promise<ClassRelationship[]>;
-  findRelationshipById(query: FindClassRelationshipByIdQuery): Promise<ClassRelationship | null>;
-  createRelationship(payload: CreateClassRelationshipPayload): Promise<ClassRelationship>;
-  updateRelationship(payload: UpdateClassRelationshipPayload): Promise<ClassRelationship>;
+  findRelationshipById(
+    query: FindClassRelationshipByIdQuery,
+  ): Promise<ClassRelationship | null>;
+  createRelationship(
+    payload: CreateClassRelationshipPayload,
+  ): Promise<ClassRelationship>;
+  updateRelationship(
+    payload: UpdateClassRelationshipPayload,
+  ): Promise<ClassRelationship>;
   removeRelationship(payload: RemoveClassRelationshipPayload): Promise<boolean>;
 
   // Property operations
-  findPropertiesByElementId(query: FindClassPropertiesByElementIdQuery): Promise<ClassProperty[]>;
-  findPropertyById(query: FindClassElementByIdQuery): Promise<ClassProperty | null>;
+  findPropertiesByElementId(
+    query: FindClassPropertiesByElementIdQuery,
+  ): Promise<ClassProperty[]>;
+  findPropertyById(
+    query: FindClassElementByIdQuery,
+  ): Promise<ClassProperty | null>;
   createProperty(payload: CreateClassPropertyPayload): Promise<ClassProperty>;
   updateProperty(payload: UpdateClassPropertyPayload): Promise<ClassProperty>;
   removeProperty(payload: RemoveClassPropertyPayload): Promise<boolean>;
 
   // Operation operations
-  findOperationsByElementId(query: FindClassOperationsByElementIdQuery): Promise<ClassOperation[]>;
-  findOperationById(query: FindClassElementByIdQuery): Promise<ClassOperation | null>;
-  createOperation(payload: CreateClassOperationPayload): Promise<ClassOperation>;
-  updateOperation(payload: UpdateClassOperationPayload): Promise<ClassOperation>;
+  findOperationsByElementId(
+    query: FindClassOperationsByElementIdQuery,
+  ): Promise<ClassOperation[]>;
+  findOperationById(
+    query: FindClassElementByIdQuery,
+  ): Promise<ClassOperation | null>;
+  createOperation(
+    payload: CreateClassOperationPayload,
+  ): Promise<ClassOperation>;
+  updateOperation(
+    payload: UpdateClassOperationPayload,
+  ): Promise<ClassOperation>;
   removeOperation(payload: RemoveClassOperationPayload): Promise<boolean>;
 
   // Operation Parameter operations
   findParametersByOperationId(
-    query: FindClassOperationParametersByOperationIdQuery
+    query: FindClassOperationParametersByOperationIdQuery,
   ): Promise<ClassOperationParameter[]>;
-  findParameterById(query: FindClassElementByIdQuery): Promise<ClassOperationParameter | null>;
-  createParameter(payload: CreateClassOperationParameterPayload): Promise<ClassOperationParameter>;
-  updateParameter(payload: UpdateClassOperationParameterPayload): Promise<ClassOperationParameter>;
-  removeParameter(payload: RemoveClassOperationParameterPayload): Promise<boolean>;
+  findParameterById(
+    query: FindClassElementByIdQuery,
+  ): Promise<ClassOperationParameter | null>;
+  createParameter(
+    payload: CreateClassOperationParameterPayload,
+  ): Promise<ClassOperationParameter>;
+  updateParameter(
+    payload: UpdateClassOperationParameterPayload,
+  ): Promise<ClassOperationParameter>;
+  removeParameter(
+    payload: RemoveClassOperationParameterPayload,
+  ): Promise<boolean>;
 
   // Enumeration Literal operations
   findEnumerationLiteralsByElementId(
-    query: FindClassEnumerationLiteralsByElementIdQuery
+    query: FindClassEnumerationLiteralsByElementIdQuery,
   ): Promise<ClassEnumerationLiteral[]>;
-  findEnumerationLiteralById(query: FindClassElementByIdQuery): Promise<ClassEnumerationLiteral | null>;
-  createEnumerationLiteral(payload: CreateClassEnumerationLiteralPayload): Promise<ClassEnumerationLiteral>;
-  updateEnumerationLiteral(payload: UpdateClassEnumerationLiteralPayload): Promise<ClassEnumerationLiteral>;
-  removeEnumerationLiteral(payload: RemoveClassEnumerationLiteralPayload): Promise<boolean>;
+  findEnumerationLiteralById(
+    query: FindClassElementByIdQuery,
+  ): Promise<ClassEnumerationLiteral | null>;
+  createEnumerationLiteral(
+    payload: CreateClassEnumerationLiteralPayload,
+  ): Promise<ClassEnumerationLiteral>;
+  updateEnumerationLiteral(
+    payload: UpdateClassEnumerationLiteralPayload,
+  ): Promise<ClassEnumerationLiteral>;
+  removeEnumerationLiteral(
+    payload: RemoveClassEnumerationLiteralPayload,
+  ): Promise<boolean>;
 
   // Element Layout operations (view positions)
   findElementLayoutsByDiagramId(
-    query: FindClassElementLayoutsByDiagramIdQuery
+    query: FindClassElementLayoutsByDiagramIdQuery,
   ): Promise<ClassElementLayout[]>;
-  findElementLayoutById(query: FindClassElementByIdQuery): Promise<ClassElementLayout | null>;
-  createElementLayout(payload: CreateClassElementLayoutPayload): Promise<ClassElementLayout>;
-  updateElementLayout(payload: UpdateClassElementLayoutPayload): Promise<ClassElementLayout>;
-  removeElementLayout(payload: RemoveClassElementLayoutPayload): Promise<boolean>;
+  findElementLayoutById(
+    query: FindClassElementByIdQuery,
+  ): Promise<ClassElementLayout | null>;
+  createElementLayout(
+    payload: CreateClassElementLayoutPayload,
+  ): Promise<ClassElementLayout>;
+  updateElementLayout(
+    payload: UpdateClassElementLayoutPayload,
+  ): Promise<ClassElementLayout>;
+  removeElementLayout(
+    payload: RemoveClassElementLayoutPayload,
+  ): Promise<boolean>;
 
   // Relationship Layout operations
   findRelationshipLayoutsByDiagramId(
-    query: FindClassRelationshipLayoutsByDiagramIdQuery
+    query: FindClassRelationshipLayoutsByDiagramIdQuery,
   ): Promise<ClassRelationshipLayout[]>;
-  findRelationshipLayoutById(query: FindClassElementByIdQuery): Promise<ClassRelationshipLayout | null>;
-  createRelationshipLayout(payload: CreateClassRelationshipLayoutPayload): Promise<ClassRelationshipLayout>;
-  updateRelationshipLayout(payload: UpdateClassRelationshipLayoutPayload): Promise<ClassRelationshipLayout>;
-  removeRelationshipLayout(payload: RemoveClassRelationshipLayoutPayload): Promise<boolean>;
+  findRelationshipLayoutById(
+    query: FindClassElementByIdQuery,
+  ): Promise<ClassRelationshipLayout | null>;
+  createRelationshipLayout(
+    payload: CreateClassRelationshipLayoutPayload,
+  ): Promise<ClassRelationshipLayout>;
+  updateRelationshipLayout(
+    payload: UpdateClassRelationshipLayoutPayload,
+  ): Promise<ClassRelationshipLayout>;
+  removeRelationshipLayout(
+    payload: RemoveClassRelationshipLayoutPayload,
+  ): Promise<boolean>;
 }

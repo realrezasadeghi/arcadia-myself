@@ -23,7 +23,11 @@ import { useRemoveRelationshipSync } from "./use-remove-relationship";
 import { useSaveManager } from "./use-save-manager";
 
 export type UseCanvasBehaviourProps = {
-  onConfirm: (type: RelationshipTypeValue, name: string) => void;
+  onConfirm: (
+    type: RelationshipTypeValue,
+    name: string,
+    description: string,
+  ) => void;
 };
 
 /**
@@ -124,9 +128,9 @@ export function useCanvasBehaviour({ onConfirm }: UseCanvasBehaviourProps) {
   );
 
   const handleConfirm = useCallback(
-    (type: RelationshipTypeValue, name: string) => {
+    (type: RelationshipTypeValue, name: string, description: string) => {
       if (!pendingConnection) return;
-      onConfirm(type, name);
+      onConfirm(type, name, description);
     },
     [pendingConnection, onConfirm],
   );

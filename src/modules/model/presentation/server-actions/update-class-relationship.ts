@@ -12,7 +12,10 @@ import {
 } from "../dtos/update-class-relationship";
 
 export const updateClassRelationship = withAuth(
-  async (payload: UpdateClassRelationshipDTOProps, { token }): Promise<UpdateClassRelationshipUseCaseResponse> => {
+  async (
+    payload: UpdateClassRelationshipDTOProps,
+    { token },
+  ): Promise<UpdateClassRelationshipUseCaseResponse> => {
     const dto = UpdateClassRelationshipDTO.create(payload);
 
     const useCase = new UpdateClassRelationshipUseCase(classDiagramRepository);

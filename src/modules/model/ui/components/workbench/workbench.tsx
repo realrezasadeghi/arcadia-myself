@@ -30,11 +30,15 @@ import {
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { getDiagramLayer } from "../../helpers/diagram";
+import { resolveDiagramLayer } from "../../helpers/diagram";
 import {
   type PanelVisibility,
   useWorkbenchStore,
 } from "../../stores/workbench";
+import type {
+  ClassDiagramData,
+  ClassElementData,
+} from "../../types/class-diagram";
 import type { Diagram } from "../../types/diagram";
 import type { Element } from "../../types/element";
 import type { LayerValue } from "../../types/layer";
@@ -51,8 +55,18 @@ import { ValidationPanel } from "./validation-panel";
 
 export type WorkbenchModelData = {
   model: Model;
+  /** Merged arch + class elements (backward-compatible) */
   elements: Element[];
+  /** Merged arch + class diagrams (backward-compatible) */
   diagrams: Diagram[];
+  /** Architecture-only elements */
+  archElements: Element[];
+  /** Class diagram elements (raw ClassElementData) */
+  classElements: ClassElementData[];
+  /** Architecture-only diagrams */
+  archDiagrams: Diagram[];
+  /** Class diagrams (CDB) */
+  classDiagrams: Diagram[];
 };
 
 export type WorkbenchProps = {
@@ -100,7 +114,7 @@ export function Workbench({
           modelId: model.id,
           name: diagram.name,
           type: diagram.type,
-          layer: getDiagramLayer(diagram.type),
+          layer: resolveDiagramLayer(diagram.type, model.layer),
         });
 
         break;
@@ -119,7 +133,7 @@ export function Workbench({
         modelId: layerData.model.id,
         name: diagram.name,
         type: diagram.type,
-        layer: getDiagramLayer(diagram.type),
+        layer: resolveDiagramLayer(diagram.type, layerData.model.layer),
       });
     }
   };

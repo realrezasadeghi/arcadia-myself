@@ -15,7 +15,10 @@ import {
 } from "../dtos/connect-elements";
 
 export const connectElements = withAuth(
-  async (payload: ConnectElementsDTOProps, { token }): Promise<ConnectElementsResponse> => {
+  async (
+    payload: ConnectElementsDTOProps,
+    { token },
+  ): Promise<ConnectElementsResponse> => {
     const dto = ConnectElementsDTO.create(payload);
 
     const connectElementsUseCase = new ConnectElementsUseCase(

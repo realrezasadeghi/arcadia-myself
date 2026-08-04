@@ -1,6 +1,9 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
-import type { IClassDiagramRepository, FindClassElementByIdQuery } from "../../ports/class-diagram";
+import type {
+  IClassDiagramRepository,
+  FindClassElementByIdQuery,
+} from "../../ports/class-diagram";
 
 export type GetClassEnumerationLiteralByIdUseCasePayload = {
   query: FindClassElementByIdQuery;
@@ -23,7 +26,11 @@ export type GetClassEnumerationLiteralByIdUseCaseResponse = {
 } | null;
 
 export class GetClassEnumerationLiteralByIdUseCase
-  implements IUseCase<GetClassEnumerationLiteralByIdUseCasePayload, GetClassEnumerationLiteralByIdUseCaseResponse>
+  implements
+    IUseCase<
+      GetClassEnumerationLiteralByIdUseCasePayload,
+      GetClassEnumerationLiteralByIdUseCaseResponse
+    >
 {
   constructor(private readonly repository: IClassDiagramRepository) {}
 
@@ -34,7 +41,9 @@ export class GetClassEnumerationLiteralByIdUseCase
       const literal = await this.repository.findEnumerationLiteralById(query);
       return literal ? literal.toJSON() : null;
     } catch (error) {
-      throw new Error(resolveErrorMessage(error, "Error getting class enumeration literal"));
+      throw new Error(
+        resolveErrorMessage(error, "Error getting class enumeration literal"),
+      );
     }
   }
 }

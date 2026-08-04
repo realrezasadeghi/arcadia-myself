@@ -38,8 +38,14 @@ export class CreateClassOperationDTO {
 
   static create(props: CreateClassOperationDTOProps): CreateClassOperationDTO {
     return new CreateClassOperationDTO({
-      classElementId: CreateClassOperationDTO.validateRequiredString(props.classElementId, "Class Element ID"),
-      modelId: CreateClassOperationDTO.validateRequiredString(props.modelId, "Model ID"),
+      classElementId: CreateClassOperationDTO.validateRequiredString(
+        props.classElementId,
+        "Class Element ID",
+      ),
+      modelId: CreateClassOperationDTO.validateRequiredString(
+        props.modelId,
+        "Model ID",
+      ),
       layer: CreateClassOperationDTO.validateLayer(props.layer),
       name: CreateClassOperationDTO.validateName(props.name),
       returnTypeClassElementId: props.returnTypeClassElementId,
@@ -51,7 +57,10 @@ export class CreateClassOperationDTO {
     });
   }
 
-  private static validateRequiredString(value: string, fieldName: string): string {
+  private static validateRequiredString(
+    value: string,
+    fieldName: string,
+  ): string {
     if (!value) throw new Error(`${fieldName} is required`);
     const trimmed = value.trim();
     if (!trimmed) throw new Error(`${fieldName} cannot be empty`);
@@ -70,12 +79,13 @@ export class CreateClassOperationDTO {
     if (!name) throw new Error("Operation name is required");
     const trimmed = name.trim();
     if (!trimmed) throw new Error("Operation name cannot be empty");
-    if (trimmed.length > 255) throw new Error("Name cannot exceed 255 characters");
+    if (trimmed.length > 255)
+      throw new Error("Name cannot exceed 255 characters");
     return trimmed;
   }
 
   private static validateVisibility(
-    visibility?: string
+    visibility?: string,
   ): "public" | "private" | "protected" | "package" {
     const valid = ["public", "private", "protected", "package"];
     if (visibility && !valid.includes(visibility)) {

@@ -18,16 +18,24 @@ export class UpdateClassRelationshipLayoutDTO {
     this.waypoints = props.waypoints;
   }
 
-  static create(props: UpdateClassRelationshipLayoutDTOProps): UpdateClassRelationshipLayoutDTO {
+  static create(
+    props: UpdateClassRelationshipLayoutDTOProps,
+  ): UpdateClassRelationshipLayoutDTO {
     return new UpdateClassRelationshipLayoutDTO({
-      id: UpdateClassRelationshipLayoutDTO.validateRequiredString(props.id, "Layout ID"),
+      id: UpdateClassRelationshipLayoutDTO.validateRequiredString(
+        props.id,
+        "Layout ID",
+      ),
       labelX: props.labelX,
       labelY: props.labelY,
       waypoints: props.waypoints,
     });
   }
 
-  private static validateRequiredString(value: string, fieldName: string): string {
+  private static validateRequiredString(
+    value: string,
+    fieldName: string,
+  ): string {
     if (!value) throw new Error(`${fieldName} is required`);
     const trimmed = value.trim();
     if (!trimmed) throw new Error(`${fieldName} cannot be empty`);

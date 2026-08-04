@@ -31,7 +31,10 @@ export type UpdateClassDiagramLayoutResponse = {
 };
 
 export const updateClassDiagramLayout = withAuth(
-  async (payload: UpdateClassDiagramLayoutPayload, { token }): Promise<UpdateClassDiagramLayoutResponse> => {
+  async (
+    payload: UpdateClassDiagramLayoutPayload,
+    { token },
+  ): Promise<UpdateClassDiagramLayoutResponse> => {
     const response = await classDiagramRepository.updateLayout({
       id: payload.id,
       viewport: payload.viewport,

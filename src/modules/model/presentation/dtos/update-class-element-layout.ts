@@ -21,9 +21,14 @@ export class UpdateClassElementLayoutDTO {
     this.height = props.height;
   }
 
-  static create(props: UpdateClassElementLayoutDTOProps): UpdateClassElementLayoutDTO {
+  static create(
+    props: UpdateClassElementLayoutDTOProps,
+  ): UpdateClassElementLayoutDTO {
     return new UpdateClassElementLayoutDTO({
-      id: UpdateClassElementLayoutDTO.validateRequiredString(props.id, "Layout ID"),
+      id: UpdateClassElementLayoutDTO.validateRequiredString(
+        props.id,
+        "Layout ID",
+      ),
       x: props.x,
       y: props.y,
       width: props.width,
@@ -31,7 +36,10 @@ export class UpdateClassElementLayoutDTO {
     });
   }
 
-  private static validateRequiredString(value: string, fieldName: string): string {
+  private static validateRequiredString(
+    value: string,
+    fieldName: string,
+  ): string {
     if (!value) throw new Error(`${fieldName} is required`);
     const trimmed = value.trim();
     if (!trimmed) throw new Error(`${fieldName} cannot be empty`);

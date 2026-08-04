@@ -1,6 +1,9 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
-import type { IClassDiagramRepository, FindClassPropertyByIdQuery } from "../../ports/class-diagram";
+import type {
+  IClassDiagramRepository,
+  FindClassPropertyByIdQuery,
+} from "../../ports/class-diagram";
 
 export type GetClassPropertyByIdUseCasePayload = {
   query: FindClassPropertyByIdQuery;
@@ -37,7 +40,11 @@ export type GetClassPropertyByIdUseCaseResponse = {
 } | null;
 
 export class GetClassPropertyByIdUseCase
-  implements IUseCase<GetClassPropertyByIdUseCasePayload, GetClassPropertyByIdUseCaseResponse>
+  implements
+    IUseCase<
+      GetClassPropertyByIdUseCasePayload,
+      GetClassPropertyByIdUseCaseResponse
+    >
 {
   constructor(private readonly repository: IClassDiagramRepository) {}
 
@@ -48,7 +55,9 @@ export class GetClassPropertyByIdUseCase
       const property = await this.repository.findPropertyById(query);
       return property ? property.toJSON() : null;
     } catch (error) {
-      throw new Error(resolveErrorMessage(error, "Error getting class property"));
+      throw new Error(
+        resolveErrorMessage(error, "Error getting class property"),
+      );
     }
   }
 }

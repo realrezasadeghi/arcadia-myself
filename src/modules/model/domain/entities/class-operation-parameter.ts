@@ -1,7 +1,10 @@
 import { Entity } from "@/modules/shared/domain/entity";
 import { ClassParameterDirection } from "../value-objects/class-parameter-direction";
 
-export type ClassOperationParameterStatus = "DRAFT" | "VALIDATED" | "DEPRECATED";
+export type ClassOperationParameterStatus =
+  | "DRAFT"
+  | "VALIDATED"
+  | "DEPRECATED";
 
 interface ClassOperationParameterProps {
   classOperationId: string;
@@ -9,6 +12,7 @@ interface ClassOperationParameterProps {
   layer: string;
   name: string;
   typeClassElementId: string | null;
+  typeLiteral: string;
   multiplicityLower: number;
   multiplicityUpper: string;
   defaultValue: string | null;
@@ -27,6 +31,7 @@ export class ClassOperationParameter extends Entity<string> {
   private _layer: string;
   private _name: string;
   private _typeClassElementId: string | null;
+  private _typeLiteral: string;
   private _multiplicityLower: number;
   private _multiplicityUpper: string;
   private _defaultValue: string | null;
@@ -45,6 +50,7 @@ export class ClassOperationParameter extends Entity<string> {
     this._layer = props.layer;
     this._name = props.name;
     this._typeClassElementId = props.typeClassElementId;
+    this._typeLiteral = props.typeLiteral;
     this._multiplicityLower = props.multiplicityLower;
     this._multiplicityUpper = props.multiplicityUpper;
     this._defaultValue = props.defaultValue;
@@ -64,6 +70,7 @@ export class ClassOperationParameter extends Entity<string> {
     layer: string;
     name: string;
     typeClassElementId?: string | null;
+    typeLiteral?: string;
     multiplicityLower?: number;
     multiplicityUpper?: string;
     defaultValue?: string | null;
@@ -81,6 +88,7 @@ export class ClassOperationParameter extends Entity<string> {
       layer: props.layer,
       name: props.name.trim(),
       typeClassElementId: props.typeClassElementId ?? null,
+      typeLiteral: props.typeLiteral ?? "",
       multiplicityLower: props.multiplicityLower ?? 1,
       multiplicityUpper: props.multiplicityUpper ?? "1",
       defaultValue: props.defaultValue ?? null,
@@ -101,6 +109,7 @@ export class ClassOperationParameter extends Entity<string> {
     layer: string;
     name: string;
     typeClassElementId: string | null;
+    typeLiteral: string;
     multiplicityLower: number;
     multiplicityUpper: string;
     defaultValue: string | null;
@@ -118,6 +127,7 @@ export class ClassOperationParameter extends Entity<string> {
       layer: props.layer,
       name: props.name,
       typeClassElementId: props.typeClassElementId,
+      typeLiteral: props.typeLiteral,
       multiplicityLower: props.multiplicityLower,
       multiplicityUpper: props.multiplicityUpper,
       defaultValue: props.defaultValue,
@@ -145,6 +155,9 @@ export class ClassOperationParameter extends Entity<string> {
   }
   get typeClassElementId(): string | null {
     return this._typeClassElementId;
+  }
+  get typeLiteral(): string {
+    return this._typeLiteral;
   }
   get multiplicityLower(): number {
     return this._multiplicityLower;
@@ -182,6 +195,11 @@ export class ClassOperationParameter extends Entity<string> {
 
   setTypeClassElementId(typeClassElementId: string | null): void {
     this._typeClassElementId = typeClassElementId;
+    this._touch();
+  }
+
+  setTypeLiteral(typeLiteral: string): void {
+    this._typeLiteral = typeLiteral;
     this._touch();
   }
 
@@ -237,6 +255,7 @@ export class ClassOperationParameter extends Entity<string> {
       layer: this._layer,
       name: this._name,
       typeClassElementId: this._typeClassElementId,
+      typeLiteral: this._typeLiteral,
       multiplicityLower: this._multiplicityLower,
       multiplicityUpper: this._multiplicityUpper,
       defaultValue: this._defaultValue,

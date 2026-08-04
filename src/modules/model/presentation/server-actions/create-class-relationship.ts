@@ -12,7 +12,10 @@ import {
 } from "../dtos/create-class-relationship";
 
 export const createClassRelationship = withAuth(
-  async (payload: CreateClassRelationshipDTOProps, { token }): Promise<CreateClassRelationshipUseCaseResponse> => {
+  async (
+    payload: CreateClassRelationshipDTOProps,
+    { token },
+  ): Promise<CreateClassRelationshipUseCaseResponse> => {
     const dto = CreateClassRelationshipDTO.create(payload);
 
     const useCase = new CreateClassRelationshipUseCase(classDiagramRepository);

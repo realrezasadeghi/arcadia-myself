@@ -9,13 +9,21 @@ export class RemoveClassElementLayoutDTO {
     this.id = props.id;
   }
 
-  static create(props: RemoveClassElementLayoutDTOProps): RemoveClassElementLayoutDTO {
+  static create(
+    props: RemoveClassElementLayoutDTOProps,
+  ): RemoveClassElementLayoutDTO {
     return new RemoveClassElementLayoutDTO({
-      id: RemoveClassElementLayoutDTO.validateRequiredString(props.id, "Element Layout ID"),
+      id: RemoveClassElementLayoutDTO.validateRequiredString(
+        props.id,
+        "Element Layout ID",
+      ),
     });
   }
 
-  private static validateRequiredString(value: string, fieldName: string): string {
+  private static validateRequiredString(
+    value: string,
+    fieldName: string,
+  ): string {
     if (!value) throw new Error(`${fieldName} is required`);
     const trimmed = value.trim();
     if (!trimmed) throw new Error(`${fieldName} cannot be empty`);

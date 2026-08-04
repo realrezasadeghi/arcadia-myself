@@ -6,17 +6,17 @@ import type { Relationship } from "../types/relationship";
 import { ArchitectureCanvasInner } from "./architecture-canvas-inner";
 import { ClassCanvasInner } from "./class-canvas-inner";
 
-export type DiagramCanvasInnerProps = {
+export type DiagramHostProps = {
   diagram: Diagram;
   elements: Element[];
   relationships: Relationship[];
 };
 
-export function DiagramCanvasInner({
+export function DiagramHost({
   diagram,
   elements,
   relationships,
-}: DiagramCanvasInnerProps) {
+}: DiagramHostProps) {
   if (diagram.type === "CDB") {
     return (
       <ClassCanvasInner

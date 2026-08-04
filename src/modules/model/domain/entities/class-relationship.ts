@@ -119,9 +119,12 @@ export class ClassRelationship extends Entity<string> {
       throw new Error("A relationship cannot connect an element to itself");
     }
 
-    const layer = props.layer instanceof Layer ? props.layer : Layer.from(props.layer);
+    const layer =
+      props.layer instanceof Layer ? props.layer : Layer.from(props.layer);
     const relationshipType = ClassRelationshipType.from(props.relationshipType);
-    const aggregationKind = AggregationKind.from(props.aggregationKind ?? "NONE");
+    const aggregationKind = AggregationKind.from(
+      props.aggregationKind ?? "NONE",
+    );
 
     return new ClassRelationship(props.id, {
       modelId: props.modelId,
@@ -288,7 +291,9 @@ export class ClassRelationship extends Entity<string> {
   setRelationshipType(relationshipType: ClassRelationshipType): DomainEvent[] {
     this._relationshipType = relationshipType;
     this._touch();
-    return [new ClassRelationshipTypeChangedEvent(this._id, relationshipType.value)];
+    return [
+      new ClassRelationshipTypeChangedEvent(this._id, relationshipType.value),
+    ];
   }
 
   setAggregationKind(aggregationKind: AggregationKind): DomainEvent[] {
@@ -297,12 +302,15 @@ export class ClassRelationship extends Entity<string> {
     return [
       new ClassRelationshipAggregationKindChangedEvent(
         this._id,
-        aggregationKind.value
+        aggregationKind.value,
       ),
     ];
   }
 
-  setGeneralizationConstraints(isDisjoint: boolean, isComplete: boolean): DomainEvent[] {
+  setGeneralizationConstraints(
+    isDisjoint: boolean,
+    isComplete: boolean,
+  ): DomainEvent[] {
     this._isDisjoint = isDisjoint;
     this._isComplete = isComplete;
     this._touch();
@@ -310,7 +318,7 @@ export class ClassRelationship extends Entity<string> {
       new ClassRelationshipGeneralizationConstraintsChangedEvent(
         this._id,
         isDisjoint,
-        isComplete
+        isComplete,
       ),
     ];
   }
@@ -327,7 +335,11 @@ export class ClassRelationship extends Entity<string> {
     this._sourceMultiplicityUpper = upper;
     this._touch();
     return [
-      new ClassRelationshipSourceMultiplicityChangedEvent(this._id, lower, upper),
+      new ClassRelationshipSourceMultiplicityChangedEvent(
+        this._id,
+        lower,
+        upper,
+      ),
     ];
   }
 
@@ -337,7 +349,11 @@ export class ClassRelationship extends Entity<string> {
     this._targetMultiplicityUpper = upper;
     this._touch();
     return [
-      new ClassRelationshipTargetMultiplicityChangedEvent(this._id, lower, upper),
+      new ClassRelationshipTargetMultiplicityChangedEvent(
+        this._id,
+        lower,
+        upper,
+      ),
     ];
   }
 
@@ -353,7 +369,10 @@ export class ClassRelationship extends Entity<string> {
     return [new ClassRelationshipTargetRoleChangedEvent(this._id, role)];
   }
 
-  setNavigability(isNavigableSource: boolean, isNavigableTarget: boolean): DomainEvent[] {
+  setNavigability(
+    isNavigableSource: boolean,
+    isNavigableTarget: boolean,
+  ): DomainEvent[] {
     this._isNavigableSource = isNavigableSource;
     this._isNavigableTarget = isNavigableTarget;
     this._touch();
@@ -361,7 +380,7 @@ export class ClassRelationship extends Entity<string> {
       new ClassRelationshipNavigabilityChangedEvent(
         this._id,
         isNavigableSource,
-        isNavigableTarget
+        isNavigableTarget,
       ),
     ];
   }
@@ -391,7 +410,8 @@ export class ClassRelationship extends Entity<string> {
 
   connects(sourceId: string, targetId: string): boolean {
     return (
-      (this._sourceElementId === sourceId && this._targetElementId === targetId) ||
+      (this._sourceElementId === sourceId &&
+        this._targetElementId === targetId) ||
       (this._sourceElementId === targetId && this._targetElementId === sourceId)
     );
   }
@@ -444,14 +464,17 @@ export class ClassRelationshipCreatedEvent extends DomainEvent {
     public readonly layer: Layer,
     public readonly sourceElementId: string,
     public readonly targetElementId: string,
-    public readonly relationshipType: ClassRelationshipType
+    public readonly relationshipType: ClassRelationshipType,
   ) {
     super("ClassRelationshipCreated");
   }
 }
 
 export class ClassRelationshipRenamedEvent extends DomainEvent {
-  constructor(public readonly relationshipId: string, public readonly name: string) {
+  constructor(
+    public readonly relationshipId: string,
+    public readonly name: string,
+  ) {
     super("ClassRelationshipRenamed");
   }
 }
@@ -459,7 +482,7 @@ export class ClassRelationshipRenamedEvent extends DomainEvent {
 export class ClassRelationshipTypeChangedEvent extends DomainEvent {
   constructor(
     public readonly relationshipId: string,
-    public readonly relationshipType: string
+    public readonly relationshipType: string,
   ) {
     super("ClassRelationshipTypeChanged");
   }
@@ -468,7 +491,7 @@ export class ClassRelationshipTypeChangedEvent extends DomainEvent {
 export class ClassRelationshipAggregationKindChangedEvent extends DomainEvent {
   constructor(
     public readonly relationshipId: string,
-    public readonly aggregationKind: string
+    public readonly aggregationKind: string,
   ) {
     super("ClassRelationshipAggregationKindChanged");
   }
@@ -478,7 +501,7 @@ export class ClassRelationshipGeneralizationConstraintsChangedEvent extends Doma
   constructor(
     public readonly relationshipId: string,
     public readonly isDisjoint: boolean,
-    public readonly isComplete: boolean
+    public readonly isComplete: boolean,
   ) {
     super("ClassRelationshipGeneralizationConstraintsChanged");
   }
@@ -487,7 +510,7 @@ export class ClassRelationshipGeneralizationConstraintsChangedEvent extends Doma
 export class ClassRelationshipDerivedChangedEvent extends DomainEvent {
   constructor(
     public readonly relationshipId: string,
-    public readonly isDerived: boolean
+    public readonly isDerived: boolean,
   ) {
     super("ClassRelationshipDerivedChanged");
   }
@@ -497,7 +520,7 @@ export class ClassRelationshipSourceMultiplicityChangedEvent extends DomainEvent
   constructor(
     public readonly relationshipId: string,
     public readonly lower: number,
-    public readonly upper: string
+    public readonly upper: string,
   ) {
     super("ClassRelationshipSourceMultiplicityChanged");
   }
@@ -507,20 +530,26 @@ export class ClassRelationshipTargetMultiplicityChangedEvent extends DomainEvent
   constructor(
     public readonly relationshipId: string,
     public readonly lower: number,
-    public readonly upper: string
+    public readonly upper: string,
   ) {
     super("ClassRelationshipTargetMultiplicityChanged");
   }
 }
 
 export class ClassRelationshipSourceRoleChangedEvent extends DomainEvent {
-  constructor(public readonly relationshipId: string, public readonly role: string) {
+  constructor(
+    public readonly relationshipId: string,
+    public readonly role: string,
+  ) {
     super("ClassRelationshipSourceRoleChanged");
   }
 }
 
 export class ClassRelationshipTargetRoleChangedEvent extends DomainEvent {
-  constructor(public readonly relationshipId: string, public readonly role: string) {
+  constructor(
+    public readonly relationshipId: string,
+    public readonly role: string,
+  ) {
     super("ClassRelationshipTargetRoleChanged");
   }
 }
@@ -529,7 +558,7 @@ export class ClassRelationshipNavigabilityChangedEvent extends DomainEvent {
   constructor(
     public readonly relationshipId: string,
     public readonly isNavigableSource: boolean,
-    public readonly isNavigableTarget: boolean
+    public readonly isNavigableTarget: boolean,
   ) {
     super("ClassRelationshipNavigabilityChanged");
   }
@@ -539,7 +568,7 @@ export class ClassRelationshipExtensionPropertyChangedEvent extends DomainEvent 
   constructor(
     public readonly relationshipId: string,
     public readonly key: string,
-    public readonly value: unknown
+    public readonly value: unknown,
   ) {
     super("ClassRelationshipExtensionPropertyChanged");
   }
@@ -560,7 +589,7 @@ export class ClassRelationshipDeprecatedEvent extends DomainEvent {
 export class ClassRelationshipDescriptionChangedEvent extends DomainEvent {
   constructor(
     public readonly relationshipId: string,
-    public readonly description: string
+    public readonly description: string,
   ) {
     super("ClassRelationshipDescriptionChanged");
   }

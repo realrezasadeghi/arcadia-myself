@@ -79,7 +79,8 @@ export class ClassElement extends Entity<string> {
   }): ClassElement {
     if (!props.name.trim()) throw new Error("Class element name is required");
 
-    const layer = props.layer instanceof Layer ? props.layer : Layer.from(props.layer);
+    const layer =
+      props.layer instanceof Layer ? props.layer : Layer.from(props.layer);
     const elementType = ClassElementType.from(props.elementType);
     const visibility = ClassVisibility.from(props.visibility ?? "public");
 
@@ -208,7 +209,9 @@ export class ClassElement extends Entity<string> {
     const changed = this._visibility.value !== visibility.value;
     this._visibility = visibility;
     this._touch();
-    return changed ? [new ClassElementVisibilityChangedEvent(this._id, visibility.value)] : [];
+    return changed
+      ? [new ClassElementVisibilityChangedEvent(this._id, visibility.value)]
+      : [];
   }
 
   setAbstract(isAbstract: boolean): DomainEvent[] {
@@ -218,18 +221,23 @@ export class ClassElement extends Entity<string> {
     const changed = this._isAbstract !== isAbstract;
     this._isAbstract = isAbstract;
     this._touch();
-    return changed ? [new ClassElementAbstractChangedEvent(this._id, isAbstract)] : [];
+    return changed
+      ? [new ClassElementAbstractChangedEvent(this._id, isAbstract)]
+      : [];
   }
 
   setStatic(isStatic: boolean): DomainEvent[] {
     const changed = this._isStatic !== isStatic;
     this._isStatic = isStatic;
     this._touch();
-    return changed ? [new ClassElementStaticChangedEvent(this._id, isStatic)] : [];
+    return changed
+      ? [new ClassElementStaticChangedEvent(this._id, isStatic)]
+      : [];
   }
 
   setParent(parentId: string | null): DomainEvent[] {
-    if (parentId === this._id) throw new Error("Element cannot be its own parent");
+    if (parentId === this._id)
+      throw new Error("Element cannot be its own parent");
     const oldParentId = this._parentId;
     this._parentId = parentId;
     this._touch();
@@ -242,13 +250,17 @@ export class ClassElement extends Entity<string> {
     const changed = this._ordering !== ordering;
     this._ordering = ordering;
     this._touch();
-    return changed ? [new ClassElementOrderingChangedEvent(this._id, ordering)] : [];
+    return changed
+      ? [new ClassElementOrderingChangedEvent(this._id, ordering)]
+      : [];
   }
 
   setExtensionProperty(key: string, value: unknown): DomainEvent[] {
     this._extensionProperties = { ...this._extensionProperties, [key]: value };
     this._touch();
-    return [new ClassElementExtensionPropertyChangedEvent(this._id, key, value)];
+    return [
+      new ClassElementExtensionPropertyChangedEvent(this._id, key, value),
+    ];
   }
 
   validate(): DomainEvent[] {
@@ -298,7 +310,7 @@ export class ClassElementCreatedEvent extends DomainEvent {
     public readonly modelId: string,
     public readonly layer: Layer,
     public readonly name: string,
-    public readonly elementType: ClassElementType
+    public readonly elementType: ClassElementType,
   ) {
     super("ClassElementCreated");
   }
@@ -308,7 +320,7 @@ export class ClassElementRenamedEvent extends DomainEvent {
   constructor(
     public readonly elementId: string,
     public readonly oldName: string,
-    public readonly newName: string
+    public readonly newName: string,
   ) {
     super("ClassElementRenamed");
   }
@@ -317,7 +329,7 @@ export class ClassElementRenamedEvent extends DomainEvent {
 export class ClassElementAbstractChangedEvent extends DomainEvent {
   constructor(
     public readonly elementId: string,
-    public readonly isAbstract: boolean
+    public readonly isAbstract: boolean,
   ) {
     super("ClassElementAbstractChanged");
   }
@@ -326,7 +338,7 @@ export class ClassElementAbstractChangedEvent extends DomainEvent {
 export class ClassElementStaticChangedEvent extends DomainEvent {
   constructor(
     public readonly elementId: string,
-    public readonly isStatic: boolean
+    public readonly isStatic: boolean,
   ) {
     super("ClassElementStaticChanged");
   }
@@ -336,7 +348,7 @@ export class ClassElementParentChangedEvent extends DomainEvent {
   constructor(
     public readonly elementId: string,
     public readonly oldParentId: string | null,
-    public readonly newParentId: string | null
+    public readonly newParentId: string | null,
   ) {
     super("ClassElementParentChanged");
   }
@@ -345,7 +357,7 @@ export class ClassElementParentChangedEvent extends DomainEvent {
 export class ClassElementOrderingChangedEvent extends DomainEvent {
   constructor(
     public readonly elementId: string,
-    public readonly ordering: number
+    public readonly ordering: number,
   ) {
     super("ClassElementOrderingChanged");
   }
@@ -355,7 +367,7 @@ export class ClassElementExtensionPropertyChangedEvent extends DomainEvent {
   constructor(
     public readonly elementId: string,
     public readonly key: string,
-    public readonly value: unknown
+    public readonly value: unknown,
   ) {
     super("ClassElementExtensionPropertyChanged");
   }
@@ -376,7 +388,7 @@ export class ClassElementDeprecatedEvent extends DomainEvent {
 export class ClassElementDescriptionChangedEvent extends DomainEvent {
   constructor(
     public readonly elementId: string,
-    public readonly description: string
+    public readonly description: string,
   ) {
     super("ClassElementDescriptionChanged");
   }
@@ -385,7 +397,7 @@ export class ClassElementDescriptionChangedEvent extends DomainEvent {
 export class ClassElementVisibilityChangedEvent extends DomainEvent {
   constructor(
     public readonly elementId: string,
-    public readonly visibility: string
+    public readonly visibility: string,
   ) {
     super("ClassElementVisibilityChanged");
   }

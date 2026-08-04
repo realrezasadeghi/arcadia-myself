@@ -47,7 +47,8 @@ export class CreateClassDiagramDTO {
     if (!name) throw new Error("Class diagram name is required");
     const trimmed = name.trim();
     if (!trimmed) throw new Error("Class diagram name cannot be empty");
-    if (trimmed.length > 255) throw new Error("Name cannot exceed 255 characters");
+    if (trimmed.length > 255)
+      throw new Error("Name cannot exceed 255 characters");
     return trimmed;
   }
 
@@ -55,7 +56,8 @@ export class CreateClassDiagramDTO {
     if (description === undefined || description === null) return undefined;
     const trimmed = description.trim();
     if (trimmed.length === 0) return undefined;
-    if (trimmed.length > 500) throw new Error("Description cannot exceed 500 characters");
+    if (trimmed.length > 500)
+      throw new Error("Description cannot exceed 500 characters");
     return trimmed;
   }
 }

@@ -20,7 +20,9 @@ export async function getClassRelationshipsByModelId(
       throw new Error("Token is required");
     }
 
-    const useCase = new GetClassRelationshipsByModelIdUseCase(classDiagramRepository);
+    const useCase = new GetClassRelationshipsByModelIdUseCase(
+      classDiagramRepository,
+    );
 
     const response = await useCase.execute({
       query: { modelId, layer },

@@ -1,6 +1,9 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
-import type { IClassDiagramRepository, FindClassPropertiesByElementIdQuery } from "../../ports/class-diagram";
+import type {
+  IClassDiagramRepository,
+  FindClassPropertiesByElementIdQuery,
+} from "../../ports/class-diagram";
 
 export type GetClassPropertiesByElementIdUseCasePayload = {
   query: FindClassPropertiesByElementIdQuery;
@@ -37,7 +40,11 @@ export type GetClassPropertiesByElementIdUseCaseResponse = {
 }[];
 
 export class GetClassPropertiesByElementIdUseCase
-  implements IUseCase<GetClassPropertiesByElementIdUseCasePayload, GetClassPropertiesByElementIdUseCaseResponse>
+  implements
+    IUseCase<
+      GetClassPropertiesByElementIdUseCasePayload,
+      GetClassPropertiesByElementIdUseCaseResponse
+    >
 {
   constructor(private readonly repository: IClassDiagramRepository) {}
 

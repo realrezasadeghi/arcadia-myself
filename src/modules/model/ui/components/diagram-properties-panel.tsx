@@ -50,10 +50,8 @@ import {
 import { useWorkbenchStore } from "../stores/workbench";
 import type { RelationshipTypeValue } from "../types/relationship";
 import type { ElementTypeValue } from "../types/element";
-import { isClassDiagramElement, isClassDiagramRelationship } from "../helpers/class-diagram";
 import { CreateTraceLinkDialog } from "./create-trace-link-dialog";
 import { ElementShape } from "./element-shape";
-import { ClassNodeProperties, ClassEdgeProperties } from "./class-properties-panel";
 
 type DiagramPropertiesPanelProps = {
   projectId: string;
@@ -93,17 +91,13 @@ export function DiagramPropertiesPanel({
         </Button>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto p-3">
-        {node && isClassDiagramElement(node.data.elementType) ? (
-          <ClassNodeProperties node={node} />
-        ) : node && (
+        {node && (
           <>
             <NodeProperties projectId={projectId} node={node} />
             <TraceLinksList elementId={node?.data.elementId} />
           </>
         )}
-        {edge && isClassDiagramRelationship(edge.data?.relationshipType as string) ? (
-          <ClassEdgeProperties edge={edge} />
-        ) : edge && <EdgeProperties edge={edge} />}
+        {edge && <EdgeProperties edge={edge} />}
 
         {!node && !edge && (
           <div className="flex flex-col items-center justify-center text-center gap-3 text-muted-foreground">
@@ -199,7 +193,14 @@ function NodeProperties({ projectId, node }: NodeProperties) {
         },
       },
     );
-  }, [updateElement, name, description, updateNodeData, node.data, queryClient]);
+  }, [
+    updateElement,
+    name,
+    description,
+    updateNodeData,
+    node.data,
+    queryClient,
+  ]);
 
   return (
     <>

@@ -18,16 +18,26 @@ export class UpdateClassEnumerationLiteralDTO {
     this.ordering = props.ordering;
   }
 
-  static create(props: UpdateClassEnumerationLiteralDTOProps): UpdateClassEnumerationLiteralDTO {
+  static create(
+    props: UpdateClassEnumerationLiteralDTOProps,
+  ): UpdateClassEnumerationLiteralDTO {
     return new UpdateClassEnumerationLiteralDTO({
-      id: UpdateClassEnumerationLiteralDTO.validateRequiredString(props.id, "Enumeration Literal ID"),
-      name: props.name ? UpdateClassEnumerationLiteralDTO.validateName(props.name) : undefined,
+      id: UpdateClassEnumerationLiteralDTO.validateRequiredString(
+        props.id,
+        "Enumeration Literal ID",
+      ),
+      name: props.name
+        ? UpdateClassEnumerationLiteralDTO.validateName(props.name)
+        : undefined,
       value: props.value,
       ordering: props.ordering,
     });
   }
 
-  private static validateRequiredString(value: string, fieldName: string): string {
+  private static validateRequiredString(
+    value: string,
+    fieldName: string,
+  ): string {
     if (!value) throw new Error(`${fieldName} is required`);
     const trimmed = value.trim();
     if (!trimmed) throw new Error(`${fieldName} cannot be empty`);
@@ -37,7 +47,8 @@ export class UpdateClassEnumerationLiteralDTO {
   private static validateName(name: string): string {
     const trimmed = name.trim();
     if (!trimmed) throw new Error("Enumeration literal name cannot be empty");
-    if (trimmed.length > 255) throw new Error("Name cannot exceed 255 characters");
+    if (trimmed.length > 255)
+      throw new Error("Name cannot exceed 255 characters");
     return trimmed;
   }
 }

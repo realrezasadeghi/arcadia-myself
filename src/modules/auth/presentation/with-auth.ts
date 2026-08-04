@@ -10,7 +10,10 @@ interface WithAuthOptions {
 }
 
 export function withAuth<TPayload, TResult>(
-  handler: (payload: TPayload, context: AuthContextWithUserId) => Promise<TResult>,
+  handler: (
+    payload: TPayload,
+    context: AuthContextWithUserId,
+  ) => Promise<TResult>,
   options: WithAuthOptions,
 ): (payload: TPayload) => Promise<IRes<TResult>>;
 
@@ -35,7 +38,10 @@ export function withAuth<TPayload, TResult>(
       if (options?.extractUserId) {
         const userId = extractUserIdFromJwt(token);
         const result = await (
-          handler as (payload: TPayload, context: AuthContextWithUserId) => Promise<TResult>
+          handler as (
+            payload: TPayload,
+            context: AuthContextWithUserId,
+          ) => Promise<TResult>
         )(payload, { token, userId });
         return ok(result);
       }
@@ -75,14 +81,18 @@ export function withAuthNoPayload<TResult>(
 
       if (options?.extractUserId) {
         const userId = extractUserIdFromJwt(token);
-        const result = await (handler as (context: AuthContextWithUserId) => Promise<TResult>)({
+        const result = await (
+          handler as (context: AuthContextWithUserId) => Promise<TResult>
+        )({
           token,
           userId,
         });
         return ok(result);
       }
 
-      const result = await (handler as (context: AuthContext) => Promise<TResult>)({ token });
+      const result = await (
+        handler as (context: AuthContext) => Promise<TResult>
+      )({ token });
       return ok(result);
     } catch (error) {
       return fail(error);

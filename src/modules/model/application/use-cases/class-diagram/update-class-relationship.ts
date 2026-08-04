@@ -1,6 +1,9 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
-import type { IClassDiagramRepository, UpdateClassRelationshipPayload } from "../../ports/class-diagram";
+import type {
+  IClassDiagramRepository,
+  UpdateClassRelationshipPayload,
+} from "../../ports/class-diagram";
 
 export type UpdateClassRelationshipUseCasePayload = {
   payload: UpdateClassRelationshipPayload;
@@ -34,7 +37,11 @@ export type UpdateClassRelationshipUseCaseResponse = {
 };
 
 export class UpdateClassRelationshipUseCase
-  implements IUseCase<UpdateClassRelationshipUseCasePayload, UpdateClassRelationshipUseCaseResponse>
+  implements
+    IUseCase<
+      UpdateClassRelationshipUseCasePayload,
+      UpdateClassRelationshipUseCaseResponse
+    >
 {
   constructor(private readonly repository: IClassDiagramRepository) {}
 

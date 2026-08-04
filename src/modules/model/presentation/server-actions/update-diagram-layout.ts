@@ -12,7 +12,10 @@ import {
 } from "../dtos/update-diagram-layout";
 
 export const updateDiagramLayout = withAuth(
-  async (payload: UpdateDiagramLayoutDTOProps, { token }): Promise<UpdateDiagramLayoutResponse> => {
+  async (
+    payload: UpdateDiagramLayoutDTOProps,
+    { token },
+  ): Promise<UpdateDiagramLayoutResponse> => {
     const dto = UpdateDiagramLayoutDTO.create(payload);
     const updateDiagramLayoutUseCase = new UpdateDiagramLayoutUseCase(
       diagramRepository,

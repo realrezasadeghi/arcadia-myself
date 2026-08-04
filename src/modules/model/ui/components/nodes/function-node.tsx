@@ -1,7 +1,15 @@
 import { cn } from "@/modules/shared/ui/libs/cn";
 import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
-import { type DragEventHandler, memo, useCallback } from "react";
+import {
+  type DragEventHandler,
+  memo,
+  useCallback,
+  useRef,
+  useState,
+} from "react";
+import { useUpdateElement } from "../../clients/update-element";
 import { getElementTypeInfo, getElementVisual } from "../../helpers/element";
+import { useCanvasStore } from "../../stores/canvas";
 import type { ElementNodeData } from "../../stores/canvas";
 
 type FunctionNodeType = Node<ElementNodeData>;
@@ -17,6 +25,31 @@ function FunctionNodeComponent({
 }: NodeProps<FunctionNodeType>) {
   const typeInfo = getElementTypeInfo(data.elementType);
   const spec = getElementVisual(data.elementType);
+
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editName, setEditName] = useState(data.name);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const updateNodeData = useCanvasStore((s) => s.updateNodeData);
+  const updateElement = useUpdateElement();
+
+  const handleDoubleClickName = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setEditName(data.name);
+      setIsEditingName(true);
+      setTimeout(() => inputRef.current?.select(), 10);
+    },
+    [data.name],
+  );
+
+  const handleSaveName = useCallback(() => {
+    const trimmed = editName.trim();
+    if (trimmed && trimmed !== data.name) {
+      updateNodeData(data.elementId, { ...data, name: trimmed });
+      updateElement.mutate({ id: data.elementId, name: trimmed });
+    }
+    setIsEditingName(false);
+  }, [editName, data, updateNodeData, updateElement]);
 
   const handleDragStart: DragEventHandler = useCallback(
     (e) => {
@@ -35,10 +68,8 @@ function FunctionNodeComponent({
 
   return (
     <div
-      draggable
-      onDragStart={handleDragStart}
       className={cn(
-        "relative min-w-36 overflow-hidden rounded-lg border-2 bg-background select-none cursor-grab active:cursor-grabbing",
+        "relative min-w-36 overflow-hidden rounded-lg border-2 bg-background select-none",
         selected && "shadow-[0_0_0_2px_hsl(var(--primary))]",
         data.status === "DEPRECATED" && "opacity-60",
       )}
@@ -53,10 +84,29 @@ function FunctionNodeComponent({
       </div>
 
       <div
-        className="px-3 py-2.5 text-center text-[11px] font-medium leading-tight"
+        className="px-3 py-2.5 text-center text-[11px] font-medium leading-tight cursor-grab active:cursor-grabbing"
         style={{ backgroundColor: spec.fillColor, color: spec.strokeColor }}
+        draggable
+        onDragStart={handleDragStart}
+        onDoubleClick={handleDoubleClickName}
       >
-        <span className="line-clamp-2 wrap-break-word">{data.name}</span>
+        {isEditingName ? (
+          <input
+            ref={inputRef}
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            onBlur={handleSaveName}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSaveName();
+              if (e.key === "Escape") setIsEditingName(false);
+            }}
+            className="w-full bg-transparent text-center text-[11px] font-medium outline-none border-b border-current"
+            style={{ color: spec.strokeColor }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        ) : (
+          <span className="line-clamp-2 wrap-break-word">{data.name}</span>
+        )}
       </div>
 
       {/* پورت‌های ورودی (چپ) و خروجی (راست) */}

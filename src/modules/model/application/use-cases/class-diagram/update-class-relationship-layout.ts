@@ -1,6 +1,9 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
-import type { IClassDiagramRepository, UpdateClassRelationshipLayoutPayload } from "../../ports/class-diagram";
+import type {
+  IClassDiagramRepository,
+  UpdateClassRelationshipLayoutPayload,
+} from "../../ports/class-diagram";
 
 export type UpdateClassRelationshipLayoutUseCasePayload = {
   payload: UpdateClassRelationshipLayoutPayload;
@@ -21,7 +24,11 @@ export type UpdateClassRelationshipLayoutUseCaseResponse = {
 };
 
 export class UpdateClassRelationshipLayoutUseCase
-  implements IUseCase<UpdateClassRelationshipLayoutUseCasePayload, UpdateClassRelationshipLayoutUseCaseResponse>
+  implements
+    IUseCase<
+      UpdateClassRelationshipLayoutUseCasePayload,
+      UpdateClassRelationshipLayoutUseCaseResponse
+    >
 {
   constructor(private readonly repository: IClassDiagramRepository) {}
 
@@ -29,13 +36,19 @@ export class UpdateClassRelationshipLayoutUseCase
     payload,
   }: UpdateClassRelationshipLayoutUseCasePayload): Promise<UpdateClassRelationshipLayoutUseCaseResponse> {
     try {
-      const existing = await this.repository.findRelationshipLayoutById({ id: payload.id });
+      const existing = await this.repository.findRelationshipLayoutById({
+        id: payload.id,
+      });
       if (!existing) {
-        throw new Error(`ClassRelationshipLayout not found with id: ${payload.id}`);
+        throw new Error(
+          `ClassRelationshipLayout not found with id: ${payload.id}`,
+        );
       }
       return (await this.repository.updateRelationshipLayout(payload)).toJSON();
     } catch (error) {
-      throw new Error(resolveErrorMessage(error, "Error updating class relationship layout"));
+      throw new Error(
+        resolveErrorMessage(error, "Error updating class relationship layout"),
+      );
     }
   }
 }

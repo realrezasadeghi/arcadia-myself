@@ -35,14 +35,19 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
-import { LAYERS } from "../../constants/layer";
+import { CLASS_ELEMENT_TYPES } from "../../constants/class-diagram";
+import { LAYER_HEX_COLORS, LAYERS } from "../../constants/layer";
+import { getDiagramPalette } from "../../helpers/diagram";
 import {
   getElementTypesForLayer,
   getElementVisual,
 } from "../../helpers/element";
-import { getDiagramPalette } from "../../helpers/diagram";
 import { getLayerInfo } from "../../helpers/layer";
 import { useWorkbenchStore } from "../../stores/workbench";
+import type {
+  ClassElementData,
+  ClassElementTypeValue,
+} from "../../types/class-diagram";
 import type { Diagram } from "../../types/diagram";
 import type {
   Element,
@@ -84,14 +89,6 @@ function getElemIcon(type: ElementTypeValue | string): LucideIcon {
   return ELEMENT_ICONS[type] ?? Monitor;
 }
 
-const LAYER_COLORS: Record<LayerValue, string> = {
-  OA: "#2E86C1",
-  SA: "#CA6F1E",
-  LA: "#1E8449",
-  PA: "#6C3483",
-  EPBS: "#E74C3C",
-};
-
 // ─── Element tree builder ───────────────────────────────────────────────────
 
 type ElementTreeNode = {
@@ -116,7 +113,37 @@ function buildElementTree(elements: Element[]): ElementTreeNode[] {
       type: el.type,
       status: el.status,
       description: el.description,
-      modelId: (el as any).modelId,
+      modelId: el.modelId,
+      children: [],
+    });
+  }
+
+  for (const el of elements) {
+    const node = map.get(el.id)!;
+    if (el.status === "DEPRECATED") continue;
+    if (el.parentId && map.has(el.parentId)) {
+      map.get(el.parentId)!.children.push(node);
+    } else {
+      roots.push(node);
+    }
+  }
+
+  return roots.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function buildClassElementTree(
+  elements: ClassElementData[],
+): ElementTreeNode[] {
+  const map = new Map<string, ElementTreeNode>();
+  const roots: ElementTreeNode[] = [];
+
+  for (const el of elements) {
+    map.set(el.id, {
+      id: el.id,
+      name: el.name,
+      type: el.elementType,
+      status: el.status,
+      modelId: el.modelId,
       children: [],
     });
   }
@@ -141,6 +168,7 @@ export type ExplorerHandlers = {
   onSelectElement: (elementId: string) => void;
   onNewDiagram: (model: Model) => void;
   onNewElement: (model: Model, type: ElementTypeValue) => void;
+  onNewClassElement: (model: Model, type: ClassElementTypeValue) => void;
   onEditDiagram: (model: Model, diagram: Diagram) => void;
   onDeleteElement: (element: ElementTreeNode) => void;
   onDeleteDiagram: (diagram: Diagram) => void;
@@ -153,6 +181,10 @@ type ModelDataItem = {
   model: Model;
   elements: Element[];
   diagrams: Diagram[];
+  archElements: Element[];
+  classElements: ClassElementData[];
+  archDiagrams: Diagram[];
+  classDiagrams: Diagram[];
 };
 
 type ExplorerTreeProps = {
@@ -202,7 +234,17 @@ const CATEGORY_FOLDERS: CategoryFolder[] = [
     label: "Class Diagram Elements",
     icon: Box,
     match: (t) =>
-      ["CLASS", "INTERFACE", "ENUM", "DATA_TYPE", "PRIMITIVE", "COLLECTION", "UNION", "PACKAGE", "GROUP"].includes(t),
+      [
+        "CLASS",
+        "INTERFACE",
+        "ENUM",
+        "DATA_TYPE",
+        "PRIMITIVE",
+        "COLLECTION",
+        "UNION",
+        "PACKAGE",
+        "GROUP",
+      ].includes(t),
   },
   // catch-all — Mission, OperationalProcess, FunctionPort, …
   { key: "other", label: "Other", icon: Folder, match: () => true },
@@ -285,13 +327,16 @@ function ElementTreeItem({
   const isSelected = selectedElementId === node.id;
 
   const handleDragStart = (e: React.DragEvent) => {
-    e.dataTransfer.setData("application/explorer-element", JSON.stringify({
-      elementId: node.id,
-      elementType: node.type,
-      name: node.name,
-      status: node.status,
-      description: node.description ?? "",
-    }));
+    e.dataTransfer.setData(
+      "application/explorer-element",
+      JSON.stringify({
+        elementId: node.id,
+        elementType: node.type,
+        name: node.name,
+        status: node.status,
+        description: node.description ?? "",
+      }),
+    );
     e.dataTransfer.effectAllowed = "copy";
   };
 
@@ -470,22 +515,21 @@ function ModelNode({
   data: ModelDataItem;
   handlers: ExplorerHandlers;
 }) {
-  const { model, elements, diagrams } = data;
+  const { model, archElements, classElements, archDiagrams, classDiagrams } =
+    data;
   const [isOpen, setIsOpen] = useState(true);
   const [openDiagrams, setOpenDiagrams] = useState(true);
   const [openClassDiagrams, setOpenClassDiagrams] = useState(true);
 
   const layerInfo = getLayerInfo(model.layer);
-  const color = LAYER_COLORS[model.layer];
-  const tree = buildElementTree(elements);
-  const folders = categorizeRoots(tree);
+  const color = LAYER_HEX_COLORS[model.layer];
+  const archTree = buildElementTree(archElements);
+  const classTree = buildClassElementTree(classElements);
+  const allRoots = [...archTree, ...classTree];
+  const folders = categorizeRoots(allRoots);
   const elementTypes = getElementTypesForLayer(model.layer);
   const canTransition = model.layer !== "EPBS";
   const nextLayerLabel = getNextLayerLabel(model.layer);
-
-  // Separate architecture diagrams from class diagrams
-  const archDiagrams = diagrams.filter((d) => d.type !== "CDB");
-  const classDiagrams = diagrams.filter((d) => d.type === "CDB");
 
   return (
     <div className="mb-0.5" data-layer={model.layer}>
@@ -539,6 +583,21 @@ function ModelNode({
                     }}
                   />
                   {et.label}
+                </ContextMenuItem>
+              ))}
+              {CLASS_ELEMENT_TYPES.map((ct) => (
+                <ContextMenuItem
+                  key={ct.value}
+                  onSelect={() => handlers.onNewClassElement(model, ct.value)}
+                >
+                  <span
+                    className="size-2.5 shrink-0 rounded-sm border"
+                    style={{
+                      borderColor: ct.color,
+                      backgroundColor: `${ct.color}20`,
+                    }}
+                  />
+                  {ct.label}
                 </ContextMenuItem>
               ))}
             </ContextMenuSubContent>
@@ -669,7 +728,7 @@ export function ExplorerTree({
             >
               <span
                 className="size-2.5 shrink-0 rounded-sm"
-                style={{ backgroundColor: LAYER_COLORS[layer.value] }}
+                style={{ backgroundColor: LAYER_HEX_COLORS[layer.value] }}
               />
               <span className="flex-1">{layer.label}</span>
               <Plus className="size-3.5 text-muted-foreground" />

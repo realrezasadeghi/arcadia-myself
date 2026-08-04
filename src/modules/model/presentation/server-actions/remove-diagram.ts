@@ -2,9 +2,7 @@
 
 import { withAuth } from "@/modules/auth/presentation/with-auth";
 import { RemoveDiagramUseCase } from "../../application/use-cases/remove-diagram";
-import {
-  diagramRepository,
-} from "../../infrastructure/persistence/drizzle/repositories";
+import { diagramRepository } from "../../infrastructure/persistence/drizzle/repositories";
 
 export const removeDiagram = withAuth(
   async (id: string, { token }): Promise<boolean> => {

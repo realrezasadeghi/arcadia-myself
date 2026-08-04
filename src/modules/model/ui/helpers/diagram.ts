@@ -1,4 +1,4 @@
-import { DIAGRAM_TYPES } from "../constants/diagram";
+import { DIAGRAMS_BY_LAYER, DIAGRAM_TYPES } from "../constants/diagram";
 import type { DiagramTypeInfo, DiagramTypeValue } from "../types/diagram";
 import type { ElementTypeValue } from "../types/element";
 import type { LayerValue } from "../types/layer";
@@ -9,14 +9,32 @@ export function getDiagramTypeInfo(value: string): DiagramTypeInfo | undefined {
   return DIAGRAM_TYPES.find((d) => d.value === value);
 }
 
+/**
+ * Returns diagram types available for a given layer.
+ * Uses DIAGRAMS_BY_LAYER as source of truth so transverse types (e.g. CDB)
+ * appear in every layer they're registered for.
+ */
 export function getDiagramTypesForLayer(
   layerValue: LayerValue | string,
 ): DiagramTypeInfo[] {
-  return DIAGRAM_TYPES.filter((d) => d.layer === layerValue);
+  const allowed = new Set(DIAGRAMS_BY_LAYER[layerValue as LayerValue] ?? []);
+  return DIAGRAM_TYPES.filter((d) => allowed.has(d.value));
 }
 
 export function getDiagramLayer(typeValue: string): LayerValue {
   return getDiagramTypeInfo(typeValue)?.layer ?? "OA";
+}
+
+/**
+ * Resolves the effective layer for a diagram tab.
+ * For transverse types (CDB), uses the model's layer; otherwise derives from type.
+ */
+export function resolveDiagramLayer(
+  typeValue: string,
+  modelLayer?: LayerValue,
+): LayerValue {
+  if (modelLayer) return modelLayer;
+  return getDiagramLayer(typeValue);
 }
 
 // ─── Per-diagram-type palette (Capella-style toolboxes) ───────────────────────
@@ -129,7 +147,12 @@ const DIAGRAM_PALETTE: Record<DiagramTypeValue, DiagramPalette> = {
       "ConfigurationItemPart",
       "ConfigurationItemInterface",
     ],
-    relationshipTypes: ["Composition", "ProvidedInterface", "RequiredInterface", "Generalization"],
+    relationshipTypes: [
+      "Composition",
+      "ProvidedInterface",
+      "RequiredInterface",
+      "Generalization",
+    ],
   },
   EAB: {
     elementTypes: [
@@ -138,7 +161,12 @@ const DIAGRAM_PALETTE: Record<DiagramTypeValue, DiagramPalette> = {
       "ConfigurationItemPart",
       "ConfigurationItemInterface",
     ],
-    relationshipTypes: ["Composition", "ProvidedInterface", "RequiredInterface", "Generalization"],
+    relationshipTypes: [
+      "Composition",
+      "ProvidedInterface",
+      "RequiredInterface",
+      "Generalization",
+    ],
   },
   ECB: {
     elementTypes: [
@@ -146,12 +174,31 @@ const DIAGRAM_PALETTE: Record<DiagramTypeValue, DiagramPalette> = {
       "ConfigurationItemPart",
       "ConfigurationItemInterface",
     ],
-    relationshipTypes: ["ProvidedInterface", "RequiredInterface", "Generalization"],
+    relationshipTypes: [
+      "ProvidedInterface",
+      "RequiredInterface",
+      "Generalization",
+    ],
   },
   // ─── Class Diagram (CDB) ───
   CDB: {
-    elementTypes: ["CLASS", "INTERFACE", "ENUM", "DATA_TYPE", "PRIMITIVE", "COLLECTION", "UNION", "PACKAGE", "GROUP"],
-    relationshipTypes: ["ASSOCIATION", "GENERALIZATION", "REALIZATION", "DEPENDENCY"],
+    elementTypes: [
+      "CLASS",
+      "INTERFACE",
+      "ENUM",
+      "DATA_TYPE",
+      "PRIMITIVE",
+      "COLLECTION",
+      "UNION",
+      "PACKAGE",
+      "GROUP",
+    ],
+    relationshipTypes: [
+      "ASSOCIATION",
+      "GENERALIZATION",
+      "REALIZATION",
+      "DEPENDENCY",
+    ],
   },
 };
 
@@ -162,7 +209,7 @@ const DIAGRAM_PALETTE: Record<DiagramTypeValue, DiagramPalette> = {
  */
 export function getDiagramPalette(typeValue: string): DiagramPalette {
   const layer = getDiagramLayer(typeValue);
-  
+
   // Class Diagram (CDB) uses its own element types, not layer-based ones
   if (typeValue === "CDB") {
     const palette = DIAGRAM_PALETTE.CDB;
@@ -185,7 +232,9 @@ export function getDiagramPalette(typeValue: string): DiagramPalette {
   }
 
   return {
-    elementTypes: palette.elementTypes.filter((t) => validTypes.has(t)) as string[],
+    elementTypes: palette.elementTypes.filter((t) =>
+      validTypes.has(t),
+    ) as string[],
     relationshipTypes: palette.relationshipTypes,
   };
 }

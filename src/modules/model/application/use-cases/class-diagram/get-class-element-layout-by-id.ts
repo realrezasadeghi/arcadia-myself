@@ -1,6 +1,9 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
-import type { IClassDiagramRepository, FindClassElementByIdQuery } from "../../ports/class-diagram";
+import type {
+  IClassDiagramRepository,
+  FindClassElementByIdQuery,
+} from "../../ports/class-diagram";
 
 export type GetClassElementLayoutByIdUseCasePayload = {
   query: FindClassElementByIdQuery;
@@ -23,7 +26,11 @@ export type GetClassElementLayoutByIdUseCaseResponse = {
 } | null;
 
 export class GetClassElementLayoutByIdUseCase
-  implements IUseCase<GetClassElementLayoutByIdUseCasePayload, GetClassElementLayoutByIdUseCaseResponse>
+  implements
+    IUseCase<
+      GetClassElementLayoutByIdUseCasePayload,
+      GetClassElementLayoutByIdUseCaseResponse
+    >
 {
   constructor(private readonly repository: IClassDiagramRepository) {}
 
@@ -34,7 +41,9 @@ export class GetClassElementLayoutByIdUseCase
       const layout = await this.repository.findElementLayoutById(query);
       return layout ? layout.toJSON() : null;
     } catch (error) {
-      throw new Error(resolveErrorMessage(error, "Error getting class element layout"));
+      throw new Error(
+        resolveErrorMessage(error, "Error getting class element layout"),
+      );
     }
   }
 }

@@ -1,6 +1,9 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
-import type { IClassDiagramRepository, FindClassEnumerationLiteralsByElementIdQuery } from "../../ports/class-diagram";
+import type {
+  IClassDiagramRepository,
+  FindClassEnumerationLiteralsByElementIdQuery,
+} from "../../ports/class-diagram";
 
 export type GetClassEnumerationLiteralsByElementIdUseCasePayload = {
   query: FindClassEnumerationLiteralsByElementIdQuery;
@@ -23,7 +26,11 @@ export type GetClassEnumerationLiteralsByElementIdUseCaseResponse = {
 }[];
 
 export class GetClassEnumerationLiteralsByElementIdUseCase
-  implements IUseCase<GetClassEnumerationLiteralsByElementIdUseCasePayload, GetClassEnumerationLiteralsByElementIdUseCaseResponse>
+  implements
+    IUseCase<
+      GetClassEnumerationLiteralsByElementIdUseCasePayload,
+      GetClassEnumerationLiteralsByElementIdUseCaseResponse
+    >
 {
   constructor(private readonly repository: IClassDiagramRepository) {}
 
@@ -31,7 +38,8 @@ export class GetClassEnumerationLiteralsByElementIdUseCase
     query,
   }: GetClassEnumerationLiteralsByElementIdUseCasePayload): Promise<GetClassEnumerationLiteralsByElementIdUseCaseResponse> {
     try {
-      const literals = await this.repository.findEnumerationLiteralsByElementId(query);
+      const literals =
+        await this.repository.findEnumerationLiteralsByElementId(query);
       return literals.map((l) => l.toJSON());
     } catch (error) {
       throw new Error(

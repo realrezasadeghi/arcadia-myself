@@ -1,6 +1,7 @@
 "use server";
 
 import { withAuth } from "@/modules/auth/presentation/with-auth";
+import { updateTag } from "next/cache";
 import {
   type RemoveClassDiagramUseCaseResponse,
   RemoveClassDiagramUseCase,
@@ -13,13 +14,18 @@ export type RemoveClassDiagramPayload = {
 };
 
 export const removeClassDiagram = withAuth(
-  async (payload: RemoveClassDiagramPayload, { token }): Promise<RemoveClassDiagramUseCaseResponse> => {
+  async (
+    payload: RemoveClassDiagramPayload,
+    { token },
+  ): Promise<RemoveClassDiagramUseCaseResponse> => {
     const useCase = new RemoveClassDiagramUseCase(classDiagramRepository);
 
     const response = await useCase.execute({
       payload: { id: payload.id },
       context: { token },
     });
+
+    updateTag(`get-class-diagrams-by-model-id-${payload.modelId}`);
 
     return response;
   },

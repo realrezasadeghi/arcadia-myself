@@ -2,7 +2,11 @@ export type UpdateClassRelationshipDTOProps = {
   id: string;
   modelId: string;
   name?: string;
-  relationshipType?: "ASSOCIATION" | "GENERALIZATION" | "REALIZATION" | "DEPENDENCY";
+  relationshipType?:
+    | "ASSOCIATION"
+    | "GENERALIZATION"
+    | "REALIZATION"
+    | "DEPENDENCY";
   aggregationKind?: "NONE" | "SHARED" | "COMPOSITE";
   isDisjoint?: boolean;
   isComplete?: boolean;
@@ -21,7 +25,11 @@ export class UpdateClassRelationshipDTO {
   public readonly id: string;
   public readonly modelId: string;
   public readonly name?: string;
-  public readonly relationshipType?: "ASSOCIATION" | "GENERALIZATION" | "REALIZATION" | "DEPENDENCY";
+  public readonly relationshipType?:
+    | "ASSOCIATION"
+    | "GENERALIZATION"
+    | "REALIZATION"
+    | "DEPENDENCY";
   public readonly aggregationKind?: "NONE" | "SHARED" | "COMPOSITE";
   public readonly isDisjoint?: boolean;
   public readonly isComplete?: boolean;
@@ -54,13 +62,29 @@ export class UpdateClassRelationshipDTO {
     this.extensionProperties = props.extensionProperties;
   }
 
-  static create(props: UpdateClassRelationshipDTOProps): UpdateClassRelationshipDTO {
+  static create(
+    props: UpdateClassRelationshipDTOProps,
+  ): UpdateClassRelationshipDTO {
     return new UpdateClassRelationshipDTO({
-      id: UpdateClassRelationshipDTO.validateRequiredString(props.id, "Relationship ID"),
-      modelId: UpdateClassRelationshipDTO.validateRequiredString(props.modelId, "Model ID"),
+      id: UpdateClassRelationshipDTO.validateRequiredString(
+        props.id,
+        "Relationship ID",
+      ),
+      modelId: UpdateClassRelationshipDTO.validateRequiredString(
+        props.modelId,
+        "Model ID",
+      ),
       name: props.name,
-      relationshipType: props.relationshipType ? UpdateClassRelationshipDTO.validateRelationshipType(props.relationshipType) : undefined,
-      aggregationKind: props.aggregationKind ? UpdateClassRelationshipDTO.validateAggregationKind(props.aggregationKind) : undefined,
+      relationshipType: props.relationshipType
+        ? UpdateClassRelationshipDTO.validateRelationshipType(
+            props.relationshipType,
+          )
+        : undefined,
+      aggregationKind: props.aggregationKind
+        ? UpdateClassRelationshipDTO.validateAggregationKind(
+            props.aggregationKind,
+          )
+        : undefined,
       isDisjoint: props.isDisjoint,
       isComplete: props.isComplete,
       sourceMultiplicityLower: props.sourceMultiplicityLower,
@@ -75,7 +99,10 @@ export class UpdateClassRelationshipDTO {
     });
   }
 
-  private static validateRequiredString(value: string, fieldName: string): string {
+  private static validateRequiredString(
+    value: string,
+    fieldName: string,
+  ): string {
     if (!value) throw new Error(`${fieldName} is required`);
     const trimmed = value.trim();
     if (!trimmed) throw new Error(`${fieldName} cannot be empty`);
@@ -83,7 +110,7 @@ export class UpdateClassRelationshipDTO {
   }
 
   private static validateRelationshipType(
-    type: string
+    type: string,
   ): "ASSOCIATION" | "GENERALIZATION" | "REALIZATION" | "DEPENDENCY" {
     const validTypes = [
       "ASSOCIATION",
@@ -92,13 +119,15 @@ export class UpdateClassRelationshipDTO {
       "DEPENDENCY",
     ];
     if (!validTypes.includes(type)) {
-      throw new Error(`Relationship type must be one of: ${validTypes.join(", ")}`);
+      throw new Error(
+        `Relationship type must be one of: ${validTypes.join(", ")}`,
+      );
     }
     return type as any;
   }
 
   private static validateAggregationKind(
-    kind: string
+    kind: string,
   ): "NONE" | "SHARED" | "COMPOSITE" {
     const valid = ["NONE", "SHARED", "COMPOSITE"];
     if (!valid.includes(kind)) {

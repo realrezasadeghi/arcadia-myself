@@ -24,10 +24,18 @@ export class CreateClassEnumerationLiteralDTO {
     this.ordering = props.ordering ?? 0;
   }
 
-  static create(props: CreateClassEnumerationLiteralDTOProps): CreateClassEnumerationLiteralDTO {
+  static create(
+    props: CreateClassEnumerationLiteralDTOProps,
+  ): CreateClassEnumerationLiteralDTO {
     return new CreateClassEnumerationLiteralDTO({
-      classElementId: CreateClassEnumerationLiteralDTO.validateRequiredString(props.classElementId, "Class Element ID"),
-      modelId: CreateClassEnumerationLiteralDTO.validateRequiredString(props.modelId, "Model ID"),
+      classElementId: CreateClassEnumerationLiteralDTO.validateRequiredString(
+        props.classElementId,
+        "Class Element ID",
+      ),
+      modelId: CreateClassEnumerationLiteralDTO.validateRequiredString(
+        props.modelId,
+        "Model ID",
+      ),
       layer: CreateClassEnumerationLiteralDTO.validateLayer(props.layer),
       name: CreateClassEnumerationLiteralDTO.validateName(props.name),
       value: props.value,
@@ -35,7 +43,10 @@ export class CreateClassEnumerationLiteralDTO {
     });
   }
 
-  private static validateRequiredString(value: string, fieldName: string): string {
+  private static validateRequiredString(
+    value: string,
+    fieldName: string,
+  ): string {
     if (!value) throw new Error(`${fieldName} is required`);
     const trimmed = value.trim();
     if (!trimmed) throw new Error(`${fieldName} cannot be empty`);
@@ -54,7 +65,8 @@ export class CreateClassEnumerationLiteralDTO {
     if (!name) throw new Error("Enumeration literal name is required");
     const trimmed = name.trim();
     if (!trimmed) throw new Error("Enumeration literal name cannot be empty");
-    if (trimmed.length > 255) throw new Error("Name cannot exceed 255 characters");
+    if (trimmed.length > 255)
+      throw new Error("Name cannot exceed 255 characters");
     return trimmed;
   }
 }

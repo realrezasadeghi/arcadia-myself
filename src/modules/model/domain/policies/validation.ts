@@ -244,7 +244,7 @@ export class ValidationPolicy {
           const hasRealizationToPA = traces.some(
             (t) =>
               t.type === "Realization" &&
-              (t.targetLayer === "PA" || t.targetLayer === "LA")
+              (t.targetLayer === "PA" || t.targetLayer === "LA"),
           );
           if (!hasRealizationToPA) {
             issues.push({

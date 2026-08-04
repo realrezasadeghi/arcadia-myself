@@ -117,11 +117,11 @@ export class ClassDiagram extends Entity<string> {
     updatedAt: string;
   }): ClassDiagram {
     const elementLayouts = new Map<string, ElementLayout>();
-    for (const l of props.elementLayouts) {
+    for (const l of props.elementLayouts ?? []) {
       elementLayouts.set(l.elementId, l);
     }
     const relationshipLayouts = new Map<string, RelationshipLayout>();
-    for (const r of props.relationshipLayouts) {
+    for (const r of props.relationshipLayouts ?? []) {
       relationshipLayouts.set(r.relationshipId, r);
     }
     return new ClassDiagram(props.id, {
@@ -250,7 +250,7 @@ export class ClassDiagram extends Entity<string> {
       targetMultLabelX?: number | null;
       targetMultLabelY?: number | null;
       waypoints?: Array<{ x: number; y: number }>;
-    } = {}
+    } = {},
   ): DomainEvent[] {
     this._relationshipLayouts.set(relationshipId, {
       relationshipId,
@@ -286,24 +286,34 @@ export class ClassDiagram extends Entity<string> {
       targetMultLabelX?: number | null;
       targetMultLabelY?: number | null;
       waypoints?: Array<{ x: number; y: number }>;
-    }
+    },
   ): DomainEvent[] {
     const existing = this._relationshipLayouts.get(relationshipId);
     if (!existing)
-      throw new Error(`Relationship ${relationshipId} not placed in this diagram`);
-    
+      throw new Error(
+        `Relationship ${relationshipId} not placed in this diagram`,
+      );
+
     this._relationshipLayouts.set(relationshipId, {
       ...existing,
       ...layout,
     });
     this._touch();
-    return [new ClassDiagramRelationshipLayoutUpdatedEvent(this._id, relationshipId, layout)];
+    return [
+      new ClassDiagramRelationshipLayoutUpdatedEvent(
+        this._id,
+        relationshipId,
+        layout,
+      ),
+    ];
   }
 
   removeRelationshipLayout(relationshipId: string): DomainEvent[] {
     this._relationshipLayouts.delete(relationshipId);
     this._touch();
-    return [new ClassDiagramRelationshipLayoutRemovedEvent(this._id, relationshipId)];
+    return [
+      new ClassDiagramRelationshipLayoutRemovedEvent(this._id, relationshipId),
+    ];
   }
 
   getRelationshipLayout(relationshipId: string): RelationshipLayout | null {

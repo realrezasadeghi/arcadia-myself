@@ -12,7 +12,10 @@ import {
 } from "../dtos/update-trace-link";
 
 export const updateTraceLink = withAuth(
-  async (payload: UpdateTraceLinkDTOProps, { token }): Promise<UpdateTraceLinkResponse> => {
+  async (
+    payload: UpdateTraceLinkDTOProps,
+    { token },
+  ): Promise<UpdateTraceLinkResponse> => {
     const dto = UpdateTraceLinkDTO.create(payload);
 
     const updateTraceLinkUseCase = new UpdateTraceLinkDescriptionUseCase(

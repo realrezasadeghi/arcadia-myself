@@ -1,9 +1,14 @@
 import { getProjectById } from "@/modules/project/presentation/server-actions/get-by-id";
-import { getClassElementsByModelId } from "../../../presentation/server-actions/get-class-elements-by-model-id";
 import { getClassDiagramsByModelId } from "../../../presentation/server-actions/get-class-diagrams-by-model-id";
+import { getClassElementsByModelId } from "../../../presentation/server-actions/get-class-elements-by-model-id";
 import { getDiagramsByModelId } from "../../../presentation/server-actions/get-diagrams-by-model-id";
 import { getElementsByModelId } from "../../../presentation/server-actions/get-elements-by-model-id";
 import { getModelsByProjectId } from "../../../presentation/server-actions/get-models-by-project-id";
+import type {
+  ClassElementData,
+  ClassElementTypeValue,
+  ClassStatus,
+} from "../../types/class-diagram";
 import { Workbench, type WorkbenchModelData } from "./workbench";
 
 type WorkbenchViewProps = {
@@ -23,13 +28,17 @@ export async function WorkbenchView({ params }: WorkbenchViewProps) {
 
   const modelData: WorkbenchModelData[] = await Promise.all(
     models.map(async (model) => {
-      const [elementsResult, diagramsResult, classElementsResult, classDiagramsResult] =
-        await Promise.all([
-          getElementsByModelId(model.id),
-          getDiagramsByModelId(model.id),
-          getClassElementsByModelId(model.id),
-          getClassDiagramsByModelId(model.id),
-        ]);
+      const [
+        elementsResult,
+        diagramsResult,
+        classElementsResult,
+        classDiagramsResult,
+      ] = await Promise.all([
+        getElementsByModelId(model.id),
+        getDiagramsByModelId(model.id),
+        getClassElementsByModelId(model.id),
+        getClassDiagramsByModelId(model.id),
+      ]);
 
       const archElements = (elementsResult.data ?? []).map((el) => ({
         id: el.id,
@@ -43,17 +52,25 @@ export async function WorkbenchView({ params }: WorkbenchViewProps) {
         updatedAt: el.updatedAt,
       }));
 
-      const classElements = (classElementsResult.data ?? []).map((el) => ({
+      const classElements: ClassElementData[] = (
+        classElementsResult.data ?? []
+      ).map((el) => ({
         id: el.id,
         modelId: el.modelId,
-        type: el.elementType as any,
+        layer: el.layer,
         name: el.name,
-        description: undefined,
+        elementType: el.elementType as ClassElementTypeValue,
+        isAbstract: el.isAbstract,
+        isStatic: el.isStatic,
         parentId: el.parentId,
-        status: el.status as "DRAFT" | "VALIDATED" | "DEPRECATED",
+        ordering: el.ordering,
+        status: el.status as ClassStatus,
+        extensionProperties: el.extensionProperties,
         createdAt: el.createdAt,
         updatedAt: el.updatedAt,
       }));
+
+      const archDiagrams = diagramsResult.data ?? [];
 
       // Map class diagrams to the same Diagram shape as architecture diagrams
       const classDiagrams = (classDiagramsResult.data ?? []).map((d) => ({
@@ -70,8 +87,12 @@ export async function WorkbenchView({ params }: WorkbenchViewProps) {
 
       return {
         model,
-        elements: [...archElements, ...classElements],
-        diagrams: [...(diagramsResult.data ?? []), ...classDiagrams],
+        elements: archElements,
+        diagrams: [...archDiagrams, ...classDiagrams],
+        archElements,
+        classElements,
+        archDiagrams,
+        classDiagrams,
       };
     }),
   );

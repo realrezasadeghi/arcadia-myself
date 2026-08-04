@@ -93,7 +93,8 @@ export class ClassRelationshipType extends ValueObject<ClassRelationshipTypeProp
 
   isInheritance(): boolean {
     return (
-      this.props.value === "GENERALIZATION" || this.props.value === "REALIZATION"
+      this.props.value === "GENERALIZATION" ||
+      this.props.value === "REALIZATION"
     );
   }
 

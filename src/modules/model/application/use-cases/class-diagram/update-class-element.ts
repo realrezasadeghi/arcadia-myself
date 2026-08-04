@@ -1,6 +1,9 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
-import type { IClassDiagramRepository, UpdateClassElementPayload } from "../../ports/class-diagram";
+import type {
+  IClassDiagramRepository,
+  UpdateClassElementPayload,
+} from "../../ports/class-diagram";
 
 export type UpdateClassElementUseCasePayload = {
   payload: UpdateClassElementPayload;
@@ -28,7 +31,11 @@ export type UpdateClassElementUseCaseResponse = {
 };
 
 export class UpdateClassElementUseCase
-  implements IUseCase<UpdateClassElementUseCasePayload, UpdateClassElementUseCaseResponse>
+  implements
+    IUseCase<
+      UpdateClassElementUseCasePayload,
+      UpdateClassElementUseCaseResponse
+    >
 {
   constructor(private readonly repository: IClassDiagramRepository) {}
 
@@ -38,9 +45,13 @@ export class UpdateClassElementUseCase
     try {
       // If parentId is being updated, validate it belongs to same model
       if (payload.parentId) {
-        const parent = await this.repository.findElementById({ id: payload.parentId });
+        const parent = await this.repository.findElementById({
+          id: payload.parentId,
+        });
         if (!parent) {
-          throw new Error(`Parent element not found with id: ${payload.parentId}`);
+          throw new Error(
+            `Parent element not found with id: ${payload.parentId}`,
+          );
         }
         // Note: we don't have access to the current element's modelId here,
         // but the repository will enforce consistency

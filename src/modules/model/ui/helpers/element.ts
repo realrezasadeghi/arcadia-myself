@@ -25,7 +25,9 @@ export function getElementTypesForLayer(
   return ELEMENT_TYPES.filter((e) => e.layer === layerValue);
 }
 
-export function getElementVisual(type: ElementTypeValue | string): ElementVisualSpec {
+export function getElementVisual(
+  type: ElementTypeValue | string,
+): ElementVisualSpec {
   return (
     ELEMENT_VISUAL[type as ElementTypeValue] ?? {
       shape: "rectangle",

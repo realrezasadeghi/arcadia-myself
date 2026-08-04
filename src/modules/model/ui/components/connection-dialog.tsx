@@ -23,7 +23,11 @@ import type { RelationshipTypeValue } from "../types/relationship";
 interface ConnectionDialogProps {
   open: boolean;
   allowedTypes: RelationshipTypeValue[];
-  onConfirm: (type: RelationshipTypeValue, name: string) => void;
+  onConfirm: (
+    type: RelationshipTypeValue,
+    name: string,
+    description: string,
+  ) => void;
   onOpenChange: (value: boolean) => void;
 }
 
@@ -41,7 +45,7 @@ export function ConnectionDialog({
 
   function handleConfirm() {
     if (!selectedType) return;
-    onConfirm(selectedType, name);
+    onConfirm(selectedType, name, description);
     setName("");
     setDescription("");
     onOpenChange(false);
@@ -101,8 +105,7 @@ export function ConnectionDialog({
             <Textarea
               id="rel-description"
               value={description}
-              onBlur={handleConfirm}
-              placeholder="e.g. requestData"
+              placeholder="e.g. Handles incoming data requests"
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>

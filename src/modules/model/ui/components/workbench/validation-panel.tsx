@@ -16,15 +16,8 @@ import { useValidateModel } from "../../clients/validate-model";
 import { getElementTypeInfo } from "../../helpers/element";
 import { getLayerInfo } from "../../helpers/layer";
 import { useWorkbenchStore } from "../../stores/workbench";
+import { LAYER_HEX_COLORS } from "../../constants/layer";
 import type { LayerValue } from "../../types/layer";
-
-const LAYER_COLORS: Record<LayerValue, string> = {
-  OA: "#2E86C1",
-  SA: "#CA6F1E",
-  LA: "#1E8449",
-  PA: "#6C3483",
-  EPBS: "#E74C3C",
-};
 
 const SEVERITY_CONFIG: Record<
   ValidationSeverity,
@@ -179,8 +172,8 @@ export function ValidationPanel() {
                             <span
                               className="shrink-0 text-[9px] rounded px-1 py-0.5 font-medium"
                               style={{
-                                color: LAYER_COLORS[issue.layer!],
-                                backgroundColor: `${LAYER_COLORS[issue.layer!]}15`,
+                                color: LAYER_HEX_COLORS[issue.layer!],
+                                backgroundColor: `${LAYER_HEX_COLORS[issue.layer!]}15`,
                               }}
                             >
                               {issue.layer}

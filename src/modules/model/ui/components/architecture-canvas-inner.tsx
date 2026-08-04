@@ -9,6 +9,7 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { type DragEventHandler, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ConnectionPolicy } from "../../domain/policies/connection";
 import { useConnectElements } from "../clients/connect-elements";
@@ -63,10 +64,12 @@ export function ArchitectureCanvasInner({
   const createElement = useCreateElement();
   const connectElements = useConnectElements();
   const updateDiagramLayout = useUpdateDiagramLayout();
+  const router = useRouter();
 
   const createRelationship = useCallback(
     (payload: {
       name: string;
+      description?: string;
       sourceElementId: string;
       targetElementId: string;
       type: RelationshipTypeValue;
@@ -80,6 +83,7 @@ export function ArchitectureCanvasInner({
         {
           modelId,
           name: payload.name,
+          description: payload.description,
           relationshipType: payload.type,
           sourceElementId: payload.sourceElementId,
           targetElementId: payload.targetElementId,
@@ -132,10 +136,11 @@ export function ArchitectureCanvasInner({
     handleDragOver,
     handleConfirm,
   } = useCanvasBehaviour({
-    onConfirm: (type, name) => {
+    onConfirm: (type, name, description) => {
       if (!pendingConnection) return;
       createRelationship({
         name,
+        description,
         type,
         sourceElementId: pendingConnection.sourceNodeId,
         targetElementId: pendingConnection.targetNodeId,
@@ -316,6 +321,7 @@ export function ArchitectureCanvasInner({
                 queryClient.invalidateQueries({
                   queryKey: getElementRelationsKey(elementId),
                 });
+                router.refresh();
                 toast.success(`Added "${name}" to diagram`);
               },
               onError: ({ message }) =>
@@ -389,6 +395,7 @@ export function ArchitectureCanvasInner({
                       status: element.properties.status,
                     },
                   });
+                  router.refresh();
                 },
               },
             );

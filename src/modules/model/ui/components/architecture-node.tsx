@@ -1,7 +1,15 @@
 import { cn } from "@/modules/shared/ui/libs/cn";
 import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
-import { type DragEventHandler, memo, useCallback } from "react";
+import {
+  type DragEventHandler,
+  memo,
+  useCallback,
+  useRef,
+  useState,
+} from "react";
+import { useUpdateElement } from "../clients/update-element";
 import { getElementTypeInfo, getElementVisual } from "../helpers/element";
+import { useCanvasStore } from "../stores/canvas";
 import type { ElementNodeData } from "../stores/canvas";
 
 const STATUS_RING: Record<string, string> = {
@@ -21,6 +29,31 @@ function ArchitectureNodeComponent({
 
   const isEllipse = spec.shape === "ellipse";
   const isRounded = spec.shape === "rounded-rectangle";
+
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editName, setEditName] = useState(data.name);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const updateNodeData = useCanvasStore((s) => s.updateNodeData);
+  const updateElement = useUpdateElement();
+
+  const handleDoubleClickName = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setEditName(data.name);
+      setIsEditingName(true);
+      setTimeout(() => inputRef.current?.select(), 10);
+    },
+    [data.name],
+  );
+
+  const handleSaveName = useCallback(() => {
+    const trimmed = editName.trim();
+    if (trimmed && trimmed !== data.name) {
+      updateNodeData(data.elementId, { ...data, name: trimmed });
+      updateElement.mutate({ id: data.elementId, name: trimmed });
+    }
+    setIsEditingName(false);
+  }, [editName, data, updateNodeData, updateElement]);
 
   const handleDragStart: DragEventHandler = useCallback(
     (e) => {
@@ -66,7 +99,28 @@ function ArchitectureNodeComponent({
         {elementType.label}
       </span>
 
-      <span className="line-clamp-2 wrap-break-word">{data.name}</span>
+      <div
+        className="line-clamp-2 wrap-break-word cursor-text"
+        onDoubleClick={handleDoubleClickName}
+      >
+        {isEditingName ? (
+          <input
+            ref={inputRef}
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            onBlur={handleSaveName}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSaveName();
+              if (e.key === "Escape") setIsEditingName(false);
+            }}
+            className="w-full bg-transparent text-center text-[11px] font-medium outline-none border-b border-current"
+            style={{ color: spec.strokeColor }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        ) : (
+          <span>{data.name}</span>
+        )}
+      </div>
 
       <Handle
         type="target"

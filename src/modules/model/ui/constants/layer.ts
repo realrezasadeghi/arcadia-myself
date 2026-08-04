@@ -1,5 +1,14 @@
 import type { LayerInfo, LayerValue } from "../types/layer";
 
+/** Hex colors for inline styles (background-color, color attributes). */
+export const LAYER_HEX_COLORS: Record<LayerValue, string> = {
+  OA: "#2E86C1",
+  SA: "#CA6F1E",
+  LA: "#1E8449",
+  PA: "#6C3483",
+  EPBS: "#E74C3C",
+};
+
 export const LAYERS: LayerInfo[] = [
   {
     value: "OA",

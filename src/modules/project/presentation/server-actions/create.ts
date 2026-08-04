@@ -1,6 +1,7 @@
 "use server";
 
 import { withAuth } from "@/modules/auth/presentation/with-auth";
+import { updateTag } from "next/cache";
 import {
   type CreateProjectResponse,
   CreateProjectUseCase,
@@ -9,7 +10,10 @@ import { projectRepository } from "../../infrastructure/remote";
 import { CreateProjectDTO, type CreateProjectDTOProps } from "../dtos/create";
 
 export const create = withAuth(
-  async (payload: CreateProjectDTOProps, { token, userId }): Promise<CreateProjectResponse> => {
+  async (
+    payload: CreateProjectDTOProps,
+    { token, userId },
+  ): Promise<CreateProjectResponse> => {
     const dto = CreateProjectDTO.create(payload);
 
     const createProjectUseCase = new CreateProjectUseCase(projectRepository);
@@ -21,6 +25,8 @@ export const create = withAuth(
         userId,
       },
     });
+
+    updateTag("GET_ALL_PROJECTS");
 
     return response;
   },

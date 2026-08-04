@@ -3,17 +3,12 @@
 import { Spinner } from "@/modules/shared/ui/components/ui/spinner";
 import { AlertTriangle } from "lucide-react";
 import { useMemo } from "react";
-import { useGetDiagramById } from "../clients/get-diagram-by-id";
-import { useGetElementsByModelId } from "../clients/get-elements-by-model-id";
-import { useGetRelationshipsByModelId } from "../clients/get-relationships-by-model-id";
-import { useClassElementsByModelId } from "../clients/get-class-elements-by-model-id";
-import { useClassRelationshipsByModelId } from "../clients/get-class-relationships-by-model-id";
-import { useGetClassDiagramById } from "../clients/get-class-diagram-by-id";
-import type { Diagram } from "../types/diagram";
-import type { DiagramTypeValue } from "../types/diagram";
+import { useArchDiagramData } from "../hooks/use-arch-diagram-data";
+import { useClassDiagramData } from "../hooks/use-class-diagram-data";
+import type { Diagram, DiagramTypeValue } from "../types/diagram";
 import type { Element } from "../types/element";
 import type { Relationship } from "../types/relationship";
-import { DiagramCanvasInner } from "./diagram-canvas-inner";
+import { DiagramHost } from "./diagram-host";
 
 type DiagramCanvasClientProps = {
   diagramId: string;
@@ -21,16 +16,6 @@ type DiagramCanvasClientProps = {
   diagramType: DiagramTypeValue;
 };
 
-/**
- * نسخه‌ی client از DiagramCanvas.
- *
- * در معماری مبتنی بر تب (Workbench) دیاگرام‌ها بدون navigation سرور باز می‌شوند،
- * بنابراین داده‌ها سمت client و از طریق React Query واکشی می‌شوند
- * (به‌جای server component اصلی `diagram-canvas.tsx`).
- *
- * For CDB (Class Diagram) diagrams, class elements and relationships are fetched
- * instead of architecture elements.
- */
 export function DiagramCanvasClient({
   diagramId,
   modelId,
@@ -38,46 +23,39 @@ export function DiagramCanvasClient({
 }: DiagramCanvasClientProps) {
   const isClassDiagram = diagramType === "CDB";
 
-  // Fetch diagram metadata from the appropriate source
-  const archDiagramQuery = useGetDiagramById(isClassDiagram ? "" : diagramId);
-  const classDiagramQuery = useGetClassDiagramById(isClassDiagram ? diagramId : "");
+  const archData = useArchDiagramData({ diagramId, modelId });
+  const classData = useClassDiagramData({ diagramId, modelId });
 
-  // Fetch architecture elements/relationships for non-CDB diagrams
-  const archElementsQuery = useGetElementsByModelId(isClassDiagram ? "" : modelId);
-  const archRelationshipsQuery = useGetRelationshipsByModelId(isClassDiagram ? "" : modelId);
-
-  // Fetch class elements/relationships for CDB diagrams
-  const classElementsQuery = useClassElementsByModelId(isClassDiagram ? modelId : "");
-  const classRelationshipsQuery = useClassRelationshipsByModelId(isClassDiagram ? modelId : "");
+  const data = isClassDiagram ? classData : archData;
 
   const diagram = useMemo<Diagram | null>(() => {
+    if (!data.diagram) return null;
     if (isClassDiagram) {
-      if (!classDiagramQuery.data) return null;
-      const d = classDiagramQuery.data;
-      return { ...d, type: "CDB" as DiagramTypeValue } as Diagram;
+      return { ...data.diagram, type: "CDB" as DiagramTypeValue } as Diagram;
     }
-    if (!archDiagramQuery.data) return null;
-    return archDiagramQuery.data as Diagram;
-  }, [isClassDiagram, classDiagramQuery.data, archDiagramQuery.data]);
+    return data.diagram as Diagram;
+  }, [isClassDiagram, data.diagram]);
 
   const elements = useMemo<Element[]>(() => {
     if (isClassDiagram) {
-      // Map class elements to the Element type
-      return (classElementsQuery.data ?? []).map((el) => ({
+      return (classData.elements ?? []).map((el) => ({
         id: el.id,
         name: el.name,
         type: el.elementType as any,
         modelId: el.modelId,
         updatedAt: el.updatedAt,
         createdAt: el.createdAt,
-        description: undefined,
+        description: (el as any).description ?? undefined,
         parentId: el.parentId,
         status: el.status as "DRAFT" | "VALIDATED" | "DEPRECATED",
+        isAbstract: (el as any).isAbstract ?? false,
+        isStatic: (el as any).isStatic ?? false,
+        properties: (el as any).properties ?? [],
+        operations: (el as any).operations ?? [],
+        enumerationLiterals: (el as any).enumerationLiterals ?? [],
       }));
     }
-
-    // Map architecture elements
-    return (archElementsQuery.data ?? []).map((element) => ({
+    return (archData.elements ?? []).map((element) => ({
       id: element.id,
       name: element.name,
       type: element.type,
@@ -88,13 +66,11 @@ export function DiagramCanvasClient({
       parentId: element.parentId,
       status: element.properties.status,
     }));
-  }, [isClassDiagram, classElementsQuery.data, archElementsQuery.data]);
+  }, [isClassDiagram, classData.elements, archData.elements]);
 
   const relationships = useMemo<Relationship[]>(() => {
     if (isClassDiagram) {
-      // Map class relationships to the Relationship type
-      // Class relationships use 'relationshipType' instead of 'type'
-      return (classRelationshipsQuery.data ?? []).map((rel) => ({
+      return (classData.relationships ?? []).map((rel) => ({
         id: rel.id,
         modelId: rel.modelId,
         type: rel.relationshipType as any,
@@ -106,24 +82,10 @@ export function DiagramCanvasClient({
         updatedAt: rel.updatedAt,
       }));
     }
-    return (archRelationshipsQuery.data ?? []) as Relationship[];
-  }, [isClassDiagram, classRelationshipsQuery.data, archRelationshipsQuery.data]);
+    return (archData.relationships ?? []) as Relationship[];
+  }, [isClassDiagram, classData.relationships, archData.relationships]);
 
-  const diagramQuery = isClassDiagram ? classDiagramQuery : archDiagramQuery;
-
-  const isLoading =
-    diagramQuery.isLoading ||
-    (isClassDiagram
-      ? classElementsQuery.isLoading || classRelationshipsQuery.isLoading
-      : archElementsQuery.isLoading || archRelationshipsQuery.isLoading);
-
-  const isError =
-    diagramQuery.isError ||
-    (isClassDiagram
-      ? classElementsQuery.isError || classRelationshipsQuery.isError
-      : archElementsQuery.isError || archRelationshipsQuery.isError);
-
-  if (isLoading) {
+  if (data.isLoading) {
     return (
       <div className="flex h-full w-full items-center justify-center">
         <Spinner />
@@ -131,7 +93,7 @@ export function DiagramCanvasClient({
     );
   }
 
-  if (isError || !diagram) {
+  if (data.isError || !diagram) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted-foreground">
         <AlertTriangle className="size-8 opacity-40" />
@@ -141,7 +103,7 @@ export function DiagramCanvasClient({
   }
 
   return (
-    <DiagramCanvasInner
+    <DiagramHost
       diagram={diagram}
       elements={elements}
       relationships={relationships}

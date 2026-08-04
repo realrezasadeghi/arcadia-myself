@@ -9,7 +9,10 @@ import { modelRepository } from "../../infrastructure/persistence/drizzle/reposi
 import { UpdateModelDTO, type UpdateModelDTOProps } from "../dtos/update-model";
 
 export const updateModel = withAuth(
-  async (payload: UpdateModelDTOProps, { token }): Promise<UpdateModelResponse> => {
+  async (
+    payload: UpdateModelDTOProps,
+    { token },
+  ): Promise<UpdateModelResponse> => {
     const dto = UpdateModelDTO.create(payload);
 
     const updateModelUseCase = new UpdateModelUseCase(modelRepository);

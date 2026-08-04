@@ -24,7 +24,9 @@ export class ClassCollectionKind extends ValueObject<ClassCollectionKindProps> {
   static readonly SET = new ClassCollectionKind({ value: "SET" });
   static readonly BAG = new ClassCollectionKind({ value: "BAG" });
   static readonly SEQUENCE = new ClassCollectionKind({ value: "SEQUENCE" });
-  static readonly ORDERED_SET = new ClassCollectionKind({ value: "ORDERED_SET" });
+  static readonly ORDERED_SET = new ClassCollectionKind({
+    value: "ORDERED_SET",
+  });
 
   private static readonly ALL: ClassCollectionKind[] = [
     ClassCollectionKind.NONE,

@@ -32,18 +32,28 @@ export class UpdateClassOperationDTO {
 
   static create(props: UpdateClassOperationDTOProps): UpdateClassOperationDTO {
     return new UpdateClassOperationDTO({
-      id: UpdateClassOperationDTO.validateRequiredString(props.id, "Operation ID"),
-      name: props.name ? UpdateClassOperationDTO.validateName(props.name) : undefined,
+      id: UpdateClassOperationDTO.validateRequiredString(
+        props.id,
+        "Operation ID",
+      ),
+      name: props.name
+        ? UpdateClassOperationDTO.validateName(props.name)
+        : undefined,
       returnTypeClassElementId: props.returnTypeClassElementId,
       returnTypeLiteral: props.returnTypeLiteral,
       isStatic: props.isStatic,
       isAbstract: props.isAbstract,
-      visibility: props.visibility ? UpdateClassOperationDTO.validateVisibility(props.visibility) : undefined,
+      visibility: props.visibility
+        ? UpdateClassOperationDTO.validateVisibility(props.visibility)
+        : undefined,
       ordering: props.ordering,
     });
   }
 
-  private static validateRequiredString(value: string, fieldName: string): string {
+  private static validateRequiredString(
+    value: string,
+    fieldName: string,
+  ): string {
     if (!value) throw new Error(`${fieldName} is required`);
     const trimmed = value.trim();
     if (!trimmed) throw new Error(`${fieldName} cannot be empty`);
@@ -53,12 +63,13 @@ export class UpdateClassOperationDTO {
   private static validateName(name: string): string {
     const trimmed = name.trim();
     if (!trimmed) throw new Error("Operation name cannot be empty");
-    if (trimmed.length > 255) throw new Error("Name cannot exceed 255 characters");
+    if (trimmed.length > 255)
+      throw new Error("Name cannot exceed 255 characters");
     return trimmed;
   }
 
   private static validateVisibility(
-    visibility: string
+    visibility: string,
   ): "public" | "private" | "protected" | "package" {
     const valid = ["public", "private", "protected", "package"];
     if (!valid.includes(visibility)) {

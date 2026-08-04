@@ -1,6 +1,9 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
-import type { IClassDiagramRepository, FindClassElementByIdQuery } from "../../ports/class-diagram";
+import type {
+  IClassDiagramRepository,
+  FindClassElementByIdQuery,
+} from "../../ports/class-diagram";
 
 export type GetClassOperationParameterByIdUseCasePayload = {
   query: FindClassElementByIdQuery;
@@ -29,7 +32,11 @@ export type GetClassOperationParameterByIdUseCaseResponse = {
 } | null;
 
 export class GetClassOperationParameterByIdUseCase
-  implements IUseCase<GetClassOperationParameterByIdUseCasePayload, GetClassOperationParameterByIdUseCaseResponse>
+  implements
+    IUseCase<
+      GetClassOperationParameterByIdUseCasePayload,
+      GetClassOperationParameterByIdUseCaseResponse
+    >
 {
   constructor(private readonly repository: IClassDiagramRepository) {}
 
@@ -40,7 +47,9 @@ export class GetClassOperationParameterByIdUseCase
       const parameter = await this.repository.findParameterById(query);
       return parameter ? parameter.toJSON() : null;
     } catch (error) {
-      throw new Error(resolveErrorMessage(error, "Error getting class operation parameter"));
+      throw new Error(
+        resolveErrorMessage(error, "Error getting class operation parameter"),
+      );
     }
   }
 }

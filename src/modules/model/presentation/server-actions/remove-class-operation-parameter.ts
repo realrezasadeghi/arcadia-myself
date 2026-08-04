@@ -8,8 +8,13 @@ import {
 import { classDiagramRepository } from "../../infrastructure/persistence/drizzle/repositories";
 
 export const removeClassOperationParameter = withAuth(
-  async (id: string, { token }): Promise<RemoveClassOperationParameterUseCaseResponse> => {
-    const useCase = new RemoveClassOperationParameterUseCase(classDiagramRepository);
+  async (
+    id: string,
+    { token },
+  ): Promise<RemoveClassOperationParameterUseCaseResponse> => {
+    const useCase = new RemoveClassOperationParameterUseCase(
+      classDiagramRepository,
+    );
 
     const response = await useCase.execute({
       payload: { id },

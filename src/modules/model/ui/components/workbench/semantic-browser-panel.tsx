@@ -5,7 +5,7 @@ import { Loader2, MousePointerClick, Workflow } from "lucide-react";
 import { ArrowLeft, ArrowRight, GitMerge, LayoutDashboard } from "lucide-react";
 import type { ReactNode } from "react";
 import { useGetElementRelations } from "../../clients/get-element-relations";
-import { getDiagramLayer } from "../../helpers/diagram";
+import { resolveDiagramLayer } from "../../helpers/diagram";
 import { getElementTypeInfo } from "../../helpers/element";
 import { getLayerInfo } from "../../helpers/layer";
 import { getRelationshipTypeInfo } from "../../helpers/relationship";
@@ -22,6 +22,7 @@ export function SemanticBrowserPanel() {
   const selectedElementId = useWorkbenchStore((s) => s.selectedElementId);
   const selectElement = useWorkbenchStore((s) => s.selectElement);
   const openTab = useWorkbenchStore((s) => s.openTab);
+  const currentLayer = useWorkbenchStore((s) => s.currentLayer);
 
   const { data, isLoading, isError } = useGetElementRelations(
     selectedElementId ?? undefined,
@@ -130,7 +131,7 @@ export function SemanticBrowserPanel() {
                       modelId: data.element.modelId,
                       name: diagram.name,
                       type: diagram.type,
-                      layer: getDiagramLayer(diagram.type),
+                      layer: resolveDiagramLayer(diagram.type, currentLayer),
                     })
                   }
                   className="flex w-full items-center gap-1.5 rounded-md border border-border bg-muted/40 px-2 py-1.5 text-left hover:bg-muted"

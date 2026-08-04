@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/modules/shared/ui/libs/cn";
+import { LAYER_HEX_COLORS } from "../constants/layer";
 import {
   ChevronDown,
   ChevronLeft,
@@ -83,14 +84,6 @@ function buildElementTree(elements: Element[]): ElementTreeNode[] {
 }
 
 // ─── Layer fold colors ──────────────────────────────────────────────────────
-
-const LAYER_COLORS: Record<LayerValue, string> = {
-  OA: "#2E86C1",
-  SA: "#CA6F1E",
-  LA: "#1E8449",
-  PA: "#6C3483",
-  EPBS: "#E74C3C",
-};
 
 const LAYER_BG_COLORS: Record<LayerValue, string> = {
   OA: "hover:bg-blue-50 dark:hover:bg-blue-950/30",
@@ -236,7 +229,7 @@ export function ModelExplorerTree({
     <div className="py-1">
       {sorted.map(({ model, elements, diagrams }) => {
         const layerInfo = getLayerInfo(model.layer);
-        const color = LAYER_COLORS[model.layer];
+        const color = LAYER_HEX_COLORS[model.layer];
         const hoverBg = LAYER_BG_COLORS[model.layer];
         const isOpen = openModels.has(model.id);
         const tree = buildElementTree(elements);

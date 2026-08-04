@@ -13,7 +13,10 @@ export type RemoveClassElementPayload = {
 };
 
 export const removeClassElement = withAuth(
-  async (payload: RemoveClassElementPayload, { token }): Promise<RemoveClassElementUseCaseResponse> => {
+  async (
+    payload: RemoveClassElementPayload,
+    { token },
+  ): Promise<RemoveClassElementUseCaseResponse> => {
     const useCase = new RemoveClassElementUseCase(classDiagramRepository);
 
     const response = await useCase.execute({

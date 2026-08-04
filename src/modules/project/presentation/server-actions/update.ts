@@ -1,6 +1,7 @@
 "use server";
 
 import { withAuth } from "@/modules/auth/presentation/with-auth";
+import { updateTag } from "next/cache";
 import { UpdateProjectUseCase } from "../../application/use-cases/update";
 import { projectRepository } from "../../infrastructure/remote";
 import { UpdateProjectDTO, type UpdateProjectDTOProps } from "../dtos/update";
@@ -19,6 +20,9 @@ export const update = withAuth(
         requesterId: userId,
       },
     });
+
+    updateTag("GET_ALL_PROJECTS");
+    updateTag(`GET_PROJECT_BY_ID`);
 
     return response;
   },

@@ -73,26 +73,26 @@ export class ClassConnectionPolicy {
   static assertAllowed(
     sourceType: ClassElementType,
     targetType: ClassElementType,
-    relationshipType: ClassRelationshipType
+    relationshipType: ClassRelationshipType,
   ): void {
     const rule = RULES.find(
       (r) =>
         r.relationshipType === relationshipType.value &&
         r.allowedSourceTypes.includes(sourceType.value) &&
-        r.allowedTargetTypes.includes(targetType.value)
+        r.allowedTargetTypes.includes(targetType.value),
     );
 
     if (!rule) {
       throw new Error(
         `Connection from "${sourceType.label}" to "${targetType.label}" ` +
-          `via "${relationshipType.label}" is not allowed.`
+          `via "${relationshipType.label}" is not allowed.`,
       );
     }
   }
 
   static getAllowedRelationshipTypes(
     sourceType: string | ClassElementType,
-    targetType: string | ClassElementType
+    targetType: string | ClassElementType,
   ): ClassRelationshipType[] {
     const source =
       sourceType instanceof ClassElementType
@@ -106,17 +106,21 @@ export class ClassConnectionPolicy {
     return RULES.filter(
       (r) =>
         r.allowedSourceTypes.includes(source.value) &&
-        r.allowedTargetTypes.includes(target.value)
+        r.allowedTargetTypes.includes(target.value),
     ).map((r) => ClassRelationshipType.from(r.relationshipType));
   }
 
   static isAllowed(
     sourceType: ClassElementType,
     targetType: ClassElementType,
-    relationshipType: ClassRelationshipType
+    relationshipType: ClassRelationshipType,
   ): boolean {
     try {
-      ClassConnectionPolicy.assertAllowed(sourceType, targetType, relationshipType);
+      ClassConnectionPolicy.assertAllowed(
+        sourceType,
+        targetType,
+        relationshipType,
+      );
       return true;
     } catch {
       return false;

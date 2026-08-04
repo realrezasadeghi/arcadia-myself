@@ -11,7 +11,7 @@ import { EditorToolbar } from "./editor-toolbar";
  *
  * ناحیه مرکزی Workbench: نوار ابزار + تب‌ها + canvas دیاگرام فعال.
  * فقط تب فعال mount می‌شود؛ تعویض تب باعث flush ذخیره معلق می‌شود
- * (از طریق useSaveManager در DiagramCanvasInner).
+ * (از طریق useSaveManager در DiagramHost).
  */
 export function EditorArea() {
   const tabs = useWorkbenchStore((s) => s.tabs);

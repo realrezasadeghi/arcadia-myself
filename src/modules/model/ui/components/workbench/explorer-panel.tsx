@@ -1,7 +1,6 @@
 "use client";
 
 import { DiagramFormDialog } from "@/modules/project/ui/components/diagram-form-dialog";
-import type { DiagramFormValues } from "@/modules/project/ui/schemas/diagram";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,25 +14,14 @@ import { useConfirm } from "@/modules/shared/ui/hooks/use-confirm";
 import { Check, FolderTree, Plus } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useCreateDiagram } from "../../clients/create-diagram";
-import { useCreateClassDiagram } from "../../clients/create-class-diagram";
-import { useCreateElement } from "../../clients/create-element";
-import { useCreateModel } from "../../clients/create-model";
-import { useRemoveClassDiagram } from "../../clients/remove-class-diagram";
-import { useRemoveClassElement } from "../../clients/remove-class-element";
-import { useRemoveDiagram } from "../../clients/remove-diagram";
-import { useRemoveElement } from "../../clients/remove-element";
-import { useUpdateDiagram } from "../../clients/update-diagram";
 import { LAYERS } from "../../constants/layer";
-import { getDiagramLayer, getDiagramPalette } from "../../helpers/diagram";
-import { getElementTypeInfo } from "../../helpers/element";
+import { getDiagramPalette, resolveDiagramLayer } from "../../helpers/diagram";
 import { getLayerInfo } from "../../helpers/layer";
 import { useCanvasStore } from "../../stores/canvas";
 import { useWorkbenchStore } from "../../stores/workbench";
 import type { Diagram } from "../../types/diagram";
-import type { ElementTypeValue } from "../../types/element";
-import type { LayerValue } from "../../types/layer";
 import type { Model } from "../../types/model";
+import { useExplorerActions } from "../../hooks/use-explorer-actions";
 import {
   type ElementTreeNode,
   type ExplorerHandlers,
@@ -66,6 +54,33 @@ export function ExplorerPanel({
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const [transitionModel, setTransitionModel] = useState<Model | null>(null);
+
+  const {
+    isCreateDiagramPending,
+    isUpdateDiagramPending,
+    isCreateModelPending,
+    onNewModel,
+    onNewElement,
+    onNewClassElement,
+    onDeleteElement,
+    onDeleteDiagram,
+    onAddElementToDiagram,
+    diagramDialogModel,
+    setDiagramDialogModel,
+    editDiagram,
+    setEditDiagram,
+    onSubmitDiagram,
+    onSubmitEditDiagram,
+  } = useExplorerActions({
+    projectId,
+    modelData,
+    onTreeChanged,
+    openTab,
+    closeTab,
+    renameTab,
+  });
+
   useEffect(() => {
     const container = scrollRef.current;
     if (!container) return;
@@ -75,76 +90,12 @@ export function ExplorerPanel({
     }
   }, [currentLayer]);
 
-  const createDiagram = useCreateDiagram();
-  const createClassDiagram = useCreateClassDiagram();
-  const createElement = useCreateElement();
-  const createModel = useCreateModel();
-  const removeDiagram = useRemoveDiagram();
-  const removeClassDiagram = useRemoveClassDiagram();
-  const removeElement = useRemoveElement();
-  const removeClassElement = useRemoveClassElement();
-  const updateDiagram = useUpdateDiagram();
-
-  /** Class element types stored in the class_elements table */
-  const CLASS_ELEMENT_TYPES = new Set([
-    "CLASS",
-    "INTERFACE",
-    "ENUM",
-    "DATA_TYPE",
-    "PRIMITIVE",
-    "COLLECTION",
-    "UNION",
-    "PACKAGE",
-    "GROUP",
-  ]);
-
   const existingLayers = useMemo(
     () => new Set(modelData.map((m) => m.model.layer)),
     [modelData],
   );
 
-  const onNewModel = useCallback(
-    (layer: LayerValue) => {
-      createModel.mutate(
-        { projectId, layer, name: getLayerInfo(layer).label },
-        {
-          onSuccess: () => {
-            toast.success(`${getLayerInfo(layer).label} model created`);
-            onTreeChanged();
-          },
-          onError: ({ message }) =>
-            toast.error(message || "Error creating model"),
-        },
-      );
-    },
-    [createModel, projectId, onTreeChanged],
-  );
-
-  // دیالوگ ساخت دیاگرام
-  const [diagramDialogModel, setDiagramDialogModel] = useState<Model | null>(
-    null,
-  );
-  const [editDiagram, setEditDiagram] = useState<{
-    model: Model;
-    diagram: Diagram;
-  } | null>(null);
-
-  const [transitionModel, setTransitionModel] = useState<Model | null>(null);
-
-  const onOpenDiagram = useCallback(
-    (model: Model, diagram: Diagram) => {
-      openTab({
-        diagramId: diagram.id,
-        modelId: model.id,
-        name: diagram.name,
-        type: diagram.type,
-        layer: getDiagramLayer(diagram.type),
-      });
-    },
-    [openTab],
-  );
-
-  const onSelectElement = useCallback(
+  const handleSelectElement = useCallback(
     (elementId: string) => {
       selectElement(elementId);
 
@@ -159,7 +110,7 @@ export function ExplorerPanel({
             modelId: model.id,
             name: diagram.name,
             type: diagram.type,
-            layer: getDiagramLayer(diagram.type),
+            layer: resolveDiagramLayer(diagram.type, model.layer),
           });
           return;
         }
@@ -173,30 +124,7 @@ export function ExplorerPanel({
     [selectElement, selectCanvasNode, canvasNodes, modelData, openTab],
   );
 
-  const onNewElement = useCallback(
-    (model: Model, type: ElementTypeValue) => {
-      const info = getElementTypeInfo(type);
-      createElement.mutate(
-        {
-          type,
-          layer: model.layer,
-          modelId: model.id,
-          name: `New ${info.label}`,
-        },
-        {
-          onSuccess: () => {
-            toast.success(`${info.label} created`);
-            onTreeChanged();
-          },
-          onError: ({ message }) =>
-            toast.error(message || "Error creating element"),
-        },
-      );
-    },
-    [createElement, onTreeChanged],
-  );
-
-  const onDeleteElement = useCallback(
+  const handleDeleteElement = useCallback(
     async (element: ElementTreeNode) => {
       const ok = await confirm({
         tone: "danger",
@@ -205,43 +133,12 @@ export function ExplorerPanel({
         confirmText: "Delete",
       });
       if (!ok) return;
-
-      const isClassElement = CLASS_ELEMENT_TYPES.has(element.type);
-
-      if (isClassElement) {
-        // Find modelId from modelData for this class element
-        const modelId =
-          element.modelId ??
-          modelData.find((m) => m.elements.some((e) => e.id === element.id))
-            ?.model.id ??
-          "";
-
-        removeClassElement.mutate(
-          { id: element.id, modelId },
-          {
-            onSuccess: () => {
-              toast.success("Element deleted");
-              onTreeChanged();
-            },
-            onError: ({ message }) =>
-              toast.error(message || "Error deleting element"),
-          },
-        );
-      } else {
-        removeElement.mutate(element.id, {
-          onSuccess: () => {
-            toast.success("Element deleted");
-            onTreeChanged();
-          },
-          onError: ({ message }) =>
-            toast.error(message || "Error deleting element"),
-        });
-      }
+      onDeleteElement(element);
     },
-    [confirm, removeElement, removeClassElement, modelData, onTreeChanged],
+    [confirm, onDeleteElement],
   );
 
-  const onDeleteDiagram = useCallback(
+  const handleDeleteDiagram = useCallback(
     async (diagram: Diagram) => {
       const ok = await confirm({
         tone: "danger",
@@ -250,122 +147,12 @@ export function ExplorerPanel({
         confirmText: "Delete",
       });
       if (!ok) return;
-
-      if (diagram.type === "CDB") {
-        removeClassDiagram.mutate(
-          { id: diagram.id, modelId: diagram.modelId },
-          {
-            onSuccess: () => {
-              closeTab(diagram.id);
-              toast.success("Diagram deleted");
-              onTreeChanged();
-            },
-            onError: ({ message }) =>
-              toast.error(message || "Error deleting diagram"),
-          },
-        );
-      } else {
-        removeDiagram.mutate(diagram.id, {
-          onSuccess: () => {
-            closeTab(diagram.id);
-            toast.success("Diagram deleted");
-            onTreeChanged();
-          },
-          onError: ({ message }) =>
-            toast.error(message || "Error deleting diagram"),
-        });
-      }
+      onDeleteDiagram(diagram);
     },
-    [confirm, removeDiagram, removeClassDiagram, closeTab, onTreeChanged],
+    [confirm, onDeleteDiagram],
   );
 
-  const onSubmitDiagram = useCallback(
-    (values: DiagramFormValues) => {
-      if (!diagramDialogModel) return;
-      const model = diagramDialogModel;
-
-      if (values.type === "CDB") {
-        createClassDiagram.mutate(
-          {
-            name: values.name,
-            modelId: model.id,
-            layer: model.layer,
-            description: values.description,
-          },
-          {
-            onSuccess: ({ data }) => {
-              setDiagramDialogModel(null);
-              openTab({
-                diagramId: data.id,
-                modelId: model.id,
-                name: data.name,
-                type: "CDB",
-                layer: getDiagramLayer("CDB"),
-              });
-              toast.success("Diagram created");
-              onTreeChanged();
-            },
-            onError: ({ message }) =>
-              toast.error(message || "Error creating diagram"),
-          },
-        );
-      } else {
-        createDiagram.mutate(
-          {
-            name: values.name,
-            type: values.type,
-            modelId: model.id,
-            description: values.description,
-          },
-          {
-            onSuccess: ({ data }) => {
-              setDiagramDialogModel(null);
-              openTab({
-                diagramId: data.id,
-                modelId: model.id,
-                name: data.name,
-                type: data.type,
-                layer: getDiagramLayer(data.type),
-              });
-              toast.success("Diagram created");
-              onTreeChanged();
-            },
-            onError: ({ message }) =>
-              toast.error(message || "Error creating diagram"),
-          },
-        );
-      }
-    },
-    [createDiagram, createClassDiagram, diagramDialogModel, openTab, onTreeChanged],
-  );
-
-  const onSubmitEditDiagram = useCallback(
-    (values: DiagramFormValues) => {
-      if (!editDiagram) return;
-      const { diagram } = editDiagram;
-
-      updateDiagram.mutate(
-        {
-          id: diagram.id,
-          name: values.name,
-          description: values.description,
-        },
-        {
-          onSuccess: () => {
-            renameTab(diagram.id, values.name);
-            setEditDiagram(null);
-            toast.success("Diagram updated");
-            onTreeChanged();
-          },
-          onError: ({ message }) =>
-            toast.error(message || "Error updating diagram"),
-        },
-      );
-    },
-    [updateDiagram, editDiagram, renameTab, onTreeChanged],
-  );
-
-  const onAddElementToDiagram = useCallback(
+  const handleAddElementToDiagram = useCallback(
     (element: ElementTreeNode, diagram: Diagram) => {
       const palette = getDiagramPalette(diagram.type);
       if (!palette.elementTypes.includes(element.type)) {
@@ -375,47 +162,52 @@ export function ExplorerPanel({
         );
         return;
       }
-
-      // Open the diagram and trigger insert
-      openTab({
-        diagramId: diagram.id,
-        modelId: diagram.modelId,
-        name: diagram.name,
-        type: diagram.type,
-        layer: getDiagramLayer(diagram.type),
-      });
-
-      // Find the element data
-      for (const { elements } of modelData) {
-        const el = elements.find((e) => e.id === element.id);
-        if (el) {
-          useCanvasStore.getState().requestElementInsert({
-            elementId: el.id,
-            elementType: el.type,
-            name: el.name,
-            description: el.description,
-            status: el.status,
-          });
-          toast.success(`Added "${el.name}" to ${diagram.name}`);
-          return;
-        }
-      }
+      onAddElementToDiagram(element, diagram);
     },
-    [modelData, openTab],
+    [onAddElementToDiagram],
   );
 
-  const handlers: ExplorerHandlers = {
-    onOpenDiagram,
-    onSelectElement,
-    onNewElement,
-    onDeleteElement,
-    onDeleteDiagram,
-    onNewDiagram: setDiagramDialogModel,
-    onEditDiagram: (model, diagram) => setEditDiagram({ model, diagram }),
-    onTransition: setTransitionModel,
-    onAddElementToDiagram,
-    diagrams: modelData.flatMap((m) => m.diagrams),
-  };
+  const handleOpenDiagram = useCallback(
+    (model: Model, diagram: Diagram) => {
+      openTab({
+        diagramId: diagram.id,
+        modelId: model.id,
+        name: diagram.name,
+        type: diagram.type,
+        layer: resolveDiagramLayer(diagram.type, model.layer),
+      });
+    },
+    [openTab],
+  );
+
+  const handlers: ExplorerHandlers = useMemo(
+    () => ({
+      onOpenDiagram: handleOpenDiagram,
+      onSelectElement: handleSelectElement,
+      onNewElement,
+      onNewClassElement,
+      onDeleteElement: handleDeleteElement,
+      onDeleteDiagram: handleDeleteDiagram,
+      onNewDiagram: setDiagramDialogModel,
+      onEditDiagram: (model: Model, diagram: Diagram) =>
+        setEditDiagram({ model, diagram }),
+      onTransition: setTransitionModel,
+      onAddElementToDiagram: handleAddElementToDiagram,
+      diagrams: modelData.flatMap((m) => m.diagrams),
+    }),
+    [
+      handleOpenDiagram,
+      handleSelectElement,
+      onNewElement,
+      onNewClassElement,
+      handleDeleteElement,
+      handleDeleteDiagram,
+      setDiagramDialogModel,
+      setEditDiagram,
+      handleAddElementToDiagram,
+      modelData,
+    ],
+  );
 
   return (
     <aside className="flex h-full min-h-0 flex-col border-r bg-card">
@@ -430,7 +222,7 @@ export function ExplorerPanel({
               type="button"
               title="New model"
               aria-label="New model"
-              disabled={createModel.isPending}
+              disabled={isCreateModelPending}
               className="ms-auto flex size-5 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
             >
               <Plus className="size-3.5" />
@@ -478,7 +270,7 @@ export function ExplorerPanel({
           open={!!diagramDialogModel}
           onOpenChange={(open) => !open && setDiagramDialogModel(null)}
           diagram={null}
-          loading={createDiagram.isPending}
+          loading={isCreateDiagramPending}
           onSubmit={onSubmitDiagram}
           layer={{
             value: diagramDialogModel.layer,
@@ -496,7 +288,7 @@ export function ExplorerPanel({
             description: editDiagram.diagram.description,
             type: editDiagram.diagram.type,
           }}
-          loading={updateDiagram.isPending}
+          loading={isUpdateDiagramPending}
           onSubmit={onSubmitEditDiagram}
           layer={{
             value: editDiagram.model.layer,

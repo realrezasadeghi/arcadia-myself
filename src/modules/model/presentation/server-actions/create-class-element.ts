@@ -12,7 +12,10 @@ import {
 } from "../dtos/create-class-element";
 
 export const createClassElement = withAuth(
-  async (payload: CreateClassElementDTOProps, { token }): Promise<CreateClassElementUseCaseResponse> => {
+  async (
+    payload: CreateClassElementDTOProps,
+    { token },
+  ): Promise<CreateClassElementUseCaseResponse> => {
     const dto = CreateClassElementDTO.create(payload);
 
     const useCase = new CreateClassElementUseCase(classDiagramRepository);

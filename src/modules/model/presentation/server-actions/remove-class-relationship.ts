@@ -13,7 +13,10 @@ export type RemoveClassRelationshipPayload = {
 };
 
 export const removeClassRelationship = withAuth(
-  async (payload: RemoveClassRelationshipPayload, { token }): Promise<RemoveClassRelationshipUseCaseResponse> => {
+  async (
+    payload: RemoveClassRelationshipPayload,
+    { token },
+  ): Promise<RemoveClassRelationshipUseCaseResponse> => {
     const useCase = new RemoveClassRelationshipUseCase(classDiagramRepository);
 
     const response = await useCase.execute({

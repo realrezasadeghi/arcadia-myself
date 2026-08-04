@@ -21,11 +21,16 @@ const CLASS_ELEMENT_CATEGORIES = [
   },
   {
     label: "Data Types",
-    types: ["DATA_TYPE", "PRIMITIVE", "COLLECTION", "UNION"] as ClassElementTypeValue[],
+    types: [
+      "DATA_TYPE",
+      "PRIMITIVE",
+      "COLLECTION",
+      "UNION",
+    ] as ClassElementTypeValue[],
   },
   {
     label: "Containers",
-    types: ["PACKAGE", "GROUP"] as ClassElementTypeValue[],
+    types: ["PACKAGE"] as ClassElementTypeValue[],
   },
 ];
 

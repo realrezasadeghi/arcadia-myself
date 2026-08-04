@@ -15,7 +15,10 @@ import {
 } from "../dtos/create-diagram";
 
 export const createDiagram = withAuth(
-  async (payload: CreateDiagramDTOProps, { token }): Promise<CreateDiagramResponse> => {
+  async (
+    payload: CreateDiagramDTOProps,
+    { token },
+  ): Promise<CreateDiagramResponse> => {
     const dto = CreateDiagramDTO.create(payload);
 
     const createDiagramUseCase = new CreateDiagramUseCase(

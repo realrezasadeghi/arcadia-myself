@@ -2,7 +2,15 @@ export type CreateClassElementDTOProps = {
   modelId: string;
   layer: string;
   name: string;
-  elementType: "CLASS" | "INTERFACE" | "ENUM" | "DATA_TYPE" | "PRIMITIVE" | "COLLECTION" | "UNION" | "PACKAGE" | "GROUP";
+  elementType:
+    | "CLASS"
+    | "INTERFACE"
+    | "ENUM"
+    | "DATA_TYPE"
+    | "PRIMITIVE"
+    | "COLLECTION"
+    | "UNION"
+    | "PACKAGE";
   isAbstract?: boolean;
   isStatic?: boolean;
   parentId?: string | null;
@@ -14,7 +22,15 @@ export class CreateClassElementDTO {
   public readonly modelId: string;
   public readonly layer: string;
   public readonly name: string;
-  public readonly elementType: "CLASS" | "INTERFACE" | "ENUM" | "DATA_TYPE" | "PRIMITIVE" | "COLLECTION" | "UNION" | "PACKAGE" | "GROUP";
+  public readonly elementType:
+    | "CLASS"
+    | "INTERFACE"
+    | "ENUM"
+    | "DATA_TYPE"
+    | "PRIMITIVE"
+    | "COLLECTION"
+    | "UNION"
+    | "PACKAGE";
   public readonly isAbstract: boolean;
   public readonly isStatic: boolean;
   public readonly parentId: string | null;
@@ -35,7 +51,10 @@ export class CreateClassElementDTO {
 
   static create(props: CreateClassElementDTOProps): CreateClassElementDTO {
     return new CreateClassElementDTO({
-      modelId: CreateClassElementDTO.validateRequiredString(props.modelId, "Model ID"),
+      modelId: CreateClassElementDTO.validateRequiredString(
+        props.modelId,
+        "Model ID",
+      ),
       layer: CreateClassElementDTO.validateLayer(props.layer),
       name: CreateClassElementDTO.validateName(props.name),
       elementType: CreateClassElementDTO.validateElementType(props.elementType),
@@ -47,7 +66,10 @@ export class CreateClassElementDTO {
     });
   }
 
-  private static validateRequiredString(value: string, fieldName: string): string {
+  private static validateRequiredString(
+    value: string,
+    fieldName: string,
+  ): string {
     if (!value) throw new Error(`${fieldName} is required`);
     const trimmed = value.trim();
     if (!trimmed) throw new Error(`${fieldName} cannot be empty`);
@@ -66,14 +88,32 @@ export class CreateClassElementDTO {
     if (!name) throw new Error("Element name is required");
     const trimmed = name.trim();
     if (!trimmed) throw new Error("Element name cannot be empty");
-    if (trimmed.length > 255) throw new Error("Name cannot exceed 255 characters");
+    if (trimmed.length > 255)
+      throw new Error("Name cannot exceed 255 characters");
     return trimmed;
   }
 
   private static validateElementType(
-    type: string
-  ): "CLASS" | "INTERFACE" | "ENUM" | "DATA_TYPE" | "PRIMITIVE" | "COLLECTION" | "UNION" | "PACKAGE" | "GROUP" {
-    const validTypes: ("CLASS" | "INTERFACE" | "ENUM" | "DATA_TYPE" | "PRIMITIVE" | "COLLECTION" | "UNION" | "PACKAGE" | "GROUP")[] = [
+    type: string,
+  ):
+    | "CLASS"
+    | "INTERFACE"
+    | "ENUM"
+    | "DATA_TYPE"
+    | "PRIMITIVE"
+    | "COLLECTION"
+    | "UNION"
+    | "PACKAGE" {
+    const validTypes: (
+      | "CLASS"
+      | "INTERFACE"
+      | "ENUM"
+      | "DATA_TYPE"
+      | "PRIMITIVE"
+      | "COLLECTION"
+      | "UNION"
+      | "PACKAGE"
+    )[] = [
       "CLASS",
       "INTERFACE",
       "ENUM",
@@ -82,11 +122,18 @@ export class CreateClassElementDTO {
       "COLLECTION",
       "UNION",
       "PACKAGE",
-      "GROUP",
     ];
     if (!validTypes.includes(type as any)) {
       throw new Error(`Element type must be one of: ${validTypes.join(", ")}`);
     }
-    return type as "CLASS" | "INTERFACE" | "ENUM" | "DATA_TYPE" | "PRIMITIVE" | "COLLECTION" | "UNION" | "PACKAGE" | "GROUP";
+    return type as
+      | "CLASS"
+      | "INTERFACE"
+      | "ENUM"
+      | "DATA_TYPE"
+      | "PRIMITIVE"
+      | "COLLECTION"
+      | "UNION"
+      | "PACKAGE";
   }
 }

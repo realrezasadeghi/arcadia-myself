@@ -1,17 +1,10 @@
 "use client";
 
 import { cn } from "@/modules/shared/ui/libs/cn";
+import { LAYER_HEX_COLORS } from "../../constants/layer";
 import { getLayerInfo } from "../../helpers/layer";
 import type { LayerValue } from "../../types/layer";
 import type { Model } from "../../types/model";
-
-const LAYER_COLORS: Record<LayerValue, string> = {
-  OA: "#2E86C1",
-  SA: "#CA6F1E",
-  LA: "#1E8449",
-  PA: "#6C3483",
-  EPBS: "#E74C3C",
-};
 
 type LayerSwitcherProps = {
   models: Model[];
@@ -33,7 +26,7 @@ export function LayerSwitcher({
       </span>
       {layers.map((layer) => {
         const info = getLayerInfo(layer);
-        const color = LAYER_COLORS[layer];
+        const color = LAYER_HEX_COLORS[layer];
         const isActive = currentLayer === layer;
         const model = models.find((m) => m.layer === layer);
         const hasModel = !!model;

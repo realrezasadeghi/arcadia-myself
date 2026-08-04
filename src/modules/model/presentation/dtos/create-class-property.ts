@@ -29,7 +29,12 @@ export class CreateClassPropertyDTO {
   public readonly visibility: "public" | "private" | "protected" | "package";
   public readonly multiplicityLower: number;
   public readonly multiplicityUpper: string;
-  public readonly collectionKind: "NONE" | "SET" | "BAG" | "SEQUENCE" | "ORDERED_SET";
+  public readonly collectionKind:
+    | "NONE"
+    | "SET"
+    | "BAG"
+    | "SEQUENCE"
+    | "ORDERED_SET";
   public readonly defaultValue: string;
   public readonly ordering: number;
 
@@ -53,8 +58,14 @@ export class CreateClassPropertyDTO {
 
   static create(props: CreateClassPropertyDTOProps): CreateClassPropertyDTO {
     return new CreateClassPropertyDTO({
-      classElementId: CreateClassPropertyDTO.validateRequiredString(props.classElementId, "Class Element ID"),
-      modelId: CreateClassPropertyDTO.validateRequiredString(props.modelId, "Model ID"),
+      classElementId: CreateClassPropertyDTO.validateRequiredString(
+        props.classElementId,
+        "Class Element ID",
+      ),
+      modelId: CreateClassPropertyDTO.validateRequiredString(
+        props.modelId,
+        "Model ID",
+      ),
       layer: CreateClassPropertyDTO.validateLayer(props.layer),
       name: CreateClassPropertyDTO.validateName(props.name),
       typeClassElementId: props.typeClassElementId,
@@ -63,15 +74,22 @@ export class CreateClassPropertyDTO {
       isReadOnly: props.isReadOnly,
       isDerived: props.isDerived,
       visibility: CreateClassPropertyDTO.validateVisibility(props.visibility),
-      multiplicityLower: CreateClassPropertyDTO.validateMultiplicityLower(props.multiplicityLower),
+      multiplicityLower: CreateClassPropertyDTO.validateMultiplicityLower(
+        props.multiplicityLower,
+      ),
       multiplicityUpper: props.multiplicityUpper ?? "1",
-      collectionKind: CreateClassPropertyDTO.validateCollectionKind(props.collectionKind),
+      collectionKind: CreateClassPropertyDTO.validateCollectionKind(
+        props.collectionKind,
+      ),
       defaultValue: props.defaultValue,
       ordering: props.ordering,
     });
   }
 
-  private static validateRequiredString(value: string, fieldName: string): string {
+  private static validateRequiredString(
+    value: string,
+    fieldName: string,
+  ): string {
     if (!value) throw new Error(`${fieldName} is required`);
     const trimmed = value.trim();
     if (!trimmed) throw new Error(`${fieldName} cannot be empty`);
@@ -90,12 +108,13 @@ export class CreateClassPropertyDTO {
     if (!name) throw new Error("Property name is required");
     const trimmed = name.trim();
     if (!trimmed) throw new Error("Property name cannot be empty");
-    if (trimmed.length > 255) throw new Error("Name cannot exceed 255 characters");
+    if (trimmed.length > 255)
+      throw new Error("Name cannot exceed 255 characters");
     return trimmed;
   }
 
   private static validateVisibility(
-    visibility?: string
+    visibility?: string,
   ): "public" | "private" | "protected" | "package" {
     const valid = ["public", "private", "protected", "package"];
     if (visibility && !valid.includes(visibility)) {
@@ -111,7 +130,7 @@ export class CreateClassPropertyDTO {
   }
 
   private static validateCollectionKind(
-    kind?: string
+    kind?: string,
   ): "NONE" | "SET" | "BAG" | "SEQUENCE" | "ORDERED_SET" {
     const valid = ["NONE", "SET", "BAG", "SEQUENCE", "ORDERED_SET"];
     if (kind && !valid.includes(kind)) {

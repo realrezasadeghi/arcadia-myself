@@ -12,7 +12,10 @@ import {
 } from "../dtos/update-relationship";
 
 export const updateRelationship = withAuth(
-  async (payload: UpdateRelationshipDTOProps, { token }): Promise<UpdateRelationshipResponse> => {
+  async (
+    payload: UpdateRelationshipDTOProps,
+    { token },
+  ): Promise<UpdateRelationshipResponse> => {
     const dto = UpdateRelationshipDTO.create(payload);
 
     const updateRelationshipUseCase = new UpdateRelationshipUseCase(

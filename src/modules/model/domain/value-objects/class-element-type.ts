@@ -8,8 +8,7 @@ export type ClassElementTypeValue =
   | "PRIMITIVE"
   | "COLLECTION"
   | "UNION"
-  | "PACKAGE"
-  | "GROUP";
+  | "PACKAGE";
 
 interface ClassElementTypeProps {
   value: ClassElementTypeValue;
@@ -29,7 +28,6 @@ const META: Record<ClassElementTypeValue, ClassElementTypeMeta> = {
   COLLECTION: { label: "Collection", labelFa: "مجموعه" },
   UNION: { label: "Union", labelFa: "اتحاد" },
   PACKAGE: { label: "Package", labelFa: "پکیج" },
-  GROUP: { label: "Group", labelFa: "گروه" },
 };
 
 const ALL_VALUES = Object.keys(META) as ClassElementTypeValue[];
@@ -43,7 +41,6 @@ export class ClassElementType extends ValueObject<ClassElementTypeProps> {
   static readonly COLLECTION = new ClassElementType({ value: "COLLECTION" });
   static readonly UNION = new ClassElementType({ value: "UNION" });
   static readonly PACKAGE = new ClassElementType({ value: "PACKAGE" });
-  static readonly GROUP = new ClassElementType({ value: "GROUP" });
 
   private static readonly ALL: ClassElementType[] = [
     ClassElementType.CLASS,
@@ -54,7 +51,6 @@ export class ClassElementType extends ValueObject<ClassElementTypeProps> {
     ClassElementType.COLLECTION,
     ClassElementType.UNION,
     ClassElementType.PACKAGE,
-    ClassElementType.GROUP,
   ];
 
   protected validate(props: ClassElementTypeProps): void {
@@ -102,7 +98,7 @@ export class ClassElementType extends ValueObject<ClassElementTypeProps> {
     return this.props.value === "UNION";
   }
   isPackage(): boolean {
-    return this.props.value === "PACKAGE" || this.props.value === "GROUP";
+    return this.props.value === "PACKAGE";
   }
 
   toString(): string {

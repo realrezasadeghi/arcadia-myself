@@ -1,6 +1,9 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
-import type { IClassDiagramRepository, RemoveClassRelationshipPayload } from "../../ports/class-diagram";
+import type {
+  IClassDiagramRepository,
+  RemoveClassRelationshipPayload,
+} from "../../ports/class-diagram";
 
 export type RemoveClassRelationshipUseCasePayload = {
   payload: RemoveClassRelationshipPayload;
@@ -12,7 +15,11 @@ export type RemoveClassRelationshipUseCasePayload = {
 export type RemoveClassRelationshipUseCaseResponse = boolean;
 
 export class RemoveClassRelationshipUseCase
-  implements IUseCase<RemoveClassRelationshipUseCasePayload, RemoveClassRelationshipUseCaseResponse>
+  implements
+    IUseCase<
+      RemoveClassRelationshipUseCasePayload,
+      RemoveClassRelationshipUseCaseResponse
+    >
 {
   constructor(private readonly repository: IClassDiagramRepository) {}
 

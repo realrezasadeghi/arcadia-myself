@@ -5,6 +5,7 @@ import { AlertTriangle } from "lucide-react";
 import { useMemo } from "react";
 import { useArchDiagramData } from "../hooks/use-arch-diagram-data";
 import { useClassDiagramData } from "../hooks/use-class-diagram-data";
+import { useScenarioDiagramData } from "../hooks/use-scenario-diagram-data";
 import type { Diagram, DiagramTypeValue } from "../types/diagram";
 import type { Element } from "../types/element";
 import type { Relationship } from "../types/relationship";
@@ -16,17 +17,25 @@ type DiagramCanvasClientProps = {
   diagramType: DiagramTypeValue;
 };
 
+const SCENARIO_TYPES = new Set(["OIS", "SS", "LS", "PS"]);
+
 export function DiagramCanvasClient({
   diagramId,
   modelId,
   diagramType,
 }: DiagramCanvasClientProps) {
   const isClassDiagram = diagramType === "CDB";
+  const isScenarioDiagram = SCENARIO_TYPES.has(diagramType);
 
   const archData = useArchDiagramData({ diagramId, modelId });
   const classData = useClassDiagramData({ diagramId, modelId });
+  const scenarioData = useScenarioDiagramData({ diagramId, modelId });
 
-  const data = isClassDiagram ? classData : archData;
+  const data = isScenarioDiagram
+    ? scenarioData
+    : isClassDiagram
+      ? classData
+      : archData;
 
   const diagram = useMemo<Diagram | null>(() => {
     if (!data.diagram) return null;
@@ -55,6 +64,9 @@ export function DiagramCanvasClient({
         enumerationLiterals: (el as any).enumerationLiterals ?? [],
       }));
     }
+    if (isScenarioDiagram) {
+      return [];
+    }
     return (archData.elements ?? []).map((element) => ({
       id: element.id,
       name: element.name,
@@ -66,7 +78,12 @@ export function DiagramCanvasClient({
       parentId: element.parentId,
       status: element.properties.status,
     }));
-  }, [isClassDiagram, classData.elements, archData.elements]);
+  }, [
+    isClassDiagram,
+    isScenarioDiagram,
+    classData.elements,
+    archData.elements,
+  ]);
 
   const relationships = useMemo<Relationship[]>(() => {
     if (isClassDiagram) {
@@ -82,8 +99,16 @@ export function DiagramCanvasClient({
         updatedAt: rel.updatedAt,
       }));
     }
+    if (isScenarioDiagram) {
+      return [];
+    }
     return (archData.relationships ?? []) as Relationship[];
-  }, [isClassDiagram, classData.relationships, archData.relationships]);
+  }, [
+    isClassDiagram,
+    isScenarioDiagram,
+    classData.relationships,
+    archData.relationships,
+  ]);
 
   if (data.isLoading) {
     return (

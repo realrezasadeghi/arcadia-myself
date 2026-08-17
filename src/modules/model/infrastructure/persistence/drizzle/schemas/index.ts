@@ -3,6 +3,13 @@ export { elements } from "./element";
 export { models } from "./model";
 export { relationships } from "./relationship";
 export { traceLinks } from "./trace-link";
+export { scenarios, scenarioTypeEnum } from "./scenario";
+export { scenarioLifelines } from "./lifeline";
+export { scenarioMessages } from "./sequence-message";
+export {
+  scenarioFragments,
+  fragmentOperatorEnum,
+} from "./fragment";
 export {
   classDiagrams,
   classElements,

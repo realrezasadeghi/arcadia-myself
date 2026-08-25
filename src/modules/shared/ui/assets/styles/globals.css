@@ -33,6 +33,17 @@
   --sidebar-accent-foreground: oklch(0.97 0.014 254.604);
   --sidebar-border: oklch(0.928 0.006 264.531);
   --sidebar-ring: oklch(0.707 0.022 261.325);
+
+  /* Canvas (diagram) tokens */
+  --canvas-ink: oklch(0.31 0.036 260);
+  --canvas-ink-muted: oklch(0.55 0.027 264);
+  --canvas-surface: oklch(1 0 0);
+  --canvas-surface-border: oklch(0.31 0.036 260 / 30%);
+  --ll-actor: oklch(0.55 0.115 55);
+  --ll-function: oklch(0.5 0.19 263);
+  --ll-component: oklch(0.51 0.12 166);
+  --ll-class: oklch(0.5 0.19 301);
+  --ll-external: oklch(0.52 0.02 261);
 }
 
 .dark {
@@ -67,6 +78,17 @@
   --sidebar-accent-foreground: oklch(0.97 0.014 254.604);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+
+  /* Canvas (diagram) tokens — dark */
+  --canvas-ink: oklch(0.87 0.015 260);
+  --canvas-ink-muted: oklch(0.68 0.02 260);
+  --canvas-surface: oklch(0.32 0.033 262);
+  --canvas-surface-border: oklch(1 0 0 / 22%);
+  --ll-actor: oklch(0.78 0.14 75);
+  --ll-function: oklch(0.7 0.15 255);
+  --ll-component: oklch(0.76 0.14 166);
+  --ll-class: oklch(0.73 0.15 300);
+  --ll-external: oklch(0.7 0.012 261);
 }
 
 @theme inline {
@@ -102,6 +124,15 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+  --color-canvas-ink: var(--canvas-ink);
+  --color-canvas-ink-muted: var(--canvas-ink-muted);
+  --color-canvas-surface: var(--canvas-surface);
+  --color-canvas-surface-border: var(--canvas-surface-border);
+  --color-ll-actor: var(--ll-actor);
+  --color-ll-function: var(--ll-function);
+  --color-ll-component: var(--ll-component);
+  --color-ll-class: var(--ll-class);
+  --color-ll-external: var(--ll-external);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

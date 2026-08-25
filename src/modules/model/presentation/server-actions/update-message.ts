@@ -9,7 +9,7 @@ import { messageRepository } from "../../infrastructure/persistence/drizzle/repo
 
 export const updateMessage = withAuth(
   async (
-    payload: { id: string; name: string },
+    payload: { id: string; name?: string; executionOrder?: number },
     { token },
   ): Promise<UpdateMessageResponse> => {
     const updateMessageUseCase = new UpdateMessageUseCase(messageRepository);

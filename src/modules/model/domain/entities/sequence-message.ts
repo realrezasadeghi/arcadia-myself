@@ -54,8 +54,14 @@ export class SequenceMessage extends Entity<string> {
     exchangedItemId?: string;
   }): SequenceMessage {
     if (!props.name.trim()) throw new Error("Message name is required");
-    if (props.sourceLifelineId === props.targetLifelineId)
-      throw new Error("Source and target lifelines must be different");
+    // Self-messages are allowed for CALL and RETURN; CREATE/DELETE on self is nonsensical
+    if (
+      props.sourceLifelineId === props.targetLifelineId &&
+      (props.kind === "CREATE" || props.kind === "DELETE")
+    )
+      throw new Error(
+        "Cannot create or destroy the same lifeline with a self-message",
+      );
 
     return new SequenceMessage(props.id, {
       scenarioId: props.scenarioId,
@@ -134,15 +140,21 @@ export class SequenceMessage extends Entity<string> {
   }
 
   setSource(lifelineId: string): void {
-    if (lifelineId === this._targetLifelineId)
-      throw new Error("Source and target lifelines must be different");
+    if (
+      lifelineId === this._targetLifelineId &&
+      (this._kind.value === "CREATE" || this._kind.value === "DELETE")
+    )
+      throw new Error("Cannot create or destroy the same lifeline");
     this._sourceLifelineId = lifelineId;
     this._touch();
   }
 
   setTarget(lifelineId: string): void {
-    if (lifelineId === this._sourceLifelineId)
-      throw new Error("Source and target lifelines must be different");
+    if (
+      lifelineId === this._sourceLifelineId &&
+      (this._kind.value === "CREATE" || this._kind.value === "DELETE")
+    )
+      throw new Error("Cannot create or destroy the same lifeline");
     this._targetLifelineId = lifelineId;
     this._touch();
   }

@@ -21,7 +21,8 @@ export type CreateMessagePayload = {
 
 export type UpdateMessagePayload = {
   id: string;
-  name: string;
+  name?: string;
+  executionOrder?: number;
 };
 
 export type ReorderMessagesPayload = {

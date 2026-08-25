@@ -1,14 +1,14 @@
+import { asc, eq } from "drizzle-orm";
 import type {
   CreateMessagePayload,
   FindMessageByIdQuery,
   FindMessagesByScenarioIdQuery,
   IMessageRepository,
-  ReorderMessagesPayload,
   RemoveMessagePayload,
+  ReorderMessagesPayload,
   UpdateMessagePayload,
 } from "@/modules/model/application/ports/sequence-message";
 import { SequenceMessage } from "@/modules/model/domain/entities/sequence-message";
-import { eq, asc } from "drizzle-orm";
 import { db } from "../client";
 import { scenarioMessages } from "../schemas/sequence-message";
 
@@ -69,12 +69,18 @@ export class DrizzleMessageRepository implements IMessageRepository {
 
   async update(payload: UpdateMessagePayload): Promise<SequenceMessage> {
     const now = new Date();
+    const updateData: Record<string, unknown> = { updatedAt: now };
+
+    if (payload.name !== undefined) {
+      updateData.name = payload.name;
+    }
+    if (payload.executionOrder !== undefined) {
+      updateData.executionOrder = payload.executionOrder;
+    }
+
     const response = await db
       .update(scenarioMessages)
-      .set({
-        name: payload.name,
-        updatedAt: now,
-      })
+      .set(updateData)
       .where(eq(scenarioMessages.id, payload.id))
       .returning();
 

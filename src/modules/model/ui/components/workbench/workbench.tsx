@@ -65,6 +65,8 @@ export type WorkbenchModelData = {
   classElements: ClassElementData[];
   /** Architecture-only diagrams */
   archDiagrams: Diagram[];
+  /** Scenario diagrams (OIS, SS, LS, PS) */
+  scenarioDiagrams: Diagram[];
   /** Class diagrams (CDB) */
   classDiagrams: Diagram[];
 };

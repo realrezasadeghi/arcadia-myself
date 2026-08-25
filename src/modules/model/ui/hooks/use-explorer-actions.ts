@@ -9,10 +9,12 @@ import { useCreateClassElement } from "../clients/create-class-element";
 import { useCreateDiagram } from "../clients/create-diagram";
 import { useCreateElement } from "../clients/create-element";
 import { useCreateModel } from "../clients/create-model";
+import { useCreateScenario } from "../clients/create-scenario";
 import { useRemoveClassDiagram } from "../clients/remove-class-diagram";
 import { useRemoveClassElement } from "../clients/remove-class-element";
 import { useRemoveDiagram } from "../clients/remove-diagram";
 import { useRemoveElement } from "../clients/remove-element";
+import { useRemoveScenario } from "../clients/remove-scenario";
 import { useUpdateClassDiagram } from "../clients/update-class-diagram";
 import { useUpdateDiagram } from "../clients/update-diagram";
 import { getClassDiagramByIdKey } from "../clients/get-class-diagram-by-id";
@@ -27,6 +29,8 @@ import type { Diagram, DiagramTypeValue } from "../types/diagram";
 import type { ElementTypeValue } from "../types/element";
 import type { LayerValue } from "../types/layer";
 import type { Model } from "../types/model";
+
+const SCENARIO_TYPES = new Set(["OIS", "SS", "LS", "PS"]);
 
 type ExplorerActionsParams = {
   projectId: string;
@@ -56,10 +60,12 @@ export function useExplorerActions({
   const createClassElement = useCreateClassElement();
   const createElement = useCreateElement();
   const createModel = useCreateModel();
+  const createScenario = useCreateScenario();
   const removeDiagram = useRemoveDiagram();
   const removeClassDiagram = useRemoveClassDiagram();
   const removeElement = useRemoveElement();
   const removeClassElement = useRemoveClassElement();
+  const removeScenario = useRemoveScenario();
   const updateDiagram = useUpdateDiagram();
   const updateClassDiagram = useUpdateClassDiagram();
   const queryClient = useQueryClient();
@@ -196,6 +202,19 @@ export function useExplorerActions({
               toast.error(message || "Error deleting diagram"),
           },
         );
+      } else if (SCENARIO_TYPES.has(diagram.type)) {
+        removeScenario.mutate(
+          { id: diagram.id },
+          {
+            onSuccess: () => {
+              closeTab(diagram.id);
+              toast.success("Scenario deleted");
+              onTreeChanged();
+            },
+            onError: ({ message }) =>
+              toast.error(message || "Error deleting scenario"),
+          },
+        );
       } else {
         removeDiagram.mutate(diagram.id, {
           onSuccess: () => {
@@ -208,7 +227,13 @@ export function useExplorerActions({
         });
       }
     },
-    [removeDiagram, removeClassDiagram, closeTab, onTreeChanged],
+    [
+      removeDiagram,
+      removeClassDiagram,
+      removeScenario,
+      closeTab,
+      onTreeChanged,
+    ],
   );
 
   const onSubmitDiagram = useCallback(
@@ -241,6 +266,31 @@ export function useExplorerActions({
               toast.error(message || "Error creating diagram"),
           },
         );
+      } else if (SCENARIO_TYPES.has(values.type)) {
+        createScenario.mutate(
+          {
+            name: values.name,
+            modelId: model.id,
+            description: values.description,
+            scenarioType: values.type,
+          },
+          {
+            onSuccess: ({ data }) => {
+              setDiagramDialogModel(null);
+              openTab({
+                diagramId: data.id,
+                modelId: model.id,
+                name: data.name,
+                type: data.scenarioType as DiagramTypeValue,
+                layer: model.layer,
+              });
+              toast.success("Scenario created");
+              onTreeChanged();
+            },
+            onError: ({ message }) =>
+              toast.error(message || "Error creating scenario"),
+          },
+        );
       } else {
         createDiagram.mutate(
           {
@@ -271,6 +321,7 @@ export function useExplorerActions({
     [
       createDiagram,
       createClassDiagram,
+      createScenario,
       diagramDialogModel,
       openTab,
       onTreeChanged,
@@ -380,7 +431,7 @@ export function useExplorerActions({
 
   return {
     // Mutation states
-    isCreateDiagramPending: createDiagram.isPending,
+    isCreateDiagramPending: createDiagram.isPending || createScenario.isPending,
     isUpdateDiagramPending:
       updateDiagram.isPending || updateClassDiagram.isPending,
     isCreateModelPending: createModel.isPending,

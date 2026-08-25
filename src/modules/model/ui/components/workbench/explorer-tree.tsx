@@ -33,6 +33,7 @@ import {
   Trash2,
   User,
   Users,
+  Waypoints,
 } from "lucide-react";
 import { useState } from "react";
 import { CLASS_ELEMENT_TYPES } from "../../constants/class-diagram";
@@ -56,6 +57,7 @@ import type {
 } from "../../types/element";
 import type { LayerValue } from "../../types/layer";
 import type { Model } from "../../types/model";
+import { ScenarioDiagramChildren } from "./scenario-diagram-children";
 
 // ─── Element icon map ─────────────────────────────────────────────────────────
 
@@ -184,6 +186,7 @@ type ModelDataItem = {
   archElements: Element[];
   classElements: ClassElementData[];
   archDiagrams: Diagram[];
+  scenarioDiagrams: Diagram[];
   classDiagrams: Diagram[];
 };
 
@@ -447,6 +450,8 @@ function ElementTreeItem({
 
 // ─── Diagram tree item ──────────────────────────────────────────────────────
 
+const SCENARIO_DIAGRAM_TYPES = ["OIS", "SS", "LS", "PS"];
+
 function DiagramTreeItem({
   model,
   diagram,
@@ -458,51 +463,70 @@ function DiagramTreeItem({
 }) {
   const activeDiagramId = useWorkbenchStore((s) => s.activeDiagramId);
   const isActive = activeDiagramId === diagram.id;
+  const isScenario = SCENARIO_DIAGRAM_TYPES.includes(diagram.type);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <ContextMenu>
-      <ContextMenuTrigger asChild>
-        <button
-          type="button"
-          onDoubleClick={() => handlers.onOpenDiagram(model, diagram)}
-          className={cn(
-            "flex w-full items-center gap-1 rounded-sm px-2 py-1 text-xs text-left transition-colors hover:bg-muted",
-            isActive && "bg-muted font-medium text-primary",
-          )}
-          style={{ paddingLeft: "26px" }}
-        >
-          <LayoutDashboard className="size-3 shrink-0 text-muted-foreground" />
-          <span className="truncate flex-1 text-left">{diagram.name}</span>
-          <span className="text-[9px] text-muted-foreground shrink-0">
-            {diagram.type}
-          </span>
-        </button>
-      </ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuLabel>{diagram.name}</ContextMenuLabel>
-        <ContextMenuSeparator />
-        <ContextMenuItem
-          onSelect={() => handlers.onOpenDiagram(model, diagram)}
-        >
-          <LayoutDashboard className="size-3.5" />
-          Open
-        </ContextMenuItem>
-        <ContextMenuItem
-          onSelect={() => handlers.onEditDiagram(model, diagram)}
-        >
-          <Pencil className="size-3.5" />
-          Rename / Edit…
-        </ContextMenuItem>
-        <ContextMenuSeparator />
-        <ContextMenuItem
-          variant="destructive"
-          onSelect={() => handlers.onDeleteDiagram(diagram)}
-        >
-          <Trash2 className="size-3.5" />
-          Delete
-        </ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>
+    <div>
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <button
+            type="button"
+            onClick={() => isScenario && setIsExpanded(!isExpanded)}
+            onDoubleClick={() => handlers.onOpenDiagram(model, diagram)}
+            className={cn(
+              "flex w-full items-center gap-1 rounded-sm px-2 py-1 text-xs text-left transition-colors hover:bg-muted",
+              isActive && "bg-muted font-medium text-primary",
+            )}
+            style={{ paddingLeft: "26px" }}
+          >
+            {isScenario ? (
+              <span className="shrink-0 size-3.5 flex items-center justify-center">
+                {isExpanded ? (
+                  <ChevronDown className="size-3 text-muted-foreground" />
+                ) : (
+                  <ChevronRight className="size-3 text-muted-foreground" />
+                )}
+              </span>
+            ) : null}
+            <LayoutDashboard className="size-3 shrink-0 text-muted-foreground" />
+            <span className="truncate flex-1 text-left">{diagram.name}</span>
+            <span className="text-[9px] text-muted-foreground shrink-0">
+              {diagram.type}
+            </span>
+          </button>
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuLabel>{diagram.name}</ContextMenuLabel>
+          <ContextMenuSeparator />
+          <ContextMenuItem
+            onSelect={() => handlers.onOpenDiagram(model, diagram)}
+          >
+            <LayoutDashboard className="size-3.5" />
+            Open
+          </ContextMenuItem>
+          <ContextMenuItem
+            onSelect={() => handlers.onEditDiagram(model, diagram)}
+          >
+            <Pencil className="size-3.5" />
+            Rename / Edit…
+          </ContextMenuItem>
+          <ContextMenuSeparator />
+          <ContextMenuItem
+            variant="destructive"
+            onSelect={() => handlers.onDeleteDiagram(diagram)}
+          >
+            <Trash2 className="size-3.5" />
+            Delete
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
+
+      {/* Expandable scenario children */}
+      {isScenario && isExpanded && (
+        <ScenarioDiagramChildren diagramId={diagram.id} />
+      )}
+    </div>
   );
 }
 
@@ -515,11 +539,18 @@ function ModelNode({
   data: ModelDataItem;
   handlers: ExplorerHandlers;
 }) {
-  const { model, archElements, classElements, archDiagrams, classDiagrams } =
-    data;
+  const {
+    model,
+    archElements,
+    classElements,
+    archDiagrams,
+    scenarioDiagrams,
+    classDiagrams,
+  } = data;
   const [isOpen, setIsOpen] = useState(true);
   const [openDiagrams, setOpenDiagrams] = useState(true);
   const [openClassDiagrams, setOpenClassDiagrams] = useState(true);
+  const [openScenarioDiagrams, setOpenScenarioDiagrams] = useState(true);
 
   const layerInfo = getLayerInfo(model.layer);
   const color = LAYER_HEX_COLORS[model.layer];
@@ -643,6 +674,35 @@ function ModelNode({
               </button>
               {openDiagrams &&
                 archDiagrams.map((diagram) => (
+                  <DiagramTreeItem
+                    key={diagram.id}
+                    model={model}
+                    diagram={diagram}
+                    handlers={handlers}
+                  />
+                ))}
+            </div>
+          )}
+
+          {/* Scenario Diagrams (OIS, SS, LS, PS) */}
+          {scenarioDiagrams.length > 0 && (
+            <div className="mt-0.5">
+              <button
+                type="button"
+                onClick={() => setOpenScenarioDiagrams(!openScenarioDiagrams)}
+                className="flex w-full items-center gap-1 rounded-sm px-2 py-1 text-[10px] text-muted-foreground text-left transition-colors hover:bg-muted"
+                style={{ paddingLeft: "26px" }}
+              >
+                {openScenarioDiagrams ? (
+                  <ChevronDown className="size-2.5 shrink-0" />
+                ) : (
+                  <ChevronRight className="size-2.5 shrink-0" />
+                )}
+                <Waypoints className="size-3 shrink-0" />
+                <span>Scenario Diagrams ({scenarioDiagrams.length})</span>
+              </button>
+              {openScenarioDiagrams &&
+                scenarioDiagrams.map((diagram) => (
                   <DiagramTreeItem
                     key={diagram.id}
                     model={model}

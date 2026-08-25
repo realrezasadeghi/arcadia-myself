@@ -8,24 +8,26 @@ import {
   ReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { type DragEventHandler, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { type DragEventHandler, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import { ConnectionPolicy } from "../../domain/policies/connection";
 import { useConnectElements } from "../clients/connect-elements";
 import { useCreateElement } from "../clients/create-element";
 import { getElementRelationsKey } from "../clients/get-element-relations";
 import { useUpdateDiagramLayout } from "../clients/update-diagram-layout";
-import { getDiagramPalette } from "../helpers/diagram";
 import {
-  getElementTypeInfo,
-  getElementVisual,
-  getNodeTypeForElement,
-} from "../helpers/element";
+  buildArchEdges,
+  buildArchNodes,
+  cascadePosition,
+  nodesToArchLayouts,
+} from "../helpers/arch-canvas";
+import { getDiagramPalette } from "../helpers/diagram";
+import { getElementTypeInfo, getElementVisual } from "../helpers/element";
 import { useCanvasBehaviour } from "../hooks/use-canvas-behaviour";
-import { type CanvasNode, useCanvasStore } from "../stores/canvas";
+import { useCanvasStore } from "../stores/canvas";
 import { useWorkbenchStore } from "../stores/workbench";
-import type { Diagram, ElementLayout } from "../types/diagram";
+import type { Diagram } from "../types/diagram";
 import type { Element, ElementTypeValue } from "../types/element";
 import type {
   Relationship,
@@ -148,57 +150,18 @@ export function ArchitectureCanvasInner({
     },
   });
 
-  // Build canvas nodes/edges from architecture data
+  // Initialize canvas on mount, clean up on unmount
   // biome-ignore lint/correctness/useExhaustiveDependencies: initCanvas and reset are stable
   useEffect(() => {
-    const layoutMap = new Map(
-      diagram.elementLayouts.map((l) => [l.elementId, l]),
+    const newNodes = buildArchNodes(
+      elements,
+      diagram.elementLayouts,
+      diagram.modelId,
     );
+    const nodeIds = new Set(newNodes.map((n) => n.id));
+    const newEdges = buildArchEdges(relationships, nodeIds, diagram.modelId);
 
-    const nodes = elements
-      .filter((element) => layoutMap.has(element.id))
-      .map((element) => {
-        const layout = layoutMap.get(element.id)!;
-        return {
-          id: element.id,
-          width: layout.size.width,
-          type: getNodeTypeForElement(element.type),
-          position: layout.position,
-          height: layout.size.height,
-          data: {
-            name: element.name,
-            elementId: element.id,
-            status: element.status,
-            modelId: diagram.modelId,
-            elementType: element.type,
-            description: element.description,
-          },
-        };
-      });
-
-    const nodeIds = new Set(nodes.map((n) => n.id));
-
-    const edges = relationships
-      .filter(
-        (relationship) =>
-          nodeIds.has(relationship.sourceElementId) &&
-          nodeIds.has(relationship.targetElementId),
-      )
-      .map((relationship) => ({
-        id: relationship.id,
-        type: "architecture-edge" as const,
-        source: relationship.sourceElementId,
-        target: relationship.targetElementId,
-        data: {
-          name: relationship.name,
-          modelId: diagram.modelId,
-          relationshipId: relationship.id,
-          relationshipType: relationship.type,
-          description: relationship?.description ?? "",
-        },
-      }));
-
-    initCanvas(diagram.id, diagram.modelId, nodes, edges);
+    initCanvas(diagram.id, diagram.modelId, newNodes, newEdges);
     return () => reset();
   }, [initCanvas, reset]);
 
@@ -244,102 +207,91 @@ export function ArchitectureCanvasInner({
     [setPendingConnection, createRelationship],
   );
 
-  const handleDrop: DragEventHandler<HTMLDivElement> = useCallback(
-    (event) => {
-      event.preventDefault();
+  const handleExplorerDrop = useCallback(
+    (rawData: string, position: { x: number; y: number }) => {
+      if (!modelId || !diagramId) return;
 
-      if (!reactFlowRef.current || !modelId || !diagramId) return;
+      try {
+        const { elementId, elementType, name, status, description } =
+          JSON.parse(rawData);
 
-      const bounds = reactFlowRef.current.getBoundingClientRect();
-      const position = {
-        y: event.clientY - bounds.top - 30,
-        x: event.clientX - bounds.left - 80,
-      };
+        const currentNodes = useCanvasStore.getState().nodes;
+        if (currentNodes.some((n) => n.id === elementId)) {
+          toast.info(`"${name}" is already on this diagram`);
+          return;
+        }
 
-      // ─── Explorer element drop (existing element) ────────────────────────
-      const explorerData = event.dataTransfer.getData(
-        "application/explorer-element",
-      );
-      if (explorerData) {
-        try {
-          const { elementId, elementType, name, status, description } =
-            JSON.parse(explorerData);
-
-          const currentNodes = useCanvasStore.getState().nodes;
-          const already = currentNodes.find((n) => n.id === elementId);
-          if (already) {
-            toast.info(`"${name}" is already on this diagram`);
+        const activeTab = useWorkbenchStore
+          .getState()
+          .tabs.find((t) => t.diagramId === diagramId);
+        if (activeTab) {
+          const diagPalette = getDiagramPalette(activeTab.type);
+          if (!diagPalette.elementTypes.includes(elementType)) {
+            toast.error(
+              `Cannot add "${name}" to ${activeTab.type} diagram. ` +
+                `This diagram only supports: ${diagPalette.elementTypes.join(", ")}`,
+            );
             return;
           }
-
-          const activeTab = useWorkbenchStore
-            .getState()
-            .tabs.find((t) => t.diagramId === diagramId);
-          if (activeTab) {
-            const diagPalette = getDiagramPalette(activeTab.type);
-            if (!diagPalette.elementTypes.includes(elementType)) {
-              toast.error(
-                `Cannot add "${name}" to ${activeTab.type} diagram. ` +
-                  `This diagram only supports: ${diagPalette.elementTypes.join(", ")}`,
-              );
-              return;
-            }
-          }
-
-          pushHistory();
-
-          const elementLayouts: ElementLayout[] = currentNodes.map((node) => ({
-            position: node.position,
-            elementId: node.data.elementId,
-            size: { width: node.width ?? 160, height: node.height ?? 60 },
-          }));
-
-          updateDiagramLayout.mutate(
-            {
-              id: String(diagramId),
-              elementLayouts: [
-                ...elementLayouts,
-                { position, elementId, size: { width: 160, height: 60 } },
-              ],
-            },
-            {
-              onSuccess: () => {
-                addNode({
-                  id: elementId,
-                  type: getNodeTypeForElement(elementType),
-                  position,
-                  data: {
-                    name,
-                    elementId,
-                    elementType,
-                    modelId: String(modelId),
-                    description: description ?? "",
-                    status: status ?? "DRAFT",
-                  },
-                });
-                selectNode(elementId);
-                queryClient.invalidateQueries({
-                  queryKey: getElementRelationsKey(elementId),
-                });
-                router.refresh();
-                toast.success(`Added "${name}" to diagram`);
-              },
-              onError: ({ message }) =>
-                toast.error(message || "Error adding element to diagram"),
-            },
-          );
-        } catch {
-          // ignore parse errors
         }
-        return;
+
+        pushHistory();
+
+        const elementLayouts = nodesToArchLayouts(currentNodes);
+
+        updateDiagramLayout.mutate(
+          {
+            id: String(diagramId),
+            elementLayouts: [
+              ...elementLayouts,
+              { position, elementId, size: { width: 160, height: 60 } },
+            ],
+          },
+          {
+            onSuccess: () => {
+              addNode({
+                id: elementId,
+                type: getNodeTypeForElementType(elementType),
+                position,
+                data: {
+                  name,
+                  elementId,
+                  elementType,
+                  modelId: String(modelId),
+                  description: description ?? "",
+                  status: status ?? "DRAFT",
+                },
+              });
+              selectNode(elementId);
+              queryClient.invalidateQueries({
+                queryKey: getElementRelationsKey(elementId),
+              });
+              router.refresh();
+              toast.success(`Added "${name}" to diagram`);
+            },
+            onError: ({ message }) =>
+              toast.error(message || "Error adding element to diagram"),
+          },
+        );
+      } catch {
+        // ignore parse errors
       }
+    },
+    [
+      modelId,
+      diagramId,
+      pushHistory,
+      updateDiagramLayout,
+      addNode,
+      selectNode,
+      queryClient,
+      router,
+    ],
+  );
 
-      // ─── Palette drop (new element) ──────────────────────────────────────
-      const elementType = event.dataTransfer.getData(
-        "application/element-type",
-      ) as ElementTypeValue;
-
-      if (!elementType) return;
+  const handlePaletteDrop = useCallback(
+    (elementType: string, position: { x: number; y: number }) => {
+      if (!modelId || !diagramId) return;
 
       pushHistory();
 
@@ -347,7 +299,7 @@ export function ArchitectureCanvasInner({
 
       createElement.mutate(
         {
-          type: elementType,
+          type: elementType as ElementTypeValue,
           layer: elementTypeInfo.layer,
           modelId: String(modelId),
           name: elementTypeInfo.label,
@@ -355,27 +307,19 @@ export function ArchitectureCanvasInner({
         {
           onSuccess: ({ data: element }) => {
             const currentNodes = useCanvasStore.getState().nodes;
-            const elementLayouts: ElementLayout[] = currentNodes.map(
-              (node) => ({
-                position: node.position,
-                elementId: node.data.elementId,
-                size: {
-                  width: node.width ?? 160,
-                  height: node.height ?? 60,
-                },
-              }),
-            );
-
-            const elementLayoutItem = {
-              position,
-              elementId: element.id,
-              size: { width: 160, height: 60 },
-            };
+            const elementLayouts = nodesToArchLayouts(currentNodes);
 
             updateDiagramLayout.mutate(
               {
                 id: String(diagramId),
-                elementLayouts: [...elementLayouts, elementLayoutItem],
+                elementLayouts: [
+                  ...elementLayouts,
+                  {
+                    position,
+                    elementId: element.id,
+                    size: { width: 160, height: 60 },
+                  },
+                ],
               },
               {
                 onError: ({ message }) => {
@@ -384,7 +328,7 @@ export function ArchitectureCanvasInner({
                 onSuccess: () => {
                   addNode({
                     id: element.id,
-                    type: getNodeTypeForElement(element.type),
+                    type: getNodeTypeForElementType(element.type),
                     position,
                     data: {
                       name: element.name,
@@ -407,15 +351,43 @@ export function ArchitectureCanvasInner({
       );
     },
     [
-      pushHistory,
       modelId,
       diagramId,
+      pushHistory,
       createElement,
       updateDiagramLayout,
       addNode,
-      selectNode,
-      queryClient,
+      router,
     ],
+  );
+
+  const handleDrop: DragEventHandler<HTMLDivElement> = useCallback(
+    (event) => {
+      event.preventDefault();
+      if (!reactFlowRef.current || !modelId || !diagramId) return;
+
+      const bounds = reactFlowRef.current.getBoundingClientRect();
+      const position = {
+        y: event.clientY - bounds.top - 30,
+        x: event.clientX - bounds.left - 80,
+      };
+
+      const explorerData = event.dataTransfer.getData(
+        "application/explorer-element",
+      );
+      if (explorerData) {
+        handleExplorerDrop(explorerData, position);
+        return;
+      }
+
+      const elementType = event.dataTransfer.getData(
+        "application/element-type",
+      );
+      if (!elementType) return;
+
+      handlePaletteDrop(elementType, position);
+    },
+    [reactFlowRef, modelId, diagramId, handleExplorerDrop, handlePaletteDrop],
   );
 
   // Insert request from explorer (add existing element to diagram)
@@ -424,28 +396,17 @@ export function ArchitectureCanvasInner({
     if (!insertRequest) return;
     if (!diagramId || !modelId) return;
 
-    const consume = () => clearInsertRequest();
-
     const currentNodes = useCanvasStore.getState().nodes;
-    const already = currentNodes.find((n) => n.id === insertRequest.elementId);
-    if (already) {
-      selectNode(already.id);
-      consume();
+    if (currentNodes.some((n) => n.id === insertRequest.elementId)) {
+      selectNode(insertRequest.elementId);
+      clearInsertRequest();
       return;
     }
 
     pushHistory();
 
-    const position = {
-      x: 80 + (currentNodes.length % 6) * 40,
-      y: 80 + (currentNodes.length % 6) * 40,
-    };
-
-    const existingLayouts: ElementLayout[] = currentNodes.map((node) => ({
-      position: node.position,
-      elementId: node.data.elementId,
-      size: { width: node.width ?? 160, height: node.height ?? 60 },
-    }));
+    const position = cascadePosition(currentNodes.length);
+    const existingLayouts = nodesToArchLayouts(currentNodes);
 
     updateDiagramLayout.mutate(
       {
@@ -463,7 +424,7 @@ export function ArchitectureCanvasInner({
         onSuccess: () => {
           addNode({
             id: insertRequest.elementId,
-            type: getNodeTypeForElement(insertRequest.elementType),
+            type: getNodeTypeForElementType(insertRequest.elementType),
             position,
             data: {
               name: insertRequest.name,
@@ -484,7 +445,7 @@ export function ArchitectureCanvasInner({
       },
     );
 
-    consume();
+    clearInsertRequest();
   }, [
     insertRequest,
     diagramId,
@@ -497,11 +458,16 @@ export function ArchitectureCanvasInner({
     queryClient,
   ]);
 
-  const getNodeColor = useCallback((node: CanvasNode) => {
-    const type = node?.data?.elementType;
-    if (!type) return "#94a3b8";
-    return getElementVisual(type as ElementTypeValue)?.strokeColor || "#94a3b8";
-  }, []);
+  const getNodeColor = useCallback(
+    (node: { data?: { elementType?: string } }) => {
+      const type = node?.data?.elementType;
+      if (!type) return "#94a3b8";
+      return (
+        getElementVisual(type as ElementTypeValue)?.strokeColor || "#94a3b8"
+      );
+    },
+    [],
+  );
 
   return (
     <>
@@ -553,4 +519,14 @@ export function ArchitectureCanvasInner({
       />
     </>
   );
+}
+
+function getNodeTypeForElementType(
+  type: string,
+): "actor-node" | "function-node" | "component-node" | "architecture-node" {
+  if (type.endsWith("Actor") || type.endsWith("Entity")) return "actor-node";
+  if (type.endsWith("Function") || type.endsWith("Activity"))
+    return "function-node";
+  if (type.endsWith("Component")) return "component-node";
+  return "architecture-node";
 }

@@ -6,8 +6,8 @@ import {
   CreateScenarioUseCase,
 } from "../../application/use-cases/create-scenario";
 import {
-  scenarioRepository,
   modelRepository,
+  scenarioRepository,
 } from "../../infrastructure/persistence/drizzle/repositories";
 import {
   CreateScenarioDTO,

@@ -87,4 +87,8 @@ export class CreateMessageDTO {
     if (!lifelineId) throw new Error(`${label} lifeline id is required`);
     return lifelineId.trim();
   }
+
+  get isSelfMessage(): boolean {
+    return this.sourceLifelineId === this.targetLifelineId;
+  }
 }

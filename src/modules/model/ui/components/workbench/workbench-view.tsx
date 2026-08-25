@@ -4,11 +4,13 @@ import { getClassElementsByModelId } from "../../../presentation/server-actions/
 import { getDiagramsByModelId } from "../../../presentation/server-actions/get-diagrams-by-model-id";
 import { getElementsByModelId } from "../../../presentation/server-actions/get-elements-by-model-id";
 import { getModelsByProjectId } from "../../../presentation/server-actions/get-models-by-project-id";
+import { getScenariosByModelId } from "../../../presentation/server-actions/get-scenarios-by-model-id";
 import type {
   ClassElementData,
   ClassElementTypeValue,
   ClassStatus,
 } from "../../types/class-diagram";
+import type { DiagramTypeValue } from "../../types/diagram";
 import { Workbench, type WorkbenchModelData } from "./workbench";
 
 type WorkbenchViewProps = {
@@ -33,11 +35,13 @@ export async function WorkbenchView({ params }: WorkbenchViewProps) {
         diagramsResult,
         classElementsResult,
         classDiagramsResult,
+        scenariosResult,
       ] = await Promise.all([
         getElementsByModelId(model.id),
         getDiagramsByModelId(model.id),
         getClassElementsByModelId(model.id),
         getClassDiagramsByModelId(model.id),
+        getScenariosByModelId({ modelId: model.id }),
       ]);
 
       const archElements = (elementsResult.data ?? []).map((el) => ({
@@ -72,6 +76,19 @@ export async function WorkbenchView({ params }: WorkbenchViewProps) {
 
       const archDiagrams = diagramsResult.data ?? [];
 
+      // Map scenario diagrams from separate repository to Diagram shape
+      const scenarioDiagrams = (scenariosResult.data ?? []).map((s) => ({
+        id: s.id,
+        modelId: s.modelId,
+        type: s.scenarioType as DiagramTypeValue,
+        name: s.name,
+        description: s.description,
+        viewport: { x: 0, y: 0, zoom: 1 },
+        elementLayouts: [],
+        createdAt: s.createdAt,
+        updatedAt: s.updatedAt,
+      }));
+
       // Map class diagrams to the same Diagram shape as architecture diagrams
       const classDiagrams = (classDiagramsResult.data ?? []).map((d) => ({
         id: d.id,
@@ -88,10 +105,11 @@ export async function WorkbenchView({ params }: WorkbenchViewProps) {
       return {
         model,
         elements: archElements,
-        diagrams: [...archDiagrams, ...classDiagrams],
+        diagrams: [...archDiagrams, ...scenarioDiagrams, ...classDiagrams],
         archElements,
         classElements,
         archDiagrams,
+        scenarioDiagrams,
         classDiagrams,
       };
     }),

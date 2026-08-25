@@ -1,30 +1,31 @@
-export { diagrams } from "./diagram";
-export { elements } from "./element";
-export { models } from "./model";
-export { relationships } from "./relationship";
-export { traceLinks } from "./trace-link";
-export { scenarios, scenarioTypeEnum } from "./scenario";
-export { scenarioLifelines } from "./lifeline";
-export { scenarioMessages } from "./sequence-message";
 export {
-  scenarioFragments,
-  fragmentOperatorEnum,
-} from "./fragment";
-export {
+  aggregationKindEnum,
+  classCollectionKindEnum,
   classDiagrams,
-  classElements,
-  classProperties,
-  classOperations,
-  classOperationParameters,
-  classEnumerationLiterals,
-  classRelationships,
   classElementLayouts,
-  classRelationshipLayouts,
+  classElements,
   classElementTypeEnum,
+  classEnumerationLiterals,
+  classOperationParameters,
+  classOperations,
+  classParameterDirectionEnum,
+  classProperties,
+  classRelationshipLayouts,
+  classRelationships,
   classRelationshipTypeEnum,
   classStatusEnum,
   classVisibilityEnum,
-  classCollectionKindEnum,
-  classParameterDirectionEnum,
-  aggregationKindEnum,
 } from "./class-diagram";
+export { diagrams } from "./diagram";
+export { elements } from "./element";
+export {
+  fragmentOperatorEnum,
+  scenarioFragments,
+} from "./fragment";
+export { scenarioFragmentOperands } from "./fragment-operand";
+export { scenarioLifelines } from "./lifeline";
+export { models } from "./model";
+export { relationships } from "./relationship";
+export { scenarios, scenarioTypeEnum } from "./scenario";
+export { scenarioMessages } from "./sequence-message";
+export { traceLinks } from "./trace-link";

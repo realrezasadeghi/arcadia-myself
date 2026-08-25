@@ -1,17 +1,15 @@
-type ScenarioType = "OIS" | "SS" | "LS" | "PS";
-
 export type CreateScenarioDTOProps = {
   modelId: string;
   name: string;
   description?: string;
-  scenarioType: ScenarioType;
+  scenarioType: string;
 };
 
 export class CreateScenarioDTO {
   public readonly modelId: string;
   public readonly name: string;
   public readonly description?: string;
-  public readonly scenarioType: ScenarioType;
+  public readonly scenarioType: string;
 
   private constructor(props: CreateScenarioDTOProps) {
     this.modelId = props.modelId;
@@ -24,7 +22,7 @@ export class CreateScenarioDTO {
     modelId: string;
     name: string;
     description?: string;
-    scenarioType: ScenarioType;
+    scenarioType: string;
   }): CreateScenarioDTO {
     return new CreateScenarioDTO({
       modelId: CreateScenarioDTO.validateModelId(props.modelId),
@@ -34,12 +32,12 @@ export class CreateScenarioDTO {
     });
   }
 
-  private static validateType(type: string): ScenarioType {
-    const validTypes: ScenarioType[] = ["OIS", "SS", "LS", "PS"];
-    if (!validTypes.includes(type as ScenarioType)) {
+  private static validateType(type: string): string {
+    const validTypes = ["OIS", "SS", "LS", "PS"];
+    if (!validTypes.includes(type)) {
       throw new Error(`Scenario type must be one of: ${validTypes.join(", ")}`);
     }
-    return type as ScenarioType;
+    return type;
   }
 
   private static validateName(name: string): string {

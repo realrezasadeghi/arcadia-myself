@@ -17,6 +17,7 @@ export type ClassNodeData = {
   properties?: Array<{
     id: string;
     name: string;
+    typeClassElementId: string | null;
     typeLiteral: string;
     visibility: "public" | "private" | "protected" | "package";
     isStatic: boolean;

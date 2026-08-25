@@ -1,9 +1,9 @@
 "use client";
 
-import { ScrollArea } from "@/modules/shared/ui/components/ui/scroll-area";
-import { Separator } from "@/modules/shared/ui/components/ui/separator";
 import { Boxes } from "lucide-react";
 import { useMemo } from "react";
+import { ScrollArea } from "@/modules/shared/ui/components/ui/scroll-area";
+import { Separator } from "@/modules/shared/ui/components/ui/separator";
 import {
   getDiagramPalette,
   getDiagramTypesForLayer,
@@ -14,6 +14,7 @@ import { useWorkbenchStore } from "../../stores/workbench";
 import { ElementShapeList } from "../element-shape-list";
 import { ArchPalette } from "./arch-palette";
 import { ClassPalette } from "./class-palette";
+import { ScenarioPalette } from "./scenario-palette";
 
 /**
  * PalettePanel
@@ -29,6 +30,7 @@ export function PalettePanel() {
 
   const layer = activeTab?.layer ?? currentLayer;
   const isClassDiagram = activeTab?.type === "CDB";
+  const isScenario = ["OIS", "SS", "LS", "PS"].includes(activeTab?.type ?? "");
 
   const palette = useMemo(
     () => (activeTab ? getDiagramPalette(activeTab.type) : null),
@@ -60,6 +62,8 @@ export function PalettePanel() {
         {activeTab && palette ? (
           isClassDiagram ? (
             <ClassPalette palette={palette} />
+          ) : isScenario ? (
+            <ScenarioPalette type={activeTab.type} />
           ) : (
             <ArchPalette
               layer={layer}

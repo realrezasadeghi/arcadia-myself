@@ -1,24 +1,25 @@
-import { env } from "@/modules/shared/config/env";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
+import { env } from "@/modules/shared/config/env";
 import {
   classDiagrams,
-  classElements,
-  classProperties,
-  classOperations,
-  classOperationParameters,
-  classEnumerationLiterals,
-  classRelationships,
   classElementLayouts,
+  classElements,
+  classEnumerationLiterals,
+  classOperationParameters,
+  classOperations,
+  classProperties,
   classRelationshipLayouts,
+  classRelationships,
   diagrams,
   elements,
   models,
   relationships,
-  scenarios,
+  scenarioFragmentOperands,
+  scenarioFragments,
   scenarioLifelines,
   scenarioMessages,
-  scenarioFragments,
+  scenarios,
   traceLinks,
 } from "../schemas";
 
@@ -37,6 +38,7 @@ export const db = drizzle(pool, {
     scenarioLifelines,
     scenarioMessages,
     scenarioFragments,
+    scenarioFragmentOperands,
     classDiagrams,
     classElements,
     classProperties,

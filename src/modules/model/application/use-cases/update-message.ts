@@ -5,7 +5,8 @@ import type { IMessageRepository } from "../ports/sequence-message";
 export type UpdateMessagePayload = {
   payload: {
     id: string;
-    name: string;
+    name?: string;
+    executionOrder?: number;
   };
   context: {
     token: string;
@@ -36,7 +37,10 @@ export class UpdateMessageUseCase
     try {
       const message = await this.messageRepository.update({
         id: payload.id,
-        name: payload.name,
+        ...(payload.name !== undefined && { name: payload.name }),
+        ...(payload.executionOrder !== undefined && {
+          executionOrder: payload.executionOrder,
+        }),
       });
       return message.toJSON();
     } catch (error) {

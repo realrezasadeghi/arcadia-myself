@@ -2,6 +2,7 @@ import { DrizzleClassDiagramRepository } from "./class-diagram";
 import { DrizzleDiagramRepository } from "./diagram";
 import { DrizzleElementRepository } from "./element";
 import { DrizzleFragmentRepository } from "./fragment";
+import { DrizzleFragmentOperandRepository } from "./fragment-operand";
 import { DrizzleLifelineRepository } from "./lifeline";
 import { DrizzleModelRepository } from "./model";
 import { DrizzleRelationshipRepository } from "./relationship";
@@ -28,3 +29,5 @@ export const lifelineRepository = new DrizzleLifelineRepository();
 export const messageRepository = new DrizzleMessageRepository();
 
 export const fragmentRepository = new DrizzleFragmentRepository();
+
+export const fragmentOperandRepository = new DrizzleFragmentOperandRepository();

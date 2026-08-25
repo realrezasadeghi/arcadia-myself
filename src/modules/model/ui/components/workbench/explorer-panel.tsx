@@ -1,5 +1,8 @@
 "use client";
 
+import { Check, FolderTree, Plus } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import { DiagramFormDialog } from "@/modules/project/ui/components/diagram-form-dialog";
 import {
   DropdownMenu,
@@ -11,17 +14,14 @@ import {
 } from "@/modules/shared/ui/components/ui/dropdown-menu";
 import { ScrollArea } from "@/modules/shared/ui/components/ui/scroll-area";
 import { useConfirm } from "@/modules/shared/ui/hooks/use-confirm";
-import { Check, FolderTree, Plus } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
 import { LAYERS } from "../../constants/layer";
 import { getDiagramPalette, resolveDiagramLayer } from "../../helpers/diagram";
 import { getLayerInfo } from "../../helpers/layer";
+import { useExplorerActions } from "../../hooks/use-explorer-actions";
 import { useCanvasStore } from "../../stores/canvas";
 import { useWorkbenchStore } from "../../stores/workbench";
 import type { Diagram } from "../../types/diagram";
 import type { Model } from "../../types/model";
-import { useExplorerActions } from "../../hooks/use-explorer-actions";
 import {
   type ElementTreeNode,
   type ExplorerHandlers,

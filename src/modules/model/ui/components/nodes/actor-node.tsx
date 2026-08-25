@@ -1,4 +1,3 @@
-import { cn } from "@/modules/shared/ui/libs/cn";
 import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
 import {
   type DragEventHandler,
@@ -7,10 +6,11 @@ import {
   useRef,
   useState,
 } from "react";
+import { cn } from "@/modules/shared/ui/libs/cn";
 import { useUpdateElement } from "../../clients/update-element";
 import { getElementTypeInfo, getElementVisual } from "../../helpers/element";
-import { useCanvasStore } from "../../stores/canvas";
 import type { ElementNodeData } from "../../stores/canvas";
+import { useCanvasStore } from "../../stores/canvas";
 
 type ActorNodeType = Node<ElementNodeData>;
 

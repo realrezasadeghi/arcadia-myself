@@ -9,6 +9,9 @@ export const LAYER_HEX_COLORS: Record<LayerValue, string> = {
   EPBS: "#E74C3C",
 };
 
+/**
+ * Layers offered in the UI — EPBS intentionally excluded (legacy only).
+ */
 export const LAYERS: LayerInfo[] = [
   {
     value: "OA",
@@ -33,12 +36,6 @@ export const LAYERS: LayerInfo[] = [
     label: "Physical Architecture",
     labelFa: "معماری فیزیکی",
     order: 4,
-  },
-  {
-    value: "EPBS",
-    label: "End-Product Breakdown",
-    labelFa: "ساختار محصول نهایی",
-    order: 5,
   },
 ];
 

@@ -1,5 +1,20 @@
 "use client";
 
+import {
+  ArrowRight,
+  BookOpen,
+  ChevronDown,
+  ChevronRight,
+  Layers,
+  Lightbulb,
+  Puzzle,
+  Search,
+  Shapes,
+  Target,
+  X,
+} from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
 import { Badge } from "@/modules/shared/ui/components/ui/badge";
 import { Button } from "@/modules/shared/ui/components/ui/button";
 import {
@@ -19,21 +34,6 @@ import {
   TabsTrigger,
 } from "@/modules/shared/ui/components/ui/tabs";
 import { cn } from "@/modules/shared/ui/libs/cn";
-import {
-  ArrowRight,
-  BookOpen,
-  ChevronDown,
-  ChevronRight,
-  Layers,
-  Lightbulb,
-  Puzzle,
-  Search,
-  Shapes,
-  Target,
-  X,
-} from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
 import { DIAGRAMS_BY_LAYER } from "../constants/diagram";
 import { ELEMENT_VISUAL, ELEMENTS_BY_LAYER } from "../constants/element";
 import { LAYER_COLORS, LAYERS } from "../constants/layer";
@@ -443,10 +443,7 @@ function ElementCard({ elementValue }: { elementValue: string }) {
       ? "SA"
       : elementValue.includes("Logical")
         ? "LA"
-        : elementValue.startsWith("Configuration") ||
-            elementValue === "EPBSArchitecture"
-          ? "EPBS"
-          : "PA";
+        : "PA";
 
   return (
     <div

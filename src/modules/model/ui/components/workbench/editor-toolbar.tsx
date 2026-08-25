@@ -2,8 +2,8 @@
 
 import { ChevronRight } from "lucide-react";
 import { getLayerInfo } from "../../helpers/layer";
-import { useWorkbenchStore } from "../../stores/workbench";
 import type { EditorTab } from "../../stores/workbench";
+import { useWorkbenchStore } from "../../stores/workbench";
 import { DiagramToolbarActions } from "../diagram-toolbar-actions";
 
 type EditorToolbarProps = {

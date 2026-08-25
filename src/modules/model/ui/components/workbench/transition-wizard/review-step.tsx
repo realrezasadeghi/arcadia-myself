@@ -1,9 +1,9 @@
 "use client";
 
+import { Boxes, GitMerge, Layers } from "lucide-react";
 import { Input } from "@/modules/shared/ui/components/ui/input";
 import { Label } from "@/modules/shared/ui/components/ui/label";
 import { ScrollArea } from "@/modules/shared/ui/components/ui/scroll-area";
-import { Boxes, GitMerge, Layers } from "lucide-react";
 import type { Element } from "../../../types/element";
 import type { LayerValue } from "../../../types/layer";
 import { PreviewGroup, StatCard } from "./preview-step";

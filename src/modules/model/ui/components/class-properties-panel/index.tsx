@@ -1,8 +1,20 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
+import {
+  CheckCircle2,
+  FolderOpen,
+  Loader2,
+  RotateCcw,
+  Trash2,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { Badge } from "@/modules/shared/ui/components/ui/badge";
 import { Button } from "@/modules/shared/ui/components/ui/button";
+import { Input } from "@/modules/shared/ui/components/ui/input";
+import { Label } from "@/modules/shared/ui/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -10,8 +22,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/modules/shared/ui/components/ui/select";
-import { Input } from "@/modules/shared/ui/components/ui/input";
-import { Label } from "@/modules/shared/ui/components/ui/label";
 import { Separator } from "@/modules/shared/ui/components/ui/separator";
 import { Textarea } from "@/modules/shared/ui/components/ui/textarea";
 import {
@@ -19,21 +29,22 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/modules/shared/ui/components/ui/tooltip";
-import { CheckCircle2, FolderOpen, Loader2, RotateCcw, Trash2 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { useUpdateClassElement } from "../../clients/update-class-element";
 import { getClassDiagramByIdKey } from "../../clients/get-class-diagram-by-id";
+import { useUpdateClassElement } from "../../clients/update-class-element";
 import { getClassElementTypeInfo } from "../../constants/class-diagram";
-import { canHaveAttributes, canHaveOperations, isContainerType } from "../../helpers/class-diagram";
+import {
+  canHaveAttributes,
+  canHaveOperations,
+  isContainerType,
+} from "../../helpers/class-diagram";
+import { useMoveToPackage } from "../../hooks/use-move-to-package";
 import type { CanvasNode, ClassNodeData } from "../../stores/canvas";
 import { useCanvasStore } from "../../stores/canvas";
 import { useWorkbenchStore } from "../../stores/workbench";
-import { useMoveToPackage } from "../../hooks/use-move-to-package";
+import { ClassEnumerationSection } from "./literals-section";
 import { ClassOperationsSection } from "./operations-section";
 import { ClassPropertiesSection } from "./properties-section";
-import { ClassEnumerationSection } from "./literals-section";
+
 export { ClassEdgeProperties } from "./edge-section";
 
 // Simplified types matching the canvas store's ClassNodeData shape
@@ -83,8 +94,7 @@ export function ClassNodeProperties({ node }: ClassNodePropertiesProps) {
     const currentNodes = useCanvasStore.getState().nodes;
     return currentNodes.filter(
       (n) =>
-        n.id !== node.id &&
-        (n.data as ClassNodeData).elementType === "PACKAGE",
+        n.id !== node.id && (n.data as ClassNodeData).elementType === "PACKAGE",
     );
   }, [node.id]);
 
@@ -280,7 +290,9 @@ export function ClassNodeProperties({ node }: ClassNodePropertiesProps) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__none__">
-                    <span className="text-muted-foreground">No package (root)</span>
+                    <span className="text-muted-foreground">
+                      No package (root)
+                    </span>
                   </SelectItem>
                   {packages.map((pkg) => {
                     const pkgData = pkg.data as ClassNodeData;

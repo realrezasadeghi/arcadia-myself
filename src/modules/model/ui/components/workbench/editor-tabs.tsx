@@ -1,9 +1,9 @@
 "use client";
 
-import { cn } from "@/modules/shared/ui/libs/cn";
 import { LayoutDashboard, X } from "lucide-react";
 import { type DragEventHandler, useCallback } from "react";
 import { toast } from "sonner";
+import { cn } from "@/modules/shared/ui/libs/cn";
 import { getDiagramPalette } from "../../helpers/diagram";
 import { useCanvasStore } from "../../stores/canvas";
 import { useWorkbenchStore } from "../../stores/workbench";

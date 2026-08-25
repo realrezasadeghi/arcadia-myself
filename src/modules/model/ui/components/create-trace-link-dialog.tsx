@@ -2,6 +2,9 @@
 
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/modules/shared/ui/components/ui/button";
 import {
   Dialog,
@@ -12,9 +15,6 @@ import {
   DialogTitle,
 } from "@/modules/shared/ui/components/ui/dialog";
 import { cn } from "@/modules/shared/ui/libs/cn";
-import { useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
 import { TracePolicy } from "../../domain/policies/trace";
 import { useCreateTraceLink } from "../clients/create-trace-link";
 import { useGetElementsByModelId } from "../clients/get-elements-by-model-id";

@@ -69,7 +69,11 @@ export function getAbsolutePosition(
  */
 export function nodesToAbsoluteLayouts(
   nodes: Node[],
-): Array<{ position: { x: number; y: number }; elementId: string; size: { width: number; height: number } }> {
+): Array<{
+  position: { x: number; y: number };
+  elementId: string;
+  size: { width: number; height: number };
+}> {
   const nodesById = new Map(nodes.map((n) => [n.id, n]));
 
   return nodes
@@ -78,20 +82,32 @@ export function nodesToAbsoluteLayouts(
       return "elementType" in data && "elementId" in data;
     })
     .map((n) => {
-      const abs = getAbsolutePosition(n, nodesById as Map<string, Node<ClassNodeData>>);
+      const abs = getAbsolutePosition(
+        n,
+        nodesById as Map<string, Node<ClassNodeData>>,
+      );
       return {
         position: abs,
         elementId: n.data.elementId,
         size: {
-          width: n.width ?? n.measured?.width ?? (isContainerType(n.data.elementType) ? 320 : 160),
-          height: n.height ?? n.measured?.height ?? (isContainerType(n.data.elementType) ? 240 : 60),
+          width:
+            n.width ??
+            n.measured?.width ??
+            (isContainerType(n.data.elementType) ? 320 : 160),
+          height:
+            n.height ??
+            n.measured?.height ??
+            (isContainerType(n.data.elementType) ? 240 : 60),
         },
       };
     });
 }
 
 /** Default sizes for container vs leaf nodes. */
-export function getDefaultSize(elementType: ClassElementTypeValue): { width: number; height: number } {
+export function getDefaultSize(elementType: ClassElementTypeValue): {
+  width: number;
+  height: number;
+} {
   return isContainerType(elementType)
     ? { width: 320, height: 240 }
     : { width: 160, height: 60 };

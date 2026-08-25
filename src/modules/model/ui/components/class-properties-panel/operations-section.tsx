@@ -1,11 +1,11 @@
 "use client";
 
-import { Button } from "@/modules/shared/ui/components/ui/button";
-import { Input } from "@/modules/shared/ui/components/ui/input";
-import { Label } from "@/modules/shared/ui/components/ui/label";
 import { ChevronRight, Loader2, Plus, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/modules/shared/ui/components/ui/button";
+import { Input } from "@/modules/shared/ui/components/ui/input";
+import { Label } from "@/modules/shared/ui/components/ui/label";
 import { useCreateClassOperation } from "../../clients/create-class-operation";
 import { useCreateClassOperationParameter } from "../../clients/create-class-operation-parameter";
 import { useRemoveClassOperation } from "../../clients/remove-class-operation";
@@ -13,12 +13,12 @@ import { useRemoveClassOperationParameter } from "../../clients/remove-class-ope
 import { useUpdateClassOperation } from "../../clients/update-class-operation";
 import { useUpdateClassOperationParameter } from "../../clients/update-class-operation-parameter";
 import type { ClassElementTypeValue } from "../../types/class-diagram";
-import type { OperationData } from "./index";
 import {
   DirectionDropdown,
   ToggleButton,
   VisibilityDropdown,
 } from "./edit-controls";
+import type { OperationData } from "./index";
 
 type ParameterData = NonNullable<OperationData["parameters"]>[number];
 
@@ -79,7 +79,10 @@ export function ClassOperationsSection({
           toast.success(`${sectionLabel.slice(0, -1)} added`);
         },
         onError: ({ message }) =>
-          toast.error(message || `Error adding ${sectionLabel.toLowerCase().slice(0, -1)}`),
+          toast.error(
+            message ||
+              `Error adding ${sectionLabel.toLowerCase().slice(0, -1)}`,
+          ),
       },
     );
   }, [
@@ -103,7 +106,10 @@ export function ClassOperationsSection({
             toast.success(`${sectionLabel.slice(0, -1)} removed`);
           },
           onError: ({ message }) =>
-            toast.error(message || `Error removing ${sectionLabel.toLowerCase().slice(0, -1)}`),
+            toast.error(
+              message ||
+                `Error removing ${sectionLabel.toLowerCase().slice(0, -1)}`,
+            ),
         },
       );
     },

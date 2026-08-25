@@ -1,18 +1,6 @@
 "use client";
 
 import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuLabel,
-  ContextMenuSeparator,
-  ContextMenuSub,
-  ContextMenuSubContent,
-  ContextMenuSubTrigger,
-  ContextMenuTrigger,
-} from "@/modules/shared/ui/components/ui/context-menu";
-import { cn } from "@/modules/shared/ui/libs/cn";
-import {
   Activity,
   Box,
   Boxes,
@@ -36,6 +24,18 @@ import {
   Waypoints,
 } from "lucide-react";
 import { useState } from "react";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuSeparator,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuTrigger,
+} from "@/modules/shared/ui/components/ui/context-menu";
+import { cn } from "@/modules/shared/ui/libs/cn";
 import { CLASS_ELEMENT_TYPES } from "../../constants/class-diagram";
 import { LAYER_HEX_COLORS, LAYERS } from "../../constants/layer";
 import { getDiagramPalette } from "../../helpers/diagram";
@@ -71,10 +71,6 @@ const ELEMENT_ICONS: Partial<Record<ElementTypeValue | string, LucideIcon>> = {
   PhysicalActor: User,
   PhysicalNode: HardDrive,
   PhysicalComponent: HardDrive,
-  EPBSArchitecture: Boxes,
-  ConfigurationItem: Boxes,
-  ConfigurationItemPart: Box,
-  ConfigurationItemInterface: Link,
   // Class diagram types
   CLASS: Box,
   INTERFACE: Link,
@@ -559,7 +555,7 @@ function ModelNode({
   const allRoots = [...archTree, ...classTree];
   const folders = categorizeRoots(allRoots);
   const elementTypes = getElementTypesForLayer(model.layer);
-  const canTransition = model.layer !== "EPBS";
+  const canTransition = getNextLayerLabel(model.layer) !== null;
   const nextLayerLabel = getNextLayerLabel(model.layer);
 
   return (
@@ -747,11 +743,11 @@ function ModelNode({
   );
 }
 
-function getNextLayerLabel(layer: LayerValue): string {
-  const order: LayerValue[] = ["OA", "SA", "LA", "PA", "EPBS"];
+function getNextLayerLabel(layer: LayerValue): string | null {
+  const order: LayerValue[] = ["OA", "SA", "LA", "PA"];
   const idx = order.indexOf(layer);
   const next = order[idx + 1];
-  return next ? getLayerInfo(next).label : "";
+  return next ? getLayerInfo(next).label : null;
 }
 
 // ─── Tree root ──────────────────────────────────────────────────────────────

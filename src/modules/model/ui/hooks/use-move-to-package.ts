@@ -3,8 +3,8 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { toast } from "sonner";
-import { useUpdateClassElement } from "../clients/update-class-element";
 import { getClassDiagramByIdKey } from "../clients/get-class-diagram-by-id";
+import { useUpdateClassElement } from "../clients/update-class-element";
 import { useCanvasStore } from "../stores/canvas";
 
 /**
@@ -45,9 +45,7 @@ export function useMoveToPackage() {
             }
 
             if (packageId) {
-              toast.success(
-                `Moved to package "${packageName ?? "Package"}"`,
-              );
+              toast.success(`Moved to package "${packageName ?? "Package"}"`);
             } else {
               toast.success("Removed from package");
             }

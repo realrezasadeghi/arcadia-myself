@@ -1,5 +1,17 @@
 "use client";
 
+import { ReactFlowProvider } from "@xyflow/react";
+import {
+  Home,
+  PanelBottom,
+  PanelLeft,
+  PanelRight,
+  ShieldCheck,
+  Workflow,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -18,18 +30,6 @@ import {
   TooltipTrigger,
 } from "@/modules/shared/ui/components/ui/tooltip";
 import { cn } from "@/modules/shared/ui/libs/cn";
-import { ReactFlowProvider } from "@xyflow/react";
-import {
-  Home,
-  PanelBottom,
-  PanelLeft,
-  PanelRight,
-  ShieldCheck,
-  Workflow,
-} from "lucide-react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef } from "react";
 import { resolveDiagramLayer } from "../../helpers/diagram";
 import {
   type PanelVisibility,

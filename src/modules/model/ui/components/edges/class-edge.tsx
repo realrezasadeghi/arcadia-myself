@@ -1,9 +1,9 @@
-import { cn } from "@/modules/shared/ui/libs/cn";
 import { type Edge, type EdgeProps, getBezierPath } from "@xyflow/react";
 import { memo } from "react";
+import { cn } from "@/modules/shared/ui/libs/cn";
 import {
-  getClassRelationshipTypeInfo,
   formatMultiplicity,
+  getClassRelationshipTypeInfo,
 } from "../../constants/class-diagram";
 import type { ClassEdgeData } from "../../stores/canvas";
 
@@ -72,10 +72,7 @@ function ArrowMarker({
         markerUnits="strokeWidth"
       >
         {filled ? (
-          <path
-            d={`M 0 0 L ${width} ${halfH} L 0 ${height} Z`}
-            fill={color}
-          />
+          <path d={`M 0 0 L ${width} ${halfH} L 0 ${height} Z`} fill={color} />
         ) : (
           <path
             d={`M 0 0 L ${width} ${halfH} L 0 ${height}`}

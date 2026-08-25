@@ -1,11 +1,11 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/modules/shared/ui/components/ui/tooltip";
-import { useMemo } from "react";
 import {
   getElementTypeInfo,
   getElementTypesForLayer,

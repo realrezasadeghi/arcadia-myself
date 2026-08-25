@@ -1,29 +1,31 @@
-import type { DiagramTypeValue } from "@/modules/model/ui/types/diagram";
 import { z } from "zod";
+import type { DiagramTypeValue } from "@/modules/model/ui/types/diagram";
 
 export const diagramFormSchema = z.object({
   type: z.enum<DiagramTypeValue[]>(
     [
       "OEB",
+      "OCD",
       "OAB",
       "OPD",
-      "OCD",
       "OIS",
-      "SAB",
-      "SDFB",
+      "OAAB",
+      "CSA",
       "SCD",
+      "SFB",
+      "SDFB",
+      "SAB",
       "SS",
-      "LAB",
-      "LDFB",
       "LCB",
+      "LFB",
+      "LDFB",
+      "LAB",
       "LS",
-      "PAB",
-      "PDFB",
       "PCB",
+      "PFB",
+      "PDFB",
+      "PAB",
       "PS",
-      "EPBB",
-      "EAB",
-      "ECB",
       "CDB",
     ],
     {

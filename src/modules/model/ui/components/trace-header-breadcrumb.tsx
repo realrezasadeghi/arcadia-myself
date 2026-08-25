@@ -1,7 +1,7 @@
-import { getProjectById } from "@/modules/project/presentation/server-actions/get-by-id";
-import { Button } from "@/modules/shared/ui/components/ui/button";
 import { ArrowLeft, GitMerge } from "lucide-react";
 import Link from "next/link";
+import { getProjectById } from "@/modules/project/presentation/server-actions/get-by-id";
+import { Button } from "@/modules/shared/ui/components/ui/button";
 import { getTraceLinksByProjectId } from "../../presentation/server-actions/get-trace-links-by-project-id";
 
 export type TraceHeaderBreadcrumbProps = {

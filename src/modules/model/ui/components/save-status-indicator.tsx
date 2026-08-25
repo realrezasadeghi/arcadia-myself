@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "@/modules/shared/ui/libs/cn";
 import { AlertCircle, Check, Cloud, Loader2 } from "lucide-react";
+import { cn } from "@/modules/shared/ui/libs/cn";
 import { useModelStore } from "../stores/model";
 
 const STATUS_CONFIG = {

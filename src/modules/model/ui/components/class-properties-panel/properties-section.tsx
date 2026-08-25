@@ -1,18 +1,18 @@
 "use client";
 
-import { Button } from "@/modules/shared/ui/components/ui/button";
-import { Input } from "@/modules/shared/ui/components/ui/input";
-import { Label } from "@/modules/shared/ui/components/ui/label";
 import { Loader2, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/modules/shared/ui/components/ui/button";
+import { Input } from "@/modules/shared/ui/components/ui/input";
+import { Label } from "@/modules/shared/ui/components/ui/label";
 import { useCreateClassProperty } from "../../clients/create-class-property";
 import { useRemoveClassProperty } from "../../clients/remove-class-property";
 import { useUpdateClassProperty } from "../../clients/update-class-property";
 import { formatMultiplicity } from "../../constants/class-diagram";
 import type { ClassElementTypeValue } from "../../types/class-diagram";
-import type { PropertyData } from "./index";
 import { ToggleButton, VisibilityDropdown } from "./edit-controls";
+import type { PropertyData } from "./index";
 
 function getAttributeLabel(type: ClassElementTypeValue): string {
   return type === "DATA_TYPE" || type === "UNION" ? "Fields" : "Attributes";
@@ -68,7 +68,10 @@ export function ClassPropertiesSection({
           toast.success(`${sectionLabel.slice(0, -1)} added`);
         },
         onError: ({ message }) =>
-          toast.error(message || `Error adding ${sectionLabel.toLowerCase().slice(0, -1)}`),
+          toast.error(
+            message ||
+              `Error adding ${sectionLabel.toLowerCase().slice(0, -1)}`,
+          ),
       },
     );
   }, [newName, newType, elementId, modelId, layer, createProperty, onUpdate]);
@@ -84,7 +87,10 @@ export function ClassPropertiesSection({
             toast.success(`${sectionLabel.slice(0, -1)} removed`);
           },
           onError: ({ message }) =>
-            toast.error(message || `Error removing ${sectionLabel.toLowerCase().slice(0, -1)}`),
+            toast.error(
+              message ||
+                `Error removing ${sectionLabel.toLowerCase().slice(0, -1)}`,
+            ),
         },
       );
     },

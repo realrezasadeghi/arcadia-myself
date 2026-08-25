@@ -1,7 +1,7 @@
 "use client";
 
-import { Separator } from "@/modules/shared/ui/components/ui/separator";
 import { useMemo } from "react";
+import { Separator } from "@/modules/shared/ui/components/ui/separator";
 import type { DiagramPalette } from "../../helpers/diagram";
 import type { ClassElementTypeValue } from "../../types/class-diagram";
 import { ClassElementShapeList } from "../class-element-shape-list";

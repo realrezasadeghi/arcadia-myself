@@ -1,9 +1,9 @@
 "use client";
 
-import { Button } from "@/modules/shared/ui/components/ui/button";
 import { Plus } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
+import { Button } from "@/modules/shared/ui/components/ui/button";
 
 const ProjectFormDialog = dynamic(() =>
   import("./project-form-dialog").then((mod) => mod.ProjectFormDialog),

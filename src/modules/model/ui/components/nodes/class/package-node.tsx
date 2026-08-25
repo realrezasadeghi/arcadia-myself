@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@/modules/shared/ui/libs/cn";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Handle,
@@ -11,6 +10,7 @@ import {
 } from "@xyflow/react";
 import { memo, useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
+import { cn } from "@/modules/shared/ui/libs/cn";
 import { getClassDiagramByIdKey } from "../../../clients/get-class-diagram-by-id";
 import { useUpdateClassElement } from "../../../clients/update-class-element";
 import { getClassElementTypeInfo } from "../../../constants/class-diagram";

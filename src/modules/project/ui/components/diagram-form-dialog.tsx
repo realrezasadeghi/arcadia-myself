@@ -1,5 +1,8 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useCallback, useEffect, useMemo } from "react";
+import { type SubmitHandler, useForm } from "react-hook-form";
 import { getDiagramTypesForLayer } from "@/modules/model/ui/helpers/diagram";
 import type { Diagram } from "@/modules/model/ui/types/diagram";
 import type { LayerValue } from "@/modules/model/ui/types/layer";
@@ -17,9 +20,6 @@ import {
   DialogTitle,
 } from "@/modules/shared/ui/components/ui/dialog";
 import { Form } from "@/modules/shared/ui/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useEffect, useMemo } from "react";
-import { type SubmitHandler, useForm } from "react-hook-form";
 import { type DiagramFormValues, diagramFormSchema } from "../schemas/diagram";
 
 interface DiagramFormDialogProps {

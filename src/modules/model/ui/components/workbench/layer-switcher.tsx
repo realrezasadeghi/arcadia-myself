@@ -17,7 +17,7 @@ export function LayerSwitcher({
   currentLayer,
   onLayerChange,
 }: LayerSwitcherProps) {
-  const layers: LayerValue[] = ["OA", "SA", "LA", "PA", "EPBS"];
+  const layers: LayerValue[] = ["OA", "SA", "LA", "PA"];
 
   return (
     <div className="flex items-center gap-1 border-b bg-muted/20 px-3 py-1">

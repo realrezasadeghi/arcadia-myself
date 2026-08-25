@@ -1,7 +1,7 @@
 "use client";
 
-import { Spinner } from "@/modules/shared/ui/components/ui/spinner";
 import { AlertTriangle } from "lucide-react";
+import { Spinner } from "@/modules/shared/ui/components/ui/spinner";
 import { useArchDiagramData } from "../hooks/use-arch-diagram-data";
 import type { Element } from "../types/element";
 import type { Relationship } from "../types/relationship";

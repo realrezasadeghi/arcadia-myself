@@ -1,20 +1,25 @@
 type DiagramType =
   | "OEB"
+  | "OCD"
   | "OAB"
   | "OPD"
-  | "OCD"
   | "OIS"
-  | "SAB"
-  | "SDFB"
+  | "OAAB"
+  | "CSA"
   | "SCD"
+  | "SFB"
+  | "SDFB"
+  | "SAB"
   | "SS"
-  | "LAB"
-  | "LDFB"
   | "LCB"
+  | "LFB"
+  | "LDFB"
+  | "LAB"
   | "LS"
-  | "PAB"
-  | "PDFB"
   | "PCB"
+  | "PFB"
+  | "PDFB"
+  | "PAB"
   | "PS"
   | "EPBB"
   | "EAB"
@@ -57,21 +62,26 @@ export class CreateDiagramDTO {
   private static validateType(type: string): DiagramType {
     const validTypes: DiagramType[] = [
       "OEB",
+      "OCD",
       "OAB",
       "OPD",
-      "OCD",
       "OIS",
-      "SAB",
-      "SDFB",
+      "OAAB",
+      "CSA",
       "SCD",
+      "SFB",
+      "SDFB",
+      "SAB",
       "SS",
-      "LAB",
-      "LDFB",
       "LCB",
+      "LFB",
+      "LDFB",
+      "LAB",
       "LS",
-      "PAB",
-      "PDFB",
       "PCB",
+      "PFB",
+      "PDFB",
+      "PAB",
       "PS",
       "EPBB",
       "EAB",

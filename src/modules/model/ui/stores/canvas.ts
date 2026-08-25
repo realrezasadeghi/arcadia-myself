@@ -5,17 +5,17 @@ import type { RelationshipTypeValue } from "../types/relationship";
 
 // Re-export types from typed stores for backward compatibility.
 // New code should import from arch-canvas.ts or class-canvas.ts directly.
-export {
-  type ElementNodeData,
-  type RelationshipEdgeData,
+export type {
+  ElementNodeData,
+  RelationshipEdgeData,
 } from "./arch-canvas";
-export {
-  type ClassNodeData,
-  type ClassEdgeData,
+export type {
+  ClassEdgeData,
+  ClassNodeData,
 } from "./class-canvas";
 
 import type { ElementNodeData, RelationshipEdgeData } from "./arch-canvas";
-import type { ClassNodeData, ClassEdgeData } from "./class-canvas";
+import type { ClassEdgeData, ClassNodeData } from "./class-canvas";
 
 /** @deprecated Import from arch-canvas.ts or class-canvas.ts instead. */
 export type CanvasNode = Node<ElementNodeData | ClassNodeData>;

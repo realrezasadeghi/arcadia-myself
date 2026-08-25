@@ -1,7 +1,5 @@
 "use client";
 
-import { ScrollArea } from "@/modules/shared/ui/components/ui/scroll-area";
-import { cn } from "@/modules/shared/ui/libs/cn";
 import {
   AlertCircle,
   AlertTriangle,
@@ -11,12 +9,14 @@ import {
   RefreshCw,
   ShieldCheck,
 } from "lucide-react";
+import { ScrollArea } from "@/modules/shared/ui/components/ui/scroll-area";
+import { cn } from "@/modules/shared/ui/libs/cn";
 import type { ValidationSeverity } from "../../../domain/policies/validation";
 import { useValidateModel } from "../../clients/validate-model";
+import { LAYER_HEX_COLORS } from "../../constants/layer";
 import { getElementTypeInfo } from "../../helpers/element";
 import { getLayerInfo } from "../../helpers/layer";
 import { useWorkbenchStore } from "../../stores/workbench";
-import { LAYER_HEX_COLORS } from "../../constants/layer";
 import type { LayerValue } from "../../types/layer";
 
 const SEVERITY_CONFIG: Record<

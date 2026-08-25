@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/modules/shared/ui/components/ui/button";
 import {
   Dialog,
@@ -13,7 +14,6 @@ import { Input } from "@/modules/shared/ui/components/ui/input";
 import { Label } from "@/modules/shared/ui/components/ui/label";
 import { Textarea } from "@/modules/shared/ui/components/ui/textarea";
 import { cn } from "@/modules/shared/ui/libs/cn";
-import { useState } from "react";
 import {
   getEdgeVisual,
   getRelationshipTypeInfo,

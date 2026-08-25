@@ -1,7 +1,8 @@
 import type { DiagramTypeInfo, DiagramTypeValue } from "../types/diagram";
-import { LayerValue } from "../types/layer";
+import type { LayerValue } from "../types/layer";
 
 export const DIAGRAM_TYPES: DiagramTypeInfo[] = [
+  // ─── Operational Analysis (OA) ───────────────────────────────────────────
   {
     value: "OEB",
     label: "Operational Entity Breakdown",
@@ -9,65 +10,73 @@ export const DIAGRAM_TYPES: DiagramTypeInfo[] = [
     layer: "OA",
   },
   {
+    value: "OCD",
+    label: "Operational Capability Blank",
+    labelFa: "بوم قابلیت عملیاتی",
+    layer: "OA",
+  },
+  {
     value: "OAB",
-    label: "Operational Activity Breakdown",
-    labelFa: "تجزیه فعالیت عملیاتی",
+    label: "Operational Activity Diagram",
+    labelFa: "دیاگرام فعالیت عملیاتی",
     layer: "OA",
   },
   {
     value: "OPD",
-    label: "Operational Process Description",
-    labelFa: "توصیف فرایند عملیاتی",
-    layer: "OA",
-  },
-  {
-    value: "OCD",
-    label: "Operational Capability Diagram",
-    labelFa: "دیاگرام قابلیت عملیاتی",
+    label: "Operational Activity Interaction Blank",
+    labelFa: "بوم تعامل فعالیت عملیاتی",
     layer: "OA",
   },
   {
     value: "OIS",
-    label: "Operational Interaction Scenario",
-    labelFa: "سناریو تعامل عملیاتی",
+    label: "Operational Activity Scenario",
+    labelFa: "سناریوی فعالیت عملیاتی",
     layer: "OA",
   },
   {
-    value: "SAB",
-    label: "System Architecture Blank",
-    labelFa: "معماری سیستم",
+    value: "OAAB",
+    label: "Operational Architecture Blank",
+    labelFa: "بوم معماری عملیاتی",
+    layer: "OA",
+  },
+  // ─── System Analysis (SA) ────────────────────────────────────────────────
+  {
+    value: "CSA",
+    label: "Context System Actors",
+    labelFa: "زمینه بازیگران سیستم",
+    layer: "SA",
+  },
+  {
+    value: "SCD",
+    label: "Mission Capability Blank",
+    labelFa: "بوم قابلیت مأموریت",
+    layer: "SA",
+  },
+  {
+    value: "SFB",
+    label: "System Function Breakdown",
+    labelFa: "تجزیه کارکرد سیستم",
     layer: "SA",
   },
   {
     value: "SDFB",
     label: "System Data Flow Blank",
-    labelFa: "جریان داده سیستم",
+    labelFa: "بوم جریان داده سیستم",
     layer: "SA",
   },
   {
-    value: "SCD",
-    label: "System Capability Diagram",
-    labelFa: "دیاگرام قابلیت سیستم",
+    value: "SAB",
+    label: "System Architecture Blank",
+    labelFa: "بوم معماری سیستم",
     layer: "SA",
   },
   {
     value: "SS",
-    label: "System Scenario",
-    labelFa: "سناریو سیستم",
+    label: "Functional Scenario",
+    labelFa: "سناریوی کارکردی",
     layer: "SA",
   },
-  {
-    value: "LAB",
-    label: "Logical Architecture Blank",
-    labelFa: "معماری منطقی",
-    layer: "LA",
-  },
-  {
-    value: "LDFB",
-    label: "Logical Data Flow Blank",
-    labelFa: "جریان داده منطقی",
-    layer: "LA",
-  },
+  // ─── Logical Architecture (LA) ───────────────────────────────────────────
   {
     value: "LCB",
     label: "Logical Component Breakdown",
@@ -75,23 +84,30 @@ export const DIAGRAM_TYPES: DiagramTypeInfo[] = [
     layer: "LA",
   },
   {
-    value: "LS",
-    label: "Logical Scenario",
-    labelFa: "سناریو منطقی",
+    value: "LFB",
+    label: "Logical Function Breakdown",
+    labelFa: "تجزیه کارکرد منطقی",
     layer: "LA",
   },
   {
-    value: "PAB",
-    label: "Physical Architecture Blank",
-    labelFa: "معماری فیزیکی",
-    layer: "PA",
+    value: "LDFB",
+    label: "Logical Dataflow Breakdown",
+    labelFa: "تجزیه جریان داده منطقی",
+    layer: "LA",
   },
   {
-    value: "PDFB",
-    label: "Physical Data Flow Blank",
-    labelFa: "جریان داده فیزیکی",
-    layer: "PA",
+    value: "LAB",
+    label: "Logical Architecture Blank",
+    labelFa: "بوم معماری منطقی",
+    layer: "LA",
   },
+  {
+    value: "LS",
+    label: "Functional Scenario",
+    labelFa: "سناریوی کارکردی",
+    layer: "LA",
+  },
+  // ─── Physical Architecture (PA) ──────────────────────────────────────────
   {
     value: "PCB",
     label: "Physical Component Breakdown",
@@ -99,41 +115,43 @@ export const DIAGRAM_TYPES: DiagramTypeInfo[] = [
     layer: "PA",
   },
   {
-    value: "PS",
-    label: "Physical Scenario",
-    labelFa: "سناریو فیزیکی",
+    value: "PFB",
+    label: "Physical Function Breakdown",
+    labelFa: "تجزیه کارکرد فیزیکی",
     layer: "PA",
   },
   {
-    value: "EPBB",
-    label: "EPBS Breakdown",
-    labelFa: "تجزیه محصول نهایی",
-    layer: "EPBS",
+    value: "PDFB",
+    label: "Physical Dataflow Blank",
+    labelFa: "بوم جریان داده فیزیکی",
+    layer: "PA",
   },
   {
-    value: "EAB",
-    label: "EPBS Architecture Blank",
-    labelFa: "معماری محصول نهایی",
-    layer: "EPBS",
+    value: "PAB",
+    label: "Physical Architecture Blank",
+    labelFa: "بوم معماری فیزیکی",
+    layer: "PA",
   },
   {
-    value: "ECB",
-    label: "EPBS Context/Interface Diagram",
-    labelFa: "دیاگرام زمینه/رابط محصول نهایی",
-    layer: "EPBS",
+    value: "PS",
+    label: "Functional Scenario Diagram",
+    labelFa: "دیاگرام سناریوی کارکردی",
+    layer: "PA",
   },
+  // ─── Transverse ──────────────────────────────────────────────────────────
   {
     value: "CDB",
-    label: "Class Diagram Blank",
+    label: "Class Diagram",
     labelFa: "دیاگرام کلاس",
     layer: "SA",
   },
 ];
 
 export const DIAGRAMS_BY_LAYER: Record<LayerValue, DiagramTypeValue[]> = {
-  OA: ["OEB", "OAB", "OPD", "OCD", "OIS", "CDB"],
-  SA: ["SAB", "SDFB", "SCD", "SS", "CDB"],
-  LA: ["LAB", "LDFB", "LCB", "LS", "CDB"],
-  PA: ["PAB", "PDFB", "PCB", "PS", "CDB"],
-  EPBS: ["EPBB", "EAB", "ECB", "CDB"],
+  OA: ["OEB", "OCD", "OAB", "OPD", "OIS", "OAAB", "CDB"],
+  SA: ["CSA", "SCD", "SFB", "SDFB", "SAB", "SS", "CDB"],
+  LA: ["LCB", "LFB", "LDFB", "LAB", "LS", "CDB"],
+  PA: ["PCB", "PFB", "PDFB", "PAB", "PS", "CDB"],
+  // Legacy layer — no diagram types offered in the UI.
+  EPBS: [],
 };

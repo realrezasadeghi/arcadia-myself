@@ -1,16 +1,5 @@
 "use client";
 
-import { Badge } from "@/modules/shared/ui/components/ui/badge";
-import { Button } from "@/modules/shared/ui/components/ui/button";
-import { Input } from "@/modules/shared/ui/components/ui/input";
-import { Label } from "@/modules/shared/ui/components/ui/label";
-import { Separator } from "@/modules/shared/ui/components/ui/separator";
-import { Textarea } from "@/modules/shared/ui/components/ui/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/modules/shared/ui/components/ui/tooltip";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Archive,
@@ -26,6 +15,17 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useShallow } from "zustand/shallow";
+import { Badge } from "@/modules/shared/ui/components/ui/badge";
+import { Button } from "@/modules/shared/ui/components/ui/button";
+import { Input } from "@/modules/shared/ui/components/ui/input";
+import { Label } from "@/modules/shared/ui/components/ui/label";
+import { Separator } from "@/modules/shared/ui/components/ui/separator";
+import { Textarea } from "@/modules/shared/ui/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/modules/shared/ui/components/ui/tooltip";
 import { getElementRelationsKey } from "../clients/get-element-relations";
 import {
   getTraceLinksByElementIdKey,
@@ -48,8 +48,8 @@ import {
   useCanvasStore,
 } from "../stores/canvas";
 import { useWorkbenchStore } from "../stores/workbench";
-import type { RelationshipTypeValue } from "../types/relationship";
 import type { ElementTypeValue } from "../types/element";
+import type { RelationshipTypeValue } from "../types/relationship";
 import { CreateTraceLinkDialog } from "./create-trace-link-dialog";
 import { ElementShape } from "./element-shape";
 

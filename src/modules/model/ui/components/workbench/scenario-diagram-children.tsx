@@ -1,16 +1,16 @@
 "use client";
 
 import {
+  ArrowRight,
+  Box,
   ChevronDown,
   ChevronRight,
-  ArrowRight,
-  Layers,
-  User,
-  Monitor,
   HardDrive,
-  Box,
-  Users,
+  Layers,
   MessageSquare,
+  Monitor,
+  User,
+  Users,
 } from "lucide-react";
 import { useState } from "react";
 import { useGetFragmentsByScenarioId } from "../../clients/get-fragments-by-scenario-id";

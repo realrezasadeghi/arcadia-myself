@@ -1,12 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { toast } from "sonner";
-import { useUpdateClassDiagramLayout } from "../clients/update-class-diagram-layout";
-import { useUpdateDiagramLayout } from "../clients/update-diagram-layout";
 import { getClassDiagramByIdKey } from "../clients/get-class-diagram-by-id";
 import { getDiagramByIdKey } from "../clients/get-diagram-by-id";
+import { useUpdateClassDiagramLayout } from "../clients/update-class-diagram-layout";
+import { useUpdateDiagramLayout } from "../clients/update-diagram-layout";
 import { isContainerType } from "../helpers/class-diagram";
-import { useCanvasStore, type CanvasNode } from "../stores/canvas";
+import { type CanvasNode, useCanvasStore } from "../stores/canvas";
 
 export function useRemoveElementSync() {
   const pushHistory = useCanvasStore((s) => s.pushHistory);
@@ -34,7 +34,9 @@ export function useRemoveElementSync() {
         const currentLayouts = diagramQuery?.elementLayouts ?? [];
 
         // Promote children to root if removing a container
-        const isRemovingContainer = isContainerType(node?.data.elementType as any);
+        const isRemovingContainer = isContainerType(
+          node?.data.elementType as any,
+        );
         if (isRemovingContainer) {
           const children = nodes.filter((n) => n.parentId === nodeId);
           const nodesById = new Map(nodes.map((n) => [n.id, n]));
@@ -164,5 +166,9 @@ export function useRemoveElementSync() {
     ],
   );
 
-  return { removeElement: remove, isPending: updateClassDiagramLayout.isPending || updateDiagramLayout.isPending };
+  return {
+    removeElement: remove,
+    isPending:
+      updateClassDiagramLayout.isPending || updateDiagramLayout.isPending,
+  };
 }

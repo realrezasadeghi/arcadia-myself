@@ -1,15 +1,16 @@
 "use client";
 
-import type { DiagramFormValues } from "@/modules/project/ui/schemas/diagram";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
+import type { DiagramFormValues } from "@/modules/project/ui/schemas/diagram";
 import { useCreateClassDiagram } from "../clients/create-class-diagram";
 import { useCreateClassElement } from "../clients/create-class-element";
 import { useCreateDiagram } from "../clients/create-diagram";
 import { useCreateElement } from "../clients/create-element";
 import { useCreateModel } from "../clients/create-model";
 import { useCreateScenario } from "../clients/create-scenario";
+import { getClassDiagramByIdKey } from "../clients/get-class-diagram-by-id";
 import { useRemoveClassDiagram } from "../clients/remove-class-diagram";
 import { useRemoveClassElement } from "../clients/remove-class-element";
 import { useRemoveDiagram } from "../clients/remove-diagram";
@@ -17,7 +18,6 @@ import { useRemoveElement } from "../clients/remove-element";
 import { useRemoveScenario } from "../clients/remove-scenario";
 import { useUpdateClassDiagram } from "../clients/update-class-diagram";
 import { useUpdateDiagram } from "../clients/update-diagram";
-import { getClassDiagramByIdKey } from "../clients/get-class-diagram-by-id";
 import type { WorkbenchModelData } from "../components/workbench/workbench";
 import { getClassElementTypeInfo } from "../constants/class-diagram";
 import { resolveDiagramLayer } from "../helpers/diagram";

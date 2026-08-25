@@ -1,8 +1,8 @@
-import { cn } from "@/modules/shared/ui/libs/cn";
 import { useQueryClient } from "@tanstack/react-query";
 import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
 import { memo, useCallback, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { cn } from "@/modules/shared/ui/libs/cn";
 import { getClassDiagramByIdKey } from "../../../clients/get-class-diagram-by-id";
 import { useUpdateClassElement } from "../../../clients/update-class-element";
 import {
@@ -13,8 +13,8 @@ import {
   canHaveAttributes,
   canHaveOperations,
 } from "../../../helpers/class-diagram";
-import type { ClassNodeData } from "../../../stores/class-canvas";
 import { useCanvasStore } from "../../../stores/canvas";
+import type { ClassNodeData } from "../../../stores/class-canvas";
 
 type ClassNodeType = Node<ClassNodeData>;
 type PropertyItem = NonNullable<ClassNodeData["properties"]>[number];
@@ -95,8 +95,12 @@ function ClassNodeComponent({ data, selected }: NodeProps<ClassNodeType>) {
   const updateClassElement = useUpdateClassElement();
   const queryClient = useQueryClient();
 
-  const attrs = canHaveAttributes(data.elementType) ? (data.properties ?? []) : [];
-  const ops = canHaveOperations(data.elementType) ? (data.operations ?? []) : [];
+  const attrs = canHaveAttributes(data.elementType)
+    ? (data.properties ?? [])
+    : [];
+  const ops = canHaveOperations(data.elementType)
+    ? (data.operations ?? [])
+    : [];
   const enumLiterals = data.enumerationLiterals ?? [];
 
   const visibleAttrs = showAttributes ? attrs : [];

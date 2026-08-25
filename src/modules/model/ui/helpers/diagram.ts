@@ -1,4 +1,4 @@
-import { DIAGRAMS_BY_LAYER, DIAGRAM_TYPES } from "../constants/diagram";
+import { DIAGRAM_TYPES, DIAGRAMS_BY_LAYER } from "../constants/diagram";
 import type { DiagramTypeInfo, DiagramTypeValue } from "../types/diagram";
 import type { ElementTypeValue } from "../types/element";
 import type { LayerValue } from "../types/layer";
@@ -59,7 +59,7 @@ const DIAGRAM_PALETTE: Record<DiagramTypeValue, DiagramPalette> = {
     relationshipTypes: ["Composition"],
   },
   OPD: {
-    elementTypes: ["OperationalActivity", "OperationalProcess"],
+    elementTypes: ["OperationalActivity"],
     relationshipTypes: ["OperationalExchange"],
   },
   OCD: {
@@ -79,7 +79,24 @@ const DIAGRAM_PALETTE: Record<DiagramTypeValue, DiagramPalette> = {
     ],
     relationshipTypes: ["OperationalExchange"],
   },
+  OAAB: {
+    elementTypes: [
+      "OperationalEntity",
+      "OperationalActor",
+      "OperationalActivity",
+      "OperationalCapability",
+    ],
+    relationshipTypes: [
+      "OperationalExchange",
+      "InvolvementLink",
+      "Composition",
+    ],
+  },
   // ─── SA ───
+  CSA: {
+    elementTypes: ["System", "SystemActor"],
+    relationshipTypes: ["SystemExchange"],
+  },
   SAB: {
     elementTypes: [
       "System",
@@ -97,6 +114,10 @@ const DIAGRAM_PALETTE: Record<DiagramTypeValue, DiagramPalette> = {
     elementTypes: ["SystemCapability", "SystemActor", "SystemFunction"],
     relationshipTypes: ["InvolvementLink"],
   },
+  SFB: {
+    elementTypes: ["SystemFunction"],
+    relationshipTypes: ["Composition"],
+  },
   SS: {
     elementTypes: ["SystemActor", "SystemFunction"],
     relationshipTypes: ["FunctionalExchange"],
@@ -112,6 +133,10 @@ const DIAGRAM_PALETTE: Record<DiagramTypeValue, DiagramPalette> = {
   },
   LCB: {
     elementTypes: ["LogicalComponent"],
+    relationshipTypes: ["Composition"],
+  },
+  LFB: {
+    elementTypes: ["LogicalFunction"],
     relationshipTypes: ["Composition"],
   },
   LS: {
@@ -136,10 +161,15 @@ const DIAGRAM_PALETTE: Record<DiagramTypeValue, DiagramPalette> = {
     elementTypes: ["PhysicalComponent", "PhysicalNode"],
     relationshipTypes: ["Composition", "DeploymentLink"],
   },
+  PFB: {
+    elementTypes: ["PhysicalFunction"],
+    relationshipTypes: ["Composition"],
+  },
   PS: {
     elementTypes: ["PhysicalActor", "PhysicalFunction"],
     relationshipTypes: ["PhysicalExchange"],
   },
+  // ─── EPBS (legacy rendering only — not offered in UI) ───
   EPBB: {
     elementTypes: [
       "EPBSArchitecture",

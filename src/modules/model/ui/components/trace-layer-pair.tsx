@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { LayerBadge } from "@/modules/shared/ui/components/common/layer-badge";
 import { Badge } from "@/modules/shared/ui/components/ui/badge";
 import {
@@ -10,7 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/modules/shared/ui/components/ui/table";
-import { useMemo } from "react";
 import { getElementVisual } from "../helpers/element";
 import { getLayerInfo } from "../helpers/layer";
 import { getTraceLinkTypeInfo, getTraceVisual } from "../helpers/trace-link";

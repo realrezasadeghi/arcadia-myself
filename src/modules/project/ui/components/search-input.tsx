@@ -1,9 +1,9 @@
 "use client";
 
-import { Input } from "@/modules/shared/ui/components/ui/input";
 import { Search, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { startTransition, use, useCallback } from "react";
+import { Input } from "@/modules/shared/ui/components/ui/input";
 
 type SearchInputProps = {
   params: Promise<{ search?: string }>;

@@ -1,9 +1,16 @@
 "use client";
 
-import { ScrollArea } from "@/modules/shared/ui/components/ui/scroll-area";
-import { Loader2, MousePointerClick, Workflow } from "lucide-react";
-import { ArrowLeft, ArrowRight, GitMerge, LayoutDashboard } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  GitMerge,
+  LayoutDashboard,
+  Loader2,
+  MousePointerClick,
+  Workflow,
+} from "lucide-react";
 import type { ReactNode } from "react";
+import { ScrollArea } from "@/modules/shared/ui/components/ui/scroll-area";
 import { useGetElementRelations } from "../../clients/get-element-relations";
 import { resolveDiagramLayer } from "../../helpers/diagram";
 import { getElementTypeInfo } from "../../helpers/element";

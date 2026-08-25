@@ -1,5 +1,8 @@
 "use client";
 
+import { ArrowRight, Check, GitBranch, Loader2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Input } from "@/modules/shared/ui/components/ui/input";
 import { Label } from "@/modules/shared/ui/components/ui/label";
 import {
@@ -11,9 +14,6 @@ import {
 } from "@/modules/shared/ui/components/ui/select";
 import { Separator } from "@/modules/shared/ui/components/ui/separator";
 import { Textarea } from "@/modules/shared/ui/components/ui/textarea";
-import { ArrowRight, Check, GitBranch, Loader2 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
 import { useUpdateClassRelationship } from "../../clients/update-class-relationship";
 import { getClassRelationshipTypeInfo } from "../../constants/class-diagram";
 import type { CanvasEdge, ClassEdgeData } from "../../stores/canvas";

@@ -28,9 +28,8 @@ const TARGET_TYPE_MAP: Record<
     LogicalComponent: "PhysicalComponent",
     LogicalFunction: "PhysicalFunction",
   },
-  PA: {
-    PhysicalComponent: "ConfigurationItem",
-  },
+  PA: {},
+  // Legacy layer — no transitions offered in the UI.
   EPBS: {},
 };
 
@@ -38,7 +37,7 @@ const NEXT_LAYER: Record<LayerValue, LayerValue | null> = {
   OA: "SA",
   SA: "LA",
   LA: "PA",
-  PA: "EPBS",
+  PA: null,
   EPBS: null,
 };
 

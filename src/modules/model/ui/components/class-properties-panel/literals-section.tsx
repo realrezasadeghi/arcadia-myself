@@ -1,11 +1,11 @@
 "use client";
 
-import { Button } from "@/modules/shared/ui/components/ui/button";
-import { Input } from "@/modules/shared/ui/components/ui/input";
-import { Label } from "@/modules/shared/ui/components/ui/label";
 import { Loader2, Pencil, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/modules/shared/ui/components/ui/button";
+import { Input } from "@/modules/shared/ui/components/ui/input";
+import { Label } from "@/modules/shared/ui/components/ui/label";
 import { useCreateClassEnumerationLiteral } from "../../clients/create-class-enumeration-literal";
 import { useRemoveClassEnumerationLiteral } from "../../clients/remove-class-enumeration-literal";
 import { useUpdateClassEnumerationLiteral } from "../../clients/update-class-enumeration-literal";

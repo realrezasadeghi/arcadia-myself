@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { Button } from "@/modules/shared/ui/components/ui/button";
 import {
   Dialog,
@@ -9,7 +10,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/modules/shared/ui/components/ui/dialog";
-import { toast } from "sonner";
 import { useRemoveProject } from "../clients/remove";
 import type { Project } from "../types/project";
 

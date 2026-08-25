@@ -1,8 +1,8 @@
 "use client";
 
-import { Separator } from "@/modules/shared/ui/components/ui/separator";
 import { Spline } from "lucide-react";
 import { useMemo } from "react";
+import { Separator } from "@/modules/shared/ui/components/ui/separator";
 import { RELATIONSHIP_VISUAL } from "../../constants/relationship";
 import type { DiagramPalette } from "../../helpers/diagram";
 import { getRelationshipTypeInfo } from "../../helpers/relationship";

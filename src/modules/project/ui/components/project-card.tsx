@@ -1,14 +1,5 @@
 "use client";
 
-import { Button } from "@/modules/shared/ui/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/modules/shared/ui/components/ui/dropdown-menu";
-import { cn } from "@/modules/shared/ui/libs/cn";
 import {
   ArrowRight,
   Calendar,
@@ -19,6 +10,15 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/modules/shared/ui/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/modules/shared/ui/components/ui/dropdown-menu";
+import { cn } from "@/modules/shared/ui/libs/cn";
 import type { Project } from "../types/project";
 
 const LAYER_COLORS: Record<string, { dot: string; badge: string }> = {
@@ -41,11 +41,6 @@ const LAYER_COLORS: Record<string, { dot: string; badge: string }> = {
     dot: "bg-purple-500",
     badge:
       "bg-purple-50 text-purple-700 border-purple-200/60 dark:bg-purple-950/50 dark:text-purple-400 dark:border-purple-800/60",
-  },
-  EPBS: {
-    dot: "bg-rose-500",
-    badge:
-      "bg-rose-50 text-rose-700 border-rose-200/60 dark:bg-rose-950/50 dark:text-rose-400 dark:border-rose-800/60",
   },
 };
 

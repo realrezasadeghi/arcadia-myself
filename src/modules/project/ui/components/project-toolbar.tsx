@@ -1,3 +1,6 @@
+import { Home } from "lucide-react";
+import Link from "next/link";
+import { Suspense } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -6,9 +9,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/modules/shared/ui/components/ui/breadcrumb";
-import { Home } from "lucide-react";
-import Link from "next/link";
-import { Suspense } from "react";
 import { NewProjectButton } from "./new-project-button";
 import { SearchInput } from "./search-input";
 

@@ -1,5 +1,8 @@
 "use client";
 
+import { Copy, Eye, FolderOpen, Loader2, Package, Trash2 } from "lucide-react";
+import { useCallback, useMemo } from "react";
+import { toast } from "sonner";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -10,9 +13,6 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/modules/shared/ui/components/ui/context-menu";
-import { Copy, Eye, FolderOpen, Loader2, Package, Trash2 } from "lucide-react";
-import { useCallback, useMemo } from "react";
-import { toast } from "sonner";
 import { getClassElementTypeInfo } from "../constants/class-diagram";
 import { useMoveToPackage } from "../hooks/use-move-to-package";
 import { useRemoveElementSync } from "../hooks/use-remove-element";
@@ -53,8 +53,7 @@ function NodeContextMenu({ nodeId }: { nodeId: string }) {
     const currentNodes = useCanvasStore.getState().nodes;
     return currentNodes.filter(
       (n) =>
-        n.id !== nodeId &&
-        (n.data as ClassNodeData).elementType === "PACKAGE",
+        n.id !== nodeId && (n.data as ClassNodeData).elementType === "PACKAGE",
     );
   }, [nodeId]);
 

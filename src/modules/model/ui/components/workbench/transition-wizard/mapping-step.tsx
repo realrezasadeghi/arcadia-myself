@@ -1,12 +1,12 @@
 "use client";
 
+import { ArrowRight, type LucideIcon, Search } from "lucide-react";
+import { useMemo, useState } from "react";
 import { Button } from "@/modules/shared/ui/components/ui/button";
 import { Checkbox } from "@/modules/shared/ui/components/ui/checkbox";
 import { Input } from "@/modules/shared/ui/components/ui/input";
 import { ScrollArea } from "@/modules/shared/ui/components/ui/scroll-area";
 import { cn } from "@/modules/shared/ui/libs/cn";
-import { ArrowRight, type LucideIcon, Search } from "lucide-react";
-import { useMemo, useState } from "react";
 import { getElementTypeInfo } from "../../../helpers/element";
 import type { Element } from "../../../types/element";
 import { ShapeChip } from "./preview-step";

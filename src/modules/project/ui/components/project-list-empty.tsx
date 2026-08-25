@@ -1,3 +1,5 @@
+import { FolderOpen } from "lucide-react";
+import dynamic from "next/dynamic";
 import {
   Empty,
   EmptyContent,
@@ -6,8 +8,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/modules/shared/ui/components/ui/empty";
-import { FolderOpen } from "lucide-react";
-import dynamic from "next/dynamic";
 
 const NewProjectButton = dynamic(() =>
   import("./new-project-button").then((mod) => mod.NewProjectButton),

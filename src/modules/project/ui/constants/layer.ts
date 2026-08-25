@@ -15,8 +15,4 @@ export const LAYERS = [
     value: "PA",
     label: "معماری فیزیکی",
   },
-  {
-    value: "EPBS",
-    label: "ساختار محصول نهایی",
-  },
 ];

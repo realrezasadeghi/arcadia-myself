@@ -1,14 +1,5 @@
 "use client";
 
-import { Button } from "@/modules/shared/ui/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/modules/shared/ui/components/ui/dialog";
-import { cn } from "@/modules/shared/ui/libs/cn";
 import {
   ArrowRight,
   Boxes,
@@ -19,6 +10,15 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
+import { Button } from "@/modules/shared/ui/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/modules/shared/ui/components/ui/dialog";
+import { cn } from "@/modules/shared/ui/libs/cn";
 import { getLayerInfo } from "../../../helpers/layer";
 import type { Element } from "../../../types/element";
 import type { Model } from "../../../types/model";

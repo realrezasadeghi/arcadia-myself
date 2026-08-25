@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "@/modules/shared/ui/libs/cn";
 import { type DragEventHandler, useCallback, useMemo } from "react";
+import { cn } from "@/modules/shared/ui/libs/cn";
 import { getElementVisual } from "../helpers/element";
 import type { ElementTypeValue } from "../types/element";
 

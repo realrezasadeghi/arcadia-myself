@@ -1,15 +1,12 @@
 "use client";
 
+import dagre from "dagre";
 import { useCallback, useMemo } from "react";
 import { toast } from "sonner";
-import dagre from "dagre";
-import {
-  useCanvasStore,
-  type CanvasNode,
-} from "../stores/canvas";
-import { useUpdateDiagramLayout } from "../clients/update-diagram-layout";
 import { useUpdateClassDiagramLayout } from "../clients/update-class-diagram-layout";
+import { useUpdateDiagramLayout } from "../clients/update-diagram-layout";
 import { CLASS_ELEMENT_TYPES } from "../constants/class-diagram";
+import { type CanvasNode, useCanvasStore } from "../stores/canvas";
 
 const NODE_WIDTH = 200;
 const NODE_HEIGHT = 120;

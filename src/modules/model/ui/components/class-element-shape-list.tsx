@@ -1,12 +1,12 @@
 "use client";
 
+import { type DragEventHandler, useCallback, useMemo } from "react";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/modules/shared/ui/components/ui/tooltip";
 import { cn } from "@/modules/shared/ui/libs/cn";
-import { type DragEventHandler, useCallback, useMemo } from "react";
 import { getClassElementTypeInfo } from "../constants/class-diagram";
 import type { ClassElementTypeValue } from "../types/class-diagram";
 

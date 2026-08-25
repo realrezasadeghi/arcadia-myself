@@ -114,31 +114,6 @@ export const ELEMENT_TYPES: ElementTypeInfo[] = [
     labelFa: "بازیگر فیزیکی",
     layer: "PA",
   },
-  // ─── EPBS ─────────────────────────────────────────────────────────────────
-  {
-    value: "EPBSArchitecture",
-    label: "EPBS Architecture",
-    labelFa: "معماری محصول نهایی",
-    layer: "EPBS",
-  },
-  {
-    value: "ConfigurationItem",
-    label: "Configuration Item",
-    labelFa: "مورد پیکربندی",
-    layer: "EPBS",
-  },
-  {
-    value: "ConfigurationItemPart",
-    label: "Configuration Item Part",
-    labelFa: "بخش مورد پیکربندی",
-    layer: "EPBS",
-  },
-  {
-    value: "ConfigurationItemInterface",
-    label: "Configuration Item Interface",
-    labelFa: "رابط مورد پیکربندی",
-    layer: "EPBS",
-  },
 ];
 
 export const ELEMENT_VISUAL: Record<ElementTypeValue, ElementVisualSpec> = {
@@ -262,7 +237,7 @@ export const ELEMENT_VISUAL: Record<ElementTypeValue, ElementVisualSpec> = {
     fillColorDark: "#2d3436",
     strokeColor: "#717D7E",
   },
-  // ─── EPBS ─────────────────────────────────────────────────────────────────
+  // ─── EPBS (legacy rendering only — not offered in UI) ────────────────────
   EPBSArchitecture: {
     shape: "rounded-rectangle",
     fillColor: "#FADBD8",
@@ -313,10 +288,6 @@ export const ELEMENTS_BY_LAYER: Record<LayerValue, ElementTypeValue[]> = {
     "PhysicalFunction",
     "PhysicalActor",
   ],
-  EPBS: [
-    "EPBSArchitecture",
-    "ConfigurationItem",
-    "ConfigurationItemPart",
-    "ConfigurationItemInterface",
-  ],
+  // Legacy layer — no element types offered in the UI.
+  EPBS: [],
 };

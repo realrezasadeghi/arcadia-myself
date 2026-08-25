@@ -75,13 +75,13 @@ export const RELATIONSHIP_TYPES: RelationshipTypeInfo[] = [
     value: "Composition",
     label: "Composition",
     labelFa: "ترکیب",
-    allowedFor: ["OA", "SA", "LA", "PA", "EPBS"],
+    allowedFor: ["OA", "SA", "LA", "PA"],
   },
   {
     value: "Generalization",
     label: "Generalization",
     labelFa: "تعمیم",
-    allowedFor: ["OA", "SA", "LA", "PA", "EPBS"],
+    allowedFor: ["OA", "SA", "LA", "PA"],
   },
 ];
 

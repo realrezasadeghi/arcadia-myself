@@ -120,8 +120,7 @@
       "OA": "Operational Analysis",
       "SA": "System Analysis",
       "LA": "Logical Architecture",
-      "PA": "Physical Architecture",
-      "EPBS": "End-Product Breakdown Structure"
+      "PA": "Physical Architecture"
     },
     "diagramTypes": {
       "OEB": {
@@ -133,7 +132,7 @@
         "capella": "Entity Breakdown Diagram (EBD)"
       },
       "OAB": {
-        "label": "Operational Activity Breakdown",
+        "label": "Operational Activity Diagram",
         "desc": "A hierarchical tree of operational activities showing what needs to be done at the operational level.",
         "purpose": "Decompose high-level missions into concrete operational activities that can be assigned to entities.",
         "contains": "Operational Activities, Hierarchy relationships",
@@ -141,15 +140,15 @@
         "capella": "Activity Breakdown Diagram (ABD)"
       },
       "OPD": {
-        "label": "Operational Process Description",
-        "desc": "Shows the flow and sequence of operational activities — how activities exchange information and trigger each other.",
-        "purpose": "Define operational processes as chains of activities with data exchanges between them.",
+        "label": "Operational Activity Interaction Blank",
+        "desc": "Shows the interactions between operational activities — how activities exchange information and trigger each other.",
+        "purpose": "Define interactions between operational activities with data exchanges between them.",
         "contains": "Operational Activities, Operational Exchanges, Functional Chains",
         "usedFor": "Modeling operational workflows and information flows",
-        "capella": "Operational Process Diagram (OPD)"
+        "capella": "Operational Activity Interaction Diagram (OAIB)"
       },
       "OCD": {
-        "label": "Operational Capability Diagram",
+        "label": "Operational Capability Blank",
         "desc": "Groups operational activities into capabilities — high-level services the operation needs to provide.",
         "purpose": "Define what the operation must be capable of achieving, similar to use cases.",
         "contains": "Operational Capabilities, Involvement Links, Operational Exchanges",
@@ -157,12 +156,28 @@
         "capella": "Operational Capability Diagram (OCD)"
       },
       "OIS": {
-        "label": "Operational Interaction Scenario",
+        "label": "Operational Activity Scenario",
         "desc": "A sequence diagram showing how operational entities interact over time to achieve a specific capability.",
         "purpose": "Define operational scenarios and validate that the operational architecture supports required missions.",
         "contains": "Lifelines, Messages, Scenario steps",
         "usedFor": "Validating operational flows through scenario-based analysis",
         "capella": "Operational Interaction Scenario (OIS)"
+      },
+      "OAAB": {
+        "label": "Operational Architecture Blank",
+        "desc": "The overall operational architecture showing entities, actors, activities, and capabilities in one view.",
+        "purpose": "Give a complete operational picture: who does what, and which capabilities are involved.",
+        "contains": "Operational Entities, Operational Actors, Operational Activities, Operational Capabilities, Exchanges, Involvement Links",
+        "usedFor": "Communicating the full operational architecture at a glance",
+        "capella": "Operational Architecture Diagram"
+      },
+      "CSA": {
+        "label": "Context System Actors",
+        "desc": "The system under study surrounded by the actors it interacts with.",
+        "purpose": "Define the system boundary and identify all external actors and their exchanges with the system.",
+        "contains": "System, System Actors, System Exchanges",
+        "usedFor": "Establishing the system context before functional decomposition",
+        "capella": "Contextual System Actors (CSA)"
       },
       "SAB": {
         "label": "System Architecture Blank",
@@ -181,20 +196,28 @@
         "capella": "System Data Flow Blank (SDFB)"
       },
       "SCD": {
-        "label": "System Capability Diagram",
-        "desc": "Groups system functions into capabilities — what the system must be able to do.",
+        "label": "Mission Capability Blank",
+        "desc": "Groups system functions into mission capabilities — what the system must be able to do.",
         "purpose": "Define system-level capabilities and validate against operational needs.",
         "contains": "System Capabilities, Involvement Links, Functional Chains",
         "usedFor": "Defining system capabilities aligned with operational needs",
         "capella": "System Capability Diagram (SCD)"
       },
+      "SFB": {
+        "label": "System Function Breakdown",
+        "desc": "A hierarchical tree of system functions showing the functional decomposition of the system.",
+        "purpose": "Decompose system-level functions into finer-grained functions.",
+        "contains": "System Functions, Composition relationships",
+        "usedFor": "Structuring system functions before dataflow analysis",
+        "capella": "Function Breakdown Diagram (FBD)"
+      },
       "SS": {
-        "label": "System Scenario",
+        "label": "Functional Scenario",
         "desc": "A sequence diagram showing how system functions interact to fulfill a capability.",
         "purpose": "Define system-level scenarios and validate functional chains.",
         "contains": "Lifelines, Messages, Scenario steps",
         "usedFor": "Validating system behavior through scenario-based analysis",
-        "capella": "System Scenario (SS)"
+        "capella": "Functional Scenario (FS)"
       },
       "LAB": {
         "label": "Logical Architecture Blank",
@@ -205,7 +228,7 @@
         "capella": "Logical Architecture Blank (LAB)"
       },
       "LDFB": {
-        "label": "Logical Data Flow Blank",
+        "label": "Logical Dataflow Breakdown",
         "desc": "Focuses on data flows between logical functions without showing component allocation.",
         "purpose": "Analyze functional dependencies at the logical architecture level.",
         "contains": "Logical Functions, Logical Exchanges, Function Ports",
@@ -220,13 +243,21 @@
         "usedFor": "Organizing logical components into a hierarchy",
         "capella": "Logical Component Breakdown (LCB)"
       },
+      "LFB": {
+        "label": "Logical Function Breakdown",
+        "desc": "A hierarchical tree of logical functions showing the functional decomposition of logical components.",
+        "purpose": "Decompose logical functions inherited from system analysis.",
+        "contains": "Logical Functions, Composition relationships",
+        "usedFor": "Structuring logical functions before dataflow analysis",
+        "capella": "Function Breakdown Diagram (FBD)"
+      },
       "LS": {
-        "label": "Logical Scenario",
+        "label": "Functional Scenario",
         "desc": "A sequence diagram showing how logical components interact to fulfill a function.",
         "purpose": "Validate logical architecture through scenario-based analysis.",
         "contains": "Lifelines, Messages, Scenario steps",
         "usedFor": "Validating logical component interactions",
-        "capella": "Logical Scenario (LS)"
+        "capella": "Functional Scenario (FS)"
       },
       "PAB": {
         "label": "Physical Architecture Blank",
@@ -237,7 +268,7 @@
         "capella": "Physical Architecture Blank (PAB)"
       },
       "PDFB": {
-        "label": "Physical Data Flow Blank",
+        "label": "Physical Dataflow Blank",
         "desc": "Focuses on data flows between physical functions without showing component allocation.",
         "purpose": "Analyze functional dependencies at the physical architecture level.",
         "contains": "Physical Functions, Physical Exchanges, Function Ports",
@@ -252,21 +283,21 @@
         "usedFor": "Organizing physical components into a development hierarchy",
         "capella": "Physical Component Breakdown (PCB)"
       },
+      "PFB": {
+        "label": "Physical Function Breakdown",
+        "desc": "A hierarchical tree of physical functions showing the implementation-level functional decomposition.",
+        "purpose": "Decompose physical functions for detailed development.",
+        "contains": "Physical Functions, Composition relationships",
+        "usedFor": "Structuring physical functions before dataflow analysis",
+        "capella": "Function Breakdown Diagram (FBD)"
+      },
       "PS": {
-        "label": "Physical Scenario",
+        "label": "Functional Scenario Diagram",
         "desc": "A sequence diagram showing how physical components interact to fulfill a function.",
         "purpose": "Validate physical architecture through scenario-based analysis.",
         "contains": "Lifelines, Messages, Scenario steps",
         "usedFor": "Validating physical component interactions",
-        "capella": "Physical Scenario (PS)"
-      },
-      "EPBB": {
-        "label": "EPBS Breakdown",
-        "desc": "Hierarchical decomposition of end-product components — the final deliverables.",
-        "purpose": "Define the end-product breakdown structure for development contracts and integration.",
-        "contains": "EPBS Components, Composition relationships",
-        "usedFor": "Organizing deliverables and defining integration contracts",
-        "capella": "EPBS Breakdown (EPBB)"
+        "capella": "Functional Scenario (FS)"
       }
     },
     "elementTypes": {
@@ -383,12 +414,6 @@
         "desc": "An external entity at the physical architecture level.",
         "purpose": "Identify external interactions at the physical level.",
         "example": "External API, Legacy system, Human operator"
-      },
-      "EPBSComponent": {
-        "label": "EPBS Component",
-        "desc": "An end-product deliverable — the final item to be developed or procured.",
-        "purpose": "Define the end-product items that collect all properties and requirements from upper layers.",
-        "example": "Software package, Hardware unit, Documentation set"
       }
     }
   }

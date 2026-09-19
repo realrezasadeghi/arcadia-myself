@@ -13,11 +13,16 @@ import {
   DropdownMenuTrigger,
 } from "@/modules/shared/ui/components/ui/dropdown-menu";
 import { LogOut, Settings, User as UserIcon } from "lucide-react";
-import { useMemo } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useCallback, useMemo } from "react";
 import { useGetMe } from "../clients/get-me";
+import { useLogout } from "../clients/logout";
 
 export function UserMenu() {
   const { data: user } = useGetMe();
+  const logout = useLogout();
+  const router = useRouter();
 
   const abbr = useMemo(() => {
     if (user?.name?.trim()) {
@@ -33,6 +38,14 @@ export function UserMenu() {
 
     return "U";
   }, [user?.name]);
+
+  const handleLogout = useCallback(() => {
+    logout.mutate(undefined, {
+      onSuccess() {
+        router.replace("/auth/login");
+      },
+    });
+  }, [logout, router]);
 
   if (!user) return null;
 
@@ -55,16 +68,21 @@ export function UserMenu() {
           <p className="font-medium text-sm">{user.name}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <UserIcon className="h-4 w-4" />
-          Profile
+        <DropdownMenuItem asChild>
+          <Link href="/dashboard/profile">
+            <UserIcon className="h-4 w-4" />
+            Profile
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem>
           <Settings className="h-4 w-4" />
           Settings
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-destructive focus:text-destructive">
+        <DropdownMenuItem
+          className="text-destructive focus:text-destructive"
+          onClick={handleLogout}
+        >
           <LogOut className="h-4 w-4" />
           Sign Out
         </DropdownMenuItem>

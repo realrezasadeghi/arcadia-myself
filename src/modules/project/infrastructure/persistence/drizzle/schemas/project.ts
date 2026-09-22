@@ -1,5 +1,5 @@
-import { users } from "@/modules/auth/infrastructure/persistence/drizzle/schemas/user";
 import { pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { users } from "@/modules/auth/infrastructure/persistence/drizzle/schemas/user";
 
 export const projects = pgTable("projects", {
   id: uuid("id").primaryKey().defaultRandom(),

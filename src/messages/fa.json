@@ -69,7 +69,7 @@
     },
     "collaboration": {
       "title": "همکاری تیمی",
-      "desc": "مدیریت نقش با مالک، ویرایشگر، مشاهده‌گر برای هر پروژه — اشتراک‌گذاری مدل ساختاریافته"
+      "desc": "نقش‌های لایه‌ای و دسترسی‌های دقیق برای هر پروژه — اشتراک‌گذاری مدل ساختاریافته"
     }
   },
   "auth": {
@@ -415,6 +415,47 @@
         "purpose": "شناسایی تعاملات خارجی در سطح فیزیکی.",
         "example": "API خارجی، سیستم قدیمی، اپراتور انسانی"
       }
+    }
+  },
+  "project": {
+    "role": "نقش",
+    "membersLink": "اعضا",
+    "roles": {
+      "project_viewer": "بیننده پروژه",
+      "oa_viewer": "بیننده OA",
+      "oa_editor": "ویرایشگر OA",
+      "sa_viewer": "بیننده SA",
+      "sa_editor": "ویرایشگر SA",
+      "la_viewer": "بیننده LA",
+      "la_editor": "ویرایشگر LA",
+      "pa_viewer": "بیننده PA",
+      "pa_editor": "ویرایشگر PA",
+      "project_inviter": "دعوت‌کننده پروژه",
+      "admin": "مدیر"
+    },
+    "members": {
+      "title": "اعضای {name}",
+      "name": "نام",
+      "description": "مدیریت دسترسی اعضا و سطح دسترسی آن‌ها در این پروژه.",
+      "add": "افزودن عضو",
+      "addDescription": "کاربر را با نام کاربری دعوت کنید و یک یا چند نقش به او بدهید.",
+      "username": "نام کاربری",
+      "usernamePlaceholder": "مثلاً teammate",
+      "roleColumn": "نقش",
+      "rolesColumn": "نقش‌ها",
+      "rolePlaceholder": "انتخاب نقش",
+      "noAssignableRoles": "شما نمی‌توانید نقشی در محدوده دسترسی خود اختصاص دهید.",
+      "joinedAt": "تاریخ عضویت",
+      "actions": "عملیات",
+      "changeRole": "تغییر نقش‌ها",
+      "changeRoleTitle": "تغییر نقش‌های {name}",
+      "changeRoleDescription": "نقش‌های این عضو را به‌روزرسانی کنید. حداقل یک مدیر باید در پروژه باقی بماند.",
+      "saveRole": "ذخیره",
+      "remove": "حذف",
+      "removeTitle": "حذف {name}؟",
+      "removeDescription": "عضو دسترسی خود به این پروژه را از دست می‌دهد.",
+      "cancel": "انصراف",
+      "noAccess": "شما اجازه مدیریت اعضای این پروژه را ندارید."
     }
   }
 }

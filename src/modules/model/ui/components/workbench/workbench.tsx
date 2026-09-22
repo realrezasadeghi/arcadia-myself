@@ -11,7 +11,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import {
+  PROJECT_LAYERS,
+  isProjectLayer,
+} from "@/modules/project/domain/constants/permissions";
+import { canViewLayer } from "@/modules/project/domain/services/permissions";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -75,12 +80,15 @@ export type WorkbenchProps = {
   projectId: string;
   projectName: string;
   modelData: WorkbenchModelData[];
+  /** Permissions of the requesting user (RBAC). */
+  permissions?: string[];
 };
 
 export function Workbench({
   projectId,
   projectName,
   modelData,
+  permissions,
 }: WorkbenchProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -97,6 +105,44 @@ export function Workbench({
       resetForProject(projectId, projectName);
     }
   }, [projectId, projectName, currentProjectId, resetForProject]);
+
+  const setProjectPermissions = useWorkbenchStore(
+    (s) => s.setProjectPermissions,
+  );
+  const projectPermissions = useWorkbenchStore((s) => s.projectPermissions);
+
+  useEffect(() => {
+    setProjectPermissions(permissions ?? []);
+  }, [permissions, setProjectPermissions]);
+
+  /**
+   * RBAC: layers the requesting user may read. While the permissions are not
+   * resolved yet (empty array) every layer stays visible — the backend remains
+   * the single source of truth and the UI never hides data prematurely.
+   */
+  const visibleLayers = useMemo<LayerValue[]>(
+    () =>
+      projectPermissions.length === 0
+        ? [...PROJECT_LAYERS]
+        : PROJECT_LAYERS.filter((layer) =>
+            canViewLayer(projectPermissions, layer),
+          ),
+    [projectPermissions],
+  );
+
+  // Keep the workbench on a layer the user can actually read.
+  useEffect(() => {
+    if (projectPermissions.length === 0) return;
+    if (visibleLayers.includes(currentLayer)) return;
+
+    const [fallback] = visibleLayers;
+    if (fallback) setCurrentLayer(fallback);
+  }, [
+    projectPermissions,
+    visibleLayers,
+    currentLayer,
+    setCurrentLayer,
+  ]);
 
   const deepLinkDiagramId = searchParams.get("diagram");
   const openedDeepLinkRef = useRef<string | null>(null);
@@ -140,7 +186,16 @@ export function Workbench({
     }
   };
 
-  const allModels = modelData.map((d) => d.model);
+  const allModels = useMemo(
+    () =>
+      modelData
+        .map((d) => d.model)
+        .filter(
+          (model) =>
+            !isProjectLayer(model.layer) || visibleLayers.includes(model.layer),
+        ),
+    [modelData, visibleLayers],
+  );
 
   const refreshTree = () => router.refresh();
 
@@ -153,6 +208,7 @@ export function Workbench({
 
         <LayerSwitcher
           models={allModels}
+          layers={visibleLayers}
           currentLayer={currentLayer}
           onLayerChange={handleLayerChange}
         />

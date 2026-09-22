@@ -8,17 +8,18 @@ import type { Model } from "../../types/model";
 
 type LayerSwitcherProps = {
   models: Model[];
+  /** Layers to offer. Defaults to every ARCADIA layer (RBAC filtering upstream). */
+  layers?: readonly LayerValue[];
   currentLayer: LayerValue;
   onLayerChange: (layer: LayerValue, modelId: string) => void;
 };
 
 export function LayerSwitcher({
   models,
+  layers = ["OA", "SA", "LA", "PA"],
   currentLayer,
   onLayerChange,
 }: LayerSwitcherProps) {
-  const layers: LayerValue[] = ["OA", "SA", "LA", "PA"];
-
   return (
     <div className="flex items-center gap-1 border-b bg-muted/20 px-3 py-1">
       <span className="me-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">

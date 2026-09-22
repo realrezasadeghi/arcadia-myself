@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/modules/shared/ui/components/ui/button";
 import {
@@ -25,6 +26,7 @@ export function RemoveProjectDialog({
   project,
 }: DeleteProjectDialogProps) {
   const removeProject = useRemoveProject();
+  const router = useRouter();
 
   function handleConfirm() {
     if (!project) return;
@@ -32,6 +34,10 @@ export function RemoveProjectDialog({
       onSuccess(data) {
         toast.success(data.message);
         onOpenChange(false);
+        router.refresh();
+      },
+      onError(error) {
+        toast.error(error.message);
       },
     });
   }

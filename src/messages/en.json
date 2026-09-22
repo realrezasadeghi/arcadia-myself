@@ -69,7 +69,7 @@
     },
     "collaboration": {
       "title": "Team Collaboration",
-      "desc": "Role management with OWNER, EDITOR, VIEWER per project — structured model sharing"
+      "desc": "Layer-scoped roles and granular permissions per project — structured model sharing"
     }
   },
   "auth": {
@@ -415,6 +415,47 @@
         "purpose": "Identify external interactions at the physical level.",
         "example": "External API, Legacy system, Human operator"
       }
+    }
+  },
+  "project": {
+    "role": "Role",
+    "membersLink": "Members",
+    "roles": {
+      "project_viewer": "Project Viewer",
+      "oa_viewer": "OA Viewer",
+      "oa_editor": "OA Editor",
+      "sa_viewer": "SA Viewer",
+      "sa_editor": "SA Editor",
+      "la_viewer": "LA Viewer",
+      "la_editor": "LA Editor",
+      "pa_viewer": "PA Viewer",
+      "pa_editor": "PA Editor",
+      "project_inviter": "Project Inviter",
+      "admin": "Admin"
+    },
+    "members": {
+      "title": "Members of {name}",
+      "name": "Name",
+      "description": "Manage who can access this project and what they can do.",
+      "add": "Add member",
+      "addDescription": "Invite a user by username and assign one or more roles.",
+      "username": "Username",
+      "usernamePlaceholder": "e.g. teammate",
+      "roleColumn": "Role",
+      "rolesColumn": "Roles",
+      "rolePlaceholder": "Select a role",
+      "noAssignableRoles": "You cannot assign any role within your own permissions.",
+      "joinedAt": "Joined",
+      "actions": "Actions",
+      "changeRole": "Change roles",
+      "changeRoleTitle": "Change roles for {name}",
+      "changeRoleDescription": "Update the roles this member holds. At least one admin must remain in the project.",
+      "saveRole": "Save",
+      "remove": "Remove",
+      "removeTitle": "Remove {name}?",
+      "removeDescription": "The member will lose access to this project.",
+      "cancel": "Cancel",
+      "noAccess": "You do not have permission to manage members of this project."
     }
   }
 }

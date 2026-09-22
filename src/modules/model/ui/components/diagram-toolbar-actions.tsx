@@ -12,6 +12,8 @@ import {
   ZoomOut,
 } from "lucide-react";
 import { useCallback, useMemo } from "react";
+import { isProjectLayer } from "@/modules/project/domain/constants/permissions";
+import { canEditLayer } from "@/modules/project/domain/services/permissions";
 import { Button } from "@/modules/shared/ui/components/ui/button";
 import {
   DropdownMenu,
@@ -31,6 +33,7 @@ import { useDiagramExport } from "../hooks/use-diagram-export";
 import { useRemoveElementSync } from "../hooks/use-remove-element";
 import { useRemoveRelationshipSync } from "../hooks/use-remove-relationship";
 import { useCanvasStore } from "../stores/canvas";
+import { useWorkbenchStore } from "../stores/workbench";
 import type { LayerValue } from "../types/layer";
 import { SaveStatusIndicator } from "./save-status-indicator";
 
@@ -67,6 +70,22 @@ export function DiagramToolbarActions({
   const hasSelection = useMemo(
     () => selectedNodeId || selectedEdgeId,
     [selectedNodeId, selectedEdgeId],
+  );
+
+  const projectPermissions = useWorkbenchStore((s) => s.projectPermissions);
+
+  /**
+   * RBAC: editing a diagram requires the `edit<Layer>` permission of the open
+   * diagram layer. While the permissions are unresolved (empty — project not
+   * loaded yet) the backend stays the authority and nothing is hidden, so the
+   * UI never blocks a legitimate edit.
+   */
+  const canEditDiagram = useMemo(
+    () =>
+      projectPermissions.length === 0 ||
+      !isProjectLayer(layer) ||
+      canEditLayer(projectPermissions, layer),
+    [projectPermissions, layer],
   );
 
   const handleDelete = useCallback(() => {
@@ -117,23 +136,28 @@ export function DiagramToolbarActions({
 
       <Separator orientation="vertical" className="h-5 w-0.5" />
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="size-7"
-            onClick={handleDelete}
-            disabled={!hasSelection}
-            loading={isRemoveElementPending || isRemoveRelationshipPending}
-          >
-            <Trash2 className="size-3.5 text-destructive" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>Delete selected (Delete)</TooltipContent>
-      </Tooltip>
+      {/* RBAC: destructive edits require `edit<Layer>` for the diagram layer. */}
+      {canEditDiagram && (
+        <>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="size-7"
+                onClick={handleDelete}
+                disabled={!hasSelection}
+                loading={isRemoveElementPending || isRemoveRelationshipPending}
+              >
+                <Trash2 className="size-3.5 text-destructive" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Delete selected (Delete)</TooltipContent>
+          </Tooltip>
 
-      <Separator orientation="vertical" className="h-5 w-0.5" />
+          <Separator orientation="vertical" className="h-5 w-0.5" />
+        </>
+      )}
 
       <DropdownMenu>
         <Tooltip>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Boxes } from "lucide-react";
+import { Boxes, Lock } from "lucide-react";
 import { useMemo } from "react";
 import { ScrollArea } from "@/modules/shared/ui/components/ui/scroll-area";
 import { Separator } from "@/modules/shared/ui/components/ui/separator";
@@ -32,6 +32,13 @@ export function PalettePanel() {
   const isClassDiagram = activeTab?.type === "CDB";
   const isScenario = ["OIS", "SS", "LS", "PS"].includes(activeTab?.type ?? "");
 
+  /**
+   * RBAC: the palette creates new model elements, so it is only rendered when
+   * the user holds `edit<Layer>` for the layer being displayed. Read-only
+   * members see an explanatory notice instead of draggable tools.
+   */
+  const canEdit = useWorkbenchStore((s) => s.canEditLayer(layer));
+
   const palette = useMemo(
     () => (activeTab ? getDiagramPalette(activeTab.type) : null),
     [activeTab],
@@ -59,7 +66,18 @@ export function PalettePanel() {
       </div>
 
       <ScrollArea className="min-h-0 flex-1">
-        {activeTab && palette ? (
+        {!canEdit ? (
+          <div className="flex flex-1 flex-col items-center justify-center gap-1.5 p-4 text-center">
+            <Lock className="size-4 text-muted-foreground" />
+            <p className="text-[11px] font-medium text-foreground">
+              Read-only layer
+            </p>
+            <p className="text-[10px] text-muted-foreground">
+              You do not have edit access to {layerInfo.label}. Ask a project
+              admin for the matching editor role.
+            </p>
+          </div>
+        ) : activeTab && palette ? (
           isClassDiagram ? (
             <ClassPalette palette={palette} />
           ) : isScenario ? (

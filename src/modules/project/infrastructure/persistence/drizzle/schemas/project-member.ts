@@ -8,7 +8,7 @@ export const projectMembers = pgTable(
       .notNull()
       .references(() => projects.id, { onDelete: "cascade" }),
     userId: text("user_id").notNull(),
-    role: text("role", { enum: ["OWNER", "EDITOR", "VIEWER"] }).notNull(),
+    role: text("role").notNull(),
     joinedAt: text("joined_at").notNull(),
   },
   (t) => ({

@@ -1,8 +1,8 @@
-import { useMutation } from "@tanstack/react-query";
+import { useServerMutation } from "@/modules/shared/ui/hooks/use-mutation";
 import { remove } from "../../presentation/server-actions/remove";
 
 export function useRemoveProject() {
-  return useMutation({
+  return useServerMutation({
     mutationFn: remove,
   });
 }

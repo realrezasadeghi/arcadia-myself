@@ -120,6 +120,7 @@ export async function WorkbenchView({ params }: WorkbenchViewProps) {
       projectId={projectId}
       modelData={modelData}
       projectName={project?.name ?? "Project"}
+      permissions={project?.permissions}
     />
   );
 }

@@ -1,4 +1,13 @@
 import { create } from "zustand";
+import {
+  PROJECT_LAYERS,
+  isProjectLayer,
+  type ProjectLayer,
+} from "@/modules/project/domain/constants/permissions";
+import {
+  canEditLayer as canEditLayerPermission,
+  canViewLayer as canViewLayerPermission,
+} from "@/modules/project/domain/services/permissions";
 import type { DiagramTypeValue } from "../types/diagram";
 import type { LayerValue } from "../types/layer";
 
@@ -40,6 +49,9 @@ interface WorkbenchState {
   /** لایه فعلی برای نمایش در Layer Switcher */
   currentLayer: LayerValue;
 
+  /** Permissions of the requesting user for the loaded project (RBAC). */
+  projectPermissions: string[];
+
   panels: PanelVisibility;
 
   setProject: (projectId: string, projectName: string) => void;
@@ -51,6 +63,22 @@ interface WorkbenchState {
   selectElement: (elementId: string | null) => void;
 
   setCurrentLayer: (layer: LayerValue) => void;
+
+  setProjectPermissions: (permissions: string[]) => void;
+
+  /**
+   * RBAC: does the loaded project grant `edit<Layer>`?
+   * Fails open while the permission list is still unresolved (empty) so the
+   * UI never hides tools from a user the API would actually allow — the API
+   * remains the single authority.
+   */
+  canEditLayer: (layer: LayerValue) => boolean;
+
+  /** RBAC: does the loaded project grant `view<Layer>`? (fails open) */
+  canViewLayer: (layer: LayerValue) => boolean;
+
+  /** RBAC: the RBAC-governed layers the user may open, in ARCADIA order. */
+  visibleLayers: () => ProjectLayer[];
 
   togglePanel: (panel: keyof PanelVisibility) => void;
   setPanel: (panel: keyof PanelVisibility, open: boolean) => void;
@@ -67,13 +95,14 @@ const DEFAULT_PANELS: PanelVisibility = {
   validation: false,
 };
 
-export const useWorkbenchStore = create<WorkbenchState>((set) => ({
+export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
   projectId: null,
   projectName: null,
   tabs: [],
   activeDiagramId: null,
   selectedElementId: null,
   currentLayer: "OA",
+  projectPermissions: [],
   panels: { ...DEFAULT_PANELS },
 
   setProject: (projectId, projectName) => set({ projectId, projectName }),
@@ -124,6 +153,28 @@ export const useWorkbenchStore = create<WorkbenchState>((set) => ({
 
   setCurrentLayer: (currentLayer) => set({ currentLayer }),
 
+  setProjectPermissions: (projectPermissions) => set({ projectPermissions }),
+
+  canEditLayer: (layer) => {
+    const permissions = get().projectPermissions;
+    if (permissions.length === 0 || !isProjectLayer(layer)) return true;
+    return canEditLayerPermission(permissions, layer);
+  },
+
+  canViewLayer: (layer) => {
+    const permissions = get().projectPermissions;
+    if (permissions.length === 0 || !isProjectLayer(layer)) return true;
+    return canViewLayerPermission(permissions, layer);
+  },
+
+  visibleLayers: () => {
+    const permissions = get().projectPermissions;
+    if (permissions.length === 0) return [...PROJECT_LAYERS];
+    return PROJECT_LAYERS.filter((layer) =>
+      canViewLayerPermission(permissions, layer),
+    );
+  },
+
   togglePanel: (panel) =>
     set((s) => ({ panels: { ...s.panels, [panel]: !s.panels[panel] } })),
 
@@ -138,6 +189,7 @@ export const useWorkbenchStore = create<WorkbenchState>((set) => ({
       activeDiagramId: null,
       selectedElementId: null,
       currentLayer: "OA",
+      projectPermissions: [],
       panels: { ...DEFAULT_PANELS },
     }),
 }));

@@ -1,7 +1,7 @@
 "use server";
 
-import { withAuth } from "@/modules/auth/presentation/with-auth";
 import { updateTag } from "next/cache";
+import { withAuth } from "@/modules/auth/presentation/with-auth";
 import { RemoveProjectUseCase } from "../../application/use-cases/remove";
 import { projectRepository } from "../../infrastructure/remote";
 

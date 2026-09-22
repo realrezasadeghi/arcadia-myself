@@ -1,7 +1,8 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
-import { Project, type ProjectRole } from "../../domain/entities/project";
+import { can } from "../../domain/services/permissions";
 import type { IProjectRepository } from "../ports/project";
+import { type ProjectView, toProjectView } from "./map-project";
 
 export type UpdateProjectPayload = {
   payload: {
@@ -12,19 +13,10 @@ export type UpdateProjectPayload = {
   context: {
     token: string;
     userId: number;
-    requesterId: number;
   };
 };
 
-export type UpdateProjectResponse = {
-  id: number;
-  name: string;
-  description?: string;
-  members: { userId: number; role: ProjectRole; joinedAt: string }[];
-  ownerId: number;
-  createdAt: string;
-  updatedAt: string;
-};
+export type UpdateProjectResponse = ProjectView;
 
 export class UpdateProjectUseCase
   implements IUseCase<UpdateProjectPayload, UpdateProjectResponse>
@@ -36,55 +28,27 @@ export class UpdateProjectUseCase
     context,
   }: UpdateProjectPayload): Promise<UpdateProjectResponse> {
     try {
-      const { data } = await this.projectRepository.getProjectById(
+      // Fetch the current project to merge mutable fields and to run the
+      // UX-level permission guard (the backend remains the authority).
+      const current = await this.projectRepository.getProjectById(
         { id: payload.id },
         context.token,
       );
+      const currentView = toProjectView(current.data, context.userId);
 
-      const project = Project.reconstitute({
-        id: data.id,
-        name: data.name,
-        description: data.description,
-        ownerId: context.userId,
-        members: [
-          { userId: context.userId, role: "OWNER", joinedAt: new Date() },
-        ],
-        createdAt: data.created_at,
-        updatedAt: data.updated_at,
-      });
-
-      if (!project.isOwner(context.requesterId)) {
-        throw new Error("Only project owner can change details of project.");
+      if (!can(currentView.permissions, "editProject")) {
+        throw new Error("Your project role does not allow this action.");
       }
 
-      if (payload.name) {
-        project.rename(payload.name);
-      }
-
-      if (payload.description) {
-        project.updateDescription(payload.description);
-      }
+      const name = payload.name ?? currentView.name;
+      const description = payload.description ?? currentView.description;
 
       const updated = await this.projectRepository.update(
-        {
-          id: payload.id,
-          name: project.name.value,
-          description: project.description,
-        },
+        { id: payload.id, name, description },
         context.token,
       );
 
-      return Project.reconstitute({
-        id: updated.data.id,
-        name: updated.data.name,
-        description: updated.data.description,
-        ownerId: context.userId,
-        members: [
-          { userId: context.userId, role: "OWNER", joinedAt: new Date() },
-        ],
-        createdAt: updated.data.created_at,
-        updatedAt: updated.data.updated_at,
-      }).toJSON();
+      return toProjectView(updated.data, context.userId);
     } catch (error) {
       throw new Error(resolveErrorMessage(error, "Error updating project"));
     }

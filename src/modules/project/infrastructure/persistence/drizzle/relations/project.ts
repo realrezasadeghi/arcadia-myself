@@ -1,5 +1,5 @@
-import { users } from "@/modules/auth/infrastructure/persistence/drizzle/schemas/user";
 import { relations } from "drizzle-orm";
+import { users } from "@/modules/auth/infrastructure/persistence/drizzle/schemas/user";
 
 import { projects } from "../schemas/project";
 import { projectMembers } from "../schemas/project-member";

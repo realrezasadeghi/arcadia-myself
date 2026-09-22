@@ -7,9 +7,12 @@ import {
   MoreHorizontal,
   Pencil,
   Trash2,
-  Users,
+  User,
 } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { can, canAny } from "@/modules/project/domain/services/permissions";
+import { Badge } from "@/modules/shared/ui/components/ui/badge";
 import { Button } from "@/modules/shared/ui/components/ui/button";
 import {
   DropdownMenu,
@@ -51,7 +54,13 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
-  const memberCount = project.members.length;
+  const t = useTranslations("project");
+  const canEditProject = can(project.permissions, "editProject");
+  const canDeleteProject = can(project.permissions, "deleteProject");
+  const canManageMembers = canAny(project.permissions, [
+    "addMembers",
+    "manageMembers",
+  ]);
   const date = new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
@@ -70,40 +79,64 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
           </div>
 
           <div className="flex items-center gap-1">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-8 w-8 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40">
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onEdit(project);
-                  }}
-                >
-                  <Pencil className="h-4 w-4 mr-2" /> Edit project
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onDelete(project);
-                  }}
-                  className="text-destructive focus:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" /> Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {(canEditProject || canDeleteProject) && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={(e) => e.preventDefault()}
+                  >
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-40">
+                  {canManageMembers && (
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      asChild
+                    >
+                      <Link href={`/dashboard/project/${project.id}/members`}>
+                        {t("membersLink")}
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  {canEditProject && (
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onEdit(project);
+                      }}
+                    >
+                      <Pencil className="h-4 w-4 mr-2" /> Edit project
+                    </DropdownMenuItem>
+                  )}
+                  {canManageMembers && canEditProject && (
+                    <DropdownMenuSeparator />
+                  )}
+                  {canEditProject && canDeleteProject && (
+                    <DropdownMenuSeparator />
+                  )}
+                  {canDeleteProject && (
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onDelete(project);
+                      }}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" /> Delete
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
 
@@ -141,11 +174,16 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
 
         {/* Footer */}
         <div className="flex items-center justify-between pt-3 border-t border-border/50">
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <Users className="h-3.5 w-3.5" />
-              {memberCount} {memberCount === 1 ? "member" : "members"}
+              <User className="h-3.5 w-3.5" />
+              {t("role")}:
             </span>
+            {project.roles.map((role) => (
+              <Badge key={role} variant="secondary" className="text-[11px]">
+                {t(`roles.${role}`)}
+              </Badge>
+            ))}
             <span className="flex items-center gap-1.5">
               <Calendar className="h-3.5 w-3.5" />
               {date}

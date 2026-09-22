@@ -1,7 +1,7 @@
 "use server";
 
-import { withAuth } from "@/modules/auth/presentation/with-auth";
 import { updateTag } from "next/cache";
+import { withAuth } from "@/modules/auth/presentation/with-auth";
 import { UpdateProjectUseCase } from "../../application/use-cases/update";
 import { projectRepository } from "../../infrastructure/remote";
 import { UpdateProjectDTO, type UpdateProjectDTOProps } from "../dtos/update";
@@ -17,7 +17,6 @@ export const update = withAuth(
       context: {
         token,
         userId,
-        requesterId: userId,
       },
     });
 

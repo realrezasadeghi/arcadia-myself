@@ -1,8 +1,8 @@
-import { useMutation } from "@tanstack/react-query";
+import { useServerMutation } from "@/modules/shared/ui/hooks/use-mutation";
 import { update } from "../../presentation/server-actions/update";
 
 export function useUpdateProject() {
-  return useMutation({
+  return useServerMutation({
     mutationFn: update,
   });
 }

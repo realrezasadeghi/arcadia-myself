@@ -35,7 +35,7 @@ import { getDiagramPalette } from "../helpers/diagram";
 import { getElementTypeInfo } from "../helpers/element";
 import { useCanvasBehaviour } from "../hooks/use-canvas-behaviour";
 import { useCanvasStore } from "../stores/canvas";
-import { useWorkbenchStore } from "../stores/workbench";
+import { useCanEditActiveLayer, useWorkbenchStore } from "../stores/workbench";
 import type {
   ClassElementData,
   ClassElementTypeValue,
@@ -69,6 +69,9 @@ export function ClassCanvasInner({
   elements,
   relationships,
 }: ClassCanvasInnerProps) {
+  // RBAC: without `edit<layer>` the canvas is fully static.
+  const canEdit = useCanEditActiveLayer();
+
   const router = useRouter();
   const createClassElement = useCreateClassElement();
   const createClassRelationship = useCreateClassRelationship();
@@ -414,6 +417,7 @@ export function ClassCanvasInner({
   const handleDrop: DragEventHandler<HTMLDivElement> = useCallback(
     (event) => {
       event.preventDefault();
+      if (!canEdit) return;
       if (!reactFlowRef.current || !modelId || !diagramId) return;
 
       const bounds = reactFlowRef.current.getBoundingClientRect();
@@ -437,11 +441,19 @@ export function ClassCanvasInner({
 
       handlePaletteDrop(elementType, position);
     },
-    [reactFlowRef, modelId, diagramId, handleExplorerDrop, handlePaletteDrop],
+    [
+      canEdit,
+      reactFlowRef,
+      modelId,
+      diagramId,
+      handleExplorerDrop,
+      handlePaletteDrop,
+    ],
   );
 
   const insertRequest = useCanvasStore((s) => s.insertRequest);
   useEffect(() => {
+    if (!canEdit) return;
     if (!insertRequest) return;
     if (!diagramId || !modelId) return;
 
@@ -499,6 +511,7 @@ export function ClassCanvasInner({
 
     clearInsertRequest();
   }, [
+    canEdit,
     insertRequest,
     diagramId,
     modelId,
@@ -521,7 +534,7 @@ export function ClassCanvasInner({
 
   return (
     <>
-      <ClassDiagramContextMenu>
+      <ClassDiagramContextMenu readOnly={!canEdit}>
         <div ref={reactFlowRef} className="flex-1 h-full w-full">
           <ReactFlow
             fitView
@@ -529,16 +542,18 @@ export function ClassCanvasInner({
             edges={edges}
             nodeTypes={NODE_TYPES}
             edgeTypes={EDGE_TYPES}
-            deleteKeyCode={"delete"}
+            deleteKeyCode={canEdit ? "delete" : null}
             className="bg-background"
             onDrop={handleDrop}
             onNodeClick={onNodeClick}
             onEdgeClick={onEdgeClick}
             onDragOver={handleDragOver}
             onNodesChange={onNodesChange}
-            onConnect={handleConnect}
+            onConnect={canEdit ? handleConnect : undefined}
             onEdgesChange={onEdgesChange}
-            onNodeDragStop={onNodeDragStop}
+            onNodeDragStop={canEdit ? onNodeDragStop : undefined}
+            nodesDraggable={canEdit}
+            nodesConnectable={canEdit}
             fitViewOptions={{ padding: 0.15 }}
           >
             <Background

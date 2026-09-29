@@ -11,6 +11,7 @@ import { useUpdateElement } from "../clients/update-element";
 import { getElementTypeInfo, getElementVisual } from "../helpers/element";
 import type { ElementNodeData } from "../stores/canvas";
 import { useCanvasStore } from "../stores/canvas";
+import { useCanEditActiveLayer } from "../stores/workbench";
 
 const STATUS_RING: Record<string, string> = {
   DRAFT: "ring-1 ring-gray-400/50",
@@ -24,6 +25,7 @@ function ArchitectureNodeComponent({
   data,
   selected,
 }: NodeProps<ArchitectureNodeData>) {
+  const canEdit = useCanEditActiveLayer();
   const elementType = getElementTypeInfo(data.elementType);
   const spec = getElementVisual(elementType.value);
 
@@ -72,12 +74,13 @@ function ArchitectureNodeComponent({
 
   return (
     <div
-      draggable
-      onDragStart={handleDragStart}
+      draggable={canEdit}
+      onDragStart={canEdit ? handleDragStart : undefined}
       className={cn(
         "relative flex items-center justify-center min-w-35 min-h-13 px-3 py-2",
         "border-2 text-[11px] font-medium leading-tight text-center select-none",
-        "transition-shadow duration-150 cursor-grab active:cursor-grabbing",
+        "transition-shadow duration-150",
+        canEdit && "cursor-grab active:cursor-grabbing",
         isEllipse ? "rounded-full" : isRounded ? "rounded-xl" : "rounded-sm",
         selected && "shadow-[0_0_0_2px_hsl(var(--primary))]",
         STATUS_RING[data.status] ?? "",
@@ -100,8 +103,8 @@ function ArchitectureNodeComponent({
       </span>
 
       <div
-        className="line-clamp-2 wrap-break-word cursor-text"
-        onDoubleClick={handleDoubleClickName}
+        className={cn("line-clamp-2 wrap-break-word", canEdit && "cursor-text")}
+        onDoubleClick={canEdit ? handleDoubleClickName : undefined}
       >
         {isEditingName ? (
           <input

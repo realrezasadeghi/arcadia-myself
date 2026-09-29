@@ -43,6 +43,7 @@ import {
 } from "../constants/scenario";
 import { computeMessageNumbers } from "../lib/message-numbering";
 import { useScenarioSelectionStore } from "../stores/scenario-selection";
+import { useCanEditActiveLayer } from "../stores/workbench";
 import type { Diagram } from "../types/diagram";
 import { CreateFragmentDialog } from "./create-fragment-dialog";
 import { CreateLifelineDialog } from "./create-lifeline-dialog";
@@ -137,6 +138,9 @@ export function ScenarioCanvasInner({
   fragments,
   fragmentOperands,
 }: ScenarioCanvasInnerProps) {
+  // RBAC: without `edit<layer>` the canvas is fully static.
+  const canEdit = useCanEditActiveLayer();
+
   const queryClient = useQueryClient();
   const reorderLifelines = useReorderLifelines();
   const removeLifeline = useRemoveLifeline();
@@ -614,6 +618,7 @@ export function ScenarioCanvasInner({
   const handleDrop = useCallback(
     (event: DragEvent<HTMLDivElement>) => {
       event.preventDefault();
+      if (!canEdit) return;
       const raw = event.dataTransfer.getData("application/scenario-palette");
       if (!raw) return;
 
@@ -692,6 +697,7 @@ export function ScenarioCanvasInner({
       }
     },
     [
+      canEdit,
       createLifeline,
       createMessage,
       createFragment,
@@ -1096,6 +1102,7 @@ export function ScenarioCanvasInner({
   return (
     <div className="flex h-full min-h-0 w-full">
       <ScenarioContextMenu
+        readOnly={!canEdit}
         onAddLifeline={() => setLifelineDialogOpen(true)}
         onAddMessage={() => setMessageDialogOpen(true)}
         onAddFragment={() => setFragmentDialogOpen(true)}
@@ -1118,7 +1125,7 @@ export function ScenarioCanvasInner({
         <div
           className="flex-1 h-full w-full"
           onDragOver={(event) => event.preventDefault()}
-          onDrop={handleDrop}
+          onDrop={canEdit ? handleDrop : undefined}
         >
           <ReactFlow
             nodes={nodes}
@@ -1137,11 +1144,11 @@ export function ScenarioCanvasInner({
             }}
             onPaneClick={handlePaneClick}
             onNodeClick={handleNodeClick}
-            onNodeDragStart={handleNodeDragStart}
-            onNodeDrag={handleNodeDrag}
-            onNodeDragStop={handleNodeDragStop}
+            onNodeDragStart={canEdit ? handleNodeDragStart : undefined}
+            onNodeDrag={canEdit ? handleNodeDrag : undefined}
+            onNodeDragStop={canEdit ? handleNodeDragStop : undefined}
             onEdgeClick={handleEdgeClick}
-            nodesDraggable={true}
+            nodesDraggable={canEdit}
             nodesConnectable={false}
             snapToGrid
             snapGrid={[20, 20]}

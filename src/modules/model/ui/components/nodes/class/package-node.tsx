@@ -16,6 +16,7 @@ import { useUpdateClassElement } from "../../../clients/update-class-element";
 import { getClassElementTypeInfo } from "../../../constants/class-diagram";
 import { useCanvasStore } from "../../../stores/canvas";
 import type { ClassNodeData } from "../../../stores/class-canvas";
+import { useCanEditActiveLayer } from "../../../stores/workbench";
 
 type PackageNodeType = Node<ClassNodeData>;
 
@@ -33,6 +34,7 @@ type PackageNodeType = Node<ClassNodeData>;
  *   └─────────────────────────────────────┘
  */
 function PackageNodeComponent({ data, selected }: NodeProps<PackageNodeType>) {
+  const canEdit = useCanEditActiveLayer();
   const typeInfo = getClassElementTypeInfo(data.elementType);
 
   const [isEditingName, setIsEditingName] = useState(false);
@@ -128,7 +130,7 @@ function PackageNodeComponent({ data, selected }: NodeProps<PackageNodeType>) {
           <span
             className="text-[11px] font-semibold cursor-text select-none whitespace-nowrap leading-none"
             style={{ color: typeInfo.color }}
-            onDoubleClick={handleDoubleClickName}
+            onDoubleClick={canEdit ? handleDoubleClickName : undefined}
           >
             <span className="text-muted-foreground/60 mr-1.5">«package»</span>
             {data.name}
@@ -147,7 +149,7 @@ function PackageNodeComponent({ data, selected }: NodeProps<PackageNodeType>) {
 
       {/* ── NodeResizer (only visible when selected) ── */}
       <NodeResizer
-        isVisible={selected}
+        isVisible={canEdit && selected}
         minWidth={200}
         minHeight={160}
         lineClassName="border-primary/50"

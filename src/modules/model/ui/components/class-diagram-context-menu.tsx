@@ -22,10 +22,13 @@ import { useCanvasStore } from "../stores/canvas";
 
 type ClassDiagramContextMenuProps = {
   children: React.ReactNode;
+  /** RBAC: hide the mutating items (move, delete) for read-only layers. */
+  readOnly?: boolean;
 };
 
 export function ClassDiagramContextMenu({
   children,
+  readOnly = false,
 }: ClassDiagramContextMenuProps) {
   const selectedNodeId = useCanvasStore((s) => s.selectedNodeId);
   const selectedEdgeId = useCanvasStore((s) => s.selectedEdgeId);
@@ -34,15 +37,25 @@ export function ClassDiagramContextMenu({
     <ContextMenu>
       <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
       <ContextMenuContent className="w-56">
-        {selectedNodeId && <NodeContextMenu nodeId={selectedNodeId} />}
-        {selectedEdgeId && <EdgeContextMenu edgeId={selectedEdgeId} />}
+        {selectedNodeId && (
+          <NodeContextMenu nodeId={selectedNodeId} readOnly={readOnly} />
+        )}
+        {selectedEdgeId && (
+          <EdgeContextMenu edgeId={selectedEdgeId} readOnly={readOnly} />
+        )}
         {!selectedNodeId && !selectedEdgeId && <EmptyContextMenu />}
       </ContextMenuContent>
     </ContextMenu>
   );
 }
 
-function NodeContextMenu({ nodeId }: { nodeId: string }) {
+function NodeContextMenu({
+  nodeId,
+  readOnly,
+}: {
+  nodeId: string;
+  readOnly: boolean;
+}) {
   const node = useCanvasStore((s) => s.nodes.find((n) => n.id === nodeId));
   const { removeElement, isPending } = useRemoveElementSync();
   const selectNode = useCanvasStore((s) => s.selectNode);
@@ -96,8 +109,8 @@ function NodeContextMenu({ nodeId }: { nodeId: string }) {
         Select
       </ContextMenuItem>
 
-      {/* Move to Package submenu */}
-      {data.elementType !== "PACKAGE" && packages.length > 0 && (
+      {/* Move to Package submenu — RBAC: requires edit<layer>. */}
+      {!readOnly && data.elementType !== "PACKAGE" && packages.length > 0 && (
         <>
           <ContextMenuSeparator />
           <ContextMenuSub>
@@ -137,24 +150,35 @@ function NodeContextMenu({ nodeId }: { nodeId: string }) {
         </>
       )}
 
-      <ContextMenuSeparator />
-      <ContextMenuItem
-        onClick={handleDelete}
-        disabled={isPending}
-        className="text-destructive focus:text-destructive"
-      >
-        {isPending ? (
-          <Loader2 className="mr-2 size-3.5 animate-spin" />
-        ) : (
-          <Trash2 className="mr-2 size-3.5" />
-        )}
-        Delete
-      </ContextMenuItem>
+      {/* RBAC: deleting requires edit<layer>. */}
+      {!readOnly && (
+        <>
+          <ContextMenuSeparator />
+          <ContextMenuItem
+            onClick={handleDelete}
+            disabled={isPending}
+            className="text-destructive focus:text-destructive"
+          >
+            {isPending ? (
+              <Loader2 className="mr-2 size-3.5 animate-spin" />
+            ) : (
+              <Trash2 className="mr-2 size-3.5" />
+            )}
+            Delete
+          </ContextMenuItem>
+        </>
+      )}
     </>
   );
 }
 
-function EdgeContextMenu({ edgeId }: { edgeId: string }) {
+function EdgeContextMenu({
+  edgeId,
+  readOnly,
+}: {
+  edgeId: string;
+  readOnly: boolean;
+}) {
   const edge = useCanvasStore((s) => s.edges.find((e) => e.id === edgeId));
   const { removeRelationship, isPending } = useRemoveRelationshipSync();
 
@@ -186,19 +210,24 @@ function EdgeContextMenu({ edgeId }: { edgeId: string }) {
         <Copy className="mr-2 size-3.5" />
         Copy Relationship ID
       </ContextMenuItem>
-      <ContextMenuSeparator />
-      <ContextMenuItem
-        onClick={handleDelete}
-        disabled={isPending}
-        className="text-destructive focus:text-destructive"
-      >
-        {isPending ? (
-          <Loader2 className="mr-2 size-3.5 animate-spin" />
-        ) : (
-          <Trash2 className="mr-2 size-3.5" />
-        )}
-        Delete
-      </ContextMenuItem>
+      {/* RBAC: deleting requires edit<layer>. */}
+      {!readOnly && (
+        <>
+          <ContextMenuSeparator />
+          <ContextMenuItem
+            onClick={handleDelete}
+            disabled={isPending}
+            className="text-destructive focus:text-destructive"
+          >
+            {isPending ? (
+              <Loader2 className="mr-2 size-3.5 animate-spin" />
+            ) : (
+              <Trash2 className="mr-2 size-3.5" />
+            )}
+            Delete
+          </ContextMenuItem>
+        </>
+      )}
     </>
   );
 }

@@ -21,6 +21,7 @@ import {
 } from "../../constants/scenario";
 import type { LifelineNodeData } from "../../stores/scenario-canvas";
 import { useScenarioSelectionStore } from "../../stores/scenario-selection";
+import { useCanEditActiveLayer } from "../../stores/workbench";
 
 type LifelineNodeProps = {
   data: LifelineNodeData;
@@ -46,6 +47,7 @@ export function LifelineNode({ data, selected }: LifelineNodeProps) {
   const updateLifeline = useUpdateLifeline();
   const queryClient = useQueryClient();
   const isRenaming = useScenarioSelectionStore((s) => s.isRenaming);
+  const canEdit = useCanEditActiveLayer();
   const setRenaming = useScenarioSelectionStore((s) => s.setRenaming);
 
   const config =
@@ -128,7 +130,7 @@ export function LifelineNode({ data, selected }: LifelineNodeProps) {
           ${selected ? "ring-2 ring-primary/40 shadow-md" : "hover:shadow-md"}
           ${config.headerBg} ${config.headerBorder}
         `}
-        onDoubleClick={handleDoubleClick}
+        onDoubleClick={canEdit ? handleDoubleClick : undefined}
       >
         {/* Stereotype */}
         <div className="text-[9px] font-mono text-muted-foreground/70 tracking-wider mb-0.5 uppercase">

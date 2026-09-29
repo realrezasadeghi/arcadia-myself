@@ -15,6 +15,7 @@ import {
 } from "../../../helpers/class-diagram";
 import { useCanvasStore } from "../../../stores/canvas";
 import type { ClassNodeData } from "../../../stores/class-canvas";
+import { useCanEditActiveLayer } from "../../../stores/workbench";
 
 type ClassNodeType = Node<ClassNodeData>;
 type PropertyItem = NonNullable<ClassNodeData["properties"]>[number];
@@ -27,6 +28,7 @@ type LiteralItem = NonNullable<ClassNodeData["enumerationLiterals"]>[number];
  * Features: 3 compartments (name, attributes, operations), stereotype, visibility, derived, static, abstract
  */
 function ClassNodeComponent({ data, selected }: NodeProps<ClassNodeType>) {
+  const canEdit = useCanEditActiveLayer();
   const typeInfo = getClassElementTypeInfo(data.elementType);
   const isInterface = data.elementType === "INTERFACE";
   const isEnum = data.elementType === "ENUM";
@@ -249,7 +251,7 @@ function ClassNodeComponent({ data, selected }: NodeProps<ClassNodeType>) {
       <div
         className="border-b px-3 py-1.5 text-center"
         style={{ borderColor: typeInfo.color }}
-        onDoubleClick={handleDoubleClickName}
+        onDoubleClick={canEdit ? handleDoubleClickName : undefined}
       >
         {isEditingName ? (
           <input

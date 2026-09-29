@@ -26,7 +26,7 @@ import { getDiagramPalette } from "../helpers/diagram";
 import { getElementTypeInfo, getElementVisual } from "../helpers/element";
 import { useCanvasBehaviour } from "../hooks/use-canvas-behaviour";
 import { useCanvasStore } from "../stores/canvas";
-import { useWorkbenchStore } from "../stores/workbench";
+import { useCanEditActiveLayer, useWorkbenchStore } from "../stores/workbench";
 import type { Diagram } from "../types/diagram";
 import type { Element, ElementTypeValue } from "../types/element";
 import type {
@@ -63,6 +63,10 @@ export function ArchitectureCanvasInner({
   elements,
   relationships,
 }: ArchitectureCanvasInnerProps) {
+  // RBAC: without `edit<layer>` the canvas is fully static (no drop, no
+  // connect, no drag-persist, no delete key, no mutating menu items).
+  const canEdit = useCanEditActiveLayer();
+
   const createElement = useCreateElement();
   const connectElements = useConnectElements();
   const updateDiagramLayout = useUpdateDiagramLayout();
@@ -364,6 +368,7 @@ export function ArchitectureCanvasInner({
   const handleDrop: DragEventHandler<HTMLDivElement> = useCallback(
     (event) => {
       event.preventDefault();
+      if (!canEdit) return;
       if (!reactFlowRef.current || !modelId || !diagramId) return;
 
       const bounds = reactFlowRef.current.getBoundingClientRect();
@@ -387,12 +392,20 @@ export function ArchitectureCanvasInner({
 
       handlePaletteDrop(elementType, position);
     },
-    [reactFlowRef, modelId, diagramId, handleExplorerDrop, handlePaletteDrop],
+    [
+      canEdit,
+      reactFlowRef,
+      modelId,
+      diagramId,
+      handleExplorerDrop,
+      handlePaletteDrop,
+    ],
   );
 
   // Insert request from explorer (add existing element to diagram)
   const insertRequest = useCanvasStore((s) => s.insertRequest);
   useEffect(() => {
+    if (!canEdit) return;
     if (!insertRequest) return;
     if (!diagramId || !modelId) return;
 
@@ -447,6 +460,7 @@ export function ArchitectureCanvasInner({
 
     clearInsertRequest();
   }, [
+    canEdit,
     insertRequest,
     diagramId,
     modelId,
@@ -471,7 +485,7 @@ export function ArchitectureCanvasInner({
 
   return (
     <>
-      <ClassDiagramContextMenu>
+      <ClassDiagramContextMenu readOnly={!canEdit}>
         <div ref={reactFlowRef} className="flex-1 h-full w-full">
           <ReactFlow
             fitView
@@ -479,16 +493,18 @@ export function ArchitectureCanvasInner({
             edges={edges}
             nodeTypes={NODE_TYPES}
             edgeTypes={EDGE_TYPES}
-            deleteKeyCode={"delete"}
+            deleteKeyCode={canEdit ? "delete" : null}
             className="bg-background"
             onDrop={handleDrop}
             onNodeClick={onNodeClick}
             onEdgeClick={onEdgeClick}
             onDragOver={handleDragOver}
             onNodesChange={onNodesChange}
-            onConnect={handleConnect}
+            onConnect={canEdit ? handleConnect : undefined}
             onEdgesChange={onEdgesChange}
-            onNodeDragStop={onNodeDragStop}
+            onNodeDragStop={canEdit ? onNodeDragStop : undefined}
+            nodesDraggable={canEdit}
+            nodesConnectable={canEdit}
             fitViewOptions={{ padding: 0.15 }}
           >
             <Background

@@ -11,6 +11,7 @@ import { useUpdateElement } from "../../clients/update-element";
 import { getElementTypeInfo, getElementVisual } from "../../helpers/element";
 import type { ElementNodeData } from "../../stores/canvas";
 import { useCanvasStore } from "../../stores/canvas";
+import { useCanEditActiveLayer } from "../../stores/workbench";
 
 type FunctionNodeType = Node<ElementNodeData>;
 
@@ -31,6 +32,7 @@ function FunctionNodeComponent({
   const inputRef = useRef<HTMLInputElement>(null);
   const updateNodeData = useCanvasStore((s) => s.updateNodeData);
   const updateElement = useUpdateElement();
+  const canEdit = useCanEditActiveLayer();
 
   const handleDoubleClickName = useCallback(
     (e: React.MouseEvent) => {
@@ -84,11 +86,14 @@ function FunctionNodeComponent({
       </div>
 
       <div
-        className="px-3 py-2.5 text-center text-[11px] font-medium leading-tight cursor-grab active:cursor-grabbing"
+        className={cn(
+          "px-3 py-2.5 text-center text-[11px] font-medium leading-tight",
+          canEdit && "cursor-grab active:cursor-grabbing",
+        )}
         style={{ backgroundColor: spec.fillColor, color: spec.strokeColor }}
-        draggable
-        onDragStart={handleDragStart}
-        onDoubleClick={handleDoubleClickName}
+        draggable={canEdit}
+        onDragStart={canEdit ? handleDragStart : undefined}
+        onDoubleClick={canEdit ? handleDoubleClickName : undefined}
       >
         {isEditingName ? (
           <input

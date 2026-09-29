@@ -28,6 +28,8 @@ import {
 
 type ScenarioContextMenuProps = {
   children: ReactNode;
+  /** RBAC: every item mutates — read-only layers get a notice instead. */
+  readOnly?: boolean;
   onAddLifeline?: () => void;
   onAddMessage?: () => void;
   onAddFragment?: () => void;
@@ -46,6 +48,7 @@ type ScenarioContextMenuProps = {
 
 export function ScenarioContextMenu({
   children,
+  readOnly = false,
   onAddLifeline,
   onAddMessage,
   onAddFragment,
@@ -65,82 +68,102 @@ export function ScenarioContextMenu({
     <ContextMenu>
       <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
       <ContextMenuContent className="w-56">
-        <ContextMenuSub>
-          <ContextMenuSubTrigger>
-            <Plus className="size-3.5 mr-2" />
-            Add
-          </ContextMenuSubTrigger>
-          <ContextMenuSubContent className="w-48">
-            <ContextMenuItem onClick={onAddLifeline}>
-              <Waypoints className="size-3.5 mr-2" />
-              Add Lifeline
-            </ContextMenuItem>
-            <ContextMenuItem onClick={onAddMessage}>
-              <MessageSquare className="size-3.5 mr-2" />
-              Add Message
-            </ContextMenuItem>
-            <ContextMenuItem onClick={onAddFragment}>
-              <Puzzle className="size-3.5 mr-2" />
-              Add Fragment
-            </ContextMenuItem>
-            <ContextMenuItem onClick={onAddEnvironment}>
-              <SquareDashedBottom className="size-3.5 mr-2" />
-              Add Environment
-            </ContextMenuItem>
-          </ContextMenuSubContent>
-        </ContextMenuSub>
-
-        {hasSelection && (
+        {readOnly ? (
+          <div className="px-2 py-1.5">
+            <p className="text-xs font-medium">Read-only layer</p>
+            <p className="text-[10px] text-muted-foreground">
+              Your role does not include edit access to this layer.
+            </p>
+          </div>
+        ) : (
           <>
-            <ContextMenuSeparator />
-
-            <ContextMenuItem onClick={onRenameSelected}>
-              <Pencil className="size-3.5 mr-2" />
-              Rename {selectedType ?? "Selected"}
-            </ContextMenuItem>
-
-            {selectedType === "message" && (
-              <>
-                <ContextMenuItem onClick={onMoveUp} disabled={!canMoveUp}>
-                  <ChevronUp className="size-3.5 mr-2" />
-                  Move Up
+            <ContextMenuSub>
+              <ContextMenuSubTrigger>
+                <Plus className="size-3.5 mr-2" />
+                Add
+              </ContextMenuSubTrigger>
+              <ContextMenuSubContent className="w-48">
+                <ContextMenuItem onClick={onAddLifeline}>
+                  <Waypoints className="size-3.5 mr-2" />
+                  Add Lifeline
                 </ContextMenuItem>
-                <ContextMenuItem onClick={onMoveDown} disabled={!canMoveDown}>
-                  <ChevronDown className="size-3.5 mr-2" />
-                  Move Down
+                <ContextMenuItem onClick={onAddMessage}>
+                  <MessageSquare className="size-3.5 mr-2" />
+                  Add Message
+                </ContextMenuItem>
+                <ContextMenuItem onClick={onAddFragment}>
+                  <Puzzle className="size-3.5 mr-2" />
+                  Add Fragment
+                </ContextMenuItem>
+                <ContextMenuItem onClick={onAddEnvironment}>
+                  <SquareDashedBottom className="size-3.5 mr-2" />
+                  Add Environment
+                </ContextMenuItem>
+              </ContextMenuSubContent>
+            </ContextMenuSub>
+
+            {hasSelection && (
+              <>
+                <ContextMenuSeparator />
+
+                <ContextMenuItem onClick={onRenameSelected}>
+                  <Pencil className="size-3.5 mr-2" />
+                  Rename {selectedType ?? "Selected"}
+                </ContextMenuItem>
+
+                {selectedType === "message" && (
+                  <>
+                    <ContextMenuItem onClick={onMoveUp} disabled={!canMoveUp}>
+                      <ChevronUp className="size-3.5 mr-2" />
+                      Move Up
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                      onClick={onMoveDown}
+                      disabled={!canMoveDown}
+                    >
+                      <ChevronDown className="size-3.5 mr-2" />
+                      Move Down
+                    </ContextMenuItem>
+                  </>
+                )}
+
+                {selectedType === "lifeline" && (
+                  <>
+                    <ContextMenuItem onClick={onMoveUp} disabled={!canMoveUp}>
+                      <ArrowUp className="size-3.5 mr-2" />
+                      Move Left
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                      onClick={onMoveDown}
+                      disabled={!canMoveDown}
+                    >
+                      <ArrowDown className="size-3.5 mr-2" />
+                      Move Right
+                    </ContextMenuItem>
+                  </>
+                )}
+
+                {selectedType === "fragment" && (
+                  <ContextMenuItem
+                    onClick={onAddBranch}
+                    disabled={!canAddBranch}
+                  >
+                    <Split className="size-3.5 mr-2" />
+                    Add Branch
+                  </ContextMenuItem>
+                )}
+
+                <ContextMenuSeparator />
+
+                <ContextMenuItem
+                  onClick={onDeleteSelected}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="size-3.5 mr-2" />
+                  Delete {selectedType ?? "Selected"}
                 </ContextMenuItem>
               </>
             )}
-
-            {selectedType === "lifeline" && (
-              <>
-                <ContextMenuItem onClick={onMoveUp} disabled={!canMoveUp}>
-                  <ArrowUp className="size-3.5 mr-2" />
-                  Move Left
-                </ContextMenuItem>
-                <ContextMenuItem onClick={onMoveDown} disabled={!canMoveDown}>
-                  <ArrowDown className="size-3.5 mr-2" />
-                  Move Right
-                </ContextMenuItem>
-              </>
-            )}
-
-            {selectedType === "fragment" && (
-              <ContextMenuItem onClick={onAddBranch} disabled={!canAddBranch}>
-                <Split className="size-3.5 mr-2" />
-                Add Branch
-              </ContextMenuItem>
-            )}
-
-            <ContextMenuSeparator />
-
-            <ContextMenuItem
-              onClick={onDeleteSelected}
-              className="text-destructive focus:text-destructive"
-            >
-              <Trash2 className="size-3.5 mr-2" />
-              Delete {selectedType ?? "Selected"}
-            </ContextMenuItem>
           </>
         )}
       </ContextMenuContent>

@@ -15,6 +15,7 @@ import {
   ROW_HEIGHT,
 } from "../../constants/scenario";
 import type { FragmentNodeData } from "../../stores/scenario-canvas";
+import { useCanEditActiveLayer } from "../../stores/workbench";
 
 type FragmentNodeProps = {
   data: FragmentNodeData;
@@ -51,6 +52,7 @@ export const FRAGMENT_TOP_PAD = 20;
  *   from the contained messages and stays fixed
  */
 export function FragmentNode({ data, selected, id }: FragmentNodeProps) {
+  const canEdit = useCanEditActiveLayer();
   const colors = OPERATOR_COLORS[data.operator] ?? OPERATOR_COLORS.alt;
   const operatorLabel = OPERATOR_LABELS[data.operator] ?? data.operator;
   const { getViewport } = useReactFlow();
@@ -198,13 +200,13 @@ export function FragmentNode({ data, selected, id }: FragmentNodeProps) {
     >
       <NodeResizer
         nodeId={id}
-        isVisible={selected}
+        isVisible={canEdit && selected}
         minWidth={LIFELINE_HEADER_WIDTH + 2 * FRAGMENT_H_PADDING}
         minHeight={measuredHeight || 80}
         maxHeight={measuredHeight || undefined}
         lineClassName="border-primary"
         handleClassName="bg-primary"
-        onResizeEnd={handleResizeEnd}
+        onResizeEnd={canEdit ? handleResizeEnd : undefined}
       />
 
       {/* Pentagon operator tag — top-left corner (UML style) */}
@@ -296,8 +298,16 @@ export function FragmentNode({ data, selected, id }: FragmentNodeProps) {
               />
               {/* Drag hit area */}
               <div
-                className="absolute left-0 right-0 -top-2 h-4 cursor-row-resize"
-                onMouseDown={(e) => startSeparatorDrag(separatorIndex, e)}
+                className={
+                  canEdit
+                    ? "absolute left-0 right-0 -top-2 h-4 cursor-row-resize"
+                    : "absolute left-0 right-0 -top-2 h-4"
+                }
+                onMouseDown={
+                  canEdit
+                    ? (e) => startSeparatorDrag(separatorIndex, e)
+                    : undefined
+                }
               />
               {/* Branch guard label (below separator) */}
               {editingGuardIndex === separatorIndex ? (
@@ -312,8 +322,10 @@ export function FragmentNode({ data, selected, id }: FragmentNodeProps) {
               ) : (
                 <button
                   type="button"
-                  onDoubleClick={() =>
-                    startGuardEdit(separatorIndex, operand.guard)
+                  onDoubleClick={
+                    canEdit
+                      ? () => startGuardEdit(separatorIndex, operand.guard)
+                      : undefined
                   }
                   className="absolute left-3 top-1.5 text-[9px] font-mono px-1 rounded cursor-text text-left"
                   style={{

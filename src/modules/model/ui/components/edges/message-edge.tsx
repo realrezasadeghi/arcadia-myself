@@ -13,6 +13,7 @@ import {
 } from "../../constants/scenario";
 import type { MessageEdgeData } from "../../stores/scenario-canvas";
 import { useScenarioSelectionStore } from "../../stores/scenario-selection";
+import { useCanEditActiveLayer } from "../../stores/workbench";
 
 /**
  * MessageEdge — Capella-style sequence message
@@ -28,6 +29,7 @@ import { useScenarioSelectionStore } from "../../stores/scenario-selection";
  * - Double-click to rename
  */
 export function MessageEdge({ sourceX, targetX, data, selected }: EdgeProps) {
+  const canEdit = useCanEditActiveLayer();
   const edgeData = data as MessageEdgeData;
   const kind = edgeData?.kind ?? "CALL";
   const config = MESSAGE_CONFIG[kind] ?? MESSAGE_CONFIG.CALL;
@@ -440,10 +442,14 @@ export function MessageEdge({ sourceX, targetX, data, selected }: EdgeProps) {
             pointerEvents: "all",
           }}
           className={`flex items-center gap-1.5 select-none whitespace-nowrap rounded px-1.5 py-0.5 ${
-            isDragging ? "cursor-grabbing opacity-80" : "cursor-grab"
+            !canEdit
+              ? ""
+              : isDragging
+                ? "cursor-grabbing opacity-80"
+                : "cursor-grab"
           } ${labelBg} ${selected ? "ring-1 ring-primary/30" : ""}`}
-          onDoubleClick={handleDoubleClick}
-          onMouseDown={handleMouseDown}
+          onDoubleClick={canEdit ? handleDoubleClick : undefined}
+          onMouseDown={canEdit ? handleMouseDown : undefined}
         >
           {/* Hierarchical sequence number */}
           <span

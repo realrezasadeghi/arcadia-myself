@@ -24,7 +24,10 @@ export class RemoveProjectMemberUseCase
         payload,
         context.token,
       );
-      return response.success;
+      if (!response.success) {
+        throw new Error(response.message || "Error in remove project member");
+      }
+      return true;
     } catch (error) {
       throw new Error(
         resolveErrorMessage(error, "Error in remove project member"),

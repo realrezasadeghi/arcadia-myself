@@ -420,6 +420,10 @@
   "project": {
     "role": "Role",
     "membersLink": "Members",
+    "noDescription": "No description",
+    "open": "Open",
+    "editProject": "Edit project",
+    "actions": "Project actions",
     "roles": {
       "project_viewer": "Project Viewer",
       "oa_viewer": "OA Viewer",
@@ -455,7 +459,12 @@
       "removeTitle": "Remove {name}?",
       "removeDescription": "The member will lose access to this project.",
       "cancel": "Cancel",
-      "noAccess": "You do not have permission to manage members of this project."
+      "noAccess": "You do not have permission to manage members of this project.",
+      "you": "You",
+      "lastAdmin": "Last administrator",
+      "backToProject": "Back to project",
+      "empty": "No members yet",
+      "emptyHint": "Add a member to give someone access to this project."
     }
   }
 }

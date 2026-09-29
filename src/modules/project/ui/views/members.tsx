@@ -17,7 +17,8 @@ import {
 } from "@/modules/shared/ui/components/ui/table";
 import type { ProjectMemberData } from "../../application/ports/project";
 import type { ProjectRoleDefinition } from "../../domain/constants/permissions";
-import { can, filterAssignableRoles } from "../../domain/services/permissions";
+import { filterAssignableRoles } from "../../domain/services/permissions";
+import { canPerform } from "../../domain/services/resource-action";
 import { useRemoveProjectMember } from "../clients/remove-member";
 import { AddMemberDialog } from "../components/add-member-dialog";
 import { EditMemberRoleDialog } from "../components/edit-member-role-dialog";
@@ -33,6 +34,8 @@ type MembersViewProps = {
   project: Project;
   members: ProjectMemberData[];
   roles: ProjectRoleDefinition[];
+  /** The requesting user, used to block self-removal. */
+  currentUserId: number | null;
 };
 
 export function MembersView({
@@ -40,12 +43,13 @@ export function MembersView({
   project,
   members,
   roles,
+  currentUserId,
 }: MembersViewProps) {
   const t = useTranslations("project.members");
   const router = useRouter();
 
-  const canManage = can(project.permissions, "manageMembers");
-  const canAdd = can(project.permissions, "addMembers");
+  const canManage = canPerform(project.permissions, "member", "manage");
+  const canAdd = canPerform(project.permissions, "member", "create");
 
   // Inviter ceiling: only roles whose permissions fit within ours.
   const assignableRoles = useMemo(
@@ -60,6 +64,19 @@ export function MembersView({
 
   const removeMember = useRemoveProjectMember();
 
+  // RBAC: how many members can still manage other members. Removing or
+  // demoting the last one would lock every remaining member out of the
+  // project's member management.
+  const managerCount = members.filter((member) =>
+    canPerform(member.permissions, "member", "manage"),
+  ).length;
+
+  const isSelf = (member: ProjectMemberData) =>
+    currentUserId !== null && member.userId === currentUserId;
+
+  const isLastManager = (member: ProjectMemberData) =>
+    canPerform(member.permissions, "member", "manage") && managerCount <= 1;
+
   if (!canManage && !canAdd) {
     return (
       <div className="p-6">
@@ -70,10 +87,16 @@ export function MembersView({
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="size-8" asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={t("backToProject")}
+              className="relative size-8 touch-manipulation after:absolute after:-inset-1.5 after:content-['']"
+              asChild
+            >
               <Link href={`/dashboard/project/${projectId}`}>
                 <ArrowLeft className="size-4" />
               </Link>
@@ -86,7 +109,10 @@ export function MembersView({
         </div>
 
         {canAdd && (
-          <Button onClick={() => setAddOpen(true)}>
+          <Button
+            onClick={() => setAddOpen(true)}
+            className="touch-manipulation any-pointer-coarse:min-h-11"
+          >
             <UserPlus className="size-4" />
             {t("add")}
           </Button>
@@ -99,55 +125,97 @@ export function MembersView({
             <TableRow>
               <TableHead>{t("name")}</TableHead>
               <TableHead>{t("username")}</TableHead>
-              <TableHead>{t("roleColumn")}</TableHead>
-              <TableHead>{t("joinedAt")}</TableHead>
+              <TableHead className="w-[200px] whitespace-nowrap sm:w-[260px]">
+                {t("roleColumn")}
+              </TableHead>
+              <TableHead className="hidden sm:table-cell">
+                {t("joinedAt")}
+              </TableHead>
               {canManage && (
                 <TableHead className="text-right">{t("actions")}</TableHead>
               )}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {members.map((member) => (
-              <TableRow key={member.userId}>
-                <TableCell className="font-medium">{member.name}</TableCell>
-                <TableCell className="text-muted-foreground">
-                  {member.username}
-                </TableCell>
-                <TableCell>
-                  <ProjectMemberBadge roles={member.roles} />
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {member.joinedAt}
-                </TableCell>
-                {canManage && (
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setEditTarget(member)}
-                      >
-                        {t("changeRole")}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-destructive"
-                        disabled={removeMember.isPending}
-                        onClick={() =>
-                          setRemoveTarget({
-                            userId: member.userId,
-                            name: member.name,
-                          })
-                        }
-                      >
-                        {t("remove")}
-                      </Button>
+            {members.map((member) => {
+              const self = isSelf(member);
+              const lastManager = isLastManager(member);
+              const canEditMember = canManage && !lastManager;
+              const canRemoveMember = canManage && !lastManager && !self;
+
+              return (
+                <TableRow key={member.userId}>
+                  <TableCell className="font-medium">{member.name}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {member.username}
+                  </TableCell>
+                  <TableCell className="whitespace-normal align-top">
+                    <div className="w-[200px] sm:w-[260px]">
+                      <ProjectMemberBadge roles={member.roles} />
                     </div>
                   </TableCell>
-                )}
+                  <TableCell className="hidden text-muted-foreground sm:table-cell">
+                    {member.joinedAt}
+                  </TableCell>
+                  {canManage && (
+                    <TableCell className="text-right">
+                      {canEditMember || canRemoveMember ? (
+                        <div className="flex flex-wrap justify-end gap-2">
+                          {canEditMember && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              aria-label={`${t("changeRole")} — ${member.name}`}
+                              className="touch-manipulation any-pointer-coarse:min-h-11"
+                              onClick={() => setEditTarget(member)}
+                            >
+                              {t("changeRole")}
+                            </Button>
+                          )}
+                          {canRemoveMember && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              aria-label={`${t("remove")} — ${member.name}`}
+                              className="border-destructive/30 text-destructive touch-manipulation any-pointer-coarse:min-h-11 hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
+                              disabled={removeMember.isPending}
+                              onClick={() =>
+                                setRemoveTarget({
+                                  userId: member.userId,
+                                  name: member.name,
+                                })
+                              }
+                            >
+                              {t("remove")}
+                            </Button>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">
+                          {self ? t("you") : t("lastAdmin")}
+                        </span>
+                      )}
+                    </TableCell>
+                  )}
+                </TableRow>
+              );
+            })}
+
+            {members.length === 0 && (
+              <TableRow>
+                <TableCell
+                  colSpan={canManage ? 5 : 4}
+                  className="h-32 text-center"
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <p className="text-sm font-medium">{t("empty")}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {t("emptyHint")}
+                    </p>
+                  </div>
+                </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </div>

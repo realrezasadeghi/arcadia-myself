@@ -23,7 +23,10 @@ export class RemoveProjectUseCase
         payload,
         context.token,
       );
-      return response.success;
+      if (!response.success) {
+        throw new Error(response.message || "Error removing project");
+      }
+      return true;
     } catch (error) {
       throw new Error(resolveErrorMessage(error, "Error removing project"));
     }

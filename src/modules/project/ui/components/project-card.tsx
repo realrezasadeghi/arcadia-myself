@@ -10,8 +10,8 @@ import {
   User,
 } from "lucide-react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
-import { can, canAny } from "@/modules/project/domain/services/permissions";
+import { useLocale, useTranslations } from "next-intl";
+import { canPerform } from "@/modules/project/domain/services/resource-action";
 import { Badge } from "@/modules/shared/ui/components/ui/badge";
 import { Button } from "@/modules/shared/ui/components/ui/button";
 import {
@@ -55,89 +55,27 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
   const t = useTranslations("project");
-  const canEditProject = can(project.permissions, "editProject");
-  const canDeleteProject = can(project.permissions, "deleteProject");
-  const canManageMembers = canAny(project.permissions, [
-    "addMembers",
-    "manageMembers",
-  ]);
-  const date = new Intl.DateTimeFormat("en-US", {
+  const tc = useTranslations("common");
+  const locale = useLocale();
+  const canEditProject = canPerform(project.permissions, "project", "edit");
+  const canDeleteProject = canPerform(project.permissions, "project", "delete");
+  const canManageMembers =
+    canPerform(project.permissions, "member", "create") ||
+    canPerform(project.permissions, "member", "manage");
+  const date = new Intl.DateTimeFormat(locale, {
     month: "short",
     day: "numeric",
   }).format(new Date(project.updatedAt));
 
   return (
-    <div className="group relative">
+    <div className="group relative transition-transform duration-200 hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
       <Link
         href={`/dashboard/project/${project.id}`}
-        className="block rounded-xl border bg-card p-5 transition-all duration-200 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20 hover:-translate-y-0.5"
+        className="block rounded-xl border bg-card p-5 touch-manipulation transition-[box-shadow,border-color] duration-200 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
       >
-        {/* Top section: icon + actions */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-linear-to-br from-primary/10 to-primary/5 border border-primary/10">
-            <Layers className="h-5 w-5 text-primary" />
-          </div>
-
-          <div className="flex items-center gap-1">
-            {(canEditProject || canDeleteProject) && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={(e) => e.preventDefault()}
-                  >
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-40">
-                  {canManageMembers && (
-                    <DropdownMenuItem
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}
-                      asChild
-                    >
-                      <Link href={`/dashboard/project/${project.id}/members`}>
-                        {t("membersLink")}
-                      </Link>
-                    </DropdownMenuItem>
-                  )}
-                  {canEditProject && (
-                    <DropdownMenuItem
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        onEdit(project);
-                      }}
-                    >
-                      <Pencil className="h-4 w-4 mr-2" /> Edit project
-                    </DropdownMenuItem>
-                  )}
-                  {canManageMembers && canEditProject && (
-                    <DropdownMenuSeparator />
-                  )}
-                  {canEditProject && canDeleteProject && (
-                    <DropdownMenuSeparator />
-                  )}
-                  {canDeleteProject && (
-                    <DropdownMenuItem
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        onDelete(project);
-                      }}
-                      className="text-destructive focus:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" /> Delete
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
+        {/* Icon */}
+        <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-linear-to-br from-primary/10 to-primary/5 border border-primary/10">
+          <Layers className="h-5 w-5 text-primary" />
         </div>
 
         {/* Title + description */}
@@ -151,13 +89,13 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
             </p>
           ) : (
             <p className="text-sm text-muted-foreground/50 italic">
-              No description
+              {t("noDescription")}
             </p>
           )}
         </div>
 
         {/* Layer indicators */}
-        <div className="flex items-center gap-1.5 mb-4">
+        <div className="flex flex-wrap items-center gap-1.5 mb-4">
           {Object.entries(LAYER_COLORS).map(([layer, colors]) => (
             <div
               key={layer}
@@ -173,8 +111,8 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-border/50">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="flex items-start justify-between gap-3 pt-3 border-t border-border/50">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1.5 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
               <User className="h-3.5 w-3.5" />
               {t("role")}:
@@ -190,12 +128,57 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
             </span>
           </div>
 
-          <div className="flex items-center gap-1 text-xs font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-            Open
+          <div className="flex shrink-0 items-center gap-1 text-xs font-medium text-primary opacity-0 transition-opacity any-pointer-coarse:opacity-100 group-hover:opacity-100">
+            {t("open")}
             <ArrowRight className="h-3.5 w-3.5" />
           </div>
         </div>
       </Link>
+
+      {/* Card actions sit outside the link so the card stays a single valid,
+          keyboard-friendly target. Always visible on touch devices. */}
+      {(canEditProject || canDeleteProject) && (
+        <div className="absolute top-5 right-5 flex items-center gap-1">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                aria-label={t("actions")}
+                className="relative h-8 w-8 rounded-lg cursor-pointer touch-manipulation opacity-0 transition-opacity after:absolute after:-inset-1.5 after:content-[''] any-pointer-coarse:opacity-100 focus-visible:opacity-100 group-hover:opacity-100"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              {canManageMembers && (
+                <DropdownMenuItem asChild>
+                  <Link href={`/dashboard/project/${project.id}/members`}>
+                    {t("membersLink")}
+                  </Link>
+                </DropdownMenuItem>
+              )}
+              {canManageMembers && (canEditProject || canDeleteProject) && (
+                <DropdownMenuSeparator />
+              )}
+              {canEditProject && (
+                <DropdownMenuItem onClick={() => onEdit(project)}>
+                  <Pencil className="h-4 w-4 mr-2" /> {t("editProject")}
+                </DropdownMenuItem>
+              )}
+              {canEditProject && canDeleteProject && <DropdownMenuSeparator />}
+              {canDeleteProject && (
+                <DropdownMenuItem
+                  onClick={() => onDelete(project)}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" /> {tc("delete")}
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
     </div>
   );
 }

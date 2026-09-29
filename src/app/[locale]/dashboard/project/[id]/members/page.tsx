@@ -5,6 +5,8 @@ import { getProjectById } from "@/modules/project/presentation/server-actions/ge
 import { getProjectMembers } from "@/modules/project/presentation/server-actions/get-members";
 import { getProjectRoles } from "@/modules/project/presentation/server-actions/get-roles";
 import { MembersView } from "@/modules/project/ui/views/members";
+import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
+import { extractUserIdFromJwt } from "@/modules/shared/libs/extract-jwt";
 import { Skeleton } from "@/modules/shared/ui/components/ui/skeleton";
 
 type Props = {
@@ -45,7 +47,17 @@ function MembersSkeleton() {
   );
 }
 
-async function MembersSection({ projectId }: { projectId: number }) {
+async function MembersSection({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const projectId = Number(id);
+
+  if (!Number.isFinite(projectId) || projectId <= 0) {
+    notFound();
+  }
+
+  const token = await cookiesStorageService.get("token");
+  const currentUserId = token ? extractUserIdFromJwt(token) : null;
+
   const [projectResult, membersResult, rolesResult] = await Promise.all([
     getProjectById(projectId),
     getProjectMembers({ projectId }),
@@ -70,22 +82,16 @@ async function MembersSection({ projectId }: { projectId: number }) {
       project={projectResult.data}
       members={membersResult.data ?? []}
       roles={rolesResult.data ?? []}
+      currentUserId={currentUserId}
     />
   );
 }
 
-export default async function Page({ params }: Props) {
-  const { id } = await params;
-  const projectId = Number(id);
-
-  if (!Number.isFinite(projectId) || projectId <= 0) {
-    notFound();
-  }
-
+export default function Page({ params }: Props) {
   return (
     <div className="min-h-screen bg-background">
       <Suspense fallback={<MembersSkeleton />}>
-        <MembersSection projectId={projectId} />
+        <MembersSection params={params} />
       </Suspense>
     </div>
   );

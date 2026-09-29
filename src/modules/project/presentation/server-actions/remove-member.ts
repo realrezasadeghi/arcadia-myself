@@ -5,7 +5,12 @@ import { RemoveProjectMemberUseCase } from "../../application/use-cases/remove-m
 import { projectRepository } from "../../infrastructure/remote";
 
 export const removeProjectMember = withAuth(
-  async (payload: { projectId: number; userId: number }, { token }) => {
+  async (payload: { projectId: number; userId: number }, { token, userId }) => {
+    // RBAC: never let a member lock themselves out of their own project.
+    if (payload.userId === userId) {
+      throw new Error("You cannot remove yourself from this project");
+    }
+
     const removeProjectMemberUseCase = new RemoveProjectMemberUseCase(
       projectRepository,
     );
@@ -17,4 +22,5 @@ export const removeProjectMember = withAuth(
 
     return response;
   },
+  { extractUserId: true },
 );

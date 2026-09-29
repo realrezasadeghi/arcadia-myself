@@ -12,8 +12,6 @@ import {
   ZoomOut,
 } from "lucide-react";
 import { useCallback, useMemo } from "react";
-import { isProjectLayer } from "@/modules/project/domain/constants/permissions";
-import { canEditLayer } from "@/modules/project/domain/services/permissions";
 import { Button } from "@/modules/shared/ui/components/ui/button";
 import {
   DropdownMenu,
@@ -33,7 +31,7 @@ import { useDiagramExport } from "../hooks/use-diagram-export";
 import { useRemoveElementSync } from "../hooks/use-remove-element";
 import { useRemoveRelationshipSync } from "../hooks/use-remove-relationship";
 import { useCanvasStore } from "../stores/canvas";
-import { useWorkbenchStore } from "../stores/workbench";
+import { useCanEditLayer } from "../stores/workbench";
 import type { LayerValue } from "../types/layer";
 import { SaveStatusIndicator } from "./save-status-indicator";
 
@@ -72,21 +70,11 @@ export function DiagramToolbarActions({
     [selectedNodeId, selectedEdgeId],
   );
 
-  const projectPermissions = useWorkbenchStore((s) => s.projectPermissions);
-
   /**
-   * RBAC: editing a diagram requires the `edit<Layer>` permission of the open
-   * diagram layer. While the permissions are unresolved (empty — project not
-   * loaded yet) the backend stays the authority and nothing is hidden, so the
-   * UI never blocks a legitimate edit.
+   * RBAC: mutating the diagram requires `edit<Layer>` for the diagram's
+   * layer. Fails closed while permissions are unresolved.
    */
-  const canEditDiagram = useMemo(
-    () =>
-      projectPermissions.length === 0 ||
-      !isProjectLayer(layer) ||
-      canEditLayer(projectPermissions, layer),
-    [projectPermissions, layer],
-  );
+  const canEditDiagram = useCanEditLayer(layer);
 
   const handleDelete = useCallback(() => {
     if (selectedNodeId) {

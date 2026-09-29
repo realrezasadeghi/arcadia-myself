@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import {
-  PROJECT_LAYERS,
   isProjectLayer,
+  PROJECT_LAYERS,
   type ProjectLayer,
 } from "@/modules/project/domain/constants/permissions";
 import {
@@ -52,6 +52,12 @@ interface WorkbenchState {
   /** Permissions of the requesting user for the loaded project (RBAC). */
   projectPermissions: string[];
 
+  /**
+   * RBAC: whether `projectPermissions` reflects the loaded project.
+   * Until it does, every permission check fails closed.
+   */
+  permissionsResolved: boolean;
+
   panels: PanelVisibility;
 
   setProject: (projectId: string, projectName: string) => void;
@@ -68,13 +74,13 @@ interface WorkbenchState {
 
   /**
    * RBAC: does the loaded project grant `edit<Layer>`?
-   * Fails open while the permission list is still unresolved (empty) so the
-   * UI never hides tools from a user the API would actually allow — the API
-   * remains the single authority.
+   * Fails closed while the permissions are unresolved, so no mutating control
+   * is ever rendered before the API answer is known. Non-RBAC-governed layers
+   * (legacy "EPBS") are always editable.
    */
   canEditLayer: (layer: LayerValue) => boolean;
 
-  /** RBAC: does the loaded project grant `view<Layer>`? (fails open) */
+  /** RBAC: does the loaded project grant `view<Layer>`? (fails closed) */
   canViewLayer: (layer: LayerValue) => boolean;
 
   /** RBAC: the RBAC-governed layers the user may open, in ARCADIA order. */
@@ -95,6 +101,34 @@ const DEFAULT_PANELS: PanelVisibility = {
   validation: false,
 };
 
+/**
+ * Pure RBAC checks over a resolved permission list. Shared by the store
+ * getters and by components that must evaluate several layers at once —
+ * hooks cannot be called inside a loop.
+ * Fails closed while `permissionsResolved` is false; legacy layers outside
+ * the RBAC model (e.g. "EPBS") stay open.
+ */
+export function isLayerEditable(
+  projectPermissions: readonly string[],
+  permissionsResolved: boolean,
+  layer: LayerValue,
+): boolean {
+  if (!permissionsResolved) return false;
+  if (!isProjectLayer(layer)) return true;
+  return canEditLayerPermission(projectPermissions, layer);
+}
+
+/** Pure view counterpart of {@link isLayerEditable}. */
+export function isLayerVisible(
+  projectPermissions: readonly string[],
+  permissionsResolved: boolean,
+  layer: LayerValue,
+): boolean {
+  if (!permissionsResolved) return false;
+  if (!isProjectLayer(layer)) return true;
+  return canViewLayerPermission(projectPermissions, layer);
+}
+
 export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
   projectId: null,
   projectName: null,
@@ -103,6 +137,7 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
   selectedElementId: null,
   currentLayer: "OA",
   projectPermissions: [],
+  permissionsResolved: false,
   panels: { ...DEFAULT_PANELS },
 
   setProject: (projectId, projectName) => set({ projectId, projectName }),
@@ -153,25 +188,20 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 
   setCurrentLayer: (currentLayer) => set({ currentLayer }),
 
-  setProjectPermissions: (projectPermissions) => set({ projectPermissions }),
+  setProjectPermissions: (projectPermissions) =>
+    set({ projectPermissions, permissionsResolved: true }),
 
-  canEditLayer: (layer) => {
-    const permissions = get().projectPermissions;
-    if (permissions.length === 0 || !isProjectLayer(layer)) return true;
-    return canEditLayerPermission(permissions, layer);
-  },
+  canEditLayer: (layer) =>
+    isLayerEditable(get().projectPermissions, get().permissionsResolved, layer),
 
-  canViewLayer: (layer) => {
-    const permissions = get().projectPermissions;
-    if (permissions.length === 0 || !isProjectLayer(layer)) return true;
-    return canViewLayerPermission(permissions, layer);
-  },
+  canViewLayer: (layer) =>
+    isLayerVisible(get().projectPermissions, get().permissionsResolved, layer),
 
   visibleLayers: () => {
-    const permissions = get().projectPermissions;
-    if (permissions.length === 0) return [...PROJECT_LAYERS];
+    const { projectPermissions, permissionsResolved } = get();
+    if (!permissionsResolved) return [];
     return PROJECT_LAYERS.filter((layer) =>
-      canViewLayerPermission(permissions, layer),
+      isLayerVisible(projectPermissions, permissionsResolved, layer),
     );
   },
 
@@ -190,6 +220,53 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
       selectedElementId: null,
       currentLayer: "OA",
       projectPermissions: [],
+      permissionsResolved: false,
       panels: { ...DEFAULT_PANELS },
     }),
 }));
+
+// ─── RBAC hooks ──────────────────────────────────────────────────────────────
+
+/** RBAC: `edit<layer>` for a specific layer (fails closed until resolved). */
+export function useCanEditLayer(layer: LayerValue): boolean {
+  return useWorkbenchStore((s) => s.canEditLayer(layer));
+}
+
+/** RBAC: `view<layer>` for a specific layer (fails closed until resolved). */
+export function useCanViewLayer(layer: LayerValue): boolean {
+  return useWorkbenchStore((s) => s.canViewLayer(layer));
+}
+
+/** RBAC: `edit<layer>` for the layer selected in the Layer Switcher. */
+export function useCanEditCurrentLayer(): boolean {
+  return useWorkbenchStore((s) => s.canEditLayer(s.currentLayer));
+}
+
+/** RBAC: `view<layer>` for the layer selected in the Layer Switcher. */
+export function useCanViewCurrentLayer(): boolean {
+  return useWorkbenchStore((s) => s.canViewLayer(s.currentLayer));
+}
+
+/** RBAC: true when the user may edit at least one RBAC-governed layer. */
+export function useCanEditAnyLayer(): boolean {
+  return useWorkbenchStore((s) =>
+    PROJECT_LAYERS.some((layer) => s.canEditLayer(layer)),
+  );
+}
+
+/**
+ * RBAC: `edit<layer>` for the diagram open in the active editor tab (falls
+ * back to the layer switcher's current layer). Used by canvases, nodes and
+ * context menus that have no explicit layer prop.
+ */
+export function useCanEditActiveLayer(): boolean {
+  return useWorkbenchStore((s) => {
+    const tab = s.tabs.find((t) => t.diagramId === s.activeDiagramId);
+    return s.canEditLayer(tab?.layer ?? s.currentLayer);
+  });
+}
+
+/** RBAC: false until the loaded project's permissions are known. */
+export function usePermissionsResolved(): boolean {
+  return useWorkbenchStore((s) => s.permissionsResolved);
+}

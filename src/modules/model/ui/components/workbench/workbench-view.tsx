@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import { getProjectById } from "@/modules/project/presentation/server-actions/get-by-id";
 import { getClassDiagramsByModelId } from "../../../presentation/server-actions/get-class-diagrams-by-model-id";
 import { getClassElementsByModelId } from "../../../presentation/server-actions/get-class-elements-by-model-id";
@@ -18,14 +19,25 @@ type WorkbenchViewProps = {
 };
 
 export async function WorkbenchView({ params }: WorkbenchViewProps) {
-  const { id: projectId } = await params;
+  const { id } = await params;
+  const projectId = Number(id);
+
+  if (!Number.isFinite(projectId) || projectId <= 0) {
+    notFound();
+  }
 
   const [projectResult, modelsResult] = await Promise.all([
-    getProjectById(+projectId),
-    getModelsByProjectId(projectId),
+    getProjectById(projectId),
+    getModelsByProjectId(id),
   ]);
 
+  // RBAC: without a project payload there are no permissions to enforce —
+  // never render the workbench in an ungated state.
   const project = projectResult.data;
+  if (!projectResult.success || !project) {
+    notFound();
+  }
+
   const models = modelsResult.data ?? [];
 
   const modelData: WorkbenchModelData[] = await Promise.all(
@@ -117,10 +129,10 @@ export async function WorkbenchView({ params }: WorkbenchViewProps) {
 
   return (
     <Workbench
-      projectId={projectId}
+      projectId={id}
       modelData={modelData}
-      projectName={project?.name ?? "Project"}
-      permissions={project?.permissions}
+      projectName={project.name}
+      permissions={project.permissions}
     />
   );
 }

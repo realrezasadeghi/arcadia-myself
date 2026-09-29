@@ -44,7 +44,7 @@ import {
   getElementVisual,
 } from "../../helpers/element";
 import { getLayerInfo } from "../../helpers/layer";
-import { useWorkbenchStore } from "../../stores/workbench";
+import { isLayerEditable, useWorkbenchStore } from "../../stores/workbench";
 import type {
   ClassElementData,
   ClassElementTypeValue,
@@ -190,6 +190,8 @@ type ExplorerTreeProps = {
   modelData: ModelDataItem[];
   handlers: ExplorerHandlers;
   existingLayers: Set<LayerValue>;
+  /** RBAC: layers the user may create a model in (empty state CTAs). */
+  editableLayers: LayerValue[];
   onNewModel: (layer: LayerValue) => void;
 };
 
@@ -268,9 +270,12 @@ function categorizeRoots(
 function FolderSection({
   folder,
   handlers,
+  canEdit,
 }: {
   folder: CategoryFolder & { nodes: ElementTreeNode[] };
   handlers: ExplorerHandlers;
+  /** RBAC: may the user mutate this model's layer? */
+  canEdit: boolean;
 }) {
   const [open, setOpen] = useState(true);
   const Icon = folder.icon;
@@ -300,6 +305,7 @@ function FolderSection({
             node={node}
             depth={2}
             handlers={handlers}
+            canEdit={canEdit}
           />
         ))}
     </div>
@@ -312,10 +318,13 @@ function ElementTreeItem({
   node,
   depth,
   handlers,
+  canEdit,
 }: {
   node: ElementTreeNode;
   depth: number;
   handlers: ExplorerHandlers;
+  /** RBAC: may the user mutate this element's model layer? */
+  canEdit: boolean;
 }) {
   const [open, setOpen] = useState(true);
   const hasChildren = node.children.length > 0;
@@ -339,94 +348,102 @@ function ElementTreeItem({
     e.dataTransfer.effectAllowed = "copy";
   };
 
+  const row = (
+    <button
+      type="button"
+      draggable={canEdit}
+      onDragStart={canEdit ? handleDragStart : undefined}
+      onClick={() => {
+        handlers.onSelectElement(node.id);
+        if (hasChildren) setOpen((v) => !v);
+      }}
+      className={cn(
+        "flex w-full items-center gap-1 rounded-sm px-2 py-1 text-xs text-left transition-colors hover:bg-muted",
+        canEdit && "cursor-grab active:cursor-grabbing",
+        isSelected && "bg-primary/10 text-primary",
+      )}
+      style={{ paddingLeft: `${12 + depth * 14}px` }}
+    >
+      <span className="shrink-0 size-3.5 flex items-center justify-center">
+        {hasChildren ? (
+          open ? (
+            <ChevronDown className="size-3 text-muted-foreground" />
+          ) : (
+            <ChevronRight className="size-3 text-muted-foreground" />
+          )
+        ) : (
+          <span
+            className="size-1.5 rounded-full shrink-0"
+            style={{ backgroundColor: visual.strokeColor }}
+          />
+        )}
+      </span>
+      <ElementIcon
+        className="size-3.5 shrink-0"
+        style={{ color: visual.strokeColor }}
+      />
+      <span className="truncate flex-1 text-left">{node.name}</span>
+    </button>
+  );
+
   return (
     <div>
-      <ContextMenu>
-        <ContextMenuTrigger asChild>
-          <button
-            type="button"
-            draggable
-            onDragStart={handleDragStart}
-            onClick={() => {
-              handlers.onSelectElement(node.id);
-              if (hasChildren) setOpen((v) => !v);
-            }}
-            className={cn(
-              "flex w-full items-center gap-1 rounded-sm px-2 py-1 text-xs text-left transition-colors hover:bg-muted cursor-grab active:cursor-grabbing",
-              isSelected && "bg-primary/10 text-primary",
-            )}
-            style={{ paddingLeft: `${12 + depth * 14}px` }}
-          >
-            <span className="shrink-0 size-3.5 flex items-center justify-center">
-              {hasChildren ? (
-                open ? (
-                  <ChevronDown className="size-3 text-muted-foreground" />
-                ) : (
-                  <ChevronRight className="size-3 text-muted-foreground" />
-                )
-              ) : (
-                <span
-                  className="size-1.5 rounded-full shrink-0"
-                  style={{ backgroundColor: visual.strokeColor }}
-                />
-              )}
-            </span>
-            <ElementIcon
-              className="size-3.5 shrink-0"
-              style={{ color: visual.strokeColor }}
-            />
-            <span className="truncate flex-1 text-left">{node.name}</span>
-          </button>
-        </ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuLabel>{node.name}</ContextMenuLabel>
-          <ContextMenuSeparator />
-          <ContextMenuSub>
-            <ContextMenuSubTrigger>
-              <Plus className="size-3.5" />
-              Add to Diagram
-            </ContextMenuSubTrigger>
-            <ContextMenuSubContent>
-              {handlers.diagrams?.map((diagram) => {
-                const palette = getDiagramPalette(diagram.type);
-                const isAllowed = palette.elementTypes.includes(node.type);
-                return (
-                  <ContextMenuItem
-                    key={diagram.id}
-                    disabled={!isAllowed}
-                    onSelect={() =>
-                      handlers.onAddElementToDiagram(node, diagram)
-                    }
-                  >
-                    <LayoutDashboard className="size-3.5" />
-                    <span className="flex-1">{diagram.name}</span>
-                    {!isAllowed && (
-                      <span className="text-[9px] text-muted-foreground">
-                        {diagram.type}
-                      </span>
-                    )}
+      {/* RBAC: every menu item is a mutation — no menu for read-only users. */}
+      {canEdit ? (
+        <ContextMenu>
+          <ContextMenuTrigger asChild>{row}</ContextMenuTrigger>
+          <ContextMenuContent>
+            <ContextMenuLabel>{node.name}</ContextMenuLabel>
+            <ContextMenuSeparator />
+            <ContextMenuSub>
+              <ContextMenuSubTrigger>
+                <Plus className="size-3.5" />
+                Add to Diagram
+              </ContextMenuSubTrigger>
+              <ContextMenuSubContent>
+                {handlers.diagrams?.map((diagram) => {
+                  const palette = getDiagramPalette(diagram.type);
+                  const isAllowed = palette.elementTypes.includes(node.type);
+                  return (
+                    <ContextMenuItem
+                      key={diagram.id}
+                      disabled={!isAllowed}
+                      onSelect={() =>
+                        handlers.onAddElementToDiagram(node, diagram)
+                      }
+                    >
+                      <LayoutDashboard className="size-3.5" />
+                      <span className="flex-1">{diagram.name}</span>
+                      {!isAllowed && (
+                        <span className="text-[9px] text-muted-foreground">
+                          {diagram.type}
+                        </span>
+                      )}
+                    </ContextMenuItem>
+                  );
+                })}
+                {(!handlers.diagrams || handlers.diagrams.length === 0) && (
+                  <ContextMenuItem disabled>
+                    <span className="text-muted-foreground">
+                      No diagrams in this layer
+                    </span>
                   </ContextMenuItem>
-                );
-              })}
-              {(!handlers.diagrams || handlers.diagrams.length === 0) && (
-                <ContextMenuItem disabled>
-                  <span className="text-muted-foreground">
-                    No diagrams in this layer
-                  </span>
-                </ContextMenuItem>
-              )}
-            </ContextMenuSubContent>
-          </ContextMenuSub>
-          <ContextMenuSeparator />
-          <ContextMenuItem
-            variant="destructive"
-            onSelect={() => handlers.onDeleteElement(node)}
-          >
-            <Trash2 className="size-3.5" />
-            Delete
-          </ContextMenuItem>
-        </ContextMenuContent>
-      </ContextMenu>
+                )}
+              </ContextMenuSubContent>
+            </ContextMenuSub>
+            <ContextMenuSeparator />
+            <ContextMenuItem
+              variant="destructive"
+              onSelect={() => handlers.onDeleteElement(node)}
+            >
+              <Trash2 className="size-3.5" />
+              Delete
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
+      ) : (
+        row
+      )}
 
       {hasChildren && open && (
         <div>
@@ -436,6 +453,7 @@ function ElementTreeItem({
               node={child}
               depth={depth + 1}
               handlers={handlers}
+              canEdit={canEdit}
             />
           ))}
         </div>
@@ -461,6 +479,15 @@ function DiagramTreeItem({
   const isActive = activeDiagramId === diagram.id;
   const isScenario = SCENARIO_DIAGRAM_TYPES.includes(diagram.type);
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const projectPermissions = useWorkbenchStore((s) => s.projectPermissions);
+  const permissionsResolved = useWorkbenchStore((s) => s.permissionsResolved);
+  // RBAC: rename/delete require `edit<layer>`; opening is always allowed.
+  const canEdit = isLayerEditable(
+    projectPermissions,
+    permissionsResolved,
+    model.layer,
+  );
 
   return (
     <div>
@@ -501,20 +528,24 @@ function DiagramTreeItem({
             <LayoutDashboard className="size-3.5" />
             Open
           </ContextMenuItem>
-          <ContextMenuItem
-            onSelect={() => handlers.onEditDiagram(model, diagram)}
-          >
-            <Pencil className="size-3.5" />
-            Rename / Edit…
-          </ContextMenuItem>
-          <ContextMenuSeparator />
-          <ContextMenuItem
-            variant="destructive"
-            onSelect={() => handlers.onDeleteDiagram(diagram)}
-          >
-            <Trash2 className="size-3.5" />
-            Delete
-          </ContextMenuItem>
+          {canEdit && (
+            <>
+              <ContextMenuItem
+                onSelect={() => handlers.onEditDiagram(model, diagram)}
+              >
+                <Pencil className="size-3.5" />
+                Rename / Edit…
+              </ContextMenuItem>
+              <ContextMenuSeparator />
+              <ContextMenuItem
+                variant="destructive"
+                onSelect={() => handlers.onDeleteDiagram(diagram)}
+              >
+                <Trash2 className="size-3.5" />
+                Delete
+              </ContextMenuItem>
+            </>
+          )}
         </ContextMenuContent>
       </ContextMenu>
 
@@ -548,6 +579,9 @@ function ModelNode({
   const [openClassDiagrams, setOpenClassDiagrams] = useState(true);
   const [openScenarioDiagrams, setOpenScenarioDiagrams] = useState(true);
 
+  const projectPermissions = useWorkbenchStore((s) => s.projectPermissions);
+  const permissionsResolved = useWorkbenchStore((s) => s.permissionsResolved);
+
   const layerInfo = getLayerInfo(model.layer);
   const color = LAYER_HEX_COLORS[model.layer];
   const archTree = buildElementTree(archElements);
@@ -555,91 +589,110 @@ function ModelNode({
   const allRoots = [...archTree, ...classTree];
   const folders = categorizeRoots(allRoots);
   const elementTypes = getElementTypesForLayer(model.layer);
-  const canTransition = getNextLayerLabel(model.layer) !== null;
-  const nextLayerLabel = getNextLayerLabel(model.layer);
+  const nextLayer = getNextLayer(model.layer);
+  const nextLayerLabel = nextLayer ? getLayerInfo(nextLayer).label : null;
+
+  // RBAC: creating/editing in this layer needs `edit<layer>`.
+  const canEdit = isLayerEditable(
+    projectPermissions,
+    permissionsResolved,
+    model.layer,
+  );
+  // RBAC: a transition mutates both the source and the target layer.
+  const canTransition =
+    nextLayer !== null &&
+    canEdit &&
+    isLayerEditable(projectPermissions, permissionsResolved, nextLayer);
+
+  const row = (
+    <button
+      type="button"
+      onClick={() => setIsOpen(!isOpen)}
+      className="flex w-full items-center gap-1.5 rounded-sm px-2 py-1.5 text-xs font-medium text-left transition-colors hover:bg-muted"
+    >
+      <span className="shrink-0 size-4 flex items-center justify-center">
+        {isOpen ? (
+          <ChevronDown className="size-3.5" />
+        ) : (
+          <ChevronRight className="size-3.5" />
+        )}
+      </span>
+      <span
+        className="size-2 shrink-0 rounded-sm"
+        style={{ backgroundColor: color }}
+      />
+      <span className="truncate flex-1 text-left">{layerInfo.label}</span>
+      <span className="text-[10px] text-muted-foreground shrink-0">
+        {model.layer}
+      </span>
+    </button>
+  );
 
   return (
     <div className="mb-0.5" data-layer={model.layer}>
-      <ContextMenu>
-        <ContextMenuTrigger asChild>
-          <button
-            type="button"
-            onClick={() => setIsOpen(!isOpen)}
-            className="flex w-full items-center gap-1.5 rounded-sm px-2 py-1.5 text-xs font-medium text-left transition-colors hover:bg-muted"
-          >
-            <span className="shrink-0 size-4 flex items-center justify-center">
-              {isOpen ? (
-                <ChevronDown className="size-3.5" />
-              ) : (
-                <ChevronRight className="size-3.5" />
-              )}
-            </span>
-            <span
-              className="size-2 shrink-0 rounded-sm"
-              style={{ backgroundColor: color }}
-            />
-            <span className="truncate flex-1 text-left">{layerInfo.label}</span>
-            <span className="text-[10px] text-muted-foreground shrink-0">
-              {model.layer}
-            </span>
-          </button>
-        </ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuLabel>{layerInfo.label}</ContextMenuLabel>
-          <ContextMenuSeparator />
-          <ContextMenuItem onSelect={() => handlers.onNewDiagram(model)}>
-            <FilePlus2 className="size-3.5" />
-            New Diagram…
-          </ContextMenuItem>
-          <ContextMenuSub>
-            <ContextMenuSubTrigger>
-              <Plus className="size-3.5" />
-              New Element
-            </ContextMenuSubTrigger>
-            <ContextMenuSubContent>
-              {elementTypes.map((et) => (
-                <ContextMenuItem
-                  key={et.value}
-                  onSelect={() => handlers.onNewElement(model, et.value)}
-                >
-                  <span
-                    className="size-2.5 shrink-0 rounded-sm border"
-                    style={{
-                      borderColor: getElementVisual(et.value).strokeColor,
-                      backgroundColor: getElementVisual(et.value).fillColor,
-                    }}
-                  />
-                  {et.label}
+      {/* RBAC: every menu item mutates — read-only users get the plain row. */}
+      {canEdit ? (
+        <ContextMenu>
+          <ContextMenuTrigger asChild>{row}</ContextMenuTrigger>
+          <ContextMenuContent>
+            <ContextMenuLabel>{layerInfo.label}</ContextMenuLabel>
+            <ContextMenuSeparator />
+            <ContextMenuItem onSelect={() => handlers.onNewDiagram(model)}>
+              <FilePlus2 className="size-3.5" />
+              New Diagram…
+            </ContextMenuItem>
+            <ContextMenuSub>
+              <ContextMenuSubTrigger>
+                <Plus className="size-3.5" />
+                New Element
+              </ContextMenuSubTrigger>
+              <ContextMenuSubContent>
+                {elementTypes.map((et) => (
+                  <ContextMenuItem
+                    key={et.value}
+                    onSelect={() => handlers.onNewElement(model, et.value)}
+                  >
+                    <span
+                      className="size-2.5 shrink-0 rounded-sm border"
+                      style={{
+                        borderColor: getElementVisual(et.value).strokeColor,
+                        backgroundColor: getElementVisual(et.value).fillColor,
+                      }}
+                    />
+                    {et.label}
+                  </ContextMenuItem>
+                ))}
+                {CLASS_ELEMENT_TYPES.map((ct) => (
+                  <ContextMenuItem
+                    key={ct.value}
+                    onSelect={() => handlers.onNewClassElement(model, ct.value)}
+                  >
+                    <span
+                      className="size-2.5 shrink-0 rounded-sm border"
+                      style={{
+                        borderColor: ct.color,
+                        backgroundColor: `${ct.color}20`,
+                      }}
+                    />
+                    {ct.label}
+                  </ContextMenuItem>
+                ))}
+              </ContextMenuSubContent>
+            </ContextMenuSub>
+            {canTransition && (
+              <>
+                <ContextMenuSeparator />
+                <ContextMenuItem onSelect={() => handlers.onTransition(model)}>
+                  <GitBranchPlus className="size-3.5" />
+                  Transition to {nextLayerLabel}…
                 </ContextMenuItem>
-              ))}
-              {CLASS_ELEMENT_TYPES.map((ct) => (
-                <ContextMenuItem
-                  key={ct.value}
-                  onSelect={() => handlers.onNewClassElement(model, ct.value)}
-                >
-                  <span
-                    className="size-2.5 shrink-0 rounded-sm border"
-                    style={{
-                      borderColor: ct.color,
-                      backgroundColor: `${ct.color}20`,
-                    }}
-                  />
-                  {ct.label}
-                </ContextMenuItem>
-              ))}
-            </ContextMenuSubContent>
-          </ContextMenuSub>
-          {canTransition && (
-            <>
-              <ContextMenuSeparator />
-              <ContextMenuItem onSelect={() => handlers.onTransition(model)}>
-                <GitBranchPlus className="size-3.5" />
-                Transition to {nextLayerLabel}…
-              </ContextMenuItem>
-            </>
-          )}
-        </ContextMenuContent>
-      </ContextMenu>
+              </>
+            )}
+          </ContextMenuContent>
+        </ContextMenu>
+      ) : (
+        row
+      )}
 
       {isOpen && (
         <div className="ml-2">
@@ -648,6 +701,7 @@ function ModelNode({
               key={folder.key}
               folder={folder}
               handlers={handlers}
+              canEdit={canEdit}
             />
           ))}
 
@@ -743,11 +797,11 @@ function ModelNode({
   );
 }
 
-function getNextLayerLabel(layer: LayerValue): string | null {
+function getNextLayer(layer: LayerValue): LayerValue | null {
   const order: LayerValue[] = ["OA", "SA", "LA", "PA"];
   const idx = order.indexOf(layer);
-  const next = order[idx + 1];
-  return next ? getLayerInfo(next).label : null;
+  if (idx < 0) return null;
+  return order[idx + 1] ?? null;
 }
 
 // ─── Tree root ──────────────────────────────────────────────────────────────
@@ -756,11 +810,17 @@ export function ExplorerTree({
   modelData,
   handlers,
   existingLayers,
+  editableLayers,
   onNewModel,
 }: ExplorerTreeProps) {
   const sorted = [...modelData].sort(
     (a, b) =>
       getLayerInfo(a.model.layer).order - getLayerInfo(b.model.layer).order,
+  );
+
+  // RBAC: the empty-state CTAs create models — only editable layers shown.
+  const creatableLayers = LAYERS.filter((layer) =>
+    editableLayers.includes(layer.value),
   );
 
   if (sorted.length === 0) {
@@ -770,11 +830,13 @@ export function ExplorerTree({
         <div className="space-y-1">
           <p className="text-sm font-medium">No models yet</p>
           <p className="text-xs text-muted-foreground">
-            Create an analysis layer to start adding diagrams and elements.
+            {creatableLayers.length > 0
+              ? "Create an analysis layer to start adding diagrams and elements."
+              : "Your role does not include permission to create models."}
           </p>
         </div>
         <div className="flex w-full flex-col gap-1.5 pt-1">
-          {LAYERS.map((layer) => (
+          {creatableLayers.map((layer) => (
             <button
               key={layer.value}
               type="button"

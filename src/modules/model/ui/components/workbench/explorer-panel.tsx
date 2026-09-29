@@ -19,7 +19,7 @@ import { getDiagramPalette, resolveDiagramLayer } from "../../helpers/diagram";
 import { getLayerInfo } from "../../helpers/layer";
 import { useExplorerActions } from "../../hooks/use-explorer-actions";
 import { useCanvasStore } from "../../stores/canvas";
-import { useWorkbenchStore } from "../../stores/workbench";
+import { isLayerEditable, useWorkbenchStore } from "../../stores/workbench";
 import type { Diagram } from "../../types/diagram";
 import type { Model } from "../../types/model";
 import {
@@ -48,6 +48,17 @@ export function ExplorerPanel({
   const renameTab = useWorkbenchStore((s) => s.renameTab);
   const selectElement = useWorkbenchStore((s) => s.selectElement);
   const currentLayer = useWorkbenchStore((s) => s.currentLayer);
+  const projectPermissions = useWorkbenchStore((s) => s.projectPermissions);
+  const permissionsResolved = useWorkbenchStore((s) => s.permissionsResolved);
+
+  /** RBAC: layers the user may actually create a model in. */
+  const editableLayers = useMemo(
+    () =>
+      LAYERS.filter((layer) =>
+        isLayerEditable(projectPermissions, permissionsResolved, layer.value),
+      ),
+    [projectPermissions, permissionsResolved],
+  );
 
   const selectCanvasNode = useCanvasStore((s) => s.selectNode);
   const canvasNodes = useCanvasStore((s) => s.nodes);
@@ -216,42 +227,45 @@ export function ExplorerPanel({
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Project Explorer
         </p>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              type="button"
-              title="New model"
-              aria-label="New model"
-              disabled={isCreateModelPending}
-              className="ms-auto flex size-5 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
-            >
-              <Plus className="size-3.5" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-62" align="end">
-            <DropdownMenuLabel>New Model</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {LAYERS.map((layer) => {
-              const exists = existingLayers.has(layer.value);
-              return (
-                <DropdownMenuItem
-                  key={layer.value}
-                  disabled={exists}
-                  onSelect={() => onNewModel(layer.value)}
-                >
-                  <span className="flex-1">{layer.label}</span>
-                  {exists ? (
-                    <Check className="size-3.5 text-muted-foreground" />
-                  ) : (
-                    <span className="text-xs text-muted-foreground">
-                      {layer.value}
-                    </span>
-                  )}
-                </DropdownMenuItem>
-              );
-            })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* RBAC: only offered when the user may create at least one model. */}
+        {editableLayers.length > 0 && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                title="New model"
+                aria-label="New model"
+                disabled={isCreateModelPending}
+                className="ms-auto flex size-5 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
+              >
+                <Plus className="size-3.5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-62" align="end">
+              <DropdownMenuLabel>New Model</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {editableLayers.map((layer) => {
+                const exists = existingLayers.has(layer.value);
+                return (
+                  <DropdownMenuItem
+                    key={layer.value}
+                    disabled={exists}
+                    onSelect={() => onNewModel(layer.value)}
+                  >
+                    <span className="flex-1">{layer.label}</span>
+                    {exists ? (
+                      <Check className="size-3.5 text-muted-foreground" />
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        {layer.value}
+                      </span>
+                    )}
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
 
       <ScrollArea className="min-h-0 flex-1">
@@ -260,6 +274,7 @@ export function ExplorerPanel({
             modelData={modelData}
             handlers={handlers}
             existingLayers={existingLayers}
+            editableLayers={editableLayers.map((layer) => layer.value)}
             onNewModel={onNewModel}
           />
         </div>

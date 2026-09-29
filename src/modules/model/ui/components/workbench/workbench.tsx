@@ -7,16 +7,15 @@ import {
   PanelLeft,
   PanelRight,
   ShieldCheck,
+  Users,
   Workflow,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef } from "react";
-import {
-  PROJECT_LAYERS,
-  isProjectLayer,
-} from "@/modules/project/domain/constants/permissions";
-import { canViewLayer } from "@/modules/project/domain/services/permissions";
+import { useShallow } from "zustand/shallow";
+import { isProjectLayer } from "@/modules/project/domain/constants/permissions";
+import { canAny } from "@/modules/project/domain/services/permissions";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -29,6 +28,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/modules/shared/ui/components/ui/resizable";
+import { Spinner } from "@/modules/shared/ui/components/ui/spinner";
 import {
   Tooltip,
   TooltipContent,
@@ -109,49 +109,53 @@ export function Workbench({
   const setProjectPermissions = useWorkbenchStore(
     (s) => s.setProjectPermissions,
   );
-  const projectPermissions = useWorkbenchStore((s) => s.projectPermissions);
+  const permissionsResolved = useWorkbenchStore((s) => s.permissionsResolved);
 
   useEffect(() => {
     setProjectPermissions(permissions ?? []);
   }, [permissions, setProjectPermissions]);
 
   /**
-   * RBAC: layers the requesting user may read. While the permissions are not
-   * resolved yet (empty array) every layer stays visible — the backend remains
-   * the single source of truth and the UI never hides data prematurely.
+   * RBAC: layers the requesting user may read. The store resolves this
+   * fail-closed, so nothing renders before the API answer is known.
    */
-  const visibleLayers = useMemo<LayerValue[]>(
-    () =>
-      projectPermissions.length === 0
-        ? [...PROJECT_LAYERS]
-        : PROJECT_LAYERS.filter((layer) =>
-            canViewLayer(projectPermissions, layer),
-          ),
-    [projectPermissions],
+  const visibleLayers = useWorkbenchStore(
+    useShallow((s): LayerValue[] => s.visibleLayers()),
   );
 
   // Keep the workbench on a layer the user can actually read.
   useEffect(() => {
-    if (projectPermissions.length === 0) return;
+    if (!permissionsResolved) return;
     if (visibleLayers.includes(currentLayer)) return;
 
     const [fallback] = visibleLayers;
     if (fallback) setCurrentLayer(fallback);
-  }, [
-    projectPermissions,
-    visibleLayers,
-    currentLayer,
-    setCurrentLayer,
-  ]);
+  }, [permissionsResolved, visibleLayers, currentLayer, setCurrentLayer]);
+
+  /**
+   * RBAC: only models whose layer the requester may read. The explorer,
+   * deep links and layer switching all read from this list, so a hidden
+   * layer (e.g. System Analysis for an OA-only member) never surfaces.
+   */
+  const visibleModelData = useMemo(
+    () =>
+      modelData.filter(
+        (d) =>
+          !isProjectLayer(d.model.layer) ||
+          visibleLayers.includes(d.model.layer),
+      ),
+    [modelData, visibleLayers],
+  );
 
   const deepLinkDiagramId = searchParams.get("diagram");
   const openedDeepLinkRef = useRef<string | null>(null);
 
   useEffect(() => {
+    if (!permissionsResolved) return;
     if (!deepLinkDiagramId) return;
     if (openedDeepLinkRef.current === deepLinkDiagramId) return;
 
-    for (const { model, diagrams } of modelData) {
+    for (const { model, diagrams } of visibleModelData) {
       const diagram = diagrams.find((d) => d.id === deepLinkDiagramId);
 
       if (diagram) {
@@ -168,12 +172,12 @@ export function Workbench({
         break;
       }
     }
-  }, [deepLinkDiagramId, modelData, openTab]);
+  }, [permissionsResolved, deepLinkDiagramId, visibleModelData, openTab]);
 
   const handleLayerChange = (layer: LayerValue, modelId: string) => {
     setCurrentLayer(layer);
 
-    const layerData = modelData.find((d) => d.model.layer === layer);
+    const layerData = visibleModelData.find((d) => d.model.layer === layer);
     if (layerData && layerData.diagrams.length > 0) {
       const diagram = layerData.diagrams[0];
       openTab({
@@ -187,19 +191,22 @@ export function Workbench({
   };
 
   const allModels = useMemo(
-    () =>
-      modelData
-        .map((d) => d.model)
-        .filter(
-          (model) =>
-            !isProjectLayer(model.layer) || visibleLayers.includes(model.layer),
-        ),
-    [modelData, visibleLayers],
+    () => visibleModelData.map((d) => d.model),
+    [visibleModelData],
   );
 
   const refreshTree = () => router.refresh();
 
   const showRightDock = panels.outline || panels.semantic || panels.validation;
+
+  // RBAC: never paint the workbench before the project's permissions are known.
+  if (!permissionsResolved) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <ReactFlowProvider>
@@ -229,7 +236,7 @@ export function Workbench({
               >
                 <ExplorerPanel
                   projectId={projectId}
-                  modelData={modelData}
+                  modelData={visibleModelData}
                   onTreeChanged={refreshTree}
                 />
               </ResizablePanel>
@@ -365,6 +372,13 @@ function WorkbenchMenuBar({ projectName }: { projectName: string }) {
   const panels = useWorkbenchStore((s) => s.panels);
   const projectId = useWorkbenchStore((s) => s.projectId);
   const togglePanel = useWorkbenchStore((s) => s.togglePanel);
+  const projectPermissions = useWorkbenchStore((s) => s.projectPermissions);
+  const permissionsResolved = useWorkbenchStore((s) => s.permissionsResolved);
+
+  // RBAC: the Members page is only reachable with a member-management grant.
+  const canOpenMembers =
+    permissionsResolved &&
+    canAny(projectPermissions, ["manageMembers", "addMembers"]);
 
   const toggles: {
     key: keyof PanelVisibility;
@@ -408,6 +422,20 @@ function WorkbenchMenuBar({ projectName }: { projectName: string }) {
 
       <div className="flex items-center gap-1">
         <ArcadiaInfoModal />
+        {canOpenMembers && projectId && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                href={`/dashboard/project/${projectId}/members`}
+                className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted"
+                aria-label="Members"
+              >
+                <Users className="size-4" />
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent>Members</TooltipContent>
+          </Tooltip>
+        )}
         <div className="w-px h-4 bg-border mx-1" />
         {toggles.map(({ key, label, icon: Icon }) => (
           <Tooltip key={key}>

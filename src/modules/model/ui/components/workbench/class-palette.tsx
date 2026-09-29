@@ -3,15 +3,17 @@
 import { useMemo } from "react";
 import { Separator } from "@/modules/shared/ui/components/ui/separator";
 import type { DiagramPalette } from "../../helpers/diagram";
+import type { ElementTypeCounts } from "../../helpers/element-count";
 import type { ClassElementTypeValue } from "../../types/class-diagram";
 import { ClassElementShapeList } from "../class-element-shape-list";
 import { ClassRelationshipList } from "../class-relationship-list";
 
 export type ClassPaletteProps = {
   palette: DiagramPalette;
+  counts?: ElementTypeCounts;
 };
 
-export function ClassPalette({ palette }: ClassPaletteProps) {
+export function ClassPalette({ palette, counts }: ClassPaletteProps) {
   const hasRelationships = palette.relationshipTypes.length > 0;
 
   return (
@@ -24,6 +26,7 @@ export function ClassPalette({ palette }: ClassPaletteProps) {
 
       <ClassElementShapeList
         types={palette.elementTypes as ClassElementTypeValue[]}
+        counts={counts}
       />
 
       {hasRelationships && (

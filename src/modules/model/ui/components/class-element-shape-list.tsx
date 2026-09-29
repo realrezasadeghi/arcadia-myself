@@ -8,10 +8,13 @@ import {
 } from "@/modules/shared/ui/components/ui/tooltip";
 import { cn } from "@/modules/shared/ui/libs/cn";
 import { getClassElementTypeInfo } from "../constants/class-diagram";
+import type { ElementTypeCounts } from "../helpers/element-count";
+import { getElementTypeCount } from "../helpers/element-count";
 import type { ClassElementTypeValue } from "../types/class-diagram";
 
 export type ClassElementShapeListProps = {
   types: ClassElementTypeValue[];
+  counts?: ElementTypeCounts;
 };
 
 const CLASS_ELEMENT_CATEGORIES = [
@@ -36,9 +39,11 @@ const CLASS_ELEMENT_CATEGORIES = [
 
 function ClassElementShape({
   type,
+  count,
   className,
 }: {
   type: ClassElementTypeValue;
+  count?: number;
   className?: string;
 }) {
   const info = useMemo(() => getClassElementTypeInfo(type), [type]);
@@ -84,11 +89,20 @@ function ClassElementShape({
           {info.description}
         </span>
       </div>
+      {count !== undefined && (
+        <span className="ms-auto rounded-full bg-muted px-1.5 py-0.5 text-[10px] leading-none font-medium tabular-nums text-muted-foreground">
+          {count}
+          <span className="sr-only"> elements</span>
+        </span>
+      )}
     </div>
   );
 }
 
-export function ClassElementShapeList({ types }: ClassElementShapeListProps) {
+export function ClassElementShapeList({
+  types,
+  counts,
+}: ClassElementShapeListProps) {
   const groupedTypes = useMemo(() => {
     const typeSet = new Set(types);
     return CLASS_ELEMENT_CATEGORIES.filter((cat) =>
@@ -112,7 +126,12 @@ export function ClassElementShapeList({ types }: ClassElementShapeListProps) {
             {category.types.map((type) => (
               <Tooltip key={type}>
                 <TooltipTrigger asChild>
-                  <ClassElementShape type={type} />
+                  <ClassElementShape
+                    type={type}
+                    count={
+                      counts ? getElementTypeCount(counts, type) : undefined
+                    }
+                  />
                 </TooltipTrigger>
                 <TooltipContent side="left">
                   <p className="text-xs">

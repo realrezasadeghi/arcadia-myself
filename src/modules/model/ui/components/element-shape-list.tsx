@@ -10,6 +10,8 @@ import {
   getElementTypeInfo,
   getElementTypesForLayer,
 } from "../helpers/element";
+import type { ElementTypeCounts } from "../helpers/element-count";
+import { getElementTypeCount } from "../helpers/element-count";
 import type { ElementTypeValue } from "../types/element";
 import type { LayerValue } from "../types/layer";
 import { ElementShape } from "./element-shape";
@@ -18,9 +20,14 @@ export type ElementShapeListProps = {
   layer: LayerValue;
   /** اگر داده شود، فقط همین نوع‌ها نمایش داده می‌شوند (پالت مخصوص نوع دیاگرام). */
   types?: (ElementTypeValue | string)[];
+  counts?: ElementTypeCounts;
 };
 
-export function ElementShapeList({ layer, types }: ElementShapeListProps) {
+export function ElementShapeList({
+  layer,
+  types,
+  counts,
+}: ElementShapeListProps) {
   const elementTypes = useMemo(
     () =>
       types
@@ -39,6 +46,11 @@ export function ElementShapeList({ layer, types }: ElementShapeListProps) {
                 draggable
                 type={element.value}
                 label={element.label}
+                count={
+                  counts
+                    ? getElementTypeCount(counts, element.value)
+                    : undefined
+                }
                 className="rounded-md px-2.5 py-1.5 cursor-grab active:cursor-grabbing hover:bg-accent transition-colors select-none"
               />
             </TooltipTrigger>

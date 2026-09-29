@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { Separator } from "@/modules/shared/ui/components/ui/separator";
 import { RELATIONSHIP_VISUAL } from "../../constants/relationship";
 import type { DiagramPalette } from "../../helpers/diagram";
+import type { ElementTypeCounts } from "../../helpers/element-count";
 import { getRelationshipTypeInfo } from "../../helpers/relationship";
 import type { LayerValue } from "../../types/layer";
 import { ElementShapeList } from "../element-shape-list";
@@ -13,9 +14,15 @@ export type ArchPaletteProps = {
   layer: LayerValue;
   palette: DiagramPalette;
   activeTab: { type: string };
+  counts?: ElementTypeCounts;
 };
 
-export function ArchPalette({ layer, palette, activeTab }: ArchPaletteProps) {
+export function ArchPalette({
+  layer,
+  palette,
+  activeTab,
+  counts,
+}: ArchPaletteProps) {
   const relationships = useMemo(
     () =>
       palette.relationshipTypes.map((value) => getRelationshipTypeInfo(value)),
@@ -30,7 +37,11 @@ export function ArchPalette({ layer, palette, activeTab }: ArchPaletteProps) {
         </p>
       </div>
 
-      <ElementShapeList layer={layer} types={palette.elementTypes} />
+      <ElementShapeList
+        layer={layer}
+        types={palette.elementTypes}
+        counts={counts}
+      />
 
       {relationships.length > 0 && (
         <>

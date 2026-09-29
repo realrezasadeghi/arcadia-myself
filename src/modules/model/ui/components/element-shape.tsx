@@ -8,12 +8,14 @@ import type { ElementTypeValue } from "../types/element";
 interface ElementShapeProps {
   label: string;
   type: ElementTypeValue;
+  count?: number;
   onDragStart?(type: ElementTypeValue): void;
 }
 
 export function ElementShape({
   type,
   label,
+  count,
   className,
   onDragStart,
   ...props
@@ -51,6 +53,12 @@ export function ElementShape({
         }}
       />
       <span className="text-xs leading-tight">{label}</span>
+      {count !== undefined && (
+        <span className="ms-auto rounded-full bg-muted px-1.5 py-0.5 text-[10px] leading-none font-medium tabular-nums text-muted-foreground">
+          {count}
+          <span className="sr-only"> elements</span>
+        </span>
+      )}
     </div>
   );
 }

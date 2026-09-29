@@ -265,7 +265,7 @@ export function Workbench({
                     defaultSize={300}
                     className="min-w-0"
                   >
-                    <PalettePanel />
+                    <PalettePanel modelData={visibleModelData} />
                   </ResizablePanel>
                 </ResizablePanelGroup>
               </ResizablePanel>

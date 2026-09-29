@@ -9,12 +9,25 @@ import {
   getDiagramTypesForLayer,
 } from "../../helpers/diagram";
 import { getElementTypesForLayer } from "../../helpers/element";
+import {
+  countClassElementsByType,
+  countElementsByType,
+} from "../../helpers/element-count";
 import { getLayerInfo } from "../../helpers/layer";
 import { useWorkbenchStore } from "../../stores/workbench";
+import type { ClassElementData } from "../../types/class-diagram";
+import type { Element } from "../../types/element";
+import type { Model } from "../../types/model";
 import { ElementShapeList } from "../element-shape-list";
 import { ArchPalette } from "./arch-palette";
 import { ClassPalette } from "./class-palette";
 import { ScenarioPalette } from "./scenario-palette";
+
+type PaletteModelData = Array<{
+  model: Model;
+  archElements: Element[];
+  classElements: ClassElementData[];
+}>;
 
 /**
  * PalettePanel
@@ -22,7 +35,7 @@ import { ScenarioPalette } from "./scenario-palette";
  * جعبه‌ابزار کنار canvas. اگر دیاگرامی باز باشد، ابزارهای آن را نشان می‌دهد.
  * اگر دیاگرامی باز نباشد، المنت‌های لایه فعال را نشان می‌دهد (مطابق Capella).
  */
-export function PalettePanel() {
+export function PalettePanel({ modelData }: { modelData: PaletteModelData }) {
   const activeTab = useWorkbenchStore((s) =>
     s.tabs.find((t) => t.diagramId === s.activeDiagramId),
   );
@@ -56,6 +69,21 @@ export function PalettePanel() {
 
   const layerInfo = getLayerInfo(layer);
 
+  const layerModel = useMemo(
+    () => modelData.find((entry) => entry.model.layer === layer),
+    [modelData, layer],
+  );
+
+  const counts = useMemo(
+    () => countElementsByType(layerModel?.archElements ?? []),
+    [layerModel],
+  );
+
+  const classCounts = useMemo(
+    () => countClassElementsByType(layerModel?.classElements ?? []),
+    [layerModel],
+  );
+
   return (
     <aside className="flex h-full min-h-0 flex-col border-l bg-card">
       <div className="flex h-8 shrink-0 items-center gap-1.5 border-b bg-muted/30 px-3">
@@ -79,7 +107,7 @@ export function PalettePanel() {
           </div>
         ) : activeTab && palette ? (
           isClassDiagram ? (
-            <ClassPalette palette={palette} />
+            <ClassPalette palette={palette} counts={classCounts} />
           ) : isScenario ? (
             <ScenarioPalette type={activeTab.type} />
           ) : (
@@ -87,6 +115,7 @@ export function PalettePanel() {
               layer={layer}
               palette={palette}
               activeTab={activeTab}
+              counts={counts}
             />
           )
         ) : layerElementTypes ? (
@@ -99,6 +128,7 @@ export function PalettePanel() {
             <ElementShapeList
               layer={layer}
               types={layerElementTypes.map((e) => e.value)}
+              counts={counts}
             />
 
             {layerDiagramTypes && layerDiagramTypes.length > 0 && (

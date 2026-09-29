@@ -1,5 +1,12 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { LogIn } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback } from "react";
+import { type SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import {
   type FieldDef,
   FieldRenderer,
@@ -14,13 +21,6 @@ import {
   CardTitle,
 } from "@/modules/shared/ui/components/ui/card";
 import { Form } from "@/modules/shared/ui/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { LogIn } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useCallback } from "react";
-import { type SubmitHandler, useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { useLogin } from "../clients/login";
 import { useLoginTranslations } from "../hooks/use-translations";
 import { type LoginFormValues, loginSchema } from "../schemas/login";
@@ -34,12 +34,14 @@ export function LoginView() {
       label: t("username"),
       type: "text",
       dir: "ltr",
+      autoComplete: "username",
     },
     {
       name: "password",
       label: t("password"),
       type: "password",
       placeholder: "********",
+      autoComplete: "current-password",
     },
   ];
 

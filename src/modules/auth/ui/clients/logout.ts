@@ -1,8 +1,6 @@
-import { useMutation } from "@tanstack/react-query";
+import { useServerMutation } from "@/modules/shared/ui/hooks/use-mutation";
 import { logout } from "../../presentation/server-action/logout";
 
 export function useLogout() {
-  return useMutation({
-    mutationFn: logout,
-  });
+  return useServerMutation<void, void>({ mutationFn: logout });
 }

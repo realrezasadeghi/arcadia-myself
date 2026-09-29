@@ -84,6 +84,7 @@ export function FieldInput<T extends FieldValues>({
 
 type FieldPasswordProps<T extends FieldValues> = BaseFieldProps<T> & {
   placeholder?: string;
+  autoComplete?: string;
 };
 
 export function FieldPassword<T extends FieldValues>({
@@ -93,6 +94,7 @@ export function FieldPassword<T extends FieldValues>({
   className,
   disabled,
   placeholder = "••••••••",
+  autoComplete,
 }: FieldPasswordProps<T>) {
   const [show, setShow] = useState(false);
   return (
@@ -111,15 +113,16 @@ export function FieldPassword<T extends FieldValues>({
                 className="pl-10"
                 placeholder={placeholder}
                 type={show ? "text" : "password"}
+                autoComplete={autoComplete}
                 {...field}
                 value={field.value ?? ""}
               />
               <button
                 type="button"
                 onClick={() => setShow((v) => !v)}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                tabIndex={-1}
+                className="absolute left-3 top-1/2 -translate-y-1/2 rounded-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label={show ? "Hide password" : "Show password"}
+                aria-pressed={show}
               >
                 {show ? (
                   <EyeOff className="h-4 w-4" />

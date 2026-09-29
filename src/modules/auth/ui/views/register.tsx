@@ -1,5 +1,12 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { UserPlus } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback } from "react";
+import { type SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import {
   type FieldDef,
   FieldRenderer,
@@ -14,13 +21,6 @@ import {
   CardTitle,
 } from "@/modules/shared/ui/components/ui/card";
 import { Form } from "@/modules/shared/ui/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { UserPlus } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useCallback } from "react";
-import { type SubmitHandler, useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { useRegister } from "../clients/register";
 import { useRegisterTranslations } from "../hooks/use-translations";
 import { type RegisterFormValues, registerSchema } from "../schemas/register";
@@ -33,18 +33,21 @@ export function RegisterView() {
       name: "name",
       label: t("fullName"),
       type: "text",
+      autoComplete: "name",
     },
     {
       name: "username",
       label: t("username"),
       type: "text",
       dir: "ltr",
+      autoComplete: "username",
     },
     {
       name: "password",
       label: t("password"),
       type: "password",
       placeholder: "********",
+      autoComplete: "new-password",
     },
   ];
 

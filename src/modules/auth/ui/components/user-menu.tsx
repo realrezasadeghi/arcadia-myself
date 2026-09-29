@@ -1,5 +1,9 @@
 "use client";
 
+import { LogOut, Settings, User as UserIcon } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useMemo } from "react";
 import {
   Avatar,
   AvatarFallback,
@@ -12,15 +16,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/modules/shared/ui/components/ui/dropdown-menu";
-import { LogOut, Settings, User as UserIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useCallback, useMemo } from "react";
+import type { GetMeResponse } from "../../application/use-cases/get-me";
 import { useGetMe } from "../clients/get-me";
 import { useLogout } from "../clients/logout";
 
-export function UserMenu() {
-  const { data: user } = useGetMe();
+type Props = {
+  /** User prefetched on the server so the avatar renders on first paint. */
+  user?: GetMeResponse;
+};
+
+export function UserMenu({ user: prefetchedUser }: Props) {
+  const { data: user } = useGetMe({ initialData: prefetchedUser });
   const logout = useLogout();
   const router = useRouter();
 

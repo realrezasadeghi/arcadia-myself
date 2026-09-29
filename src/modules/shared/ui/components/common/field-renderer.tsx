@@ -53,6 +53,8 @@ export interface FieldDef {
   /** Required for type: "select" */
   options?: SelectOption[];
   dir?: "ltr" | "rtl" | "auto";
+  /** HTML autocomplete token, e.g. "name", "current-password". */
+  autoComplete?: string;
   className?: string;
   disabled?: boolean;
   visible?: boolean;
@@ -90,6 +92,7 @@ export function FieldRenderer({ fields, className }: FieldRendererProps) {
                 {...common}
                 key={field.name}
                 placeholder={field.placeholder}
+                autoComplete={field.autoComplete}
               />
             );
 
@@ -123,6 +126,7 @@ export function FieldRenderer({ fields, className }: FieldRendererProps) {
                 type={field.type ?? "text"}
                 placeholder={field.placeholder}
                 dir={field.dir}
+                autoComplete={field.autoComplete}
               />
             );
         }

@@ -1,0 +1,215 @@
+import { describe, expect, it } from "vitest";
+import { ElementType } from "../value-objects/element-type";
+import { RelationshipType } from "../value-objects/relationship-type";
+import { ConnectionPolicy } from "./connection";
+
+const connect = (
+  source: string,
+  target: string,
+  relationship: string,
+): boolean =>
+  ConnectionPolicy.isAllowed(
+    ElementType.from(source),
+    ElementType.from(target),
+    RelationshipType.from(relationship),
+  );
+
+describe("ConnectionPolicy", () => {
+  it("allows operational exchanges between activities", () => {
+    expect(
+      connect(
+        "OperationalActivity",
+        "OperationalActivity",
+        "OperationalExchange",
+      ),
+    ).toBe(true);
+    expect(
+      connect(
+        "OperationalEntity",
+        "OperationalActivity",
+        "OperationalExchange",
+      ),
+    ).toBe(false);
+  });
+
+  it("allows generalization between entities and actors in OA", () => {
+    expect(
+      connect("OperationalEntity", "OperationalActor", "Generalization"),
+    ).toBe(true);
+    expect(
+      connect("OperationalActor", "OperationalEntity", "Generalization"),
+    ).toBe(true);
+    expect(
+      connect("OperationalActivity", "OperationalEntity", "Generalization"),
+    ).toBe(false);
+  });
+
+  it("allocates functions to their owning component in every layer", () => {
+    expect(connect("SystemFunction", "SystemComponent", "Allocation")).toBe(
+      true,
+    );
+    expect(connect("SystemFunction", "System", "Allocation")).toBe(true);
+    expect(connect("SystemFunction", "SystemActor", "Allocation")).toBe(true);
+    expect(connect("LogicalFunction", "LogicalComponent", "Allocation")).toBe(
+      true,
+    );
+    expect(connect("PhysicalFunction", "PhysicalComponent", "Allocation")).toBe(
+      true,
+    );
+    expect(connect("LogicalFunction", "LogicalActor", "Allocation")).toBe(true);
+    expect(connect("PhysicalFunction", "PhysicalNode", "Allocation")).toBe(
+      false,
+    );
+  });
+
+  it("no longer allows function → component links as exchanges", () => {
+    expect(
+      connect("SystemFunction", "SystemComponent", "FunctionalExchange"),
+    ).toBe(false);
+    expect(
+      connect("LogicalFunction", "LogicalComponent", "LogicalExchange"),
+    ).toBe(false);
+    expect(
+      connect("PhysicalFunction", "PhysicalComponent", "PhysicalExchange"),
+    ).toBe(false);
+  });
+
+  it("still allows real function → function exchanges", () => {
+    expect(
+      connect("SystemFunction", "SystemFunction", "FunctionalExchange"),
+    ).toBe(true);
+    expect(
+      connect("LogicalFunction", "LogicalFunction", "LogicalExchange"),
+    ).toBe(true);
+    expect(
+      connect("PhysicalFunction", "PhysicalFunction", "PhysicalExchange"),
+    ).toBe(true);
+  });
+
+  it("composes components and functions in SA", () => {
+    expect(connect("SystemComponent", "SystemComponent", "Composition")).toBe(
+      true,
+    );
+    expect(connect("SystemFunction", "SystemFunction", "Composition")).toBe(
+      true,
+    );
+    expect(connect("System", "SystemComponent", "Composition")).toBe(true);
+    expect(connect("SystemActor", "SystemComponent", "Composition")).toBe(
+      false,
+    );
+  });
+
+  it("generalizes components and actors in SA, LA and PA", () => {
+    expect(connect("SystemComponent", "SystemActor", "Generalization")).toBe(
+      true,
+    );
+    expect(connect("SystemFunction", "SystemComponent", "Generalization")).toBe(
+      false,
+    );
+    expect(connect("LogicalComponent", "LogicalActor", "Generalization")).toBe(
+      true,
+    );
+    expect(
+      connect("PhysicalComponent", "PhysicalActor", "Generalization"),
+    ).toBe(true);
+    expect(
+      connect("LogicalFunction", "LogicalFunction", "Generalization"),
+    ).toBe(false);
+  });
+
+  it("keeps deployment and involvement as connections", () => {
+    expect(connect("PhysicalComponent", "PhysicalNode", "DeploymentLink")).toBe(
+      true,
+    );
+    expect(
+      connect("OperationalCapability", "OperationalEntity", "InvolvementLink"),
+    ).toBe(false);
+  });
+
+  it("lists allowed relationship types for a pair", () => {
+    const allowed = ConnectionPolicy.getAllowedTypes(
+      "SystemFunction",
+      "SystemComponent",
+    ).map((t) => t.value);
+
+    expect(allowed).toContain("Allocation");
+    expect(allowed).not.toContain("FunctionalExchange");
+
+    expect(
+      ConnectionPolicy.getAllowedTypes("PhysicalComponent", "PhysicalNode").map(
+        (t) => t.value,
+      ),
+    ).toContain("DeploymentLink");
+
+    expect(
+      ConnectionPolicy.getAllowedTypes("Mission", "SystemFunction"),
+    ).toEqual([]);
+  });
+});
+
+describe("ConnectionPolicy.resolveTransitionType", () => {
+  it("keeps a relationship type that is still valid after the move", () => {
+    expect(
+      ConnectionPolicy.resolveTransitionType(
+        "SystemFunction",
+        "SystemComponent",
+        "Allocation",
+      ),
+    ).toBe("Allocation");
+    expect(
+      ConnectionPolicy.resolveTransitionType(
+        "LogicalComponent",
+        "LogicalComponent",
+        "Composition",
+      ),
+    ).toBe("Composition");
+  });
+
+  it("re-homes an exchange on the exchange of the target layer", () => {
+    expect(
+      ConnectionPolicy.resolveTransitionType(
+        "SystemFunction",
+        "SystemFunction",
+        "OperationalExchange",
+      ),
+    ).toBe("FunctionalExchange");
+    expect(
+      ConnectionPolicy.resolveTransitionType(
+        "LogicalFunction",
+        "LogicalFunction",
+        "FunctionalExchange",
+      ),
+    ).toBe("LogicalExchange");
+    expect(
+      ConnectionPolicy.resolveTransitionType(
+        "LogicalComponent",
+        "LogicalActor",
+        "SystemExchange",
+      ),
+    ).toBe("ComponentExchange");
+  });
+
+  it("never turns a structural link into an exchange", () => {
+    expect(
+      ConnectionPolicy.resolveTransitionType(
+        "SystemActor",
+        "SystemCapability",
+        "Composition",
+      ),
+    ).toBeNull();
+    expect(
+      ConnectionPolicy.resolveTransitionType(
+        "SystemActor",
+        "SystemCapability",
+        "InvolvementLink",
+      ),
+    ).toBeNull();
+    expect(
+      ConnectionPolicy.resolveTransitionType(
+        "PhysicalComponent",
+        "PhysicalComponent",
+        "ComponentExchange",
+      ),
+    ).toBeNull();
+  });
+});

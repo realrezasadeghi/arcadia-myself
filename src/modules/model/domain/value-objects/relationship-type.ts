@@ -1,50 +1,12 @@
 import { ValueObject } from "@/modules/shared/domain/value-object";
-import type { RelationshipMeta } from "../types/relationship";
+import {
+  CONNECTION_VALUES,
+  RELATIONSHIP_DEFINITIONS,
+  type RelationshipTypeValue,
+  type TraceLinkTypeValue,
+} from "../relationships/definitions";
 
-export type RelationshipTypeValue =
-  | "OperationalExchange"
-  | "InvolvementLink"
-  | "FunctionalExchange"
-  | "SystemExchange"
-  | "LogicalExchange"
-  | "ComponentExchange"
-  | "ProvidedInterface"
-  | "RequiredInterface"
-  | "PhysicalExchange"
-  | "PhysicalLink"
-  | "DeploymentLink"
-  | "Composition"
-  | "Generalization";
-
-export type TraceLinkTypeValue =
-  | "Realization"
-  | "Allocation"
-  | "Deployment"
-  | "Involvement"
-  | "Refinement";
-
-const RELATIONSHIP_META: Record<RelationshipTypeValue, RelationshipMeta> = {
-  OperationalExchange: {
-    label: "Operational Exchange",
-    labelFa: "تبادل عملیاتی",
-  },
-  InvolvementLink: { label: "Involvement Link", labelFa: "پیوند مشارکت" },
-  FunctionalExchange: { label: "Functional Exchange", labelFa: "تبادل تابعی" },
-  SystemExchange: { label: "System Exchange", labelFa: "تبادل سیستمی" },
-  LogicalExchange: { label: "Logical Exchange", labelFa: "تبادل منطقی" },
-  ComponentExchange: { label: "Component Exchange", labelFa: "تبادل مؤلفه" },
-  ProvidedInterface: { label: "Provided Interface", labelFa: "رابط ارائه‌شده" },
-  RequiredInterface: { label: "Required Interface", labelFa: "رابط مورد نیاز" },
-  PhysicalExchange: { label: "Physical Exchange", labelFa: "تبادل فیزیکی" },
-  PhysicalLink: { label: "Physical Link", labelFa: "پیوند فیزیکی" },
-  DeploymentLink: { label: "Deployment Link", labelFa: "پیوند استقرار" },
-  Composition: { label: "Composition", labelFa: "ترکیب" },
-  Generalization: { label: "Generalization", labelFa: "تعمیم" },
-};
-
-const ALL_RELATIONSHIP_VALUES = Object.keys(
-  RELATIONSHIP_META,
-) as RelationshipTypeValue[];
+export type { RelationshipTypeValue, TraceLinkTypeValue };
 
 interface RelationshipTypeProps {
   value: RelationshipTypeValue;
@@ -54,24 +16,23 @@ interface RelationshipTypeProps {
  * RelationshipType — Value Object
  *
  * نوع یک ارتباط بین المنت‌ها در لایه‌های Arcadia.
- * اطلاعات بصری (رنگ خط، نوع فلش) در presentation/config/visual.config.ts هستند.
+ * نام‌گذاری و عبارت‌های جهت‌دار از `domain/relationships/definitions.ts` می‌آید؛
+ * اطلاعات بصری (رنگ خط، نوع فلش) در UI constants هستند.
  */
 export class RelationshipType extends ValueObject<RelationshipTypeProps> {
   protected validate(props: RelationshipTypeProps): void {
-    if (!ALL_RELATIONSHIP_VALUES.includes(props.value))
+    if (!CONNECTION_VALUES.includes(props.value))
       throw new Error(`RelationshipType is invalid : ${props.value}`);
   }
 
   static from(value: string): RelationshipType {
-    if (!ALL_RELATIONSHIP_VALUES.includes(value as RelationshipTypeValue))
+    if (!CONNECTION_VALUES.includes(value as RelationshipTypeValue))
       throw new Error(`RelationshipType is invalid : ${value}`);
     return new RelationshipType({ value: value as RelationshipTypeValue });
   }
 
   static all(): RelationshipType[] {
-    return ALL_RELATIONSHIP_VALUES.map(
-      (v) => new RelationshipType({ value: v }),
-    );
+    return CONNECTION_VALUES.map((value) => new RelationshipType({ value }));
   }
 
   get value(): RelationshipTypeValue {
@@ -79,11 +40,11 @@ export class RelationshipType extends ValueObject<RelationshipTypeProps> {
   }
 
   get label(): string {
-    return RELATIONSHIP_META[this.props.value].label;
+    return RELATIONSHIP_DEFINITIONS[this.props.value].label;
   }
 
   get labelFa(): string {
-    return RELATIONSHIP_META[this.props.value].labelFa;
+    return RELATIONSHIP_DEFINITIONS[this.props.value].labelFa;
   }
 
   toString(): string {

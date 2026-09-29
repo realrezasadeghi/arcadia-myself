@@ -42,9 +42,9 @@ export function getTraceOptions(
   }));
 }
 
-export function getTraceVisual(type: TraceLinkTypeValue): TraceLinkVisualSpec {
+export function getTraceVisual(type: string): TraceLinkVisualSpec {
   return (
-    TRACE_VISUAL[type] ?? {
+    TRACE_VISUAL[type as TraceLinkTypeValue] ?? {
       strokeColor: "#94a3b8",
       strokeWidth: 1,
       arrowEnd: "open-arrow",

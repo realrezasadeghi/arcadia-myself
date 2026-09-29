@@ -1,62 +1,70 @@
 import { ValueObject } from "@/modules/shared/domain/value-object";
-import type { RelationshipMeta } from "../types/relationship";
+import {
+  getRelationshipDefinition,
+  TRACE_VALUES,
+  type TraceLinkTypeValue,
+} from "../relationships/definitions";
 
-export type TraceLinkTypeValue =
-  | "Realization"
-  | "Allocation"
-  | "Deployment"
-  | "Involvement"
-  | "Refinement";
+export type { TraceLinkTypeValue };
 
 interface TraceLinkTypeProps {
-  value: TraceLinkTypeValue;
+  value: string;
+  legacy?: boolean;
 }
-
-const TRACE_META: Record<TraceLinkTypeValue, RelationshipMeta> = {
-  Realization: { label: "Realization", labelFa: "تحقق" },
-  Allocation: { label: "Allocation", labelFa: "تخصیص" },
-  Deployment: { label: "Deployment", labelFa: "استقرار" },
-  Involvement: { label: "Involvement", labelFa: "مشارکت" },
-  Refinement: { label: "Refinement", labelFa: "اصلاح" },
-};
-
-const ALL_TRACE_VALUES = Object.keys(TRACE_META) as TraceLinkTypeValue[];
 
 /**
  * TraceLinkType — Value Object
  *
  * نوع یک ارتباط Trace بین لایه‌های مختلف Arcadia.
- * اطلاعات بصری در presentation/config/visual.config.ts هستند.
+ * نام‌گذاری و عبارت‌های جهت‌دار از `domain/relationships/definitions.ts` می‌آید؛
+ * اطلاعات بصری در UI constants هستند.
+ *
+ * مسیر نوشتن (`from`) سخت‌گیرانه است و فقط نوع‌های ثبت‌شده در `TRACE_VALUES`
+ * را می‌پذیرد. مسیر خواندن (`reconstitute`) با داده‌های قدیمی کنار می‌آید تا
+ * ردیف‌های قدیمی به‌جای پرتاب خطا، با برچسب خام نمایش داده شوند.
  */
 export class TraceLinkType extends ValueObject<TraceLinkTypeProps> {
   static readonly Realization = new TraceLinkType({ value: "Realization" });
-  static readonly Allocation = new TraceLinkType({ value: "Allocation" });
-  static readonly Deployment = new TraceLinkType({ value: "Deployment" });
-  static readonly Involvement = new TraceLinkType({ value: "Involvement" });
   static readonly Refinement = new TraceLinkType({ value: "Refinement" });
 
   protected validate(props: TraceLinkTypeProps): void {
-    if (!ALL_TRACE_VALUES.includes(props.value))
+    if (props.legacy) return;
+    if (!TRACE_VALUES.includes(props.value as TraceLinkTypeValue))
       throw new Error(`TraceLinkType is invalid : ${props.value}`);
   }
 
   static from(value: string): TraceLinkType {
-    if (!ALL_TRACE_VALUES.includes(value as TraceLinkTypeValue))
-      throw new Error(`TraceLinkType is invalid : ${value}`);
-
-    return new TraceLinkType({ value: value as TraceLinkTypeValue });
+    return new TraceLinkType({ value });
   }
 
-  get value(): TraceLinkTypeValue {
+  static reconstitute(value: string): TraceLinkType {
+    return TRACE_VALUES.includes(value as TraceLinkTypeValue)
+      ? new TraceLinkType({ value })
+      : new TraceLinkType({ value, legacy: true });
+  }
+
+  static all(): TraceLinkType[] {
+    return TRACE_VALUES.map((value) => new TraceLinkType({ value }));
+  }
+
+  get value(): string {
     return this.props.value;
   }
 
+  get isLegacy(): boolean {
+    return this.props.legacy === true;
+  }
+
   get label(): string {
-    return TRACE_META[this.props.value].label;
+    return (
+      getRelationshipDefinition(this.props.value)?.label ?? this.props.value
+    );
   }
 
   get labelFa(): string {
-    return TRACE_META[this.props.value].labelFa;
+    return (
+      getRelationshipDefinition(this.props.value)?.labelFa ?? this.props.value
+    );
   }
 
   isCrossLayer(): boolean {

@@ -1,3 +1,5 @@
+import { validateOptionalName } from "../../domain/policies/naming";
+
 export type UpdateModelDTOProps = {
   modelId: string;
   name?: string;
@@ -42,16 +44,7 @@ export class UpdateModelDTO {
   }
 
   private static validateName(name?: string): string | undefined {
-    if (name === undefined || name === null) return undefined;
-
-    const trimmed = name.trim();
-    if (trimmed.length === 0) return undefined; // treat empty string as "no update"
-
-    if (trimmed.length > 100) {
-      throw new Error("Model name cannot exceed 100 characters");
-    }
-
-    return trimmed;
+    return validateOptionalName(name, { label: "Model name", maxLength: 100 });
   }
 
   private static validateDescription(description?: string): string | undefined {

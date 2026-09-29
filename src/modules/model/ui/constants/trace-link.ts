@@ -1,3 +1,8 @@
+import {
+  RELATIONSHIP_DEFINITIONS,
+  relationshipDefinitionsOfKind,
+} from "../../domain/relationships/definitions";
+import { TRACE_RULES as DOMAIN_TRACE_RULES } from "../../domain/relationships/rules";
 import type { LayerValue } from "../types/layer";
 import type {
   TraceLinkRule,
@@ -6,139 +11,24 @@ import type {
   TraceLinkVisualSpec,
 } from "../types/trace-link";
 
-export const TRACE_LINK_TYPES: TraceLinkTypeInfo[] = [
-  { value: "Realization", label: "Realization", labelFa: "تحقق" },
-  { value: "Allocation", label: "Allocation", labelFa: "تخصیص" },
-  { value: "Deployment", label: "Deployment", labelFa: "استقرار" },
-  { value: "Involvement", label: "Involvement", labelFa: "مشارکت" },
-  { value: "Refinement", label: "Refinement", labelFa: "اصلاح" },
-  { value: "Owned", label: "Owned", labelFa: "مالکیت" },
-];
+/** Display metadata for trace link types — derived from the domain registry. */
+export const TRACE_LINK_TYPES: TraceLinkTypeInfo[] =
+  relationshipDefinitionsOfKind("trace").map((definition) => ({
+    value: definition.value as TraceLinkTypeValue,
+    label: definition.label,
+    labelFa: definition.labelFa,
+  }));
 
-export const TRACE_RULES: TraceLinkRule[] = [
-  {
-    type: "Realization",
-    typeLabelFa: "تحقق",
-    sourceLayer: "SA",
-    sourceTypes: ["SystemFunction"],
-    targetLayer: "OA",
-    targetLayerLabelFa: "تحلیل عملیاتی",
-    targetTypes: ["OperationalActivity"],
-  },
-  {
-    type: "Realization",
-    typeLabelFa: "تحقق",
-    sourceLayer: "SA",
-    sourceTypes: ["SystemActor"],
-    targetLayer: "OA",
-    targetLayerLabelFa: "تحلیل عملیاتی",
-    targetTypes: ["OperationalEntity", "OperationalActor"],
-  },
-  {
-    type: "Realization",
-    typeLabelFa: "تحقق",
-    sourceLayer: "SA",
-    sourceTypes: ["SystemCapability"],
-    targetLayer: "OA",
-    targetLayerLabelFa: "تحلیل عملیاتی",
-    targetTypes: ["OperationalCapability"],
-  },
-  // LA realizes SA
-  {
-    type: "Realization",
-    typeLabelFa: "تحقق",
-    sourceLayer: "LA",
-    sourceTypes: ["LogicalFunction"],
-    targetLayer: "SA",
-    targetLayerLabelFa: "تحلیل سیستم",
-    targetTypes: ["SystemFunction"],
-  },
-  {
-    type: "Realization",
-    typeLabelFa: "تحقق",
-    sourceLayer: "LA",
-    sourceTypes: ["LogicalComponent"],
-    targetLayer: "SA",
-    targetLayerLabelFa: "تحلیل سیستم",
-    targetTypes: ["SystemComponent"],
-  },
-  {
-    type: "Realization",
-    typeLabelFa: "تحقق",
-    sourceLayer: "LA",
-    sourceTypes: ["LogicalActor"],
-    targetLayer: "SA",
-    targetLayerLabelFa: "تحلیل سیستم",
-    targetTypes: ["SystemActor"],
-  },
-  // PA realizes LA
-  {
-    type: "Realization",
-    typeLabelFa: "تحقق",
-    sourceLayer: "PA",
-    sourceTypes: ["PhysicalComponent"],
-    targetLayer: "LA",
-    targetLayerLabelFa: "معماری منطقی",
-    targetTypes: ["LogicalComponent"],
-  },
-  {
-    type: "Realization",
-    typeLabelFa: "تحقق",
-    sourceLayer: "PA",
-    sourceTypes: ["PhysicalFunction"],
-    targetLayer: "LA",
-    targetLayerLabelFa: "معماری منطقی",
-    targetTypes: ["LogicalFunction"],
-  },
-  {
-    type: "Realization",
-    typeLabelFa: "تحقق",
-    sourceLayer: "PA",
-    sourceTypes: ["PhysicalActor"],
-    targetLayer: "LA",
-    targetLayerLabelFa: "معماری منطقی",
-    targetTypes: ["LogicalActor"],
-  },
-  // Allocation (intra-layer)
-  {
-    type: "Allocation",
-    typeLabelFa: "تخصیص",
-    sourceLayer: "LA",
-    sourceTypes: ["LogicalFunction"],
-    targetLayer: "LA",
-    targetLayerLabelFa: "معماری منطقی",
-    targetTypes: ["LogicalComponent"],
-  },
-  {
-    type: "Allocation",
-    typeLabelFa: "تخصیص",
-    sourceLayer: "PA",
-    sourceTypes: ["PhysicalFunction"],
-    targetLayer: "PA",
-    targetLayerLabelFa: "معماری فیزیکی",
-    targetTypes: ["PhysicalComponent"],
-  },
-  // Deployment
-  {
-    type: "Deployment",
-    typeLabelFa: "استقرار",
-    sourceLayer: "PA",
-    sourceTypes: ["PhysicalComponent"],
-    targetLayer: "PA",
-    targetLayerLabelFa: "معماری فیزیکی",
-    targetTypes: ["PhysicalNode"],
-  },
-  // Involvement
-  {
-    type: "Involvement",
-    typeLabelFa: "مشارکت",
-    sourceLayer: "OA",
-    sourceTypes: ["OperationalEntity", "OperationalActor"],
-    targetLayer: "OA",
-    targetLayerLabelFa: "تحلیل عملیاتی",
-    targetTypes: ["OperationalCapability"],
-  },
-];
+/** Trace rules projected to the UI shape (adds Persian labels). */
+export const TRACE_RULES: TraceLinkRule[] = DOMAIN_TRACE_RULES.map((rule) => ({
+  type: rule.type,
+  typeLabelFa: RELATIONSHIP_DEFINITIONS[rule.type].labelFa,
+  sourceLayer: rule.sourceLayer.value,
+  sourceTypes: rule.sourceTypes,
+  targetLayer: rule.targetLayer.value,
+  targetLayerLabelFa: rule.targetLayer.labelFa,
+  targetTypes: rule.targetTypes,
+}));
 
 export const TRACE_VISUAL: Record<TraceLinkTypeValue, TraceLinkVisualSpec> = {
   Realization: {
@@ -147,44 +37,27 @@ export const TRACE_VISUAL: Record<TraceLinkTypeValue, TraceLinkVisualSpec> = {
     arrowEnd: "open-arrow",
     strokeDash: "4,2",
   },
-  Allocation: {
-    strokeColor: "#E67E22",
-    strokeWidth: 1,
-    arrowEnd: "open-arrow",
-    strokeDash: "4,2",
-  },
-  Deployment: {
-    strokeColor: "#2C3E50",
-    strokeWidth: 1,
-    arrowEnd: "open-arrow",
-    strokeDash: "6,2",
-  },
-  Involvement: {
-    strokeColor: "#717D7E",
-    strokeWidth: 1,
-    arrowEnd: "open-arrow",
-    strokeDash: "3,3",
-  },
   Refinement: {
     strokeColor: "#1A5276",
     strokeWidth: 1,
     arrowEnd: "open-arrow",
     strokeDash: "5,3",
   },
-  Owned: {
-    strokeColor: "#27AE60",
-    strokeWidth: 1,
-    arrowEnd: "open-arrow",
-    strokeDash: "2,4",
-  },
 };
 
+/**
+ * Layer pairs shown in the traceability matrix.
+ *
+ * `lower` is the more concrete layer (the trace source) and `upper` the more
+ * abstract one (the trace target), so the label reads in stored direction:
+ * the concrete layer realizes the abstract one.
+ */
 export const LAYER_PAIRS: Array<{
   upper: LayerValue;
   lower: LayerValue;
   label: string;
 }> = [
-  { upper: "OA", lower: "SA", label: "OA → SA" },
-  { upper: "SA", lower: "LA", label: "SA → LA" },
-  { upper: "LA", lower: "PA", label: "LA → PA" },
+  { upper: "OA", lower: "SA", label: "SA → OA" },
+  { upper: "SA", lower: "LA", label: "LA → SA" },
+  { upper: "LA", lower: "PA", label: "PA → LA" },
 ];

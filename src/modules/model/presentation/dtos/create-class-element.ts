@@ -1,3 +1,5 @@
+import { validateRequiredName } from "../../domain/policies/naming";
+
 export type CreateClassElementDTOProps = {
   modelId: string;
   layer: string;
@@ -85,12 +87,10 @@ export class CreateClassElementDTO {
   }
 
   private static validateName(name: string): string {
-    if (!name) throw new Error("Element name is required");
-    const trimmed = name.trim();
-    if (!trimmed) throw new Error("Element name cannot be empty");
-    if (trimmed.length > 255)
-      throw new Error("Name cannot exceed 255 characters");
-    return trimmed;
+    return validateRequiredName(name, {
+      label: "Element name",
+      maxLength: 255,
+    });
   }
 
   private static validateElementType(

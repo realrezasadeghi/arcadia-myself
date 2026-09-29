@@ -1,3 +1,5 @@
+import { validateRequiredName } from "../../domain/policies/naming";
+
 export type UpdateDiagramDTOProps = {
   id: string;
   name: string;
@@ -42,21 +44,10 @@ export class UpdateDiagramDTO {
   }
 
   private static validateName(name?: string): string {
-    if (!name) {
-      throw new Error("Diagram name is required");
-    }
-
-    const trimmed = name.trim();
-
-    if (!trimmed.length) {
-      throw new Error("Diagram name cannot be empty");
-    }
-
-    if (trimmed.length > 100) {
-      throw new Error("Diagram name cannot exceed 100 characters");
-    }
-
-    return trimmed;
+    return validateRequiredName(name, {
+      label: "Diagram name",
+      maxLength: 100,
+    });
   }
 
   private static validateDescription(description?: string): string | undefined {

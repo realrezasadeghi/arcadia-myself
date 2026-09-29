@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import type {
   CreateRelationshipPayload,
   FindRelationshipsByModelIdQuery,
@@ -5,7 +6,6 @@ import type {
   RemoveRelationshipPayload,
   UpdateRelationshipPayload,
 } from "@/modules/model/application/ports/relationship";
-import { eq } from "drizzle-orm";
 import {
   Relationship,
   type RelationshipProperties,
@@ -53,7 +53,7 @@ export class DrizzleRelationshipRepository implements IRelationshipRepository {
         targetElementId: payload.targetElementId,
         name: payload.name ?? "",
         description: payload.description ?? "",
-        properties: {},
+        properties: payload.properties ?? {},
       })
       .returning();
     const [row] = response;

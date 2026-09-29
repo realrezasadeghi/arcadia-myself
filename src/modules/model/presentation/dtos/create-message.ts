@@ -1,3 +1,5 @@
+import { validateRequiredName } from "../../domain/policies/naming";
+
 export type CreateMessageDTOProps = {
   scenarioId: string;
   name: string;
@@ -59,12 +61,10 @@ export class CreateMessageDTO {
   }
 
   private static validateName(name: string): string {
-    if (!name) throw new Error("Message name is required");
-    const trimmed = name.trim();
-    if (!trimmed) throw new Error("Message name cannot be empty");
-    if (trimmed.length > 255)
-      throw new Error("Message name cannot exceed 255 characters");
-    return trimmed;
+    return validateRequiredName(name, {
+      label: "Message name",
+      maxLength: 255,
+    });
   }
 
   private static validateKind(kind: string): string {

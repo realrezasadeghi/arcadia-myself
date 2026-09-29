@@ -15,6 +15,7 @@ export type CreateRelationshipPayload = {
   targetElementId: string;
   name?: string;
   description?: string;
+  properties?: RelationshipProperties;
 };
 
 export type UpdateRelationshipPayload = {

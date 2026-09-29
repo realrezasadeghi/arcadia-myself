@@ -1,3 +1,4 @@
+import { validateRequiredName } from "../../domain/policies/naming";
 import type { ElementTypeValue } from "../../domain/value-objects/element-type";
 import type { LayerValue } from "../../domain/value-objects/layer"; // adjust import path as needed
 
@@ -101,21 +102,10 @@ export class CreateElementDTO {
   }
 
   private static validateName(name: string): string {
-    if (!name) {
-      throw new Error("Element name is required.");
-    }
-
-    const trimmed = name?.trim();
-
-    if (!trimmed) {
-      throw new Error("Element name cannot be empty");
-    }
-
-    if (trimmed.length > 100) {
-      throw new Error("Element name cannot exceed 100 characters");
-    }
-
-    return trimmed;
+    return validateRequiredName(name, {
+      label: "Element name",
+      maxLength: 100,
+    });
   }
 
   private static validateParentId(parentId?: string): string | undefined {

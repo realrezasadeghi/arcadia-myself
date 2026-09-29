@@ -1,3 +1,5 @@
+import { validateRequiredName } from "../../domain/policies/naming";
+
 export type UpdateClassOperationParameterDTOProps = {
   id: string;
   name?: string;
@@ -80,11 +82,10 @@ export class UpdateClassOperationParameterDTO {
   }
 
   private static validateName(name: string): string {
-    const trimmed = name.trim();
-    if (!trimmed) throw new Error("Parameter name cannot be empty");
-    if (trimmed.length > 255)
-      throw new Error("Name cannot exceed 255 characters");
-    return trimmed;
+    return validateRequiredName(name, {
+      label: "Parameter name",
+      maxLength: 255,
+    });
   }
 
   private static validateMultiplicityLower(lower: number): number {

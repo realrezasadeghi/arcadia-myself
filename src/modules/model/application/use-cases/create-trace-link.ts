@@ -30,7 +30,7 @@ export type CreateTraceLinkPayload = {
 export type CreateTraceLinkResponse = {
   id: string;
   projectId: string;
-  type: TraceLinkTypeValue;
+  type: string;
   sourceModelId: string;
   targetModelId: string;
   updatedAt: string;

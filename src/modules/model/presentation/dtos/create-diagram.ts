@@ -1,3 +1,5 @@
+import { validateRequiredName } from "../../domain/policies/naming";
+
 type DiagramType =
   | "OEB"
   | "OCD"
@@ -96,21 +98,10 @@ export class CreateDiagramDTO {
   }
 
   private static validateName(name: string): string {
-    if (!name) {
-      throw new Error("Diagram name is required");
-    }
-
-    const trimmed = name.trim();
-
-    if (!trimmed) {
-      throw new Error("Diagram name cannot be empty");
-    }
-
-    if (trimmed.length > 100) {
-      throw new Error("Diagram name cannot exceed 100 characters");
-    }
-
-    return trimmed;
+    return validateRequiredName(name, {
+      label: "Diagram name",
+      maxLength: 100,
+    });
   }
 
   private static validateModelId(modelId: string): string {

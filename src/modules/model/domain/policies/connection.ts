@@ -1,216 +1,36 @@
-import {
-  ElementType,
-  type ElementTypeValue,
-} from "../value-objects/element-type";
-import { Layer } from "../value-objects/layer";
+import type { RelationshipTypeValue } from "../relationships/definitions";
+import { CONNECTION_RULES } from "../relationships/rules";
+import { ElementType } from "../value-objects/element-type";
 import { RelationshipType } from "../value-objects/relationship-type";
 
-interface ConnectionRule {
-  relationshipType: string;
-  allowedSources: ElementTypeValue[];
-  allowedTargets: ElementTypeValue[];
-  layer: Layer;
-  descriptionFa: string;
-}
-
-const RULES: ConnectionRule[] = [
-  // ─── OA ────────────────────────────────────────────────────────────────────
-  {
-    relationshipType: "OperationalExchange",
-    layer: Layer.OA,
-    allowedSources: ["OperationalActivity"],
-    allowedTargets: ["OperationalActivity"],
-    descriptionFa: "تبادل عملیاتی فقط بین فعالیت‌های عملیاتی مجاز است",
-  },
-  {
-    relationshipType: "InvolvementLink",
-    layer: Layer.OA,
-    allowedSources: ["OperationalEntity", "OperationalActor"],
-    allowedTargets: [
-      "OperationalCapability",
-      "OperationalActivity",
-      "OperationalProcess",
-    ],
-    descriptionFa: "پیوند مشارکت بین موجودیت/بازیگر و قابلیت/فعالیت",
-  },
-  {
-    relationshipType: "Composition",
-    layer: Layer.OA,
-    allowedSources: [
-      "OperationalEntity",
-      "OperationalActivity",
-      "OperationalCapability",
-    ],
-    allowedTargets: [
-      "OperationalEntity",
-      "OperationalActivity",
-      "OperationalCapability",
-    ],
-    descriptionFa: "ترکیب (والد-فرزندی) بین موجودیت‌ها/فعالیت‌ها/قابلیت‌ها",
-  },
-  // ─── SA ────────────────────────────────────────────────────────────────────
-  {
-    relationshipType: "FunctionalExchange",
-    layer: Layer.SA,
-    allowedSources: ["SystemFunction"],
-    allowedTargets: ["SystemFunction"],
-    descriptionFa: "تبادل تابعی فقط بین توابع سیستم",
-  },
-  {
-    relationshipType: "SystemExchange",
-    layer: Layer.SA,
-    allowedSources: ["System", "SystemActor"],
-    allowedTargets: ["System", "SystemActor"],
-    descriptionFa: "تبادل سیستمی بین سیستم و بازیگران خارجی",
-  },
-  {
-    relationshipType: "ComponentExchange",
-    layer: Layer.SA,
-    allowedSources: ["SystemComponent"],
-    allowedTargets: ["SystemComponent"],
-    descriptionFa: "تبادل مؤلفه بین مؤلفه‌های سیستم",
-  },
-  {
-    relationshipType: "FunctionalExchange",
-    layer: Layer.SA,
-    allowedSources: ["SystemFunction"],
-    allowedTargets: ["SystemComponent"],
-    descriptionFa: "تخصیص تابع سیستم به مؤلفه سیستم",
-  },
-  // ─── LA ────────────────────────────────────────────────────────────────────
-  {
-    relationshipType: "LogicalExchange",
-    layer: Layer.LA,
-    allowedSources: ["LogicalFunction"],
-    allowedTargets: ["LogicalFunction"],
-    descriptionFa: "تبادل منطقی بین توابع منطقی",
-  },
-  {
-    relationshipType: "ComponentExchange",
-    layer: Layer.LA,
-    allowedSources: ["LogicalComponent", "LogicalActor"],
-    allowedTargets: ["LogicalComponent", "LogicalActor"],
-    descriptionFa: "تبادل مؤلفه بین مؤلفه‌های منطقی",
-  },
-  {
-    relationshipType: "ProvidedInterface",
-    layer: Layer.LA,
-    allowedSources: ["LogicalComponent"],
-    allowedTargets: ["LogicalComponent"],
-    descriptionFa: "رابط ارائه‌شده توسط مؤلفه منطقی",
-  },
-  {
-    relationshipType: "RequiredInterface",
-    layer: Layer.LA,
-    allowedSources: ["LogicalComponent"],
-    allowedTargets: ["LogicalComponent"],
-    descriptionFa: "رابط مورد نیاز مؤلفه منطقی",
-  },
-  {
-    relationshipType: "Composition",
-    layer: Layer.LA,
-    allowedSources: ["LogicalComponent", "LogicalActor"],
-    allowedTargets: ["LogicalComponent", "LogicalActor"],
-    descriptionFa: "ترکیب بین مؤلفه‌ها/بازیگران منطقی",
-  },
-  {
-    relationshipType: "LogicalExchange",
-    layer: Layer.LA,
-    allowedSources: ["LogicalFunction"],
-    allowedTargets: ["LogicalComponent"],
-    descriptionFa: "تخصیص تابع منطقی به مؤلفه منطقی",
-  },
-  // ─── PA ────────────────────────────────────────────────────────────────────
-  {
-    relationshipType: "PhysicalExchange",
-    layer: Layer.PA,
-    allowedSources: ["PhysicalFunction"],
-    allowedTargets: ["PhysicalFunction"],
-    descriptionFa: "تبادل فیزیکی بین توابع فیزیکی",
-  },
-  {
-    relationshipType: "PhysicalLink",
-    layer: Layer.PA,
-    allowedSources: ["PhysicalNode"],
-    allowedTargets: ["PhysicalNode"],
-    descriptionFa: "پیوند فیزیکی فقط بین گره‌های فیزیکی",
-  },
-  {
-    relationshipType: "DeploymentLink",
-    layer: Layer.PA,
-    allowedSources: ["PhysicalComponent"],
-    allowedTargets: ["PhysicalNode"],
-    descriptionFa: "مؤلفه فیزیکی روی گره فیزیکی مستقر می‌شود",
-  },
-  {
-    relationshipType: "Composition",
-    layer: Layer.PA,
-    allowedSources: ["PhysicalComponent", "PhysicalNode"],
-    allowedTargets: ["PhysicalComponent", "PhysicalNode"],
-    descriptionFa: "ترکیب بین مؤلفه‌ها/گره‌های فیزیکی",
-  },
-  {
-    relationshipType: "PhysicalExchange",
-    layer: Layer.PA,
-    allowedSources: ["PhysicalFunction"],
-    allowedTargets: ["PhysicalComponent"],
-    descriptionFa: "تخصیص تابع فیزیکی به مؤلفه فیزیکی",
-  },
-  // ─── EPBS ────────────────────────────────────────────────────────────────────
-  {
-    relationshipType: "Composition",
-    layer: Layer.EPBS,
-    allowedSources: ["ConfigurationItem"],
-    allowedTargets: ["ConfigurationItem", "ConfigurationItemPart"],
-    descriptionFa: "ترکیب بین مورد پیکربندی و بخش‌های آن",
-  },
-  {
-    relationshipType: "Composition",
-    layer: Layer.EPBS,
-    allowedSources: ["ConfigurationItemPart"],
-    allowedTargets: ["ConfigurationItemPart"],
-    descriptionFa: "ترکیب بین بخش‌های مورد پیکربندی",
-  },
-  {
-    relationshipType: "ProvidedInterface",
-    layer: Layer.EPBS,
-    allowedSources: ["ConfigurationItemInterface"],
-    allowedTargets: ["ConfigurationItemInterface"],
-    descriptionFa: "رابط ارائه‌شده توسط رابط مورد پیکربندی",
-  },
-  {
-    relationshipType: "RequiredInterface",
-    layer: Layer.EPBS,
-    allowedSources: ["ConfigurationItemInterface"],
-    allowedTargets: ["ConfigurationItemInterface"],
-    descriptionFa: "رابط مورد نیاز رابط مورد پیکربندی",
-  },
-  {
-    relationshipType: "Generalization",
-    layer: Layer.EPBS,
-    allowedSources: ["ConfigurationItem", "ConfigurationItemPart"],
-    allowedTargets: ["ConfigurationItem", "ConfigurationItemPart"],
-    descriptionFa: "تعمیم بین موارد پیکربندی",
-  },
+/**
+ * Exchanges, ordered concrete → abstract. When a connection is re-homed in
+ * another layer (a transition), only exchanges are allowed to fall back to
+ * another exchange of the same family; structural types keep their meaning or
+ * are dropped.
+ */
+const EXCHANGE_TYPES: RelationshipTypeValue[] = [
+  "OperationalExchange",
+  "FunctionalExchange",
+  "SystemExchange",
+  "ComponentExchange",
+  "LogicalExchange",
+  "PhysicalExchange",
 ];
 
 /**
  * ConnectionPolicy
  *
- * Policy for validating a connection between two elements.
- * Open/Closed: Rules are extensible via the RULES array.
- * Single Responsibility: Only connection validation.
+ * Same-layer connection validation — a thin view over the shared
+ * `CONNECTION_RULES` registry in `domain/relationships/rules.ts`.
  */
 export class ConnectionPolicy {
-  /**
-   * Checks whether the connection is allowed — throws an error if not.
-   */
   static assertAllowed(
     sourceType: ElementType,
     targetType: ElementType,
     relationshipType: RelationshipType,
   ): void {
-    const rule = RULES.find(
+    const rule = CONNECTION_RULES.find(
       (r) =>
         r.relationshipType === relationshipType.value &&
         r.allowedSources.includes(sourceType.value) &&
@@ -224,27 +44,22 @@ export class ConnectionPolicy {
     }
   }
 
-  /**
-   * Returns the allowed relationship types between two element types.
-   */
   static getAllowedTypes(
     sourceType: string | ElementType,
     targetType: string | ElementType,
   ): RelationshipType[] {
-    return RULES.filter(
+    const source = ElementType.from(sourceType.toString()).value;
+    const target = ElementType.from(targetType.toString()).value;
+    const values = CONNECTION_RULES.filter(
       (r) =>
-        r.allowedSources.includes(
-          ElementType.from(sourceType.toString()).value,
-        ) &&
-        r.allowedTargets.includes(
-          ElementType.from(targetType.toString()).value,
-        ),
-    ).map((r) => RelationshipType.from(r.relationshipType));
+        r.allowedSources.includes(source) && r.allowedTargets.includes(target),
+    ).map((r) => r.relationshipType);
+
+    return Array.from(new Set(values)).map((value) =>
+      RelationshipType.from(value),
+    );
   }
 
-  /**
-   * Checks without throwing an error.
-   */
   static isAllowed(
     sourceType: ElementType,
     targetType: ElementType,
@@ -256,5 +71,33 @@ export class ConnectionPolicy {
     } catch {
       return false;
     }
+  }
+
+  /**
+   * Picks the relationship type to use when a connection is rebuilt between two
+   * elements that moved to another layer.
+   *
+   * 1. the original type, when it is still valid for the new element pair;
+   * 2. otherwise the first exchange that is valid — but only when the original
+   *    type was an exchange itself;
+   * 3. otherwise `null`, meaning the connection must be dropped (a structural
+   *    link such as Composition or InvolvementLink is never silently turned
+   *    into an exchange).
+   */
+  static resolveTransitionType(
+    sourceType: string | ElementType,
+    targetType: string | ElementType,
+    preferred: RelationshipTypeValue,
+  ): RelationshipTypeValue | null {
+    const allowed = ConnectionPolicy.getAllowedTypes(
+      sourceType,
+      targetType,
+    ).map((type) => type.value);
+
+    if (allowed.includes(preferred)) return preferred;
+
+    if (!EXCHANGE_TYPES.includes(preferred)) return null;
+
+    return EXCHANGE_TYPES.find((type) => allowed.includes(type)) ?? null;
   }
 }

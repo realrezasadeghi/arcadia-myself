@@ -1,26 +1,6 @@
-import {
-  ClassElementType,
-  type ClassElementTypeValue,
-} from "../value-objects/class-element-type";
-import {
-  ClassRelationshipType,
-  type ClassRelationshipTypeValue,
-} from "../value-objects/class-relationship-type";
-import { Layer, type LayerValue } from "../value-objects/layer";
-
-export type ValidationSeverity = "error" | "warning" | "info";
-
-export type ValidationIssue = {
-  id: string;
-  severity: ValidationSeverity;
-  rule: string;
-  message: string;
-  elementId?: string;
-  elementName?: string;
-  elementType?: string;
-  relationshipId?: string;
-  layer?: LayerValue;
-};
+import type { LayerValue } from "../value-objects/layer";
+import { checkName } from "./naming";
+import type { ValidationIssue } from "./validation";
 
 type ValidationContext = {
   elements: Array<{
@@ -33,6 +13,7 @@ type ValidationContext = {
     isStatic: boolean;
     parentId: string | null;
     status: string;
+    enumerationLiteralCount: number;
   }>;
   relationships: Array<{
     id: string;
@@ -64,12 +45,6 @@ export class ClassDiagramPolicy {
     const nextId = () => `val-${++issueCounter}`;
 
     const elementById = new Map(ctx.elements.map((e) => [e.id, e]));
-    const elementsByLayer = new Map<string, typeof ctx.elements>();
-    for (const el of ctx.elements) {
-      const arr = elementsByLayer.get(el.layer) ?? [];
-      arr.push(el);
-      elementsByLayer.set(el.layer, arr);
-    }
 
     // Rule 1: Abstract classes must be CLASS type
     for (const el of ctx.elements) {
@@ -142,7 +117,21 @@ export class ClassDiagramPolicy {
       }
     }
 
-    // Rule 4: ENUM must have at least one literal (checked elsewhere via hasLiterals)
+    // Rule 4: ENUM must declare at least one literal
+    for (const el of ctx.elements) {
+      if (el.type === "ENUM" && el.enumerationLiteralCount === 0) {
+        issues.push({
+          id: nextId(),
+          severity: "warning",
+          rule: "enum-without-literals",
+          message: `Enumeration "${el.name}" has no literals`,
+          elementId: el.id,
+          elementName: el.name,
+          elementType: el.type,
+          layer: el.layer as LayerValue,
+        });
+      }
+    }
 
     // Rule 5: COMPOSITE aggregation implies ASSOCIATION relationship
     for (const rel of ctx.relationships) {
@@ -271,13 +260,15 @@ export class ClassDiagramPolicy {
 
     // Rule 10: Empty name validation
     for (const el of ctx.elements) {
-      if (!el.name.trim()) {
+      const nameCheck = checkName(el.name, { label: "Name" });
+      if (!nameCheck.valid) {
         issues.push({
           id: nextId(),
           severity: "error",
           rule: "empty-name",
-          message: "Element name is required",
+          message: nameCheck.message,
           elementId: el.id,
+          elementName: el.name,
           elementType: el.type,
           layer: el.layer as LayerValue,
         });

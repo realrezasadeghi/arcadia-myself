@@ -1,3 +1,5 @@
+import { validateRequiredName } from "../../domain/policies/naming";
+
 export type CreateClassOperationDTOProps = {
   classElementId: string;
   modelId: string;
@@ -76,12 +78,10 @@ export class CreateClassOperationDTO {
   }
 
   private static validateName(name: string): string {
-    if (!name) throw new Error("Operation name is required");
-    const trimmed = name.trim();
-    if (!trimmed) throw new Error("Operation name cannot be empty");
-    if (trimmed.length > 255)
-      throw new Error("Name cannot exceed 255 characters");
-    return trimmed;
+    return validateRequiredName(name, {
+      label: "Operation name",
+      maxLength: 255,
+    });
   }
 
   private static validateVisibility(

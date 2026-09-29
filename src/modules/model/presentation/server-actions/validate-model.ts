@@ -1,10 +1,13 @@
 "use server";
 
 import { fail, type IRes, ok } from "@/modules/shared/utils/response";
+import { ClassDiagramPolicy } from "../../domain/policies/class-diagram";
 import {
   ValidationPolicy,
   type ValidationIssue,
 } from "../../domain/policies/validation";
+import { getClassElementsByModelId } from "./get-class-elements-by-model-id";
+import { getClassRelationshipsByModelId } from "./get-class-relationships-by-model-id";
 import { getElementsByModelId } from "./get-elements-by-model-id";
 import { getModelsByProjectId } from "./get-models-by-project-id";
 import { getTraceLinksByProjectId } from "./get-trace-links-by-project-id";
@@ -45,11 +48,44 @@ export async function validateModel(
       type: string;
     }> = [];
 
+    const allClassElements: Array<{
+      id: string;
+      modelId: string;
+      layer: string;
+      type: string;
+      name: string;
+      isAbstract: boolean;
+      isStatic: boolean;
+      parentId: string | null;
+      status: string;
+      enumerationLiteralCount: number;
+    }> = [];
+
+    const allClassRelationships: Array<{
+      id: string;
+      modelId: string;
+      layer: string;
+      sourceElementId: string;
+      targetElementId: string;
+      relationshipType: string;
+      aggregationKind: "NONE" | "SHARED" | "COMPOSITE";
+      sourceMultiplicityLower: number;
+      sourceMultiplicityUpper: string;
+      targetMultiplicityLower: number;
+      targetMultiplicityUpper: string;
+      isNavigableSource: boolean;
+      isNavigableTarget: boolean;
+      status: string;
+    }> = [];
+
     for (const model of models) {
-      const [elementsRes, relationshipsRes] = await Promise.all([
-        getElementsByModelId(model.id),
-        getRelationshipsByModelId(model.id),
-      ]);
+      const [elementsRes, relationshipsRes, classElementsRes, classRelsRes] =
+        await Promise.all([
+          getElementsByModelId(model.id),
+          getRelationshipsByModelId(model.id),
+          getClassElementsByModelId(model.id),
+          getClassRelationshipsByModelId(model.id),
+        ]);
 
       for (const el of elementsRes.data ?? []) {
         allElements.push({
@@ -71,6 +107,43 @@ export async function validateModel(
           type: r.type,
         });
       }
+
+      for (const el of classElementsRes.data ?? []) {
+        allClassElements.push({
+          id: el.id,
+          modelId: el.modelId,
+          layer: el.layer,
+          type: el.elementType,
+          name: el.name,
+          isAbstract: el.isAbstract,
+          isStatic: el.isStatic,
+          parentId: el.parentId,
+          status: el.status,
+          enumerationLiteralCount: el.enumerationLiterals.length,
+        });
+      }
+
+      for (const r of classRelsRes.data ?? []) {
+        allClassRelationships.push({
+          id: r.id,
+          modelId: r.modelId,
+          layer: r.layer,
+          sourceElementId: r.sourceElementId,
+          targetElementId: r.targetElementId,
+          relationshipType: r.relationshipType,
+          aggregationKind:
+            r.aggregationKind === "SHARED" || r.aggregationKind === "COMPOSITE"
+              ? r.aggregationKind
+              : "NONE",
+          sourceMultiplicityLower: r.sourceMultiplicityLower,
+          sourceMultiplicityUpper: r.sourceMultiplicityUpper,
+          targetMultiplicityLower: r.targetMultiplicityLower,
+          targetMultiplicityUpper: r.targetMultiplicityUpper,
+          isNavigableSource: r.isNavigableSource,
+          isNavigableTarget: r.isNavigableTarget,
+          status: r.status,
+        });
+      }
     }
 
     const traceLinksRes = await getTraceLinksByProjectId(projectId);
@@ -83,11 +156,17 @@ export async function validateModel(
       type: t.type,
     }));
 
-    const issues = ValidationPolicy.validate({
-      elements: allElements,
-      traceLinks,
-      relationships: allRelationships,
-    });
+    const issues = [
+      ...ValidationPolicy.validate({
+        elements: allElements,
+        traceLinks,
+        relationships: allRelationships,
+      }),
+      ...ClassDiagramPolicy.validate({
+        elements: allClassElements,
+        relationships: allClassRelationships,
+      }),
+    ].map((issue, index) => ({ ...issue, id: `val-${index + 1}` }));
 
     const errors = issues.filter((i) => i.severity === "error").length;
     const warnings = issues.filter((i) => i.severity === "warning").length;

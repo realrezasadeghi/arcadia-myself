@@ -1,13 +1,8 @@
+import type { TraceLinkTypeValue } from "../../domain/relationships/definitions";
 import type { ElementTypeValue } from "./element";
 import type { LayerValue } from "./layer";
 
-export type TraceLinkTypeValue =
-  | "Realization"
-  | "Allocation"
-  | "Deployment"
-  | "Involvement"
-  | "Refinement"
-  | "Owned";
+export type { TraceLinkTypeValue };
 
 export type TraceLinkTypeInfo = {
   value: TraceLinkTypeValue;
@@ -20,7 +15,7 @@ export type TraceLink = {
   projectId: string;
   sourceModelId: string;
   targetModelId: string;
-  type: TraceLinkTypeValue;
+  type: string;
   sourceElementId: string;
   sourceLayer: LayerValue;
   targetElementId: string;

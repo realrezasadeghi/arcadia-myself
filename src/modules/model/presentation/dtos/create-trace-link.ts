@@ -1,10 +1,11 @@
+import { TRACE_VALUES } from "../../domain/relationships/definitions";
 import type { TraceLinkTypeValue } from "../../domain/value-objects/relationship-type";
 
 export type CreateTraceLinkDTOProps = {
   projectId: string;
   sourceModelId: string;
   targetModelId: string;
-  type: TraceLinkTypeValue;
+  type: string;
   sourceElementId: string;
   sourceLayer: string;
   targetElementId: string;
@@ -23,7 +24,9 @@ export class CreateTraceLinkDTO {
   public readonly targetLayer: string;
   public readonly description?: string;
 
-  private constructor(props: CreateTraceLinkDTOProps) {
+  private constructor(
+    props: Omit<CreateTraceLinkDTOProps, "type"> & { type: TraceLinkTypeValue },
+  ) {
     this.projectId = props.projectId;
     this.sourceModelId = props.sourceModelId;
     this.targetModelId = props.targetModelId;
@@ -39,7 +42,7 @@ export class CreateTraceLinkDTO {
     projectId: string;
     sourceModelId: string;
     targetModelId: string;
-    type: TraceLinkTypeValue;
+    type: string;
     sourceElementId: string;
     sourceLayer: string;
     targetElementId: string;
@@ -97,22 +100,13 @@ export class CreateTraceLinkDTO {
     return trimmed;
   }
 
-  private static validateTraceLinkType(
-    type: TraceLinkTypeValue,
-  ): TraceLinkTypeValue {
-    const validTypes: TraceLinkTypeValue[] = [
-      "Realization",
-      "Refinement",
-      "Involvement",
-      "Deployment",
-      "Allocation",
-    ];
-    if (!validTypes.includes(type)) {
+  private static validateTraceLinkType(type: string): TraceLinkTypeValue {
+    if (!TRACE_VALUES.includes(type as TraceLinkTypeValue)) {
       throw new Error(
-        `Trace link type must be one of: ${validTypes.join(", ")}`,
+        `Trace link type must be one of: ${TRACE_VALUES.join(", ")}`,
       );
     }
-    return type;
+    return type as TraceLinkTypeValue;
   }
 
   private static validateLayer(layer: string, fieldName: string): string {

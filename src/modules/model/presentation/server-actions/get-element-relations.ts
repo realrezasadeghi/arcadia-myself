@@ -1,13 +1,11 @@
 "use server";
 
 import { fail, type IRes, ok } from "@/modules/shared/utils/response";
+import { resolveRelationshipLabel } from "../../domain/relationships/resolve-label";
 import type { DiagramTypeValue } from "../../domain/value-objects/diagram-type";
 import type { ElementTypeValue } from "../../domain/value-objects/element-type";
 import type { LayerValue } from "../../domain/value-objects/layer";
-import type {
-  RelationshipTypeValue,
-  TraceLinkTypeValue,
-} from "../../domain/value-objects/relationship-type";
+import type { RelationshipTypeValue } from "../../domain/value-objects/relationship-type";
 import { getDiagramsByModelId } from "./get-diagrams-by-model-id";
 import { getElementById } from "./get-element-by-id";
 import { getElementsByModelId } from "./get-elements-by-model-id";
@@ -21,15 +19,18 @@ export type ElementRelationItem = {
   otherElementId: string;
   otherElementName: string;
   otherElementType: ElementTypeValue;
+  displayLabel: string;
 };
 
 export type ElementTraceItem = {
   id: string;
-  traceType: TraceLinkTypeValue;
+  traceType: string;
   direction: "outgoing" | "incoming";
   otherElementId: string;
   otherElementName?: string;
+  otherElementType?: ElementTypeValue;
   otherLayer: LayerValue;
+  displayLabel: string;
 };
 
 export type ElementDiagramRef = {
@@ -94,13 +95,19 @@ export async function getElementRelations(
         const outgoing = rel.sourceElementId === elementId;
         const otherId = outgoing ? rel.targetElementId : rel.sourceElementId;
         const other = elementsById.get(otherId);
+        const otherName = other?.name ?? "Unknown";
         return {
           id: rel.id,
           relationshipType: rel.type,
           direction: outgoing ? "outgoing" : "incoming",
           otherElementId: otherId,
-          otherElementName: other?.name ?? "Unknown",
+          otherElementName: otherName,
           otherElementType: (other?.type ?? "System") as ElementTypeValue,
+          displayLabel: resolveRelationshipLabel({
+            sourceName: outgoing ? element.name : otherName,
+            targetName: outgoing ? otherName : element.name,
+            value: rel.type,
+          }),
         };
       });
 
@@ -118,23 +125,39 @@ export async function getElementRelations(
     const counterpartEntries = await Promise.all(
       counterpartIds.map(async (id) => {
         const local = elementsById.get(id);
-        if (local) return [id, local.name] as const;
+        if (local) {
+          return [id, { name: local.name, type: local.type }] as const;
+        }
         const res = await getElementById(id);
-        return [id, res.success ? res.data.name : undefined] as const;
+        return [
+          id,
+          res.success
+            ? { name: res.data.name, type: res.data.type }
+            : undefined,
+        ] as const;
       }),
     );
-    const counterpartNames = new Map(counterpartEntries);
+    const counterpartElements = new Map(counterpartEntries);
 
     const traceLinks: ElementTraceItem[] = traceLinksRaw.map((t) => {
       const outgoing = t.sourceElementId === elementId;
       const otherId = outgoing ? t.targetElementId : t.sourceElementId;
+      const otherName = counterpartElements.get(otherId)?.name;
       return {
         id: t.id,
         traceType: t.type,
         direction: outgoing ? "outgoing" : "incoming",
         otherElementId: otherId,
-        otherElementName: counterpartNames.get(otherId),
+        otherElementName: otherName,
+        otherElementType: counterpartElements.get(otherId)?.type as
+          | ElementTypeValue
+          | undefined,
         otherLayer: outgoing ? t.targetLayer : t.sourceLayer,
+        displayLabel: resolveRelationshipLabel({
+          sourceName: outgoing ? element.name : (otherName ?? "Unknown"),
+          targetName: outgoing ? (otherName ?? "Unknown") : element.name,
+          value: t.type,
+        }),
       };
     });
 

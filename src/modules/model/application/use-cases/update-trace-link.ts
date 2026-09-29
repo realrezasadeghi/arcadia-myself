@@ -1,6 +1,5 @@
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
 import type { LayerValue } from "../../domain/value-objects/layer";
-import type { TraceLinkTypeValue } from "../../domain/value-objects/relationship-type";
 import type { ITraceLinkRepository } from "../ports/trace-link";
 
 export type UpdateTraceLinkPayload = {
@@ -16,7 +15,7 @@ export type UpdateTraceLinkPayload = {
 export type UpdateTraceLinkResponse = {
   id: string;
   projectId: string;
-  type: TraceLinkTypeValue;
+  type: string;
   updatedAt: string;
   createdAt: string;
   sourceElementId: string;

@@ -104,7 +104,7 @@ export class TraceLink extends Entity<string> {
       projectId: props.projectId,
       sourceModelId: props.sourceModelId,
       targetModelId: props.targetModelId,
-      type: TraceLinkType.from(props.type),
+      type: TraceLinkType.reconstitute(props.type),
       sourceElementId: props.sourceElementId,
       sourceLayer: Layer.from(props.sourceLayer),
       targetElementId: props.targetElementId,

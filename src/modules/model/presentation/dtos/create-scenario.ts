@@ -1,3 +1,5 @@
+import { validateRequiredName } from "../../domain/policies/naming";
+
 export type CreateScenarioDTOProps = {
   modelId: string;
   name: string;
@@ -41,12 +43,10 @@ export class CreateScenarioDTO {
   }
 
   private static validateName(name: string): string {
-    if (!name) throw new Error("Scenario name is required");
-    const trimmed = name.trim();
-    if (!trimmed) throw new Error("Scenario name cannot be empty");
-    if (trimmed.length > 100)
-      throw new Error("Scenario name cannot exceed 100 characters");
-    return trimmed;
+    return validateRequiredName(name, {
+      label: "Scenario name",
+      maxLength: 100,
+    });
   }
 
   private static validateModelId(modelId: string): string {

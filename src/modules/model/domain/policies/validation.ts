@@ -1,8 +1,5 @@
-import {
-  ElementType,
-  type ElementTypeValue,
-} from "../value-objects/element-type";
 import { Layer, type LayerValue } from "../value-objects/layer";
+import { checkName } from "./naming";
 
 export type ValidationSeverity = "error" | "warning" | "info";
 
@@ -14,6 +11,7 @@ export type ValidationIssue = {
   elementId?: string;
   elementName?: string;
   elementType?: string;
+  relationshipId?: string;
   layer?: LayerValue;
 };
 
@@ -96,12 +94,13 @@ export class ValidationPolicy {
 
     // ── Rule 2: Elements with empty names ──────────────────────────────────
     for (const el of ctx.elements) {
-      if (!el.name.trim()) {
+      const nameCheck = checkName(el.name, { label: "Name" });
+      if (!nameCheck.valid) {
         issues.push({
           id: nextId(),
           severity: "error",
           rule: "empty-name",
-          message: `Name is required`,
+          message: nameCheck.message,
           elementId: el.id,
           elementName: el.name,
           elementType: el.type,

@@ -1,3 +1,6 @@
+import type { RelationshipProperties } from "../../domain/entities/relationship";
+import { validateOptionalName } from "../../domain/policies/naming";
+import { CONNECTION_VALUES } from "../../domain/relationships/definitions";
 import type { RelationshipTypeValue } from "../../domain/value-objects/relationship-type";
 
 export type ConnectElementsDTOProps = {
@@ -7,6 +10,7 @@ export type ConnectElementsDTOProps = {
   relationshipType: RelationshipTypeValue;
   name?: string;
   description?: string;
+  properties?: RelationshipProperties;
 };
 
 export class ConnectElementsDTO {
@@ -16,6 +20,7 @@ export class ConnectElementsDTO {
   public readonly relationshipType: RelationshipTypeValue;
   public readonly name?: string;
   public readonly description?: string;
+  public readonly properties?: RelationshipProperties;
 
   private constructor(props: ConnectElementsDTOProps) {
     this.modelId = props.modelId;
@@ -24,6 +29,7 @@ export class ConnectElementsDTO {
     this.relationshipType = props.relationshipType;
     this.name = props.name;
     this.description = props.description;
+    this.properties = props.properties;
   }
 
   static create(props: {
@@ -33,6 +39,7 @@ export class ConnectElementsDTO {
     relationshipType: RelationshipTypeValue;
     name?: string;
     description?: string;
+    properties?: RelationshipProperties;
   }): ConnectElementsDTO {
     return new ConnectElementsDTO({
       modelId: ConnectElementsDTO.validateModelId(props.modelId),
@@ -47,6 +54,7 @@ export class ConnectElementsDTO {
       ),
       name: ConnectElementsDTO.validateName(props.name),
       description: ConnectElementsDTO.validateDescription(props.description),
+      properties: ConnectElementsDTO.validateProperties(props.properties),
     });
   }
 
@@ -111,20 +119,7 @@ export class ConnectElementsDTO {
       throw new Error("Relationship type is required.");
     }
 
-    const validTypes: RelationshipTypeValue[] = [
-      "OperationalExchange",
-      "InvolvementLink",
-      "FunctionalExchange",
-      "SystemExchange",
-      "LogicalExchange",
-      "ComponentExchange",
-      "ProvidedInterface",
-      "RequiredInterface",
-      "PhysicalExchange",
-      "PhysicalLink",
-      "DeploymentLink",
-      "Composition",
-    ];
+    const validTypes: RelationshipTypeValue[] = CONNECTION_VALUES;
 
     if (!validTypes.includes(type)) {
       throw new Error(
@@ -135,18 +130,23 @@ export class ConnectElementsDTO {
     return type;
   }
 
-  private static validateName(name?: string): string | undefined {
-    if (name === undefined || name === null) return undefined;
+  private static validateProperties(
+    properties?: RelationshipProperties,
+  ): RelationshipProperties | undefined {
+    if (properties === undefined) return undefined;
 
-    const trimmed = name.trim();
-
-    if (trimmed.length === 0) return undefined;
-
-    if (trimmed.length > 100) {
-      throw new Error("Relationship name cannot exceed 100 characters");
+    if (typeof properties !== "object" || properties === null) {
+      throw new Error("Relationship properties must be an object");
     }
 
-    return trimmed;
+    return properties;
+  }
+
+  private static validateName(name?: string): string | undefined {
+    return validateOptionalName(name, {
+      label: "Relationship name",
+      maxLength: 100,
+    });
   }
 
   private static validateDescription(description?: string): string | undefined {

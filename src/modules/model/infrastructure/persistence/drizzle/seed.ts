@@ -517,6 +517,29 @@ export async function seedIFEProject(
         properties: { protocol: "UDP" },
       },
 
+      // Allocation: LogicalFunction → LogicalComponent (valid)
+
+      {
+        id: randomUUID(),
+        modelId: modelIds.la,
+        type: "Allocation",
+        sourceElementId: la.logicalFunctionRenderVideo,
+        targetElementId: la.sdu,
+        name: "Render Video on SDU",
+        description: "",
+        properties: {},
+      },
+      {
+        id: randomUUID(),
+        modelId: modelIds.la,
+        type: "Allocation",
+        sourceElementId: la.logicalFunctionConnectivity,
+        targetElementId: la.network,
+        name: "Connectivity on Network",
+        description: "",
+        properties: {},
+      },
+
       // ── PA ──────────────────────────────────────────────────────────────────
       // DeploymentLink: PhysicalComponent → PhysicalNode (valid)
 
@@ -537,6 +560,29 @@ export async function seedIFEProject(
         sourceElementId: pa.hardwareServer,
         targetElementId: pa.switchNode,
         name: "Server Deployed on Network",
+        description: "",
+        properties: {},
+      },
+
+      // Allocation: PhysicalFunction → PhysicalComponent (valid)
+
+      {
+        id: randomUUID(),
+        modelId: modelIds.pa,
+        type: "Allocation",
+        sourceElementId: pa.physicalFunctionRenderVideo,
+        targetElementId: pa.hardwareSDU,
+        name: "Render Video on Hardware SDU",
+        description: "",
+        properties: {},
+      },
+      {
+        id: randomUUID(),
+        modelId: modelIds.pa,
+        type: "Allocation",
+        sourceElementId: pa.physicalFunctionConnectivity,
+        targetElementId: pa.hardwareServer,
+        name: "Connectivity on Server",
         description: "",
         properties: {},
       },
@@ -654,34 +700,6 @@ export async function seedIFEProject(
         description: "",
       },
 
-      // ── LA Allocation (intra-layer) ─────────────────────────────────────────
-      // LogicalFunction → LogicalComponent ✓
-
-      {
-        id: randomUUID(),
-        projectId: input.projectId,
-        sourceModelId: modelIds.la,
-        targetModelId: modelIds.la,
-        type: "Allocation",
-        sourceElementId: la.logicalFunctionRenderVideo,
-        sourceLayer: "LA",
-        targetElementId: la.sdu,
-        targetLayer: "LA",
-        description: "",
-      },
-      {
-        id: randomUUID(),
-        projectId: input.projectId,
-        sourceModelId: modelIds.la,
-        targetModelId: modelIds.la,
-        type: "Allocation",
-        sourceElementId: la.logicalFunctionConnectivity,
-        sourceLayer: "LA",
-        targetElementId: la.network,
-        targetLayer: "LA",
-        description: "",
-      },
-
       // ── PA realizes LA ──────────────────────────────────────────────────────
       // PhysicalComponent → LogicalComponent ✓
       // PhysicalFunction → LogicalFunction ✓
@@ -744,34 +762,6 @@ export async function seedIFEProject(
         sourceLayer: "PA",
         targetElementId: la.logicalFunctionConnectivity,
         targetLayer: "LA",
-        description: "",
-      },
-
-      // ── PA Allocation (intra-layer) ─────────────────────────────────────────
-      // PhysicalFunction → PhysicalComponent ✓
-
-      {
-        id: randomUUID(),
-        projectId: input.projectId,
-        sourceModelId: modelIds.pa,
-        targetModelId: modelIds.pa,
-        type: "Allocation",
-        sourceElementId: pa.physicalFunctionRenderVideo,
-        sourceLayer: "PA",
-        targetElementId: pa.hardwareSDU,
-        targetLayer: "PA",
-        description: "",
-      },
-      {
-        id: randomUUID(),
-        projectId: input.projectId,
-        sourceModelId: modelIds.pa,
-        targetModelId: modelIds.pa,
-        type: "Allocation",
-        sourceElementId: pa.physicalFunctionConnectivity,
-        sourceLayer: "PA",
-        targetElementId: pa.hardwareServer,
-        targetLayer: "PA",
         description: "",
       },
     ]);

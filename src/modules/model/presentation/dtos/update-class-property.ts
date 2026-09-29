@@ -1,3 +1,5 @@
+import { validateRequiredName } from "../../domain/policies/naming";
+
 export type UpdateClassPropertyDTOProps = {
   id: string;
   name?: string;
@@ -93,11 +95,10 @@ export class UpdateClassPropertyDTO {
   }
 
   private static validateName(name: string): string {
-    const trimmed = name.trim();
-    if (!trimmed) throw new Error("Property name cannot be empty");
-    if (trimmed.length > 255)
-      throw new Error("Name cannot exceed 255 characters");
-    return trimmed;
+    return validateRequiredName(name, {
+      label: "Property name",
+      maxLength: 255,
+    });
   }
 
   private static validateVisibility(

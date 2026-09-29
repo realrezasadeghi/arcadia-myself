@@ -2,6 +2,7 @@ import type {
   ElementProperties,
   ElementStatus,
 } from "../../domain/entities/element";
+import { validateRequiredName } from "../../domain/policies/naming";
 
 export type UpdateElementDTOProps = {
   id: string;
@@ -49,14 +50,10 @@ export class UpdateElementDTO {
   }
 
   private static validateName(name: string): string {
-    const trimmed = name.trim();
-    if (!trimmed) {
-      throw new Error("Element name cannot be empty");
-    }
-    if (trimmed.length > 100) {
-      throw new Error("Element name cannot exceed 100 characters");
-    }
-    return trimmed;
+    return validateRequiredName(name, {
+      label: "Element name",
+      maxLength: 100,
+    });
   }
 
   private static validateDescription(description?: string): string | undefined {

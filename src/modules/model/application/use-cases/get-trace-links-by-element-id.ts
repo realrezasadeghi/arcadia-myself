@@ -1,7 +1,6 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
 import type { LayerValue } from "../../domain/value-objects/layer";
-import type { TraceLinkTypeValue } from "../../domain/value-objects/relationship-type";
 import type { IElementRepository } from "../ports/element";
 import type { ITraceLinkRepository } from "../ports/trace-link";
 
@@ -17,7 +16,7 @@ export type GetTraceLinksByElementIdPayload = {
 export type GetTraceLinksByElementIdResponse = {
   id: string;
   projectId: string;
-  type: TraceLinkTypeValue;
+  type: string;
   updatedAt: string;
   createdAt: string;
   sourceModelId: string;

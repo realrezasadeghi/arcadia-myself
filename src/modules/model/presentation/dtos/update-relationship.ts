@@ -2,6 +2,7 @@ import type {
   ExchangeKind,
   RelationshipProperties,
 } from "../../domain/entities/relationship";
+import { validateOptionalName } from "../../domain/policies/naming";
 
 export type UpdateRelationshipDTOProps = {
   id: string;
@@ -65,13 +66,10 @@ export class UpdateRelationshipDTO {
   }
 
   private static validateName(name?: string): string | undefined {
-    if (name === undefined || name === null) return undefined;
-    const trimmed = name.trim();
-    if (trimmed.length === 0) return undefined;
-    if (trimmed.length > 100) {
-      throw new Error("Relationship name cannot exceed 100 characters");
-    }
-    return trimmed;
+    return validateOptionalName(name, {
+      label: "Relationship name",
+      maxLength: 100,
+    });
   }
 
   private static validateDescription(description?: string): string | undefined {

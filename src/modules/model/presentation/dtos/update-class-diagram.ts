@@ -1,3 +1,5 @@
+import { validateRequiredName } from "../../domain/policies/naming";
+
 export type UpdateClassDiagramDTOProps = {
   id: string;
   modelId: string;
@@ -41,11 +43,10 @@ export class UpdateClassDiagramDTO {
   }
 
   private static validateName(name: string): string {
-    const trimmed = name.trim();
-    if (!trimmed) throw new Error("Class diagram name cannot be empty");
-    if (trimmed.length > 255)
-      throw new Error("Name cannot exceed 255 characters");
-    return trimmed;
+    return validateRequiredName(name, {
+      label: "Class diagram name",
+      maxLength: 255,
+    });
   }
 
   private static validateDescription(description?: string): string | undefined {

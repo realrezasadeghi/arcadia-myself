@@ -1,3 +1,5 @@
+import { validateRequiredName } from "../../domain/policies/naming";
+
 export type CreateModelDTOProps = {
   name: string;
   layer: string;
@@ -33,17 +35,7 @@ export class CreateModelDTO {
   }
 
   private static validateName(name: string): string {
-    const trimmed = name.trim();
-
-    if (!trimmed) {
-      throw new Error("Model name cannot be empty");
-    }
-
-    if (trimmed.length > 100) {
-      throw new Error("Model name cannot exceed 100 characters");
-    }
-
-    return trimmed;
+    return validateRequiredName(name, { label: "Model name", maxLength: 100 });
   }
 
   private static validateProjectId(projectId: string): string {

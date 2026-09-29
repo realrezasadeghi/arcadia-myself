@@ -1,19 +1,7 @@
+import type { RelationshipTypeValue } from "../../domain/relationships/definitions";
 import type { LayerValue } from "./layer";
 
-export type RelationshipTypeValue =
-  | "OperationalExchange"
-  | "InvolvementLink"
-  | "FunctionalExchange"
-  | "SystemExchange"
-  | "LogicalExchange"
-  | "ComponentExchange"
-  | "ProvidedInterface"
-  | "RequiredInterface"
-  | "PhysicalExchange"
-  | "PhysicalLink"
-  | "DeploymentLink"
-  | "Composition"
-  | "Generalization";
+export type { RelationshipTypeValue };
 
 export type RelationshipTypeInfo = {
   value: RelationshipTypeValue;

@@ -1,9 +1,9 @@
 import { Entity } from "@/modules/shared/domain/entity";
-import { ClassRelationshipType } from "../value-objects/class-relationship-type";
-import { Layer } from "../value-objects/layer";
-import { ClassStatus } from "../value-objects/class-status";
-import { AggregationKind } from "../value-objects/aggregation-kind";
 import { DomainEvent } from "@/modules/shared/domain/event";
+import { AggregationKind } from "../value-objects/aggregation-kind";
+import { ClassRelationshipType } from "../value-objects/class-relationship-type";
+import { ClassStatus } from "../value-objects/class-status";
+import { Layer } from "../value-objects/layer";
 
 export type ClassRelationshipStatus = "DRAFT" | "VALIDATED" | "DEPRECATED";
 
@@ -131,7 +131,7 @@ export class ClassRelationship extends Entity<string> {
       layer,
       sourceElementId: props.sourceElementId,
       targetElementId: props.targetElementId,
-      name: props.name ?? "",
+      name: props.name?.trim() ?? "",
       description: props.description ?? "",
       relationshipType,
       aggregationKind,

@@ -18,6 +18,7 @@ export type ConnectElementsPayload = {
     relationshipType: RelationshipTypeValue;
     name?: string;
     description?: string;
+    properties?: RelationshipProperties;
   };
   context: {
     token: string;
@@ -81,6 +82,7 @@ export class ConnectElementsUseCase
         targetElementId: payload.targetElementId,
         name: payload.name ?? "",
         description: payload.description ?? "",
+        properties: payload.properties,
       });
 
       return response.toJSON();

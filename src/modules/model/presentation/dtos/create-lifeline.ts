@@ -1,3 +1,5 @@
+import { validateRequiredName } from "../../domain/policies/naming";
+
 export type CreateLifelineDTOProps = {
   scenarioId: string;
   name: string;
@@ -50,12 +52,10 @@ export class CreateLifelineDTO {
   }
 
   private static validateName(name: string): string {
-    if (!name) throw new Error("Lifeline name is required");
-    const trimmed = name.trim();
-    if (!trimmed) throw new Error("Lifeline name cannot be empty");
-    if (trimmed.length > 100)
-      throw new Error("Lifeline name cannot exceed 100 characters");
-    return trimmed;
+    return validateRequiredName(name, {
+      label: "Lifeline name",
+      maxLength: 100,
+    });
   }
 
   private static validateElementType(elementType: string): string {

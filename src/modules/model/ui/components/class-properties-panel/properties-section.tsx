@@ -10,6 +10,7 @@ import { useCreateClassProperty } from "../../clients/create-class-property";
 import { useRemoveClassProperty } from "../../clients/remove-class-property";
 import { useUpdateClassProperty } from "../../clients/update-class-property";
 import { formatMultiplicity } from "../../constants/class-diagram";
+import { useCanEditActiveLayer } from "../../stores/workbench";
 import type { ClassElementTypeValue } from "../../types/class-diagram";
 import { ToggleButton, VisibilityDropdown } from "./edit-controls";
 import type { PropertyData } from "./index";
@@ -34,6 +35,7 @@ export function ClassPropertiesSection({
   onUpdate: () => void;
 }) {
   const sectionLabel = getAttributeLabel(elementType);
+  const canEdit = useCanEditActiveLayer();
   const [isAdding, setIsAdding] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [newName, setNewName] = useState("");
@@ -131,7 +133,7 @@ export function ClassPropertiesSection({
             </span>
           )}
         </div>
-        {!isAdding && (
+        {!isAdding && canEdit && (
           <Button
             variant="ghost"
             size="sm"
@@ -255,17 +257,19 @@ export function ClassPropertiesSection({
                     {mult}
                   </span>
                 )}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemove(prop.id);
-                  }}
-                  className="opacity-0 group-hover:opacity-100 ml-0.5 p-0.5 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
-                  title="Remove attribute"
-                >
-                  <Trash2 className="size-3" />
-                </button>
+                {canEdit && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemove(prop.id);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 ml-0.5 p-0.5 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+                    title="Remove attribute"
+                  >
+                    <Trash2 className="size-3" />
+                  </button>
+                )}
               </div>
 
               {/* Expanded Details */}
@@ -304,49 +308,62 @@ export function ClassPropertiesSection({
                       <Label className="text-[9px] font-medium text-muted-foreground">
                         Multiplicity
                       </Label>
-                      <div className="flex gap-1 items-center">
-                        <Input
-                          value={prop.multiplicityLower ?? 1}
-                          onChange={(e) =>
-                            updateField(
-                              prop.id,
-                              "multiplicityLower",
-                              Number(e.target.value) || 0,
-                            )
-                          }
-                          className="h-6 text-[10px] w-8 text-center font-mono"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        <span className="text-[10px] text-muted-foreground/50">
-                          ..
-                        </span>
-                        <Input
-                          value={prop.multiplicityUpper ?? "1"}
-                          onChange={(e) =>
-                            updateField(
-                              prop.id,
-                              "multiplicityUpper",
-                              e.target.value,
-                            )
-                          }
-                          className="h-6 text-[10px] w-10 text-center font-mono"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </div>
+                      {canEdit ? (
+                        <div className="flex gap-1 items-center">
+                          <Input
+                            value={prop.multiplicityLower ?? 1}
+                            onChange={(e) =>
+                              updateField(
+                                prop.id,
+                                "multiplicityLower",
+                                Number(e.target.value) || 0,
+                              )
+                            }
+                            className="h-6 text-[10px] w-8 text-center font-mono"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                          <span className="text-[10px] text-muted-foreground/50">
+                            ..
+                          </span>
+                          <Input
+                            value={prop.multiplicityUpper ?? "1"}
+                            onChange={(e) =>
+                              updateField(
+                                prop.id,
+                                "multiplicityUpper",
+                                e.target.value,
+                              )
+                            }
+                            className="h-6 text-[10px] w-10 text-center font-mono"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                      ) : (
+                        <p className="text-[10px] font-mono text-muted-foreground">
+                          {prop.multiplicityLower ?? 1}..
+                          {prop.multiplicityUpper ?? "1"}
+                        </p>
+                      )}
                     </div>
                     <div className="flex flex-col gap-0.5 flex-1">
                       <Label className="text-[9px] font-medium text-muted-foreground">
                         Default
                       </Label>
-                      <Input
-                        value={prop.defaultValue ?? ""}
-                        onChange={(e) =>
-                          updateField(prop.id, "defaultValue", e.target.value)
-                        }
-                        placeholder="—"
-                        className="h-6 text-[10px]"
-                        onClick={(e) => e.stopPropagation()}
-                      />
+                      {canEdit ? (
+                        <Input
+                          value={prop.defaultValue ?? ""}
+                          onChange={(e) =>
+                            updateField(prop.id, "defaultValue", e.target.value)
+                          }
+                          placeholder="—"
+                          className="h-6 text-[10px]"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      ) : (
+                        <p className="text-[10px] text-muted-foreground">
+                          {prop.defaultValue || "—"}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>

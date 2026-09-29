@@ -12,6 +12,7 @@ import { useRemoveClassOperation } from "../../clients/remove-class-operation";
 import { useRemoveClassOperationParameter } from "../../clients/remove-class-operation-parameter";
 import { useUpdateClassOperation } from "../../clients/update-class-operation";
 import { useUpdateClassOperationParameter } from "../../clients/update-class-operation-parameter";
+import { useCanEditActiveLayer } from "../../stores/workbench";
 import type { ClassElementTypeValue } from "../../types/class-diagram";
 import {
   DirectionDropdown,
@@ -42,6 +43,7 @@ export function ClassOperationsSection({
   onUpdate: () => void;
 }) {
   const sectionLabel = getOperationLabel(elementType);
+  const canEdit = useCanEditActiveLayer();
   const [isAdding, setIsAdding] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [newName, setNewName] = useState("");
@@ -203,7 +205,7 @@ export function ClassOperationsSection({
             </span>
           )}
         </div>
-        {!isAdding && (
+        {!isAdding && canEdit && (
           <Button
             variant="ghost"
             size="sm"
@@ -336,17 +338,19 @@ export function ClassOperationsSection({
                     q
                   </span>
                 )}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemove(op.id);
-                  }}
-                  className="opacity-0 group-hover:opacity-100 ml-0.5 p-0.5 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
-                  title="Remove operation"
-                >
-                  <Trash2 className="size-3" />
-                </button>
+                {canEdit && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemove(op.id);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 ml-0.5 p-0.5 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+                    title="Remove operation"
+                  >
+                    <Trash2 className="size-3" />
+                  </button>
+                )}
               </div>
 
               {/* Expanded: Flags + Parameters */}
@@ -388,17 +392,19 @@ export function ClassOperationsSection({
                           </span>
                         )}
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 text-[10px] px-2 gap-1 text-muted-foreground hover:text-foreground"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddParameter(op.id);
-                        }}
-                      >
-                        <Plus className="size-3" /> Add Parameter
-                      </Button>
+                      {canEdit && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 text-[10px] px-2 gap-1 text-muted-foreground hover:text-foreground"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddParameter(op.id);
+                          }}
+                        >
+                          <Plus className="size-3" /> Add Parameter
+                        </Button>
+                      )}
                     </div>
 
                     {/* Parameter Header Labels */}
@@ -429,9 +435,11 @@ export function ClassOperationsSection({
                         <p className="text-[10px] text-muted-foreground/50">
                           No parameters defined
                         </p>
-                        <p className="text-[9px] text-muted-foreground/30 mt-0.5">
-                          Click "Add Parameter" to add input/output parameters
-                        </p>
+                        {canEdit && (
+                          <p className="text-[9px] text-muted-foreground/30 mt-0.5">
+                            Click "Add Parameter" to add input/output parameters
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>
@@ -458,6 +466,7 @@ function ParameterRow({
   const [editingType, setEditingType] = useState(param.typeLiteral || "");
   const [isEditing, setIsEditing] = useState(false);
   const [showTypeSuggestions, setShowTypeSuggestions] = useState(false);
+  const canEdit = useCanEditActiveLayer();
 
   const commonTypes = [
     "String",
@@ -495,28 +504,34 @@ function ParameterRow({
 
       {/* Name */}
       <div className="flex-1 min-w-0">
-        <Input
-          value={editingName}
-          onChange={(e) => setEditingName(e.target.value)}
-          onFocus={() => setIsEditing(true)}
-          onBlur={() => {
-            setIsEditing(false);
-            if (editingName.trim() && editingName !== param.name) {
-              onUpdate("name", editingName.trim());
-            }
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && editingName.trim()) {
-              onUpdate("name", editingName.trim());
+        {canEdit ? (
+          <Input
+            value={editingName}
+            onChange={(e) => setEditingName(e.target.value)}
+            onFocus={() => setIsEditing(true)}
+            onBlur={() => {
               setIsEditing(false);
-            }
-            if (e.key === "Escape") {
-              setEditingName(param.name);
-              setIsEditing(false);
-            }
-          }}
-          className="h-6 text-[11px] px-1.5 border-transparent focus:border-border/60 bg-transparent font-medium text-foreground/90"
-        />
+              if (editingName.trim() && editingName !== param.name) {
+                onUpdate("name", editingName.trim());
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && editingName.trim()) {
+                onUpdate("name", editingName.trim());
+                setIsEditing(false);
+              }
+              if (e.key === "Escape") {
+                setEditingName(param.name);
+                setIsEditing(false);
+              }
+            }}
+            className="h-6 text-[11px] px-1.5 border-transparent focus:border-border/60 bg-transparent font-medium text-foreground/90"
+          />
+        ) : (
+          <p className="text-[11px] font-medium text-foreground/90 truncate">
+            {param.name}
+          </p>
+        )}
       </div>
 
       {/* Colon Separator */}
@@ -524,43 +539,49 @@ function ParameterRow({
 
       {/* Type with Suggestions */}
       <div className="relative">
-        <Input
-          value={editingType}
-          onChange={(e) => {
-            setEditingType(e.target.value);
-            setShowTypeSuggestions(true);
-          }}
-          onFocus={() => {
-            setIsEditing(true);
-            setShowTypeSuggestions(true);
-          }}
-          onBlur={() => {
-            setTimeout(() => {
-              setIsEditing(false);
-              setShowTypeSuggestions(false);
-              if (editingType !== (param.typeLiteral || "")) {
+        {canEdit ? (
+          <Input
+            value={editingType}
+            onChange={(e) => {
+              setEditingType(e.target.value);
+              setShowTypeSuggestions(true);
+            }}
+            onFocus={() => {
+              setIsEditing(true);
+              setShowTypeSuggestions(true);
+            }}
+            onBlur={() => {
+              setTimeout(() => {
+                setIsEditing(false);
+                setShowTypeSuggestions(false);
+                if (editingType !== (param.typeLiteral || "")) {
+                  onUpdate("typeLiteral", editingType);
+                }
+              }, 150);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
                 onUpdate("typeLiteral", editingType);
+                setIsEditing(false);
+                setShowTypeSuggestions(false);
               }
-            }, 150);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              onUpdate("typeLiteral", editingType);
-              setIsEditing(false);
-              setShowTypeSuggestions(false);
-            }
-            if (e.key === "Escape") {
-              setEditingType(param.typeLiteral || "");
-              setIsEditing(false);
-              setShowTypeSuggestions(false);
-            }
-          }}
-          placeholder="String"
-          className="h-6 text-[11px] w-[80px] px-1.5 border-transparent focus:border-border/60 bg-transparent text-primary/80 font-medium"
-        />
+              if (e.key === "Escape") {
+                setEditingType(param.typeLiteral || "");
+                setIsEditing(false);
+                setShowTypeSuggestions(false);
+              }
+            }}
+            placeholder="String"
+            className="h-6 text-[11px] w-[80px] px-1.5 border-transparent focus:border-border/60 bg-transparent text-primary/80 font-medium"
+          />
+        ) : (
+          <span className="inline-block text-[11px] w-[80px] text-primary/80 font-medium">
+            {param.typeLiteral || "—"}
+          </span>
+        )}
 
         {/* Type Suggestions Dropdown */}
-        {showTypeSuggestions && filteredTypes.length > 0 && (
+        {canEdit && showTypeSuggestions && filteredTypes.length > 0 && (
           <div className="absolute z-50 top-full left-0 mt-1 bg-popover border border-border rounded-lg shadow-lg py-1 min-w-[100px] animate-in fade-in-0 zoom-in-95 duration-100">
             {filteredTypes.slice(0, 5).map((type) => (
               <button
@@ -581,18 +602,20 @@ function ParameterRow({
         )}
       </div>
 
-      {/* Remove - Always Visible */}
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          onRemove();
-        }}
-        className="p-1 rounded-md text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-all duration-150"
-        title="Remove parameter"
-      >
-        <Trash2 className="size-3" />
-      </button>
+      {/* Remove */}
+      {canEdit && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
+          className="p-1 rounded-md text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-all duration-150"
+          title="Remove parameter"
+        >
+          <Trash2 className="size-3" />
+        </button>
+      )}
     </div>
   );
 }

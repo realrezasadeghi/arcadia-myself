@@ -40,7 +40,10 @@ import {
 import { useMoveToPackage } from "../../hooks/use-move-to-package";
 import type { CanvasNode, ClassNodeData } from "../../stores/canvas";
 import { useCanvasStore } from "../../stores/canvas";
-import { useWorkbenchStore } from "../../stores/workbench";
+import {
+  useCanEditActiveLayer,
+  useWorkbenchStore,
+} from "../../stores/workbench";
 import { ClassEnumerationSection } from "./literals-section";
 import { ClassOperationsSection } from "./operations-section";
 import { ClassPropertiesSection } from "./properties-section";
@@ -113,6 +116,7 @@ export function ClassNodeProperties({ node }: ClassNodePropertiesProps) {
   }, [queryClient, data.modelId, diagramId, router]);
 
   const typeInfo = getClassElementTypeInfo(data.elementType);
+  const canEdit = useCanEditActiveLayer();
 
   useEffect(() => {
     setName(data.name);
@@ -241,14 +245,20 @@ export function ClassNodeProperties({ node }: ClassNodePropertiesProps) {
           >
             Name
           </Label>
-          <Input
-            id="class-name"
-            value={name}
-            onBlur={handleSave}
-            className="h-7 text-xs"
-            onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSave()}
-          />
+          {canEdit ? (
+            <Input
+              id="class-name"
+              value={name}
+              onBlur={handleSave}
+              className="h-7 text-xs"
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSave()}
+            />
+          ) : (
+            <p id="class-name" className="text-xs text-muted-foreground">
+              {data.name}
+            </p>
+          )}
         </div>
         <div className="flex flex-col gap-1">
           <Label
@@ -257,15 +267,21 @@ export function ClassNodeProperties({ node }: ClassNodePropertiesProps) {
           >
             Description
           </Label>
-          <Textarea
-            rows={2}
-            id="class-desc"
-            value={description}
-            onBlur={handleSave}
-            placeholder="Optional description..."
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-xs resize-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring placeholder:text-muted-foreground/50"
-          />
+          {canEdit ? (
+            <Textarea
+              rows={2}
+              id="class-desc"
+              value={description}
+              onBlur={handleSave}
+              placeholder="Optional description..."
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-xs resize-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring placeholder:text-muted-foreground/50"
+            />
+          ) : (
+            <p id="class-desc" className="text-xs text-muted-foreground">
+              {data.description || "—"}
+            </p>
+          )}
         </div>
       </div>
 
@@ -280,30 +296,41 @@ export function ClassNodeProperties({ node }: ClassNodePropertiesProps) {
                 <FolderOpen className="size-3" />
                 Parent Package
               </Label>
-              <Select
-                value={currentParentId ?? "__none__"}
-                onValueChange={handlePackageChange}
-                disabled={isMoving}
-              >
-                <SelectTrigger className="h-7 text-xs">
-                  <SelectValue placeholder="No package (root)" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">
-                    <span className="text-muted-foreground">
-                      No package (root)
-                    </span>
-                  </SelectItem>
-                  {packages.map((pkg) => {
-                    const pkgData = pkg.data as ClassNodeData;
-                    return (
-                      <SelectItem key={pkg.id} value={pkg.id}>
-                        {pkgData.name}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
+              {canEdit ? (
+                <Select
+                  value={currentParentId ?? "__none__"}
+                  onValueChange={handlePackageChange}
+                  disabled={isMoving}
+                >
+                  <SelectTrigger className="h-7 text-xs">
+                    <SelectValue placeholder="No package (root)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">
+                      <span className="text-muted-foreground">
+                        No package (root)
+                      </span>
+                    </SelectItem>
+                    {packages.map((pkg) => {
+                      const pkgData = pkg.data as ClassNodeData;
+                      return (
+                        <SelectItem key={pkg.id} value={pkg.id}>
+                          {pkgData.name}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  {(() => {
+                    const pkg = packages.find((p) => p.id === currentParentId);
+                    return pkg
+                      ? (pkg.data as ClassNodeData).name
+                      : "No package (root)";
+                  })()}
+                </p>
+              )}
               {currentParentId && (
                 <p className="text-[9px] text-muted-foreground">
                   This element is contained in a package
@@ -364,53 +391,55 @@ export function ClassNodeProperties({ node }: ClassNodePropertiesProps) {
       <Separator />
 
       {/* Quick Actions */}
-      <div className="px-4 py-3 flex flex-col gap-1.5">
-        <p className="text-[10px] font-medium text-muted-foreground/70 uppercase tracking-wider">
-          Quick Actions
-        </p>
-        <div className="flex flex-col gap-0.5">
-          {data.status !== "VALIDATED" && (
-            <Button
-              size="sm"
-              variant="ghost"
-              disabled={updateClassElement.isPending}
-              className="justify-start gap-2 h-7 text-xs text-muted-foreground hover:text-foreground"
-              onClick={() => updateClassElementStatus("VALIDATED")}
-            >
-              {updateClassElement.isPending ? (
-                <Loader2 className="size-3.5 animate-spin" />
-              ) : (
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-              )}
-              Validate
-            </Button>
-          )}
-          {data.status !== "DRAFT" && (
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={updateClassElement.isPending}
-              className="justify-start gap-2 h-7 text-xs text-muted-foreground hover:text-foreground"
-              onClick={() => updateClassElementStatus("DRAFT")}
-            >
-              <RotateCcw className="h-3.5 w-3.5" />
-              Revert to Draft
-            </Button>
-          )}
-          {data.status !== "DEPRECATED" && (
-            <Button
-              size="sm"
-              variant="ghost"
-              disabled={updateClassElement.isPending}
-              onClick={() => updateClassElementStatus("DEPRECATED")}
-              className="justify-start gap-2 h-7 text-xs text-destructive/80 hover:text-destructive hover:bg-destructive/5"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-              Deprecate
-            </Button>
-          )}
+      {canEdit && (
+        <div className="px-4 py-3 flex flex-col gap-1.5">
+          <p className="text-[10px] font-medium text-muted-foreground/70 uppercase tracking-wider">
+            Quick Actions
+          </p>
+          <div className="flex flex-col gap-0.5">
+            {data.status !== "VALIDATED" && (
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={updateClassElement.isPending}
+                className="justify-start gap-2 h-7 text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => updateClassElementStatus("VALIDATED")}
+              >
+                {updateClassElement.isPending ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                )}
+                Validate
+              </Button>
+            )}
+            {data.status !== "DRAFT" && (
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={updateClassElement.isPending}
+                className="justify-start gap-2 h-7 text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => updateClassElementStatus("DRAFT")}
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                Revert to Draft
+              </Button>
+            )}
+            {data.status !== "DEPRECATED" && (
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={updateClassElement.isPending}
+                onClick={() => updateClassElementStatus("DEPRECATED")}
+                className="justify-start gap-2 h-7 text-xs text-destructive/80 hover:text-destructive hover:bg-destructive/5"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Deprecate
+              </Button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {updateClassElement.isPending && (
         <div className="px-4 pb-3">

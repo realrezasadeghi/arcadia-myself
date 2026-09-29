@@ -9,6 +9,7 @@ import { Label } from "@/modules/shared/ui/components/ui/label";
 import { useCreateClassEnumerationLiteral } from "../../clients/create-class-enumeration-literal";
 import { useRemoveClassEnumerationLiteral } from "../../clients/remove-class-enumeration-literal";
 import { useUpdateClassEnumerationLiteral } from "../../clients/update-class-enumeration-literal";
+import { useCanEditActiveLayer } from "../../stores/workbench";
 import type { LiteralData } from "./index";
 
 export function ClassEnumerationSection({
@@ -25,6 +26,7 @@ export function ClassEnumerationSection({
   onUpdate: () => void;
 }) {
   const [isAdding, setIsAdding] = useState(false);
+  const canEdit = useCanEditActiveLayer();
   const [newName, setNewName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
@@ -123,7 +125,7 @@ export function ClassEnumerationSection({
         <p className="text-xs font-medium text-muted-foreground">
           Enumeration Literals
         </p>
-        {!isAdding && (
+        {!isAdding && canEdit && (
           <Button
             variant="ghost"
             size="sm"
@@ -216,22 +218,26 @@ export function ClassEnumerationSection({
                 {lit.value && (
                   <span className="text-muted-foreground">= {lit.value}</span>
                 )}
-                <button
-                  type="button"
-                  onClick={() => handleStartEdit(lit)}
-                  className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground transition-opacity"
-                  title="Edit literal"
-                >
-                  <Pencil className="size-2.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleRemove(lit.id)}
-                  className="opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive transition-opacity"
-                  title="Remove literal"
-                >
-                  <Trash2 className="size-2.5" />
-                </button>
+                {canEdit && (
+                  <button
+                    type="button"
+                    onClick={() => handleStartEdit(lit)}
+                    className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground transition-opacity"
+                    title="Edit literal"
+                  >
+                    <Pencil className="size-2.5" />
+                  </button>
+                )}
+                {canEdit && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemove(lit.id)}
+                    className="opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive transition-opacity"
+                    title="Remove literal"
+                  >
+                    <Trash2 className="size-2.5" />
+                  </button>
+                )}
               </>
             )}
           </div>

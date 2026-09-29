@@ -21,6 +21,7 @@ import { useGetElementsByModelId } from "../clients/get-elements-by-model-id";
 import { useGetModelsByProjectId } from "../clients/get-models-by-project-id";
 import { getTraceLinksByElementIdKey } from "../clients/get-trace-links-by-element-id";
 import { getElementTypeInfo, getElementVisual } from "../helpers/element";
+import { isLayerEditable, useWorkbenchStore } from "../stores/workbench";
 import type { Element, ElementTypeValue } from "../types/element";
 import type { LayerValue } from "../types/layer";
 import type { Model } from "../types/model";
@@ -173,10 +174,30 @@ export function CreateTraceLinkDialog({
   // Data
   const createTrace = useCreateTraceLink();
 
-  const traceOptions = useMemo(
+  const allTraceOptions = useMemo(
     () => TracePolicy.getTraceOptions(sourceElementType, sourceLayerType),
     [sourceElementType, sourceLayerType],
   );
+
+  // RBAC: creating a trace spans both layers, so an option whose target layer
+  // is not editable is never offered.
+  const projectPermissions = useWorkbenchStore((s) => s.projectPermissions);
+  const permissionsResolved = useWorkbenchStore((s) => s.permissionsResolved);
+
+  const traceOptions = useMemo(
+    () =>
+      allTraceOptions.filter((option) =>
+        isLayerEditable(
+          projectPermissions,
+          permissionsResolved,
+          option.targetLayer.value,
+        ),
+      ),
+    [allTraceOptions, projectPermissions, permissionsResolved],
+  );
+
+  const blockedByPermissions =
+    traceOptions.length === 0 && allTraceOptions.length > 0;
 
   const selectedOption = useMemo(() => {
     if (selectedOptionIndex === null) return null;
@@ -293,6 +314,11 @@ export function CreateTraceLinkDialog({
           {hasNoOptions ? (
             <p className="text-sm text-muted-foreground text-center py-4">
               No trace options are defined for this element.
+            </p>
+          ) : blockedByPermissions ? (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              Your role does not include permission to create trace links for
+              this element.
             </p>
           ) : (
             <>

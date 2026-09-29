@@ -20,7 +20,7 @@ import {
 } from "@/modules/shared/ui/components/ui/select";
 import { Separator } from "@/modules/shared/ui/components/ui/separator";
 import { useGetLifelinesByScenarioId } from "../clients/get-lifelines-by-scenario-id";
-import { useWorkbenchStore } from "../stores/workbench";
+import { useCanEditActiveLayer, useWorkbenchStore } from "../stores/workbench";
 
 type ScenarioPropertiesPanelProps = {
   scenarioId: string;
@@ -64,6 +64,8 @@ export function ScenarioPropertiesPanel({
   onUpdateFragment,
 }: ScenarioPropertiesPanelProps) {
   const setPanel = useWorkbenchStore((s) => s.setPanel);
+  // RBAC: without `edit<layer>` every field renders as static text.
+  const readOnly = !useCanEditActiveLayer();
 
   return (
     <aside className="flex h-full min-h-0 w-full flex-col bg-card">
@@ -86,6 +88,7 @@ export function ScenarioPropertiesPanel({
           <LifelineProperties
             lifeline={selectedLifeline}
             onUpdate={onUpdateLifeline}
+            readOnly={readOnly}
           />
         )}
         {selectedMessage && (
@@ -93,12 +96,14 @@ export function ScenarioPropertiesPanel({
             message={selectedMessage}
             scenarioId={scenarioId}
             onUpdate={onUpdateMessage}
+            readOnly={readOnly}
           />
         )}
         {selectedFragment && (
           <FragmentProperties
             fragment={selectedFragment}
             onUpdate={onUpdateFragment}
+            readOnly={readOnly}
           />
         )}
 
@@ -117,12 +122,22 @@ export function ScenarioPropertiesPanel({
   );
 }
 
+const MESSAGE_KIND_LABELS: Record<string, string> = {
+  CALL: "Synchronous Call",
+  CREATE: "Create",
+  DELETE: "Delete",
+  RETURN: "Return",
+  REPLY: "Reply",
+};
+
 function LifelineProperties({
   lifeline,
   onUpdate,
+  readOnly = false,
 }: {
   lifeline: { id: string; name: string; representedElementType: string };
   onUpdate?: (data: { id: string; name: string }) => void;
+  readOnly?: boolean;
 }) {
   const [name, setName] = useState(lifeline.name);
 
@@ -153,14 +168,20 @@ function LifelineProperties({
         <Label className="text-xs" htmlFor="lifeline-name">
           Name
         </Label>
-        <Input
-          id="lifeline-name"
-          value={name}
-          onBlur={handleSave}
-          className="h-8 text-sm"
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSave()}
-        />
+        {readOnly ? (
+          <p id="lifeline-name" className="text-xs text-muted-foreground">
+            {lifeline.name}
+          </p>
+        ) : (
+          <Input
+            id="lifeline-name"
+            value={name}
+            onBlur={handleSave}
+            className="h-8 text-sm"
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSave()}
+          />
+        )}
       </div>
     </div>
   );
@@ -170,6 +191,7 @@ function MessageProperties({
   message,
   scenarioId,
   onUpdate,
+  readOnly = false,
 }: {
   message: {
     id: string;
@@ -180,6 +202,7 @@ function MessageProperties({
   };
   scenarioId: string;
   onUpdate?: (data: { id: string; name: string; kind: string }) => void;
+  readOnly?: boolean;
 }) {
   const [name, setName] = useState(message.name);
   const [kind, setKind] = useState(message.kind);
@@ -222,36 +245,48 @@ function MessageProperties({
       </div>
       <div className="flex flex-col gap-1.5">
         <Label className="text-xs">Kind</Label>
-        <Select
-          value={kind}
-          onValueChange={(v) => {
-            setKind(v);
-          }}
-        >
-          <SelectTrigger className="h-8">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="CALL">Synchronous Call</SelectItem>
-            <SelectItem value="CREATE">Create</SelectItem>
-            <SelectItem value="DELETE">Delete</SelectItem>
-            <SelectItem value="RETURN">Return</SelectItem>
-            <SelectItem value="REPLY">Reply</SelectItem>
-          </SelectContent>
-        </Select>
+        {readOnly ? (
+          <p className="text-xs text-muted-foreground">
+            {MESSAGE_KIND_LABELS[message.kind] ?? message.kind}
+          </p>
+        ) : (
+          <Select
+            value={kind}
+            onValueChange={(v) => {
+              setKind(v);
+            }}
+          >
+            <SelectTrigger className="h-8">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="CALL">Synchronous Call</SelectItem>
+              <SelectItem value="CREATE">Create</SelectItem>
+              <SelectItem value="DELETE">Delete</SelectItem>
+              <SelectItem value="RETURN">Return</SelectItem>
+              <SelectItem value="REPLY">Reply</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
       </div>
       <div className="flex flex-col gap-1.5">
         <Label className="text-xs" htmlFor="message-name">
           Name
         </Label>
-        <Input
-          id="message-name"
-          value={name}
-          onBlur={handleSave}
-          className="h-8 text-sm"
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSave()}
-        />
+        {readOnly ? (
+          <p id="message-name" className="text-xs text-muted-foreground">
+            {message.name}
+          </p>
+        ) : (
+          <Input
+            id="message-name"
+            value={name}
+            onBlur={handleSave}
+            className="h-8 text-sm"
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSave()}
+          />
+        )}
       </div>
     </div>
   );
@@ -260,9 +295,11 @@ function MessageProperties({
 function FragmentProperties({
   fragment,
   onUpdate,
+  readOnly = false,
 }: {
   fragment: { id: string; name: string; operator: string; guard: string };
   onUpdate?: (data: { id: string; name: string; guard: string }) => void;
+  readOnly?: boolean;
 }) {
   const [name, setName] = useState(fragment.name);
   const [guard, setGuard] = useState(fragment.guard);
@@ -293,28 +330,40 @@ function FragmentProperties({
         <Label className="text-xs" htmlFor="fragment-name">
           Name
         </Label>
-        <Input
-          id="fragment-name"
-          value={name}
-          onBlur={handleSave}
-          className="h-8 text-sm"
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSave()}
-        />
+        {readOnly ? (
+          <p id="fragment-name" className="text-xs text-muted-foreground">
+            {fragment.name}
+          </p>
+        ) : (
+          <Input
+            id="fragment-name"
+            value={name}
+            onBlur={handleSave}
+            className="h-8 text-sm"
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSave()}
+          />
+        )}
       </div>
       <div className="flex flex-col gap-1.5">
         <Label className="text-xs" htmlFor="fragment-guard">
           Guard Condition
         </Label>
-        <Input
-          id="fragment-guard"
-          value={guard}
-          onBlur={handleSave}
-          className="h-8 text-sm"
-          placeholder="[condition]"
-          onChange={(e) => setGuard(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSave()}
-        />
+        {readOnly ? (
+          <p id="fragment-guard" className="text-xs text-muted-foreground">
+            {fragment.guard || "—"}
+          </p>
+        ) : (
+          <Input
+            id="fragment-guard"
+            value={guard}
+            onBlur={handleSave}
+            className="h-8 text-sm"
+            placeholder="[condition]"
+            onChange={(e) => setGuard(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSave()}
+          />
+        )}
       </div>
     </div>
   );

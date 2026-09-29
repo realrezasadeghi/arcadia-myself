@@ -47,7 +47,11 @@ import {
   type ElementNodeData,
   useCanvasStore,
 } from "../stores/canvas";
-import { useWorkbenchStore } from "../stores/workbench";
+import {
+  isLayerEditable,
+  useCanEditActiveLayer,
+  useWorkbenchStore,
+} from "../stores/workbench";
 import type { ElementTypeValue } from "../types/element";
 import type { RelationshipTypeValue } from "../types/relationship";
 import { CreateTraceLinkDialog } from "./create-trace-link-dialog";
@@ -138,6 +142,7 @@ function NodeProperties({ projectId, node }: NodeProperties) {
 
   const queryClient = useQueryClient();
   const updateElement = useUpdateElement();
+  const canEdit = useCanEditActiveLayer();
 
   const elementType = useMemo(
     () => getElementTypeInfo(node.data.elementType),
@@ -223,27 +228,37 @@ function NodeProperties({ projectId, node }: NodeProperties) {
           <Label className="text-xs" htmlFor="name">
             Name
           </Label>
-          <Input
-            value={name}
-            onBlur={handleSave}
-            className="h-8 text-sm"
-            onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSave()}
-          />
+          {canEdit ? (
+            <Input
+              value={name}
+              onBlur={handleSave}
+              className="h-8 text-sm"
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSave()}
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">{node.data.name}</p>
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="description" className="text-xs">
             Description
           </Label>
-          <Textarea
-            rows={3}
-            value={description}
-            onBlur={handleSave}
-            placeholder="Element description..."
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-sm resize-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring placeholder:text-muted-foreground"
-          />
+          {canEdit ? (
+            <Textarea
+              rows={3}
+              value={description}
+              onBlur={handleSave}
+              placeholder="Element description..."
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-sm resize-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring placeholder:text-muted-foreground"
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {node.data.description || "—"}
+            </p>
+          )}
         </div>
 
         <Separator />
@@ -251,7 +266,7 @@ function NodeProperties({ projectId, node }: NodeProperties) {
         <div className="flex flex-col gap-1.5">
           <p className="text-xs text-muted-foreground">Quick Actions</p>
           <div className="flex flex-col gap-1">
-            {node.data.status !== "VALIDATED" && (
+            {canEdit && node.data.status !== "VALIDATED" && (
               <Button
                 size="sm"
                 variant="ghost"
@@ -267,7 +282,7 @@ function NodeProperties({ projectId, node }: NodeProperties) {
                 Validate
               </Button>
             )}
-            {node.data.status !== "DRAFT" && (
+            {canEdit && node.data.status !== "DRAFT" && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -279,16 +294,18 @@ function NodeProperties({ projectId, node }: NodeProperties) {
                 Revert to Draft
               </Button>
             )}
-            <Button
-              size="sm"
-              variant="ghost"
-              className="justify-start gap-2 h-7 text-xs"
-              onClick={() => setTraceDialogOpen(true)}
-            >
-              <GitMerge className="size-3.5 text-primary" />
-              Add Trace Link
-            </Button>
-            {node.data.status !== "DEPRECATED" && (
+            {canEdit && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="justify-start gap-2 h-7 text-xs"
+                onClick={() => setTraceDialogOpen(true)}
+              >
+                <GitMerge className="size-3.5 text-primary" />
+                Add Trace Link
+              </Button>
+            )}
+            {canEdit && node.data.status !== "DEPRECATED" && (
               <Button
                 size="sm"
                 variant="ghost"
@@ -337,6 +354,7 @@ export function EdgeProperties({ edge }: EdgePropertiesProps) {
   const selectNode = useCanvasStore((state) => state.selectNode);
 
   const updateRelationship = useUpdateRelationship();
+  const canEdit = useCanEditActiveLayer();
 
   const updateEdgeData = useCanvasStore((state) => state.updateEdgeData);
 
@@ -444,28 +462,40 @@ export function EdgeProperties({ edge }: EdgePropertiesProps) {
         <Label className="text-xs" htmlFor="edge-name">
           Name
         </Label>
-        <Input
-          id="edge-name"
-          value={name}
-          onBlur={handleSave}
-          className="h-8 text-sm flex-1"
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSave()}
-        />
+        {canEdit ? (
+          <Input
+            id="edge-name"
+            value={name}
+            onBlur={handleSave}
+            className="h-8 text-sm flex-1"
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSave()}
+          />
+        ) : (
+          <p id="edge-name" className="text-sm text-muted-foreground">
+            {edge.data?.name || "—"}
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col gap-1.5">
         <Label className="text-xs" htmlFor="edge-desc">
           Description
         </Label>
-        <Textarea
-          rows={3}
-          id="edge-desc"
-          value={description}
-          onBlur={handleSave}
-          className="text-sm flex-1"
-          onChange={(e) => setDescription(e.target.value)}
-        />
+        {canEdit ? (
+          <Textarea
+            rows={3}
+            id="edge-desc"
+            value={description}
+            onBlur={handleSave}
+            className="text-sm flex-1"
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        ) : (
+          <p id="edge-desc" className="text-sm text-muted-foreground">
+            {edge.data?.description || "—"}
+          </p>
+        )}
       </div>
       {updateRelationship.isPending && <Loading />}
     </div>
@@ -483,6 +513,10 @@ export const TraceLinksList = ({ elementId }: TraceLinksListProps) => {
   const queryClient = useQueryClient();
 
   const removeTraceLink = useRemoveTraceLink();
+
+  // RBAC: a trace link spans two layers — removing it needs `edit` on both.
+  const projectPermissions = useWorkbenchStore((s) => s.projectPermissions);
+  const permissionsResolved = useWorkbenchStore((s) => s.permissionsResolved);
 
   const handleDelete = useCallback(
     (payload: {
@@ -552,21 +586,32 @@ export const TraceLinksList = ({ elementId }: TraceLinksListProps) => {
                   {isSource ? "→" : "←"} {otherLayer.label}
                 </p>
               </div>
-              <Button
-                size="icon"
-                variant="ghost"
-                loading={removeTraceLink.isPending}
-                onClick={() =>
-                  handleDelete({
-                    id: trace.id,
-                    sourceElementId: trace.sourceElementId,
-                    targetElementId: trace.targetElementId,
-                  })
-                }
-                className="size-5 shrink-0 text-muted-foreground hover:text-destructive"
-              >
-                <Trash2 className="size-3" />
-              </Button>
+              {isLayerEditable(
+                projectPermissions,
+                permissionsResolved,
+                trace.sourceLayer,
+              ) &&
+                isLayerEditable(
+                  projectPermissions,
+                  permissionsResolved,
+                  trace.targetLayer,
+                ) && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    loading={removeTraceLink.isPending}
+                    onClick={() =>
+                      handleDelete({
+                        id: trace.id,
+                        sourceElementId: trace.sourceElementId,
+                        targetElementId: trace.targetElementId,
+                      })
+                    }
+                    className="size-5 shrink-0 text-muted-foreground hover:text-destructive"
+                  >
+                    <Trash2 className="size-3" />
+                  </Button>
+                )}
             </div>
           );
         })}

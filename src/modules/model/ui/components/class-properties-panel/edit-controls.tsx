@@ -3,6 +3,7 @@
 import { ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { CLASS_VISIBILITY_INFO } from "../../constants/class-diagram";
+import { useCanEditActiveLayer } from "../../stores/workbench";
 
 export function VisibilityDropdown({
   value,
@@ -13,6 +14,7 @@ export function VisibilityDropdown({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const canEdit = useCanEditActiveLayer();
 
   useEffect(() => {
     if (!open) return;
@@ -27,6 +29,18 @@ export function VisibilityDropdown({
   const options = ["public", "private", "protected", "package"] as const;
   const current =
     CLASS_VISIBILITY_INFO[value as keyof typeof CLASS_VISIBILITY_INFO];
+
+  // RBAC: without `edit<layer>` the control is not rendered at all.
+  if (!canEdit) {
+    return (
+      <span
+        className="w-5 h-5 flex items-center justify-center text-[10px] font-mono text-muted-foreground"
+        title={`Visibility: ${current?.label ?? value}`}
+      >
+        {current?.symbol ?? "+"}
+      </span>
+    );
+  }
 
   return (
     <div className="relative" ref={ref}>
@@ -82,6 +96,22 @@ export function ToggleButton({
   active: boolean;
   onClick: () => void;
 }) {
+  const canEdit = useCanEditActiveLayer();
+
+  if (!canEdit) {
+    return (
+      <span
+        className={`px-2 py-0.5 rounded-md text-[10px] font-medium border transition-all duration-150 ${
+          active
+            ? "bg-primary/10 border-primary/30 text-primary"
+            : "bg-muted/40 border-transparent text-muted-foreground opacity-70"
+        }`}
+      >
+        {label}
+      </span>
+    );
+  }
+
   return (
     <button
       type="button"
@@ -109,6 +139,7 @@ export function DirectionDropdown({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const canEdit = useCanEditActiveLayer();
 
   useEffect(() => {
     if (!open) return;
@@ -133,6 +164,19 @@ export function DirectionDropdown({
     INOUT:
       "bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400",
   };
+
+  // RBAC: without `edit<layer>` the control is not rendered at all.
+  if (!canEdit) {
+    return (
+      <span
+        className={`h-6 px-2 rounded-md text-[10px] font-semibold uppercase tracking-wider flex items-center gap-1 min-w-[52px] justify-center ${
+          directionColors[value] ?? directionColors.IN
+        }`}
+      >
+        {labels[value] ?? "in"}
+      </span>
+    );
+  }
 
   return (
     <div className="relative" ref={ref}>

@@ -18,6 +18,13 @@ import { useUpdateClassRelationship } from "../../clients/update-class-relations
 import { getClassRelationshipTypeInfo } from "../../constants/class-diagram";
 import type { CanvasEdge, ClassEdgeData } from "../../stores/canvas";
 import { useCanvasStore } from "../../stores/canvas";
+import { useCanEditActiveLayer } from "../../stores/workbench";
+
+const AGGREGATION_LABELS: Record<string, string> = {
+  NONE: "None (plain relationship)",
+  SHARED: "Shared (hollow diamond)",
+  COMPOSITE: "Composite (filled diamond)",
+};
 
 function MultiplicityField({
   label,
@@ -36,6 +43,8 @@ function MultiplicityField({
   onUpperChange: (v: string) => void;
   onBlur: () => void;
 }) {
+  const canEdit = useCanEditActiveLayer();
+
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-baseline gap-2">
@@ -43,27 +52,39 @@ function MultiplicityField({
         <span className="text-[10px] text-muted-foreground">{description}</span>
       </div>
       <div className="flex items-center gap-2">
-        <div className="flex flex-col items-center">
-          <span className="text-[9px] text-muted-foreground mb-0.5">min</span>
-          <Input
-            value={lower}
-            onChange={(e) => onLowerChange(e.target.value)}
-            onBlur={onBlur}
-            className="h-8 w-14 text-xs tabular-nums text-center"
-            placeholder="1"
-          />
-        </div>
-        <span className="text-muted-foreground text-sm mt-4">..</span>
-        <div className="flex flex-col items-center">
-          <span className="text-[9px] text-muted-foreground mb-0.5">max</span>
-          <Input
-            value={upper}
-            onChange={(e) => onUpperChange(e.target.value)}
-            onBlur={onBlur}
-            className="h-8 w-14 text-xs tabular-nums text-center"
-            placeholder="*"
-          />
-        </div>
+        {canEdit ? (
+          <>
+            <div className="flex flex-col items-center">
+              <span className="text-[9px] text-muted-foreground mb-0.5">
+                min
+              </span>
+              <Input
+                value={lower}
+                onChange={(e) => onLowerChange(e.target.value)}
+                onBlur={onBlur}
+                className="h-8 w-14 text-xs tabular-nums text-center"
+                placeholder="1"
+              />
+            </div>
+            <span className="text-muted-foreground text-sm mt-4">..</span>
+            <div className="flex flex-col items-center">
+              <span className="text-[9px] text-muted-foreground mb-0.5">
+                max
+              </span>
+              <Input
+                value={upper}
+                onChange={(e) => onUpperChange(e.target.value)}
+                onBlur={onBlur}
+                className="h-8 w-14 text-xs tabular-nums text-center"
+                placeholder="*"
+              />
+            </div>
+          </>
+        ) : (
+          <span className="text-sm font-medium tabular-nums text-foreground/80">
+            {lower || "1"}..{upper || "*"}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -93,6 +114,7 @@ export function ClassEdgeProperties({ edge }: { edge: CanvasEdge }) {
   const [isDerived, setIsDerived] = useState(data.isDerived ?? false);
 
   const selectNode = useCanvasStore((s) => s.selectNode);
+  const canEdit = useCanEditActiveLayer();
   const updateEdgeData = useCanvasStore((s) => s.updateEdgeData);
   const updateClassRelationship = useUpdateClassRelationship();
 
@@ -247,30 +269,42 @@ export function ClassEdgeProperties({ edge }: { edge: CanvasEdge }) {
           <Label className="text-sm font-medium" htmlFor="class-edge-name">
             Name
           </Label>
-          <Input
-            id="class-edge-name"
-            value={name}
-            onBlur={handleSave}
-            className="h-9 text-sm"
-            onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSave()}
-            placeholder="e.g., manages, contains, uses"
-          />
+          {canEdit ? (
+            <Input
+              id="class-edge-name"
+              value={name}
+              onBlur={handleSave}
+              className="h-9 text-sm"
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSave()}
+              placeholder="e.g., manages, contains, uses"
+            />
+          ) : (
+            <p id="class-edge-name" className="text-sm text-muted-foreground">
+              {data.name || "—"}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5">
           <Label className="text-sm font-medium" htmlFor="class-edge-desc">
             Description
           </Label>
-          <Textarea
-            rows={2}
-            id="class-edge-desc"
-            value={description}
-            onBlur={handleSave}
-            className="text-sm resize-none"
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="What does this relationship represent?"
-          />
+          {canEdit ? (
+            <Textarea
+              rows={2}
+              id="class-edge-desc"
+              value={description}
+              onBlur={handleSave}
+              className="text-sm resize-none"
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="What does this relationship represent?"
+            />
+          ) : (
+            <p id="class-edge-desc" className="text-sm text-muted-foreground">
+              {data.description || "—"}
+            </p>
+          )}
         </div>
 
         {/* Derived Toggle - Clear with Icon */}
@@ -279,27 +313,33 @@ export function ClassEdgeProperties({ edge }: { edge: CanvasEdge }) {
             <GitBranch className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm font-medium">Derived relationship</span>
           </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={isDerived}
-            onClick={() => {
-              setIsDerived(!isDerived);
-              setTimeout(handleSave, 0);
-            }}
-            className={`
+          {canEdit ? (
+            <button
+              type="button"
+              role="switch"
+              aria-checked={isDerived}
+              onClick={() => {
+                setIsDerived(!isDerived);
+                setTimeout(handleSave, 0);
+              }}
+              className={`
               relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200
               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
               ${isDerived ? "bg-primary" : "bg-border"}
             `}
-          >
-            <span
-              className={`
+            >
+              <span
+                className={`
                 pointer-events-none block h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200
                 ${isDerived ? "translate-x-5.5" : "translate-x-0.5"}
               `}
-            />
-          </button>
+              />
+            </button>
+          ) : (
+            <span className="text-xs font-medium text-muted-foreground">
+              {isDerived ? "Yes" : "No"}
+            </span>
+          )}
         </div>
       </div>
 
@@ -323,28 +363,34 @@ export function ClassEdgeProperties({ edge }: { edge: CanvasEdge }) {
               <p className="text-xs text-muted-foreground mb-1">
                 How the source relates to the target
               </p>
-              <Select
-                value={aggregationKind}
-                onValueChange={(v) => {
-                  setAggregationKind(v as typeof aggregationKind);
-                  setTimeout(handleSave, 0);
-                }}
-              >
-                <SelectTrigger className="h-9 text-sm w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="NONE">
-                    None (plain relationship)
-                  </SelectItem>
-                  <SelectItem value="SHARED">
-                    Shared (hollow diamond)
-                  </SelectItem>
-                  <SelectItem value="COMPOSITE">
-                    Composite (filled diamond)
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              {canEdit ? (
+                <Select
+                  value={aggregationKind}
+                  onValueChange={(v) => {
+                    setAggregationKind(v as typeof aggregationKind);
+                    setTimeout(handleSave, 0);
+                  }}
+                >
+                  <SelectTrigger className="h-9 text-sm w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="NONE">
+                      None (plain relationship)
+                    </SelectItem>
+                    <SelectItem value="SHARED">
+                      Shared (hollow diamond)
+                    </SelectItem>
+                    <SelectItem value="COMPOSITE">
+                      Composite (filled diamond)
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {AGGREGATION_LABELS[data.aggregationKind ?? "NONE"]}
+                </p>
+              )}
             </div>
 
             {/* Multiplicities */}
@@ -386,25 +432,37 @@ export function ClassEdgeProperties({ edge }: { edge: CanvasEdge }) {
                   <span className="text-xs text-muted-foreground">
                     Source plays
                   </span>
-                  <Input
-                    value={sourceRole}
-                    onChange={(e) => setSourceRole(e.target.value)}
-                    onBlur={handleSave}
-                    className="h-9 text-sm"
-                    placeholder="e.g., owner"
-                  />
+                  {canEdit ? (
+                    <Input
+                      value={sourceRole}
+                      onChange={(e) => setSourceRole(e.target.value)}
+                      onBlur={handleSave}
+                      className="h-9 text-sm"
+                      placeholder="e.g., owner"
+                    />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      {data.sourceRole || "—"}
+                    </p>
+                  )}
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <span className="text-xs text-muted-foreground">
                     Target plays
                   </span>
-                  <Input
-                    value={targetRole}
-                    onChange={(e) => setTargetRole(e.target.value)}
-                    onBlur={handleSave}
-                    className="h-9 text-sm"
-                    placeholder="e.g., member"
-                  />
+                  {canEdit ? (
+                    <Input
+                      value={targetRole}
+                      onChange={(e) => setTargetRole(e.target.value)}
+                      onBlur={handleSave}
+                      className="h-9 text-sm"
+                      placeholder="e.g., member"
+                    />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      {data.targetRole || "—"}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

@@ -4,7 +4,7 @@ import { LayoutDashboard, X } from "lucide-react";
 import { type DragEventHandler, useCallback } from "react";
 import { toast } from "sonner";
 import { cn } from "@/modules/shared/ui/libs/cn";
-import { getDiagramPalette } from "../../helpers/diagram";
+import { getElementPlacementError } from "../../actions/element-actions";
 import { useCanvasStore } from "../../stores/canvas";
 import { useWorkbenchStore } from "../../stores/workbench";
 
@@ -46,12 +46,13 @@ export function EditorTabs() {
             if (tab.diagramId === activeDiagramId) return;
 
             // Validate element type against target diagram palette
-            const palette = getDiagramPalette(tab.type);
-            if (!palette.elementTypes.includes(elementType)) {
-              toast.error(
-                `Cannot add "${name}" to ${tab.type} diagram. ` +
-                  `This diagram only supports: ${palette.elementTypes.join(", ")}`,
-              );
+            const placementError = getElementPlacementError(
+              name,
+              elementType,
+              tab.type,
+            );
+            if (placementError) {
+              toast.error(placementError);
               return;
             }
 

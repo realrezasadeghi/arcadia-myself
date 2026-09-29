@@ -2,6 +2,7 @@
 
 import { ReactFlowProvider } from "@xyflow/react";
 import {
+  GitMerge,
   Home,
   PanelBottom,
   PanelLeft,
@@ -12,7 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useShallow } from "zustand/shallow";
 import { isProjectLayer } from "@/modules/project/domain/constants/permissions";
 import { canAny } from "@/modules/project/domain/services/permissions";
@@ -21,6 +22,7 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
+  BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/modules/shared/ui/components/ui/breadcrumb";
 import {
@@ -35,7 +37,11 @@ import {
   TooltipTrigger,
 } from "@/modules/shared/ui/components/ui/tooltip";
 import { cn } from "@/modules/shared/ui/libs/cn";
-import { resolveDiagramLayer } from "../../helpers/diagram";
+import {
+  countTransitionableDiagrams,
+  resolveDiagramLayer,
+} from "../../helpers/diagram";
+import { getLayerInfo } from "../../helpers/layer";
 import {
   type PanelVisibility,
   useWorkbenchStore,
@@ -56,6 +62,7 @@ import { OutlinePanel } from "./outline-panel";
 import { PalettePanel } from "./palette-panel";
 import { PropertiesPanel } from "./properties-panel";
 import { SemanticBrowserPanel } from "./semantic-browser-panel";
+import { TransitionWizard } from "./transition-wizard";
 import { ValidationPanel } from "./validation-panel";
 
 export type WorkbenchModelData = {
@@ -99,6 +106,8 @@ export function Workbench({
   const resetForProject = useWorkbenchStore((s) => s.resetForProject);
   const currentLayer = useWorkbenchStore((s) => s.currentLayer);
   const setCurrentLayer = useWorkbenchStore((s) => s.setCurrentLayer);
+
+  const [transitionModel, setTransitionModel] = useState<Model | null>(null);
 
   useEffect(() => {
     if (currentProjectId !== projectId) {
@@ -218,6 +227,7 @@ export function Workbench({
           layers={visibleLayers}
           currentLayer={currentLayer}
           onLayerChange={handleLayerChange}
+          onTransition={setTransitionModel}
         />
 
         <ResizablePanelGroup
@@ -238,6 +248,7 @@ export function Workbench({
                   projectId={projectId}
                   modelData={visibleModelData}
                   onTreeChanged={refreshTree}
+                  onTransition={setTransitionModel}
                 />
               </ResizablePanel>
 
@@ -306,6 +317,27 @@ export function Workbench({
             </>
           )}
         </ResizablePanelGroup>
+
+        {transitionModel && (
+          <TransitionWizard
+            open={!!transitionModel}
+            onOpenChange={(open) => !open && setTransitionModel(null)}
+            projectId={projectId}
+            sourceModel={transitionModel}
+            sourceElements={
+              modelData.find((m) => m.model.id === transitionModel.id)
+                ?.elements ?? []
+            }
+            sourceDiagramCount={countTransitionableDiagrams(
+              modelData.find((m) => m.model.id === transitionModel.id)
+                ?.archDiagrams ?? [],
+            )}
+            onCompleted={() => {
+              setTransitionModel(null);
+              refreshTree();
+            }}
+          />
+        )}
       </div>
     </ReactFlowProvider>
   );
@@ -374,6 +406,11 @@ function WorkbenchMenuBar({ projectName }: { projectName: string }) {
   const togglePanel = useWorkbenchStore((s) => s.togglePanel);
   const projectPermissions = useWorkbenchStore((s) => s.projectPermissions);
   const permissionsResolved = useWorkbenchStore((s) => s.permissionsResolved);
+  const activeTab = useWorkbenchStore((s) =>
+    s.tabs.find((t) => t.diagramId === s.activeDiagramId),
+  );
+  const currentLayer = useWorkbenchStore((s) => s.currentLayer);
+  const layer = getLayerInfo(activeTab?.layer ?? currentLayer);
 
   // RBAC: the Members page is only reachable with a member-management grant.
   const canOpenMembers =
@@ -417,11 +454,35 @@ function WorkbenchMenuBar({ projectName }: { projectName: string }) {
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{layer.label}</BreadcrumbPage>
+          </BreadcrumbItem>
+          {activeTab && (
+            <>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>{activeTab.name}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </>
+          )}
         </BreadcrumbList>
       </Breadcrumb>
 
       <div className="flex items-center gap-1">
-        <ArcadiaInfoModal />
+        <ArcadiaInfoModal projectId={projectId} />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
+              href={`/dashboard/project/${projectId}/traces`}
+              className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              aria-label="Traceability Matrix"
+            >
+              <GitMerge className="size-4" />
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent>Traceability Matrix</TooltipContent>
+        </Tooltip>
         {canOpenMembers && projectId && (
           <Tooltip>
             <TooltipTrigger asChild>

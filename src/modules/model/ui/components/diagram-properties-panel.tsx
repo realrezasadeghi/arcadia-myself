@@ -4,10 +4,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   Archive,
   ArrowUp,
+  Check,
   CheckCircle2,
   GitMerge,
   Loader2,
   MousePointerClick,
+  Pencil,
   RotateCcw,
   Trash2,
   X,
@@ -34,6 +36,7 @@ import {
 import { useRemoveTraceLink } from "../clients/remove-trace-link";
 import { useUpdateElement } from "../clients/update-element";
 import { useUpdateRelationship } from "../clients/update-relationship";
+import { useUpdateTraceLink } from "../clients/update-trace-link";
 import { getElementTypeInfo } from "../helpers/element";
 import { getLayerInfo } from "../helpers/layer";
 import {
@@ -53,6 +56,7 @@ import {
   useWorkbenchStore,
 } from "../stores/workbench";
 import type { ElementTypeValue } from "../types/element";
+import type { LayerValue } from "../types/layer";
 import type { RelationshipTypeValue } from "../types/relationship";
 import { CreateTraceLinkDialog } from "./create-trace-link-dialog";
 import { ElementShape } from "./element-shape";
@@ -506,6 +510,166 @@ export type TraceLinksListProps = {
   elementId: string;
 };
 
+type TraceLinkRowData = {
+  id: string;
+  type: string;
+  sourceElementId: string;
+  targetElementId: string;
+  sourceLayer: LayerValue;
+  targetLayer: LayerValue;
+  description?: string;
+};
+
+type TraceLinkRowProps = {
+  trace: TraceLinkRowData;
+  elementId: string;
+  canUpdate: boolean;
+  canDelete: boolean;
+  isDeleting: boolean;
+  onDelete: (payload: {
+    id: string;
+    sourceElementId: string;
+    targetElementId: string;
+  }) => void;
+};
+
+function TraceLinkRow({
+  trace,
+  elementId,
+  canUpdate,
+  canDelete,
+  isDeleting,
+  onDelete,
+}: TraceLinkRowProps) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(trace.description ?? "");
+  const queryClient = useQueryClient();
+  const updateTraceLink = useUpdateTraceLink();
+
+  const isSource = trace.sourceElementId === elementId;
+  const traceSpec = getTraceVisual(trace.type);
+  const traceInfo = getTraceLinkTypeInfo(trace.type);
+  const otherLayer = getLayerInfo(
+    isSource ? trace.targetLayer : trace.sourceLayer,
+  );
+
+  const invalidateTraceQueries = () => {
+    queryClient.invalidateQueries({
+      queryKey: getTraceLinksByElementIdKey(trace.sourceElementId),
+    });
+    queryClient.invalidateQueries({
+      queryKey: getTraceLinksByElementIdKey(trace.targetElementId),
+    });
+  };
+
+  const handleSave = () => {
+    updateTraceLink.mutate(
+      { id: trace.id, description: draft.trim() },
+      {
+        onSuccess: () => {
+          setEditing(false);
+          invalidateTraceQueries();
+        },
+        onError: ({ message }) => {
+          toast.error(message || "Error updating trace link");
+        },
+      },
+    );
+  };
+
+  return (
+    <div className="rounded-md border border-border bg-muted/40 px-2 py-1.5">
+      <div className="flex items-start gap-1.5">
+        <span
+          className="mt-0.5 size-2 shrink-0 rounded-full"
+          style={{ backgroundColor: traceSpec.strokeColor }}
+        />
+        <div className="min-w-0 flex-1 space-y-1">
+          <p className="text-xs font-medium">{traceInfo.label}</p>
+          <p className="text-[10px] text-muted-foreground">
+            {isSource ? "Traces to" : "Traced by"} {otherLayer.label}
+          </p>
+          {!editing && trace.description && (
+            <p className="text-[10px] text-muted-foreground">
+              {trace.description}
+            </p>
+          )}
+        </div>
+
+        {!editing && (canUpdate || canDelete) && (
+          <div className="flex shrink-0 items-center gap-0.5">
+            {canUpdate && (
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => {
+                  setDraft(trace.description ?? "");
+                  setEditing(true);
+                }}
+                className="size-5 shrink-0 text-muted-foreground hover:text-foreground"
+                aria-label="Edit trace note"
+              >
+                <Pencil className="size-3" />
+              </Button>
+            )}
+            {canDelete && (
+              <Button
+                size="icon"
+                variant="ghost"
+                loading={isDeleting}
+                onClick={() =>
+                  onDelete({
+                    id: trace.id,
+                    sourceElementId: trace.sourceElementId,
+                    targetElementId: trace.targetElementId,
+                  })
+                }
+                className="size-5 shrink-0 text-muted-foreground hover:text-destructive"
+                aria-label="Delete trace link"
+              >
+                <Trash2 className="size-3" />
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {editing && (
+        <div className="mt-1.5 space-y-1">
+          <Textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            maxLength={500}
+            rows={2}
+            placeholder="Trace note (optional)"
+            className="resize-none text-xs"
+          />
+          <div className="flex items-center justify-end gap-1">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-6 px-2 text-xs"
+              onClick={() => setEditing(false)}
+              disabled={updateTraceLink.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              className="h-6 px-2 text-xs"
+              loading={updateTraceLink.isPending}
+              onClick={handleSave}
+            >
+              <Check className="size-3" />
+              Save
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export const TraceLinksList = ({ elementId }: TraceLinksListProps) => {
   const { data: traceLinks, isLoading: isGetTraceLinksLoading } =
     useGetTraceLinksByElementId(elementId);
@@ -514,9 +678,25 @@ export const TraceLinksList = ({ elementId }: TraceLinksListProps) => {
 
   const removeTraceLink = useRemoveTraceLink();
 
-  // RBAC: a trace link spans two layers — removing it needs `edit` on both.
+  // RBAC: a trace link spans two layers - editing its note, or deleting the
+  // link itself, needs edit rights on both the source and the target layer.
   const projectPermissions = useWorkbenchStore((s) => s.projectPermissions);
   const permissionsResolved = useWorkbenchStore((s) => s.permissionsResolved);
+
+  const canEditTrace = useCallback(
+    (trace: TraceLinkRowData) =>
+      isLayerEditable(
+        projectPermissions,
+        permissionsResolved,
+        trace.sourceLayer,
+      ) &&
+      isLayerEditable(
+        projectPermissions,
+        permissionsResolved,
+        trace.targetLayer,
+      ),
+    [projectPermissions, permissionsResolved],
+  );
 
   const handleDelete = useCallback(
     (payload: {
@@ -550,72 +730,29 @@ export const TraceLinksList = ({ elementId }: TraceLinksListProps) => {
     );
   }
 
-  if (!traceLinks?.length) {
-    return (
-      <div className="text-center">
-        <p className="text-xs text-muted-foreground">No trace links defined.</p>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col gap-2">
       <p className="text-xs font-medium text-muted-foreground">Trace Links</p>
 
-      <div className="flex flex-col gap-1.5">
-        {traceLinks.map((trace) => {
-          const isSource = trace.sourceElementId === elementId;
-          const traceSpec = getTraceVisual(trace.type);
-          const traceInfo = getTraceLinkTypeInfo(trace.type);
-          const otherLayer = getLayerInfo(
-            isSource ? trace.targetLayer : trace.sourceLayer,
-          );
-
-          return (
-            <div
+      {!traceLinks?.length ? (
+        <p className="text-xs text-muted-foreground">
+          No traces yet. Add a trace link to connect this element across layers.
+        </p>
+      ) : (
+        <div className="flex flex-col gap-1.5">
+          {traceLinks.map((trace) => (
+            <TraceLinkRow
               key={trace.id}
-              className="flex items-start gap-1.5 rounded-md border border-border bg-muted/40 px-2 py-1.5"
-            >
-              <span
-                className="mt-0.5 size-2 shrink-0 rounded-full"
-                style={{ backgroundColor: traceSpec.strokeColor }}
-              />
-              <div className="min-w-0 flex-1 space-y-1">
-                <p className="text-xs font-medium">{traceInfo.label}</p>
-                <p className="text-[10px] text-muted-foreground">
-                  {isSource ? "→" : "←"} {otherLayer.label}
-                </p>
-              </div>
-              {isLayerEditable(
-                projectPermissions,
-                permissionsResolved,
-                trace.sourceLayer,
-              ) &&
-                isLayerEditable(
-                  projectPermissions,
-                  permissionsResolved,
-                  trace.targetLayer,
-                ) && (
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    loading={removeTraceLink.isPending}
-                    onClick={() =>
-                      handleDelete({
-                        id: trace.id,
-                        sourceElementId: trace.sourceElementId,
-                        targetElementId: trace.targetElementId,
-                      })
-                    }
-                    className="size-5 shrink-0 text-muted-foreground hover:text-destructive"
-                  >
-                    <Trash2 className="size-3" />
-                  </Button>
-                )}
-            </div>
-          );
-        })}
-      </div>
+              trace={trace}
+              elementId={elementId}
+              canUpdate={canEditTrace(trace)}
+              canDelete={canEditTrace(trace)}
+              isDeleting={removeTraceLink.isPending}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

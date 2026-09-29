@@ -6,7 +6,10 @@ import {
   getBezierPath,
 } from "@xyflow/react";
 import { memo } from "react";
-import { getEdgeVisual } from "../helpers/relationship";
+import {
+  getEdgeVisual,
+  getRelationshipTypeInfo,
+} from "../helpers/relationship";
 import type { RelationshipEdgeData } from "../stores/canvas";
 
 function ArrowMarker({ id, color }: { id: string; color: string }) {
@@ -90,6 +93,12 @@ function ArchitectureEdgeComponent({
     ? getEdgeVisual(data.relationshipType)
     : null;
 
+  const edgeLabel =
+    data?.name?.trim() ||
+    (data?.relationshipType
+      ? getRelationshipTypeInfo(data.relationshipType).label
+      : "");
+
   const strokeColor = spec?.strokeColor ?? "#94a3b8";
   const strokeWidth = selected
     ? (spec?.strokeWidth ?? 1.5) + 1
@@ -127,7 +136,7 @@ function ArchitectureEdgeComponent({
         markerEnd={endMarkerId ? `url(#${endMarkerId})` : undefined}
       />
 
-      {data?.name && (
+      {edgeLabel && (
         <EdgeLabelRenderer>
           <div
             style={{
@@ -143,7 +152,7 @@ function ArchitectureEdgeComponent({
                 border: `1px solid ${strokeColor}`,
               }}
             >
-              {data.name}
+              {edgeLabel}
             </span>
           </div>
         </EdgeLabelRenderer>

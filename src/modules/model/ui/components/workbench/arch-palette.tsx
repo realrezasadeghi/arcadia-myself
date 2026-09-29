@@ -49,7 +49,7 @@ export function ArchPalette({
           <div className="px-3 pt-1">
             <p className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               <Spline className="size-3" />
-              Exchanges
+              Relationships
             </p>
           </div>
           <div className="flex flex-col gap-1 p-2">

@@ -13,7 +13,7 @@ import {
   countClassElementsByType,
   countElementsByType,
 } from "../../helpers/element-count";
-import { getLayerInfo } from "../../helpers/layer";
+import { getLayerInfo, getSectionTitle } from "../../helpers/layer";
 import { useWorkbenchStore } from "../../stores/workbench";
 import type { ClassElementData } from "../../types/class-diagram";
 import type { Element } from "../../types/element";
@@ -88,8 +88,9 @@ export function PalettePanel({ modelData }: { modelData: PaletteModelData }) {
     <aside className="flex h-full min-h-0 flex-col border-l bg-card">
       <div className="flex h-8 shrink-0 items-center gap-1.5 border-b bg-muted/30 px-3">
         <Boxes className="size-3.5 text-muted-foreground" />
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Palette
+        <p className="truncate text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="sr-only">Palette — </span>
+          {getSectionTitle(layer)}
         </p>
       </div>
 

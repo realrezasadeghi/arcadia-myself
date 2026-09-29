@@ -36,32 +36,32 @@ export function TraceLayerPair({
   traceLinks,
   elementsByModelId,
 }: TraceLayerPairProps) {
-  const upperModel = models.find((model) => model.layer === upper);
-  const lowerModel = models.find((model) => model.layer === lower);
+  // Rows are the concrete layer (`lower`, the trace source) and columns the
+  // abstract layer (`upper`, the trace target) — matching how trace links are
+  // stored: source realizes target.
+  const sourceModel = models.find((model) => model.layer === lower);
+  const targetModel = models.find((model) => model.layer === upper);
 
-  const upperElements = upperModel
-    ? (elementsByModelId.get(upperModel.id) ?? [])
+  const sourceElements = sourceModel
+    ? (elementsByModelId.get(sourceModel.id) ?? [])
     : [];
-  const lowerElements = lowerModel
-    ? (elementsByModelId.get(lowerModel.id) ?? [])
+  const targetElements = targetModel
+    ? (elementsByModelId.get(targetModel.id) ?? [])
     : [];
 
-  // Build set of traced pairs: "sourceId|targetId"
   const tracedPairs = useMemo(() => {
     const pairs = new Set<string>();
     for (const trace of traceLinks) {
-      const sourceLayer = trace.sourceLayer;
-      const targetLayer = trace.targetLayer;
-      if (sourceLayer === upper && targetLayer === lower) {
+      if (trace.sourceLayer === lower && trace.targetLayer === upper) {
         pairs.add(`${trace.sourceElementId}|${trace.targetElementId}`);
-      } else if (sourceLayer === lower && targetLayer === upper) {
+      } else if (trace.sourceLayer === upper && trace.targetLayer === lower) {
         pairs.add(`${trace.targetElementId}|${trace.sourceElementId}`);
       }
     }
     return pairs;
   }, [traceLinks, upper, lower]);
 
-  if (upperElements.length === 0 && lowerElements.length === 0) {
+  if (sourceElements.length === 0 && targetElements.length === 0) {
     return (
       <section>
         <SectionHeader upper={upper} lower={lower} count={0} />
@@ -86,10 +86,10 @@ export function TraceLayerPair({
                 scope="col"
                 className="sticky left-0 z-10 bg-muted/60 border-b border-r border-border px-3 py-2 text-left font-medium min-w-35"
               >
-                {getLayerInfo(upper).label} \ {getLayerInfo(lower).label}
+                {getLayerInfo(lower).label} \ {getLayerInfo(upper).label}
               </TableHead>
 
-              {lowerElements.map((element) => (
+              {targetElements.map((element) => (
                 <TableHead
                   key={element.id}
                   className="border-b border-l border-border px-2 py-2 font-normal text-muted-foreground min-w-25 max-w-35"
@@ -104,7 +104,7 @@ export function TraceLayerPair({
           </TableHeader>
 
           <TableBody>
-            {upperElements.map((rowEl, ri) => {
+            {sourceElements.map((rowEl, ri) => {
               const isEven = ri % 2 === 0;
               const stickyBgColor = isEven
                 ? "hsl(var(--background))"
@@ -125,7 +125,7 @@ export function TraceLayerPair({
                     </div>
                   </TableCell>
 
-                  {lowerElements.map((colEl) => {
+                  {targetElements.map((colEl) => {
                     const hasTrace = tracedPairs.has(`${rowEl.id}|${colEl.id}`);
                     const traceLinkForCell = traceLinks.find(
                       (tr) =>
@@ -185,9 +185,9 @@ function SectionHeader({
   return (
     <div className="flex items-center gap-3">
       <div className="flex items-center gap-1.5">
-        <LayerBadge layer={getLayerInfo(upper)} />
-        <span className="text-muted-foreground">→</span>
         <LayerBadge layer={getLayerInfo(lower)} />
+        <span className="text-muted-foreground">→</span>
+        <LayerBadge layer={getLayerInfo(upper)} />
       </div>
       <Badge variant="secondary" className="text-xs">
         {count} link{count !== 1 ? "s" : ""}

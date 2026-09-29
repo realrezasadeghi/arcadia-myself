@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { type DragEventHandler, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import { ClassConnectionPolicy } from "../../domain/policies/class-connection";
+import { getElementPlacementError } from "../actions/element-actions";
 import { useCreateClassElement } from "../clients/create-class-element";
 import { useCreateClassRelationship } from "../clients/create-class-relationship";
 import { getClassDiagramByIdKey } from "../clients/get-class-diagram-by-id";
@@ -31,7 +32,6 @@ import {
   isContainerType,
   nodesToAbsoluteLayouts,
 } from "../helpers/class-diagram";
-import { getDiagramPalette } from "../helpers/diagram";
 import { getElementTypeInfo } from "../helpers/element";
 import { useCanvasBehaviour } from "../hooks/use-canvas-behaviour";
 import { useCanvasStore } from "../stores/canvas";
@@ -254,12 +254,13 @@ export function ClassCanvasInner({
           .getState()
           .tabs.find((t) => t.diagramId === diagramId);
         if (activeTab) {
-          const diagPalette = getDiagramPalette(activeTab.type);
-          if (!diagPalette.elementTypes.includes(elementType)) {
-            toast.error(
-              `Cannot add "${name}" to ${activeTab.type} diagram. ` +
-                `This diagram only supports: ${diagPalette.elementTypes.join(", ")}`,
-            );
+          const placementError = getElementPlacementError(
+            name,
+            elementType,
+            activeTab.type,
+          );
+          if (placementError) {
+            toast.error(placementError);
             return;
           }
         }

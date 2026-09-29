@@ -1,3 +1,4 @@
+import { ClassRelationshipType } from "../../domain/value-objects/class-relationship-type";
 import type {
   ClassElementTypeValue,
   ClassRelationshipTypeValue,
@@ -77,6 +78,41 @@ export const CLASS_ELEMENT_TYPES: {
   },
 ];
 
+/**
+ * Visual spec only. `label` / `labelFa` / `description` are derived from the
+ * domain `ClassRelationshipType` registry so both layers stay in sync.
+ */
+const CLASS_RELATIONSHIP_VISUALS: Record<
+  ClassRelationshipTypeValue,
+  {
+    strokeColor: string;
+    strokeWidth: number;
+    strokeDash?: string;
+    markerEnd?: string;
+  }
+> = {
+  ASSOCIATION: {
+    strokeColor: "#475569",
+    strokeWidth: 1.5,
+  },
+  GENERALIZATION: {
+    strokeColor: "#2563EB",
+    strokeWidth: 1.5,
+    markerEnd: "generalization",
+  },
+  REALIZATION: {
+    strokeColor: "#7C3AED",
+    strokeWidth: 1.5,
+    strokeDash: "6,3",
+    markerEnd: "realization",
+  },
+  DEPENDENCY: {
+    strokeColor: "#94A3B8",
+    strokeWidth: 1,
+    strokeDash: "4,3",
+  },
+};
+
 export const CLASS_RELATIONSHIP_TYPES: {
   value: ClassRelationshipTypeValue;
   label: string;
@@ -86,44 +122,18 @@ export const CLASS_RELATIONSHIP_TYPES: {
   strokeWidth: number;
   strokeDash?: string;
   markerEnd?: string;
-}[] = [
-  {
-    value: "ASSOCIATION",
-    label: "Association",
-    labelFa: "ارتباط",
-    description: "Structural relationship",
-    strokeColor: "#475569",
-    strokeWidth: 1.5,
-  },
-  {
-    value: "GENERALIZATION",
-    label: "Generalization",
-    labelFa: "تعمیم",
-    description: "Inheritance relationship",
-    strokeColor: "#2563EB",
-    strokeWidth: 1.5,
-    markerEnd: "generalization",
-  },
-  {
-    value: "REALIZATION",
-    label: "Realization",
-    labelFa: "تحقق",
-    description: "Interface implementation",
-    strokeColor: "#7C3AED",
-    strokeWidth: 1.5,
-    strokeDash: "6,3",
-    markerEnd: "realization",
-  },
-  {
-    value: "DEPENDENCY",
-    label: "Dependency",
-    labelFa: "وابستگی",
-    description: "Usage relationship",
-    strokeColor: "#94A3B8",
-    strokeWidth: 1,
-    strokeDash: "4,3",
-  },
-];
+}[] = (
+  Object.keys(CLASS_RELATIONSHIP_VISUALS) as ClassRelationshipTypeValue[]
+).map((value) => {
+  const meta = ClassRelationshipType.from(value);
+  return {
+    value,
+    label: meta.label,
+    labelFa: meta.labelFa,
+    description: meta.description,
+    ...CLASS_RELATIONSHIP_VISUALS[value],
+  };
+});
 
 export const AGGREGATION_KIND_INFO: Record<
   "NONE" | "SHARED" | "COMPOSITE",

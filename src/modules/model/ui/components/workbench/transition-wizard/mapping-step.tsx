@@ -91,7 +91,7 @@ export function MappingStep({
         </div>
       )}
 
-      <ScrollArea className="max-h-80">
+      <ScrollArea className="h-80">
         <div className="flex flex-col gap-1.5 pr-2">
           {filtered.map((el) => {
             const row = rows[el.id];

@@ -127,6 +127,8 @@ function ClassEdgeComponent({
 
   const derivedPrefix = isDerived ? "/" : "";
 
+  const edgeLabel = data.name?.trim() || relTypeInfo.label;
+
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
@@ -244,7 +246,7 @@ function ClassEdgeComponent({
       />
 
       {/* Relationship Name with background */}
-      {(data.name || isDerived) && (
+      {edgeLabel && (
         <g>
           <text
             x={labelX}
@@ -264,7 +266,7 @@ function ClassEdgeComponent({
               strokeLinejoin="round"
             >
               {derivedPrefix}
-              {data.name}
+              {edgeLabel}
             </tspan>
           </text>
           <text
@@ -279,7 +281,7 @@ function ClassEdgeComponent({
             }}
           >
             {derivedPrefix}
-            {data.name}
+            {edgeLabel}
           </text>
         </g>
       )}

@@ -9,20 +9,18 @@ import {
   FilePlus2,
   Folder,
   GitBranchPlus,
-  HardDrive,
+  GitMerge,
   Layers,
   LayoutDashboard,
-  Link,
   type LucideIcon,
-  Monitor,
   Pencil,
   Plus,
   Target,
   Trash2,
-  User,
   Users,
   Waypoints,
 } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import {
   ContextMenu,
@@ -36,14 +34,19 @@ import {
   ContextMenuTrigger,
 } from "@/modules/shared/ui/components/ui/context-menu";
 import { cn } from "@/modules/shared/ui/libs/cn";
-import { CLASS_ELEMENT_TYPES } from "../../constants/class-diagram";
-import { LAYER_HEX_COLORS, LAYERS } from "../../constants/layer";
-import { getDiagramPalette } from "../../helpers/diagram";
 import {
-  getElementTypesForLayer,
-  getElementVisual,
-} from "../../helpers/element";
-import { getLayerInfo } from "../../helpers/layer";
+  getDiagramPlacements,
+  getNewElementActions,
+} from "../../actions/element-actions";
+import { CLASS_ELEMENT_TYPES } from "../../constants/class-diagram";
+import { getElementTypeIcon } from "../../constants/element-icons";
+import { LAYER_HEX_COLORS, OFFERED_LAYERS } from "../../constants/layer";
+import { getElementTypesForLayer, getElementVisual } from "../../helpers/element";
+import {
+  getLayerInfo,
+  getNextOfferedLayer,
+  getNextOfferedLayerLabel,
+} from "../../helpers/layer";
 import { isLayerEditable, useWorkbenchStore } from "../../stores/workbench";
 import type {
   ClassElementData,
@@ -58,34 +61,6 @@ import type {
 import type { LayerValue } from "../../types/layer";
 import type { Model } from "../../types/model";
 import { ScenarioDiagramChildren } from "./scenario-diagram-children";
-
-// ─── Element icon map ─────────────────────────────────────────────────────────
-
-const ELEMENT_ICONS: Partial<Record<ElementTypeValue | string, LucideIcon>> = {
-  Mission: Monitor,
-  OperationalEntity: Users,
-  OperationalActor: User,
-  System: Monitor,
-  SystemActor: User,
-  LogicalActor: User,
-  PhysicalActor: User,
-  PhysicalNode: HardDrive,
-  PhysicalComponent: HardDrive,
-  // Class diagram types
-  CLASS: Box,
-  INTERFACE: Link,
-  ENUM: Boxes,
-  DATA_TYPE: Boxes,
-  PRIMITIVE: Boxes,
-  COLLECTION: Boxes,
-  UNION: Boxes,
-  PACKAGE: Folder,
-  GROUP: Folder,
-};
-
-function getElemIcon(type: ElementTypeValue | string): LucideIcon {
-  return ELEMENT_ICONS[type] ?? Monitor;
-}
 
 // ─── Element tree builder ───────────────────────────────────────────────────
 
@@ -330,7 +305,7 @@ function ElementTreeItem({
   const hasChildren = node.children.length > 0;
   const selectedElementId = useWorkbenchStore((s) => s.selectedElementId);
 
-  const ElementIcon = getElemIcon(node.type);
+  const ElementIcon = getElementTypeIcon(node.type);
   const visual = getElementVisual(node.type);
   const isSelected = selectedElementId === node.id;
 
@@ -401,27 +376,25 @@ function ElementTreeItem({
                 Add to Diagram
               </ContextMenuSubTrigger>
               <ContextMenuSubContent>
-                {handlers.diagrams?.map((diagram) => {
-                  const palette = getDiagramPalette(diagram.type);
-                  const isAllowed = palette.elementTypes.includes(node.type);
-                  return (
+                {getDiagramPlacements(handlers.diagrams ?? [], node.type).map(
+                  ({ diagram, allowed }) => (
                     <ContextMenuItem
                       key={diagram.id}
-                      disabled={!isAllowed}
+                      disabled={!allowed}
                       onSelect={() =>
                         handlers.onAddElementToDiagram(node, diagram)
                       }
                     >
                       <LayoutDashboard className="size-3.5" />
                       <span className="flex-1">{diagram.name}</span>
-                      {!isAllowed && (
+                      {!allowed && (
                         <span className="text-[9px] text-muted-foreground">
                           {diagram.type}
                         </span>
                       )}
                     </ContextMenuItem>
-                  );
-                })}
+                  ),
+                )}
                 {(!handlers.diagrams || handlers.diagrams.length === 0) && (
                   <ContextMenuItem disabled>
                     <span className="text-muted-foreground">
@@ -589,8 +562,10 @@ function ModelNode({
   const allRoots = [...archTree, ...classTree];
   const folders = categorizeRoots(allRoots);
   const elementTypes = getElementTypesForLayer(model.layer);
-  const nextLayer = getNextLayer(model.layer);
-  const nextLayerLabel = nextLayer ? getLayerInfo(nextLayer).label : null;
+  const newElementActions = getNewElementActions(model.layer);
+  const nextLayer = getNextOfferedLayer(model.layer);
+  const nextLayerLabel = getNextOfferedLayerLabel(model.layer);
+  const projectId = useWorkbenchStore((s) => s.projectId);
 
   // RBAC: creating/editing in this layer needs `edit<layer>`.
   const canEdit = isLayerEditable(
@@ -647,25 +622,27 @@ function ModelNode({
                 New Element
               </ContextMenuSubTrigger>
               <ContextMenuSubContent>
-                {elementTypes.map((et) => (
-                  <ContextMenuItem
-                    key={et.value}
-                    onSelect={() => handlers.onNewElement(model, et.value)}
-                  >
-                    <span
-                      className="size-2.5 shrink-0 rounded-sm border"
-                      style={{
-                        borderColor: getElementVisual(et.value).strokeColor,
-                        backgroundColor: getElementVisual(et.value).fillColor,
-                      }}
-                    />
-                    {et.label}
-                  </ContextMenuItem>
-                ))}
+                {newElementActions.map((action) => {
+                  const Icon = action.icon;
+                  return (
+                    <ContextMenuItem
+                      key={action.value}
+                      onSelect={() => handlers.onNewElement(model, action.value)}
+                    >
+                      <Icon
+                        className="size-3.5 shrink-0"
+                        style={{ color: action.strokeColor }}
+                      />
+                      {action.label}
+                    </ContextMenuItem>
+                  );
+                })}
                 {CLASS_ELEMENT_TYPES.map((ct) => (
                   <ContextMenuItem
                     key={ct.value}
-                    onSelect={() => handlers.onNewClassElement(model, ct.value)}
+                    onSelect={() =>
+                      handlers.onNewClassElement(model, ct.value)
+                    }
                   >
                     <span
                       className="size-2.5 shrink-0 rounded-sm border"
@@ -687,6 +664,14 @@ function ModelNode({
                   Transition to {nextLayerLabel}…
                 </ContextMenuItem>
               </>
+            )}
+            {projectId && (
+              <ContextMenuItem asChild>
+                <Link href={`/dashboard/project/${projectId}/traces`}>
+                  <GitMerge className="size-3.5" />
+                  Traceability Matrix
+                </Link>
+              </ContextMenuItem>
             )}
           </ContextMenuContent>
         </ContextMenu>
@@ -797,13 +782,6 @@ function ModelNode({
   );
 }
 
-function getNextLayer(layer: LayerValue): LayerValue | null {
-  const order: LayerValue[] = ["OA", "SA", "LA", "PA"];
-  const idx = order.indexOf(layer);
-  if (idx < 0) return null;
-  return order[idx + 1] ?? null;
-}
-
 // ─── Tree root ──────────────────────────────────────────────────────────────
 
 export function ExplorerTree({
@@ -819,7 +797,7 @@ export function ExplorerTree({
   );
 
   // RBAC: the empty-state CTAs create models — only editable layers shown.
-  const creatableLayers = LAYERS.filter((layer) =>
+  const creatableLayers = OFFERED_LAYERS.filter((layer) =>
     editableLayers.includes(layer.value),
   );
 

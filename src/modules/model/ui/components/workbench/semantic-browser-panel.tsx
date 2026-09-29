@@ -87,10 +87,11 @@ export function SemanticBrowserPanel() {
                   )}
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-xs font-medium">
-                      {rel.otherElementName}
+                      {rel.displayLabel}
                     </p>
                     <p className="text-[10px] text-muted-foreground">
                       {getRelationshipTypeInfo(rel.relationshipType).label}
+                      {rel.direction === "incoming" ? " · incoming" : ""}
                     </p>
                   </div>
                 </button>
@@ -112,7 +113,7 @@ export function SemanticBrowserPanel() {
                   <GitMerge className="size-3 shrink-0 text-primary" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-xs font-medium">
-                      {trace.otherElementName ?? "Linked element"}
+                      {trace.displayLabel}
                     </p>
                     <p className="text-[10px] text-muted-foreground">
                       {getTraceLinkTypeInfo(trace.traceType).label} ·{" "}

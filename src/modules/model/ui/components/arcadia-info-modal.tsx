@@ -3,16 +3,21 @@
 import {
   ArrowRight,
   BookOpen,
+  Boxes,
   ChevronDown,
   ChevronRight,
+  GitBranchPlus,
+  GitMerge,
   Layers,
   Lightbulb,
   Puzzle,
   Search,
   Shapes,
+  ShieldCheck,
   Target,
   X,
 } from "lucide-react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Badge } from "@/modules/shared/ui/components/ui/badge";
@@ -36,17 +41,18 @@ import {
 import { cn } from "@/modules/shared/ui/libs/cn";
 import { DIAGRAMS_BY_LAYER } from "../constants/diagram";
 import { ELEMENT_VISUAL, ELEMENTS_BY_LAYER } from "../constants/element";
-import { LAYER_COLORS, LAYERS } from "../constants/layer";
+import { LAYER_COLORS, OFFERED_LAYERS } from "../constants/layer";
+import { getElementTypeInfo } from "../helpers/element";
 import type { LayerValue } from "../types/layer";
 
-export function ArcadiaInfoModal() {
+export function ArcadiaInfoModal({ projectId }: { projectId: string | null }) {
   const t = useTranslations("arcadiaGuide");
 
   const [open, setOpen] = useState(false);
   const [selectedLayer, setSelectedLayer] = useState<LayerValue | "ALL">("ALL");
-  const [activeTab, setActiveTab] = useState<"diagrams" | "elements">(
-    "diagrams",
-  );
+  const [activeTab, setActiveTab] = useState<
+    "diagrams" | "elements" | "features"
+  >("diagrams");
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
@@ -71,59 +77,67 @@ export function ArcadiaInfoModal() {
           <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
 
-        {/* Layer Filter */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <Button
-            variant={selectedLayer === "ALL" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setSelectedLayer("ALL")}
-            className="h-7 text-xs"
-          >
-            {t("allLayers")}
-          </Button>
-          {LAYERS.map((layer) => {
-            const colors = LAYER_COLORS[layer.value];
-            return (
+        {activeTab !== "features" && (
+          <>
+            {/* Layer Filter */}
+            <div className="flex items-center gap-2 flex-wrap">
               <Button
-                key={layer.value}
-                variant={selectedLayer === layer.value ? "default" : "outline"}
+                variant={selectedLayer === "ALL" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setSelectedLayer(layer.value)}
-                className={cn(
-                  "h-7 text-xs",
-                  selectedLayer === layer.value &&
-                    `${colors.activeBg} ${colors.text} border ${colors.border}`,
-                )}
+                onClick={() => setSelectedLayer("ALL")}
+                className="h-7 text-xs"
               >
-                {layer.value}
+                {t("allLayers")}
               </Button>
-            );
-          })}
-        </div>
+              {OFFERED_LAYERS.map((layer) => {
+                const colors = LAYER_COLORS[layer.value];
+                return (
+                  <Button
+                    key={layer.value}
+                    variant={
+                      selectedLayer === layer.value ? "default" : "outline"
+                    }
+                    size="sm"
+                    onClick={() => setSelectedLayer(layer.value)}
+                    className={cn(
+                      "h-7 text-xs",
+                      selectedLayer === layer.value &&
+                        `${colors.activeBg} ${colors.text} border ${colors.border}`,
+                    )}
+                  >
+                    {layer.value}
+                  </Button>
+                );
+              })}
+            </div>
 
-        {/* Search Bar */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={t("searchPlaceholder")}
-            className="h-9 pl-9 pr-9 text-sm"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t("searchPlaceholder")}
+                className="h-9 pl-9 pr-9 text-sm"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          </>
+        )}
 
         <Tabs
           value={activeTab}
-          onValueChange={(v) => setActiveTab(v as "diagrams" | "elements")}
+          onValueChange={(v) =>
+            setActiveTab(v as "diagrams" | "elements" | "features")
+          }
         >
           <TabsList className="h-auto p-1 bg-muted/50">
             <TabsTrigger
@@ -144,6 +158,15 @@ export function ArcadiaInfoModal() {
               <Shapes className="h-4 w-4" />
               {t("elements")}
             </TabsTrigger>
+            <TabsTrigger
+              value="features"
+              className={cn(
+                "flex-1 gap-2 h-9 text-sm font-medium transition-all cursor-pointer data-[state=active]:text-white",
+              )}
+            >
+              <Lightbulb className="h-4 w-4" />
+              {t("features")}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="diagrams" className="mt-2 flex-1 w-full">
@@ -163,9 +186,81 @@ export function ArcadiaInfoModal() {
               />
             </ScrollArea>
           </TabsContent>
+
+          <TabsContent value="features" className="mt-2 flex-1 w-full">
+            <ScrollArea className="h-[50vh]">
+              <FeatureList projectId={projectId} />
+            </ScrollArea>
+          </TabsContent>
         </Tabs>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// ─── Feature List ─────────────────────────────────────────────────────────────
+
+const FEATURES: Array<{
+  key: "traceability" | "validation" | "transition" | "counts";
+  icon: typeof GitMerge;
+}> = [
+  { key: "traceability", icon: GitMerge },
+  { key: "validation", icon: ShieldCheck },
+  { key: "transition", icon: GitBranchPlus },
+  { key: "counts", icon: Boxes },
+];
+
+function FeatureList({ projectId }: { projectId: string | null }) {
+  const t = useTranslations("arcadiaGuide");
+
+  return (
+    <div className="grid gap-3 pr-4">
+      {FEATURES.map(({ key, icon: Icon }) => {
+        const href =
+          key === "traceability" && projectId
+            ? `/dashboard/project/${projectId}/traces`
+            : null;
+
+        return (
+          <div
+            key={key}
+            className="rounded-lg border border-border bg-card p-3"
+          >
+            <div className="flex items-center gap-2">
+              <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary/10">
+                <Icon className="size-3.5 text-primary" />
+              </span>
+              <p className="text-sm font-medium">
+                {t(`featureList.${key}.label` as never)}
+              </p>
+            </div>
+
+            <p className="mt-2 text-xs text-muted-foreground">
+              {t(`featureList.${key}.desc` as never)}
+            </p>
+
+            <div className="mt-2 flex items-center justify-between gap-3">
+              <p className="text-[10px] text-muted-foreground/80">
+                {t(`featureList.${key}.hint` as never)}
+              </p>
+              {href && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 shrink-0 text-xs"
+                  asChild
+                >
+                  <Link href={href}>
+                    {t("openMatrix" as never)}
+                    <ArrowRight className="size-3" />
+                  </Link>
+                </Button>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
@@ -181,8 +276,8 @@ function DiagramList({
   const t = useTranslations("arcadiaGuide");
   const layers =
     selectedLayer === "ALL"
-      ? LAYERS
-      : LAYERS.filter((l) => l.value === selectedLayer);
+      ? OFFERED_LAYERS
+      : OFFERED_LAYERS.filter((l) => l.value === selectedLayer);
 
   const query = searchQuery.toLowerCase().trim();
 
@@ -264,7 +359,7 @@ function DiagramList({
 function DiagramCard({ diagramValue }: { diagramValue: string }) {
   const [expanded, setExpanded] = useState(false);
   const t = useTranslations("arcadiaGuide");
-  const layer = LAYERS.find((l) =>
+  const layer = OFFERED_LAYERS.find((l) =>
     DIAGRAMS_BY_LAYER[l.value].includes(diagramValue as never),
   );
   const colors = layer ? LAYER_COLORS[layer.value] : LAYER_COLORS.OA;
@@ -352,8 +447,8 @@ function ElementList({
   const t = useTranslations("arcadiaGuide");
   const layers =
     selectedLayer === "ALL"
-      ? LAYERS
-      : LAYERS.filter((l) => l.value === selectedLayer);
+      ? OFFERED_LAYERS
+      : OFFERED_LAYERS.filter((l) => l.value === selectedLayer);
 
   const query = searchQuery.toLowerCase().trim();
 
@@ -437,13 +532,7 @@ function ElementCard({ elementValue }: { elementValue: string }) {
   const t = useTranslations("arcadiaGuide");
   const visual = ELEMENT_VISUAL[elementValue as keyof typeof ELEMENT_VISUAL];
 
-  const layerBadge = elementValue.includes("Operational")
-    ? "OA"
-    : elementValue.includes("System") || elementValue === "FunctionPort"
-      ? "SA"
-      : elementValue.includes("Logical")
-        ? "LA"
-        : "PA";
+  const layerBadge = getElementTypeInfo(elementValue).layer;
 
   return (
     <div

@@ -1,3 +1,4 @@
+import { ElementType } from "../../domain/value-objects/element-type";
 import type {
   ElementTypeInfo,
   ElementTypeValue,
@@ -5,116 +6,19 @@ import type {
 } from "../types/element";
 import type { LayerValue } from "../types/layer";
 
-export const ELEMENT_TYPES: ElementTypeInfo[] = [
-  // ─── OA ───────────────────────────────────────────────────────────────────
-  { value: "Mission", label: "Mission", labelFa: "مأموریت", layer: "OA" }, // ← NEW
-  {
-    value: "OperationalEntity",
-    label: "Operational Entity",
-    labelFa: "موجودیت عملیاتی",
-    layer: "OA",
-  },
-  {
-    value: "OperationalActor",
-    label: "Operational Actor",
-    labelFa: "بازیگر عملیاتی",
-    layer: "OA",
-  },
-  {
-    value: "OperationalActivity",
-    label: "Operational Activity",
-    labelFa: "فعالیت عملیاتی",
-    layer: "OA",
-  },
-  {
-    value: "OperationalCapability",
-    label: "Operational Capability",
-    labelFa: "قابلیت عملیاتی",
-    layer: "OA",
-  },
-  {
-    value: "OperationalProcess",
-    label: "Operational Process",
-    labelFa: "فرایند عملیاتی",
-    layer: "OA",
-  },
-  // ─── SA ───────────────────────────────────────────────────────────────────
-  { value: "System", label: "System", labelFa: "سیستم", layer: "SA" },
-  {
-    value: "SystemActor",
-    label: "System Actor",
-    labelFa: "بازیگر سیستم",
-    layer: "SA",
-  },
-  {
-    value: "SystemFunction",
-    label: "System Function",
-    labelFa: "تابع سیستم",
-    layer: "SA",
-  },
-  {
-    value: "SystemCapability",
-    label: "System Capability",
-    labelFa: "قابلیت سیستم",
-    layer: "SA",
-  },
-  {
-    value: "SystemComponent",
-    label: "System Component",
-    labelFa: "مؤلفه سیستم",
-    layer: "SA",
-  },
-  {
-    value: "FunctionPort",
-    label: "Function Port",
-    labelFa: "پورت تابع",
-    layer: "SA",
-  }, // ← NEW
-  // ─── LA ───────────────────────────────────────────────────────────────────
-  {
-    value: "LogicalComponent",
-    label: "Logical Component",
-    labelFa: "مؤلفه منطقی",
-    layer: "LA",
-  },
-  {
-    value: "LogicalActor",
-    label: "Logical Actor",
-    labelFa: "بازیگر منطقی",
-    layer: "LA",
-  },
-  {
-    value: "LogicalFunction",
-    label: "Logical Function",
-    labelFa: "تابع منطقی",
-    layer: "LA",
-  },
-  // ─── PA ───────────────────────────────────────────────────────────────────
-  {
-    value: "PhysicalComponent",
-    label: "Physical Component",
-    labelFa: "مؤلفه فیزیکی",
-    layer: "PA",
-  },
-  {
-    value: "PhysicalNode",
-    label: "Physical Node",
-    labelFa: "گره فیزیکی",
-    layer: "PA",
-  },
-  {
-    value: "PhysicalFunction",
-    label: "Physical Function",
-    labelFa: "تابع فیزیکی",
-    layer: "PA",
-  },
-  {
-    value: "PhysicalActor",
-    label: "Physical Actor",
-    labelFa: "بازیگر فیزیکی",
-    layer: "PA",
-  },
-];
+/**
+ * Element type metadata derived from the domain `ElementType` value object.
+ * EPBS types are excluded — the layer is legacy-only and never offered.
+ */
+export const ELEMENT_TYPES: ElementTypeInfo[] = ElementType.all()
+  .filter((type) => type.layer.value !== "EPBS")
+  .map((type) => ({
+    value: type.value,
+    label: type.label,
+    labelFa: type.labelFa,
+    layer: type.layer.value,
+    category: type.category,
+  }));
 
 export const ELEMENT_VISUAL: Record<ElementTypeValue, ElementVisualSpec> = {
   // ─── OA ───────────────────────────────────────────────────────────────────
@@ -264,30 +168,12 @@ export const ELEMENT_VISUAL: Record<ElementTypeValue, ElementVisualSpec> = {
   },
 };
 
-export const ELEMENTS_BY_LAYER: Record<LayerValue, ElementTypeValue[]> = {
-  OA: [
-    "Mission",
-    "OperationalEntity",
-    "OperationalActor",
-    "OperationalActivity",
-    "OperationalCapability",
-    "OperationalProcess",
-  ],
-  SA: [
-    "System",
-    "SystemActor",
-    "SystemFunction",
-    "SystemCapability",
-    "SystemComponent",
-    "FunctionPort",
-  ],
-  LA: ["LogicalComponent", "LogicalActor", "LogicalFunction"],
-  PA: [
-    "PhysicalComponent",
-    "PhysicalNode",
-    "PhysicalFunction",
-    "PhysicalActor",
-  ],
-  // Legacy layer — no element types offered in the UI.
-  EPBS: [],
-};
+export const ELEMENTS_BY_LAYER: Record<LayerValue, ElementTypeValue[]> =
+  Object.fromEntries(
+    (["OA", "SA", "LA", "PA", "EPBS"] as LayerValue[]).map((layer) => [
+      layer,
+      layer === "EPBS"
+        ? []
+        : ELEMENT_TYPES.filter((t) => t.layer === layer).map((t) => t.value),
+    ]),
+  ) as Record<LayerValue, ElementTypeValue[]>;

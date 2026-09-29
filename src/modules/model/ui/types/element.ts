@@ -1,3 +1,4 @@
+import type { ElementTypeCategory } from "../../domain/value-objects/element-type";
 import type { LayerValue } from "./layer";
 
 export type ElementStatus = "DRAFT" | "VALIDATED" | "DEPRECATED";
@@ -27,11 +28,14 @@ export type ElementTypeValue =
   | "ConfigurationItemPart"
   | "ConfigurationItemInterface";
 
+export type { ElementTypeCategory };
+
 export type ElementTypeInfo = {
   value: ElementTypeValue;
   label: string;
   labelFa: string;
   layer: LayerValue;
+  category: ElementTypeCategory;
 };
 
 export type Element = {

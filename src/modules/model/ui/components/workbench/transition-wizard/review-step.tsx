@@ -1,6 +1,6 @@
 "use client";
 
-import { Boxes, GitMerge, Layers } from "lucide-react";
+import { Boxes, GitMerge, Layers, SquareDashedBottomCode } from "lucide-react";
 import { Input } from "@/modules/shared/ui/components/ui/input";
 import { Label } from "@/modules/shared/ui/components/ui/label";
 import { ScrollArea } from "@/modules/shared/ui/components/ui/scroll-area";
@@ -16,6 +16,7 @@ export function ReviewStep({
   includedCount,
   components,
   functions,
+  sourceDiagramCount,
   rows,
 }: {
   targetLayer: LayerValue;
@@ -24,6 +25,7 @@ export function ReviewStep({
   includedCount: number;
   components: Element[];
   functions: Element[];
+  sourceDiagramCount: number;
   rows: Record<string, RowState>;
 }) {
   return (
@@ -40,15 +42,21 @@ export function ReviewStep({
         />
         <p className="text-[10px] text-muted-foreground">
           An existing {targetLayer} model will be reused if one already exists.
+          Compatible diagrams and relationships are carried over automatically.
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <StatCard label="Elements" value={includedCount} icon={Boxes} />
         <StatCard
           label="Realization links"
           value={includedCount}
           icon={GitMerge}
+        />
+        <StatCard
+          label="Diagrams"
+          value={sourceDiagramCount}
+          icon={SquareDashedBottomCode}
         />
         <StatCard label="Target layer" value={targetLayer} icon={Layers} />
       </div>
@@ -58,7 +66,7 @@ export function ReviewStep({
           Nothing selected — go back and pick at least one element.
         </p>
       ) : (
-        <ScrollArea className="max-h-56">
+        <ScrollArea className="h-56">
           <div className="flex flex-col gap-3 pr-2">
             <PreviewGroup
               title="Actors & Components"

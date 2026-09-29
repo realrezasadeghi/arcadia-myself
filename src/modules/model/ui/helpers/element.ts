@@ -1,3 +1,4 @@
+import { ElementType } from "../../domain/value-objects/element-type";
 import { ELEMENT_TYPES, ELEMENT_VISUAL } from "../constants/element";
 import type {
   ElementTypeInfo,
@@ -9,14 +10,17 @@ import type { LayerValue } from "../types/layer";
 export function getElementTypeInfo(
   value: ElementTypeValue | string,
 ): ElementTypeInfo {
-  return (
-    ELEMENT_TYPES.find((e) => e.value === value) ?? {
-      value: value as ElementTypeValue,
-      label: value,
-      labelFa: value,
-      layer: "OA",
-    }
-  );
+  const found = ELEMENT_TYPES.find((e) => e.value === value);
+  if (found) return found;
+
+  const domain = ElementType.tryFrom(value);
+  return {
+    value: value as ElementTypeValue,
+    label: domain?.label ?? value,
+    labelFa: domain?.labelFa ?? value,
+    layer: domain?.layer.value ?? "OA",
+    category: domain?.category ?? "architecture",
+  };
 }
 
 export function getElementTypesForLayer(
@@ -46,13 +50,13 @@ export type CanvasNodeType =
 
 /**
  * نوع node سفارشی React Flow را بر اساس دسته‌ی المنت Arcadia برمی‌گرداند.
- * بازیگر/موجودیت → actor، تابع/فعالیت → function، مؤلفه → component،
+ * actor/entity → actor، function → function، component → component،
  * بقیه (Mission, Capability, Node, Port, System, Process) → fallback عمومی.
  */
 export function getNodeTypeForElement(type: ElementTypeValue): CanvasNodeType {
-  if (type.endsWith("Actor") || type.endsWith("Entity")) return "actor-node";
-  if (type.endsWith("Function") || type.endsWith("Activity"))
-    return "function-node";
-  if (type.endsWith("Component")) return "component-node";
+  const category = getElementTypeInfo(type).category;
+  if (category === "actor" || category === "entity") return "actor-node";
+  if (category === "function") return "function-node";
+  if (category === "component") return "component-node";
   return "architecture-node";
 }

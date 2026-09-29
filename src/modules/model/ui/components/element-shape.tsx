@@ -8,6 +8,7 @@ import type { ElementTypeValue } from "../types/element";
 interface ElementShapeProps {
   label: string;
   type: ElementTypeValue;
+  /** Number of elements of this type in the active model/layer. */
   count?: number;
   onDragStart?(type: ElementTypeValue): void;
 }

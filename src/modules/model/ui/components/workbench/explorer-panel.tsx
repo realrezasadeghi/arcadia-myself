@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, FolderTree, Plus } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import { DiagramFormDialog } from "@/modules/project/ui/components/diagram-form-dialog";
 import {
@@ -14,8 +14,9 @@ import {
 } from "@/modules/shared/ui/components/ui/dropdown-menu";
 import { ScrollArea } from "@/modules/shared/ui/components/ui/scroll-area";
 import { useConfirm } from "@/modules/shared/ui/hooks/use-confirm";
-import { LAYERS } from "../../constants/layer";
-import { getDiagramPalette, resolveDiagramLayer } from "../../helpers/diagram";
+import { getElementPlacementError } from "../../actions/element-actions";
+import { OFFERED_LAYERS } from "../../constants/layer";
+import { resolveDiagramLayer } from "../../helpers/diagram";
 import { getLayerInfo } from "../../helpers/layer";
 import { useExplorerActions } from "../../hooks/use-explorer-actions";
 import { useCanvasStore } from "../../stores/canvas";
@@ -27,19 +28,20 @@ import {
   type ExplorerHandlers,
   ExplorerTree,
 } from "./explorer-tree";
-import { TransitionWizard } from "./transition-wizard";
 import type { WorkbenchModelData } from "./workbench";
 
 type ExplorerPanelProps = {
   projectId: string;
   modelData: WorkbenchModelData[];
   onTreeChanged: () => void;
+  onTransition: (model: Model) => void;
 };
 
 export function ExplorerPanel({
   projectId,
   modelData,
   onTreeChanged,
+  onTransition,
 }: ExplorerPanelProps) {
   const confirm = useConfirm();
 
@@ -54,7 +56,7 @@ export function ExplorerPanel({
   /** RBAC: layers the user may actually create a model in. */
   const editableLayers = useMemo(
     () =>
-      LAYERS.filter((layer) =>
+      OFFERED_LAYERS.filter((layer) =>
         isLayerEditable(projectPermissions, permissionsResolved, layer.value),
       ),
     [projectPermissions, permissionsResolved],
@@ -64,8 +66,6 @@ export function ExplorerPanel({
   const canvasNodes = useCanvasStore((s) => s.nodes);
 
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  const [transitionModel, setTransitionModel] = useState<Model | null>(null);
 
   const {
     isCreateDiagramPending,
@@ -165,12 +165,13 @@ export function ExplorerPanel({
 
   const handleAddElementToDiagram = useCallback(
     (element: ElementTreeNode, diagram: Diagram) => {
-      const palette = getDiagramPalette(diagram.type);
-      if (!palette.elementTypes.includes(element.type)) {
-        toast.error(
-          `Cannot add "${element.name}" to ${diagram.type} diagram. ` +
-            `This diagram type only supports: ${palette.elementTypes.join(", ")}`,
-        );
+      const placementError = getElementPlacementError(
+        element.name,
+        element.type,
+        diagram.type,
+      );
+      if (placementError) {
+        toast.error(placementError);
         return;
       }
       onAddElementToDiagram(element, diagram);
@@ -202,7 +203,7 @@ export function ExplorerPanel({
       onNewDiagram: setDiagramDialogModel,
       onEditDiagram: (model: Model, diagram: Diagram) =>
         setEditDiagram({ model, diagram }),
-      onTransition: setTransitionModel,
+      onTransition,
       onAddElementToDiagram: handleAddElementToDiagram,
       diagrams: modelData.flatMap((m) => m.diagrams),
     }),
@@ -216,6 +217,7 @@ export function ExplorerPanel({
       setDiagramDialogModel,
       setEditDiagram,
       handleAddElementToDiagram,
+      onTransition,
       modelData,
     ],
   );
@@ -308,23 +310,6 @@ export function ExplorerPanel({
           layer={{
             value: editDiagram.model.layer,
             label: getLayerInfo(editDiagram.model.layer).label,
-          }}
-        />
-      )}
-
-      {transitionModel && (
-        <TransitionWizard
-          open={!!transitionModel}
-          onOpenChange={(open) => !open && setTransitionModel(null)}
-          projectId={projectId}
-          sourceModel={transitionModel}
-          sourceElements={
-            modelData.find((m) => m.model.id === transitionModel.id)
-              ?.elements ?? []
-          }
-          onCompleted={() => {
-            setTransitionModel(null);
-            onTreeChanged();
           }}
         />
       )}

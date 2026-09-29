@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useTransitionLayer } from "../../../clients/transition-layer";
-import { getLayerInfo } from "../../../helpers/layer";
+import { getLayerInfo, getNextOfferedLayer } from "../../../helpers/layer";
 import type { Element, ElementTypeValue } from "../../../types/element";
 import type { LayerValue } from "../../../types/layer";
 import type { Model } from "../../../types/model";
@@ -33,14 +33,6 @@ const TARGET_TYPE_MAP: Record<
   EPBS: {},
 };
 
-const NEXT_LAYER: Record<LayerValue, LayerValue | null> = {
-  OA: "SA",
-  SA: "LA",
-  LA: "PA",
-  PA: null,
-  EPBS: null,
-};
-
 export type RowState = {
   include: boolean;
   targetName: string;
@@ -64,7 +56,7 @@ export function useTransitionWizard({
 }: UseTransitionWizardParams) {
   const transition = useTransitionLayer();
   const sourceLayer = sourceModel.layer;
-  const targetLayer = NEXT_LAYER[sourceLayer];
+  const targetLayer = getNextOfferedLayer(sourceLayer);
   const typeMap = TARGET_TYPE_MAP[sourceLayer];
 
   const transitionable = useMemo(
@@ -139,10 +131,25 @@ export function useTransitionWizard({
       {
         onSuccess: ({ data }) => {
           const info = getLayerInfo(targetLayer!);
+          const carried: string[] = [];
+          if (data.createdDiagrams > 0) {
+            carried.push(
+              `${data.createdDiagrams} ${data.createdDiagrams === 1 ? "diagram" : "diagrams"}`,
+            );
+          }
+          if (data.createdRelationships > 0) {
+            carried.push(
+              `${data.createdRelationships} ${data.createdRelationships === 1 ? "relationship" : "relationships"}`,
+            );
+          }
+
           toast.success(
             `Transitioned to ${info.label}: ${data.createdElements} elements created with realization links.`,
             {
-              description: `Create a ${targetLayer} diagram in the Explorer tree to visualize these elements.`,
+              description:
+                carried.length > 0
+                  ? `Carried over ${carried.join(" and ")}.`
+                  : `Create a ${targetLayer} diagram in the Explorer tree to visualize these elements.`,
               duration: 5000,
             },
           );

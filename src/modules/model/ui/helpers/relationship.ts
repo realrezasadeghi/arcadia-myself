@@ -1,3 +1,4 @@
+import { getRelationshipDefinition } from "../../domain/relationships/definitions";
 import {
   RELATIONSHIP_TYPES,
   RELATIONSHIP_VISUAL,
@@ -8,17 +9,37 @@ import type {
   RelationshipVisualSpec,
 } from "../types/relationship";
 
+/**
+ * Last-resort label for a relationship value the registries don't know about:
+ * `ASSOCIATION` → "Association", `ComponentAssembly` → "Component Assembly".
+ */
+export function humanizeRelationshipTypeName(value: string): string {
+  const words = value
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .split(/[\s_-]+/)
+    .filter(Boolean);
+
+  if (words.length === 0) return value;
+
+  return words
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}
+
 export function getRelationshipTypeInfo(
   value: RelationshipTypeValue | string,
 ): RelationshipTypeInfo {
-  return (
-    RELATIONSHIP_TYPES.find((r) => r.value === value) ?? {
-      label: value,
-      labelFa: value,
-      allowedFor: [],
-      value: value as RelationshipTypeValue,
-    }
-  );
+  const known = RELATIONSHIP_TYPES.find((r) => r.value === value);
+  if (known) return known;
+
+  const definition = getRelationshipDefinition(value);
+
+  return {
+    label: definition?.label ?? humanizeRelationshipTypeName(value),
+    labelFa: definition?.labelFa ?? humanizeRelationshipTypeName(value),
+    allowedFor: [],
+    value: value as RelationshipTypeValue,
+  };
 }
 
 export function getEdgeVisual(

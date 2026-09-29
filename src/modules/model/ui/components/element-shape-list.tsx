@@ -20,6 +20,7 @@ export type ElementShapeListProps = {
   layer: LayerValue;
   /** اگر داده شود، فقط همین نوع‌ها نمایش داده می‌شوند (پالت مخصوص نوع دیاگرام). */
   types?: (ElementTypeValue | string)[];
+  /** تعداد المنت‌های هر نوع در مدل/لایه فعال. */
   counts?: ElementTypeCounts;
 };
 

@@ -1,3 +1,4 @@
+import { getTransitionedDiagramType } from "../../domain/diagram-transition";
 import { DIAGRAM_TYPES, DIAGRAMS_BY_LAYER } from "../constants/diagram";
 import type { DiagramTypeInfo, DiagramTypeValue } from "../types/diagram";
 import type { ElementTypeValue } from "../types/element";
@@ -29,6 +30,17 @@ export function getDiagramLayer(typeValue: string): LayerValue {
  * Resolves the effective layer for a diagram tab.
  * For transverse types (CDB), uses the model's layer; otherwise derives from type.
  */
+/**
+ * Number of architecture diagrams that have a counterpart type in the next
+ * layer, i.e. the ones a transition will recreate on the other side.
+ */
+export function countTransitionableDiagrams(
+  diagrams: ReadonlyArray<{ type: string }>,
+): number {
+  return diagrams.filter((d) => getTransitionedDiagramType(d.type) !== null)
+    .length;
+}
+
 export function resolveDiagramLayer(
   typeValue: string,
   modelLayer?: LayerValue,
@@ -52,7 +64,7 @@ const DIAGRAM_PALETTE: Record<DiagramTypeValue, DiagramPalette> = {
   // ─── OA ───
   OEB: {
     elementTypes: ["OperationalEntity", "OperationalActor"],
-    relationshipTypes: ["Composition"],
+    relationshipTypes: ["Composition", "Generalization"],
   },
   OAB: {
     elementTypes: ["OperationalActivity"],
@@ -90,6 +102,7 @@ const DIAGRAM_PALETTE: Record<DiagramTypeValue, DiagramPalette> = {
       "OperationalExchange",
       "InvolvementLink",
       "Composition",
+      "Generalization",
     ],
   },
   // ─── SA ───
@@ -104,7 +117,13 @@ const DIAGRAM_PALETTE: Record<DiagramTypeValue, DiagramPalette> = {
       "SystemComponent",
       "SystemFunction",
     ],
-    relationshipTypes: ["SystemExchange", "FunctionalExchange"],
+    relationshipTypes: [
+      "SystemExchange",
+      "FunctionalExchange",
+      "Allocation",
+      "Composition",
+      "Generalization",
+    ],
   },
   SDFB: {
     elementTypes: ["SystemFunction", "FunctionPort"],
@@ -112,7 +131,7 @@ const DIAGRAM_PALETTE: Record<DiagramTypeValue, DiagramPalette> = {
   },
   SCD: {
     elementTypes: ["SystemCapability", "SystemActor", "SystemFunction"],
-    relationshipTypes: ["InvolvementLink"],
+    relationshipTypes: [],
   },
   SFB: {
     elementTypes: ["SystemFunction"],
@@ -125,15 +144,15 @@ const DIAGRAM_PALETTE: Record<DiagramTypeValue, DiagramPalette> = {
   // ─── LA ───
   LAB: {
     elementTypes: ["LogicalComponent", "LogicalActor", "LogicalFunction"],
-    relationshipTypes: ["ComponentExchange", "FunctionalExchange"],
+    relationshipTypes: ["ComponentExchange", "Allocation", "Generalization"],
   },
   LDFB: {
     elementTypes: ["LogicalFunction"],
-    relationshipTypes: ["LogicalExchange", "FunctionalExchange"],
+    relationshipTypes: ["LogicalExchange"],
   },
   LCB: {
     elementTypes: ["LogicalComponent"],
-    relationshipTypes: ["Composition"],
+    relationshipTypes: ["Composition", "Generalization"],
   },
   LFB: {
     elementTypes: ["LogicalFunction"],
@@ -151,7 +170,12 @@ const DIAGRAM_PALETTE: Record<DiagramTypeValue, DiagramPalette> = {
       "PhysicalActor",
       "PhysicalFunction",
     ],
-    relationshipTypes: ["PhysicalExchange", "PhysicalLink"],
+    relationshipTypes: [
+      "PhysicalExchange",
+      "PhysicalLink",
+      "Allocation",
+      "Generalization",
+    ],
   },
   PDFB: {
     elementTypes: ["PhysicalFunction"],
@@ -159,7 +183,7 @@ const DIAGRAM_PALETTE: Record<DiagramTypeValue, DiagramPalette> = {
   },
   PCB: {
     elementTypes: ["PhysicalComponent", "PhysicalNode"],
-    relationshipTypes: ["Composition", "DeploymentLink"],
+    relationshipTypes: ["Composition", "DeploymentLink", "Generalization"],
   },
   PFB: {
     elementTypes: ["PhysicalFunction"],

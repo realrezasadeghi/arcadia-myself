@@ -415,6 +415,30 @@
         "purpose": "Identify external interactions at the physical level.",
         "example": "External API, Legacy system, Human operator"
       }
+    },
+    "features": "Features",
+    "openMatrix": "Open matrix",
+    "featureList": {
+      "traceability": {
+        "label": "Traceability Matrix",
+        "desc": "Every Realization and Refinement trace between layers, laid out as one grid.",
+        "hint": "Menu bar icon, or right-click a layer in the explorer."
+      },
+      "validation": {
+        "label": "Validation",
+        "desc": "Flags orphan elements, duplicate names, broken traces and incomplete layers.",
+        "hint": "Shield icon in the workbench menu bar."
+      },
+      "transition": {
+        "label": "Layer Transition",
+        "desc": "Carry actors, entities and functions into the next layer and wire up Realization traces.",
+        "hint": "Right-click a layer in the Project Explorer."
+      },
+      "counts": {
+        "label": "Element counts",
+        "desc": "Each palette entry shows how many elements of that type exist in the active layer.",
+        "hint": "Palette on the right of the workbench."
+      }
     }
   },
   "project": {

@@ -33,6 +33,7 @@ type TransitionWizardProps = {
   projectId: string;
   sourceModel: Model;
   sourceElements: Element[];
+  sourceDiagramCount: number;
   onCompleted: () => void;
 };
 
@@ -42,6 +43,7 @@ export function TransitionWizard({
   projectId,
   sourceModel,
   sourceElements,
+  sourceDiagramCount,
   onCompleted,
 }: TransitionWizardProps) {
   const {
@@ -85,7 +87,7 @@ export function TransitionWizard({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl gap-0 overflow-hidden p-0">
+      <DialogContent className="sm:max-w-2xl grid-rows-[auto_minmax(0,1fr)_auto] gap-0 overflow-hidden p-0 max-h-[calc(100dvh-2rem)]">
         <DialogHeader className="space-y-3 border-b bg-muted/30 px-5 py-4">
           <DialogTitle className="flex items-center gap-2 text-base">
             <Layers className="size-4 text-primary" />
@@ -152,7 +154,7 @@ export function TransitionWizard({
           </div>
         </DialogHeader>
 
-        <div className="px-5 py-4">
+        <div className="min-h-0 overflow-y-auto px-5 py-4">
           {step === 0 && (
             <MappingStep
               icon={Users}
@@ -189,6 +191,7 @@ export function TransitionWizard({
               includedCount={includedCount}
               components={components.filter((e) => rows[e.id]?.include)}
               functions={functions.filter((e) => rows[e.id]?.include)}
+              sourceDiagramCount={sourceDiagramCount}
               rows={rows}
             />
           )}

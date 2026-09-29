@@ -13,7 +13,10 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/modules/shared/ui/components/ui/context-menu";
-import { getClassElementTypeInfo } from "../constants/class-diagram";
+import {
+  getClassElementTypeInfo,
+  getClassRelationshipTypeInfo,
+} from "../constants/class-diagram";
 import { useMoveToPackage } from "../hooks/use-move-to-package";
 import { useRemoveElementSync } from "../hooks/use-remove-element";
 import { useRemoveRelationshipSync } from "../hooks/use-remove-relationship";
@@ -74,23 +77,24 @@ function NodeContextMenu({
     removeElement(nodeId);
   }, [nodeId, removeElement]);
 
-  if (!node) return null;
-
-  const data = node.data as ClassNodeData;
-  const currentParentId = (data as any).parentId as string | null;
+  const data = node ? (node.data as ClassNodeData) : undefined;
+  const currentParentId = data?.parentId ?? null;
 
   const handleCopyId = useCallback(() => {
+    if (!data) return;
     navigator.clipboard.writeText(data.elementId);
     toast.success("Element ID copied");
-  }, [data.elementId]);
+  }, [data]);
 
   const handleMoveToPackage = useCallback(
     (packageId: string | null, packageName?: string) => {
+      if (!data) return;
       moveToPackage(data.elementId, data.modelId, packageId, packageName);
     },
-    [data.elementId, data.modelId, moveToPackage],
+    [data, moveToPackage],
   );
 
+  if (!node || !data) return null;
   const typeInfo = getClassElementTypeInfo(data.elementType);
 
   return (
@@ -182,28 +186,32 @@ function EdgeContextMenu({
   const edge = useCanvasStore((s) => s.edges.find((e) => e.id === edgeId));
   const { removeRelationship, isPending } = useRemoveRelationshipSync();
 
-  if (!edge) return null;
-
-  const data = edge.data as import("../stores/canvas").ClassEdgeData;
+  const data = edge
+    ? (edge.data as import("../stores/canvas").ClassEdgeData)
+    : undefined;
 
   const handleCopyId = useCallback(() => {
+    if (!data) return;
     navigator.clipboard.writeText(data.relationshipId);
     toast.success("Relationship ID copied");
-  }, [data.relationshipId]);
+  }, [data]);
 
   const handleDelete = useCallback(() => {
     removeRelationship(edgeId);
   }, [edgeId, removeRelationship]);
 
+  if (!edge || !data) return null;
+
+  const typeLabel = getClassRelationshipTypeInfo(data.relationshipType).label;
+  const edgeName = data.name?.trim();
+
   return (
     <>
       <div className="px-2 py-1.5">
-        <p className="text-xs font-medium truncate">
-          {data.name || "Relationship"}
-        </p>
-        <p className="text-[10px] text-muted-foreground">
-          {data.relationshipType}
-        </p>
+        <p className="text-xs font-medium truncate">{edgeName || typeLabel}</p>
+        {edgeName && (
+          <p className="text-[10px] text-muted-foreground">{typeLabel}</p>
+        )}
       </div>
       <ContextMenuSeparator />
       <ContextMenuItem onClick={handleCopyId}>

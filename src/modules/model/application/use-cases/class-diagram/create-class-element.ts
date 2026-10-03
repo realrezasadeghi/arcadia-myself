@@ -1,5 +1,6 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
+import { findAvailableName } from "../../../domain/policies/uniqueness";
 import { ClassElementType } from "../../../domain/value-objects/class-element-type";
 import { Layer } from "../../../domain/value-objects/layer";
 import type {
@@ -66,7 +67,17 @@ export class CreateClassElementUseCase
         }
       }
 
-      const element = await this.repository.createElement(payload);
+      const siblings = await this.repository.findElementsByModelId({
+        modelId: payload.modelId,
+      });
+
+      const element = await this.repository.createElement({
+        ...payload,
+        name: findAvailableName(
+          payload.name,
+          siblings.map((sibling) => sibling.name),
+        ),
+      });
 
       return element.toJSON();
     } catch (error) {

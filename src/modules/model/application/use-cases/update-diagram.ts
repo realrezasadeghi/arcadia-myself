@@ -1,7 +1,12 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
 import type { ElementLayout, Viewport } from "../../domain/entities/diagram";
+import {
+  duplicateNameMessage,
+  isDuplicateName,
+} from "../../domain/policies/uniqueness";
 import type { IDiagramRepository } from "../ports/diagram";
+import type { DiagramKindNameService } from "../services/diagram-kind-names";
 
 export type UpdateDiagramPayload = {
   payload: {
@@ -36,7 +41,10 @@ export type UpdateDiagramResponse = {
 export class UpdateDiagramUseCase
   implements IUseCase<UpdateDiagramPayload, UpdateDiagramResponse>
 {
-  constructor(private readonly diagramRepository: IDiagramRepository) {}
+  constructor(
+    private readonly diagramRepository: IDiagramRepository,
+    private readonly nameService: DiagramKindNameService,
+  ) {}
 
   async execute({
     payload,
@@ -48,6 +56,14 @@ export class UpdateDiagramUseCase
 
       if (!diagram)
         throw new Error(`Diagram not found with id : ${payload.id}`);
+
+      const siblings = await this.nameService.findSiblings(diagram.modelId);
+
+      if (isDuplicateName(payload.name, siblings, diagram.id)) {
+        throw new Error(
+          duplicateNameMessage("diagram", payload.name, "this model"),
+        );
+      }
 
       diagram.rename(payload.name);
 

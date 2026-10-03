@@ -1,8 +1,11 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
+import { SHORT_NAME_MAX_LENGTH } from "../../domain/policies/naming";
+import { findAvailableName } from "../../domain/policies/uniqueness";
 import { ScenarioType } from "../../domain/value-objects/scenario-type";
 import type { IModelRepository } from "../ports/model";
 import type { IScenarioRepository } from "../ports/scenario";
+import type { DiagramKindNameService } from "../services/diagram-kind-names";
 
 export type CreateScenarioPayload = {
   payload: {
@@ -33,6 +36,7 @@ export class CreateScenarioUseCase
   constructor(
     private readonly scenarioRepository: IScenarioRepository,
     private readonly modelRepository: IModelRepository,
+    private readonly nameService: DiagramKindNameService,
   ) {}
 
   async execute({
@@ -51,10 +55,15 @@ export class CreateScenarioUseCase
         );
       }
 
-      const id = crypto.randomUUID();
+      const siblings = await this.nameService.findSiblings(payload.modelId);
+
       const scenario = await this.scenarioRepository.create({
         modelId: payload.modelId,
-        name: payload.name,
+        name: findAvailableName(
+          payload.name,
+          siblings.map((sibling) => sibling.name),
+          { maxLength: SHORT_NAME_MAX_LENGTH },
+        ),
         description: payload.description,
         scenarioType,
       });

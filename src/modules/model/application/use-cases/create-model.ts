@@ -1,5 +1,7 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
+import { SHORT_NAME_MAX_LENGTH } from "../../domain/policies/naming";
+import { findAvailableName } from "../../domain/policies/uniqueness";
 import { Layer, type LayerValue } from "../../domain/value-objects/layer";
 import type { IModelRepository } from "../ports/model";
 
@@ -53,8 +55,17 @@ export class CreateModelUseCase
       //   );
       // }
 
+      const siblings = await this.modelRepository.findModelsByProjectId(
+        payload.projectId,
+      );
+
       const response = await this.modelRepository.createModel({
         ...payload,
+        name: findAvailableName(
+          payload.name,
+          siblings.map((model) => model.name),
+          { maxLength: SHORT_NAME_MAX_LENGTH },
+        ),
         layer,
       });
 

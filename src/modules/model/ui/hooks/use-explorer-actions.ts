@@ -18,6 +18,7 @@ import { useRemoveElement } from "../clients/remove-element";
 import { useRemoveScenario } from "../clients/remove-scenario";
 import { useUpdateClassDiagram } from "../clients/update-class-diagram";
 import { useUpdateDiagram } from "../clients/update-diagram";
+import { useUpdateScenario } from "../clients/update-scenario";
 import type { WorkbenchModelData } from "../components/workbench/workbench";
 import { getClassElementTypeInfo } from "../constants/class-diagram";
 import { resolveDiagramLayer } from "../helpers/diagram";
@@ -68,6 +69,7 @@ export function useExplorerActions({
   const removeScenario = useRemoveScenario();
   const updateDiagram = useUpdateDiagram();
   const updateClassDiagram = useUpdateClassDiagram();
+  const updateScenario = useUpdateScenario();
   const queryClient = useQueryClient();
 
   const [diagramDialogModel, setDiagramDialogModel] = useState<Model | null>(
@@ -352,6 +354,24 @@ export function useExplorerActions({
               toast.error(message || "Error updating diagram"),
           },
         );
+      } else if (SCENARIO_TYPES.has(diagram.type)) {
+        updateScenario.mutate(
+          {
+            id: diagram.id,
+            name: values.name,
+            description: values.description,
+          },
+          {
+            onSuccess: () => {
+              renameTab(diagram.id, values.name);
+              setEditDiagram(null);
+              toast.success("Scenario updated");
+              onTreeChanged();
+            },
+            onError: ({ message }) =>
+              toast.error(message || "Error updating scenario"),
+          },
+        );
       } else {
         updateDiagram.mutate(
           {
@@ -372,7 +392,14 @@ export function useExplorerActions({
         );
       }
     },
-    [updateDiagram, updateClassDiagram, editDiagram, renameTab, onTreeChanged],
+    [
+      updateDiagram,
+      updateClassDiagram,
+      updateScenario,
+      editDiagram,
+      renameTab,
+      onTreeChanged,
+    ],
   );
 
   const onAddElementToDiagram = useCallback(
@@ -433,7 +460,9 @@ export function useExplorerActions({
     // Mutation states
     isCreateDiagramPending: createDiagram.isPending || createScenario.isPending,
     isUpdateDiagramPending:
-      updateDiagram.isPending || updateClassDiagram.isPending,
+      updateDiagram.isPending ||
+      updateClassDiagram.isPending ||
+      updateScenario.isPending,
     isCreateModelPending: createModel.isPending,
 
     // Model actions

@@ -1,6 +1,10 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
 import type { ElementProperties } from "../../domain/entities/element";
+import {
+  duplicateNameMessage,
+  isDuplicateName,
+} from "../../domain/policies/uniqueness";
 import type { IElementRepository } from "../ports/element";
 
 export type UpdateElementPayload = {
@@ -55,6 +59,16 @@ export class UpdateElementUseCase
         element.isDeprecated()
       ) {
         throw new Error("Element is deprecated and can't update");
+      }
+
+      const siblings = await this.elementRepository.findElementsByModelId({
+        modelId: element.modelId,
+      });
+
+      if (isDuplicateName(payload.name, siblings, element.id)) {
+        throw new Error(
+          duplicateNameMessage("element", payload.name, "this layer"),
+        );
       }
 
       element.rename(payload.name);

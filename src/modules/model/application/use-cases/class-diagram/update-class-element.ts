@@ -1,5 +1,9 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
+import {
+  duplicateNameMessage,
+  isDuplicateName,
+} from "../../../domain/policies/uniqueness";
 import type {
   IClassDiagramRepository,
   UpdateClassElementPayload,
@@ -43,6 +47,25 @@ export class UpdateClassElementUseCase
     payload,
   }: UpdateClassElementUseCasePayload): Promise<UpdateClassElementUseCaseResponse> {
     try {
+      if (payload.name !== undefined) {
+        const element = await this.repository.findElementById({
+          id: payload.id,
+        });
+        if (!element) {
+          throw new Error(`Class element not found with id : ${payload.id}`);
+        }
+
+        const siblings = await this.repository.findElementsByModelId({
+          modelId: element.modelId,
+        });
+
+        if (isDuplicateName(payload.name, siblings, element.id)) {
+          throw new Error(
+            duplicateNameMessage("class element", payload.name, "this model"),
+          );
+        }
+      }
+
       // If parentId is being updated, validate it belongs to same model
       if (payload.parentId) {
         const parent = await this.repository.findElementById({

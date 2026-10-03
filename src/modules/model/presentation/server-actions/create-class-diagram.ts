@@ -2,11 +2,16 @@
 
 import { withAuth } from "@/modules/auth/presentation/with-auth";
 import { updateTag } from "next/cache";
+import { DiagramKindNameService } from "../../application/services/diagram-kind-names";
 import {
   CreateClassDiagramUseCase,
   type CreateClassDiagramUseCaseResponse,
 } from "../../application/use-cases/class-diagram/create-class-diagram";
-import { classDiagramRepository } from "../../infrastructure/persistence/drizzle/repositories";
+import {
+  classDiagramRepository,
+  diagramRepository,
+  scenarioRepository,
+} from "../../infrastructure/persistence/drizzle/repositories";
 import {
   CreateClassDiagramDTO,
   type CreateClassDiagramDTOProps,
@@ -19,7 +24,14 @@ export const createClassDiagram = withAuth(
   ): Promise<CreateClassDiagramUseCaseResponse> => {
     const dto = CreateClassDiagramDTO.create(payload);
 
-    const useCase = new CreateClassDiagramUseCase(classDiagramRepository);
+    const useCase = new CreateClassDiagramUseCase(
+      classDiagramRepository,
+      new DiagramKindNameService(
+        diagramRepository,
+        scenarioRepository,
+        classDiagramRepository,
+      ),
+    );
 
     const response = await useCase.execute({
       payload: dto,

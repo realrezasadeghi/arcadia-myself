@@ -1,6 +1,8 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
 import type { ElementProperties } from "../../domain/entities/element";
+import { SHORT_NAME_MAX_LENGTH } from "../../domain/policies/naming";
+import { findAvailableName } from "../../domain/policies/uniqueness";
 import {
   ElementType,
   type ElementTypeValue,
@@ -71,12 +73,22 @@ export class CreateElementUseCase
         }
       }
 
+      const siblings = await this.elementRepository.findElementsByModelId({
+        modelId: payload.modelId,
+      });
+
+      const name = findAvailableName(
+        payload.name,
+        siblings.map((sibling) => sibling.name),
+        { maxLength: SHORT_NAME_MAX_LENGTH },
+      );
+
       const response = await this.elementRepository.createElement({
         modelId: payload.modelId,
         layer: layer.toString(),
         parentId: payload.parentId ?? null,
         type: ElementType.from(payload.type).toString(),
-        name: payload.name,
+        name,
         description: payload.description,
       });
 

@@ -1,12 +1,15 @@
 import type { IUseCase } from "@/modules/shared/application/interfaces/use-case";
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
 import type { ElementLayout, Viewport } from "../../domain/entities/diagram";
+import { SHORT_NAME_MAX_LENGTH } from "../../domain/policies/naming";
+import { findAvailableName } from "../../domain/policies/uniqueness";
 import {
   DiagramType,
   type DiagramTypeValue,
 } from "../../domain/value-objects/diagram-type";
 import type { IDiagramRepository } from "../ports/diagram";
 import type { IModelRepository } from "../ports/model";
+import type { DiagramKindNameService } from "../services/diagram-kind-names";
 
 export type CreateDiagramPayload = {
   payload: {
@@ -38,6 +41,7 @@ export class CreateDiagramUseCase
   constructor(
     private readonly diagramRepository: IDiagramRepository,
     private readonly modelRepository: IModelRepository,
+    private readonly nameService: DiagramKindNameService,
   ) {}
 
   async execute({
@@ -58,10 +62,16 @@ export class CreateDiagramUseCase
         );
       }
 
+      const siblings = await this.nameService.findSiblings(payload.modelId);
+
       const response = await this.diagramRepository.create({
         modelId: payload.modelId,
         type: diagramType,
-        name: payload.name,
+        name: findAvailableName(
+          payload.name,
+          siblings.map((s) => s.name),
+          { maxLength: SHORT_NAME_MAX_LENGTH },
+        ),
         description: payload.description,
       });
 

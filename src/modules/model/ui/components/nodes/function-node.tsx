@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { toast } from "sonner";
 import { cn } from "@/modules/shared/ui/libs/cn";
 import { useUpdateElement } from "../../clients/update-element";
 import { getElementTypeInfo, getElementVisual } from "../../helpers/element";
@@ -47,8 +48,16 @@ function FunctionNodeComponent({
   const handleSaveName = useCallback(() => {
     const trimmed = editName.trim();
     if (trimmed && trimmed !== data.name) {
-      updateNodeData(data.elementId, { ...data, name: trimmed });
-      updateElement.mutate({ id: data.elementId, name: trimmed });
+      updateElement.mutate(
+        { id: data.elementId, name: trimmed },
+        {
+          onSuccess: () => {
+            updateNodeData(data.elementId, { ...data, name: trimmed });
+          },
+          onError: ({ message }) =>
+            toast.error(message || "Failed to rename element"),
+        },
+      );
     }
     setIsEditingName(false);
   }, [editName, data, updateNodeData, updateElement]);

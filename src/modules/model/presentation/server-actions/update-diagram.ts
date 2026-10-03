@@ -1,11 +1,16 @@
 "use server";
 
 import { withAuth } from "@/modules/auth/presentation/with-auth";
+import { DiagramKindNameService } from "../../application/services/diagram-kind-names";
 import {
   type UpdateDiagramResponse,
   UpdateDiagramUseCase,
 } from "../../application/use-cases/update-diagram";
-import { diagramRepository } from "../../infrastructure/persistence/drizzle/repositories";
+import {
+  classDiagramRepository,
+  diagramRepository,
+  scenarioRepository,
+} from "../../infrastructure/persistence/drizzle/repositories";
 import {
   UpdateDiagramDTO,
   type UpdateDiagramDTOProps,
@@ -18,7 +23,14 @@ export const updateDiagram = withAuth(
   ): Promise<UpdateDiagramResponse> => {
     const dto = UpdateDiagramDTO.create(payload);
 
-    const updateDiagramUseCase = new UpdateDiagramUseCase(diagramRepository);
+    const updateDiagramUseCase = new UpdateDiagramUseCase(
+      diagramRepository,
+      new DiagramKindNameService(
+        diagramRepository,
+        scenarioRepository,
+        classDiagramRepository,
+      ),
+    );
 
     const response = await updateDiagramUseCase.execute({
       payload: dto,

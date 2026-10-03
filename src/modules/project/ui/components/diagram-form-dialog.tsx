@@ -20,7 +20,10 @@ import {
   DialogTitle,
 } from "@/modules/shared/ui/components/ui/dialog";
 import { Form } from "@/modules/shared/ui/components/ui/form";
-import { type DiagramFormValues, diagramFormSchema } from "../schemas/diagram";
+import {
+  createDiagramFormSchema,
+  type DiagramFormValues,
+} from "../schemas/diagram";
 
 interface DiagramFormDialogProps {
   open: boolean;
@@ -32,6 +35,8 @@ interface DiagramFormDialogProps {
   onSubmit: (values: DiagramFormValues) => void;
   diagram: Pick<Diagram, "name" | "description" | "type"> | null;
   loading?: boolean;
+  /** Sibling names in the same model, excluding the entity being edited. */
+  takenNames?: readonly string[];
 }
 
 export function DiagramFormDialog({
@@ -41,11 +46,17 @@ export function DiagramFormDialog({
   onSubmit,
   diagram,
   loading = false,
+  takenNames,
 }: DiagramFormDialogProps) {
   const isEdit = !!diagram;
 
+  const schema = useMemo(
+    () => createDiagramFormSchema(takenNames),
+    [takenNames],
+  );
+
   const form = useForm<DiagramFormValues>({
-    resolver: zodResolver(diagramFormSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       name: "",
       description: "",

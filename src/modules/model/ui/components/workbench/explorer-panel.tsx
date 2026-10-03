@@ -106,6 +106,21 @@ export function ExplorerPanel({
     [modelData],
   );
 
+  const createDiagramTakenNames = useMemo(() => {
+    if (!diagramDialogModel) return undefined;
+    return modelData
+      .find((m) => m.model.id === diagramDialogModel.id)
+      ?.diagrams.map((d) => d.name);
+  }, [modelData, diagramDialogModel]);
+
+  const editDiagramTakenNames = useMemo(() => {
+    if (!editDiagram) return undefined;
+    return modelData
+      .find((m) => m.model.id === editDiagram.model.id)
+      ?.diagrams.filter((d) => d.id !== editDiagram.diagram.id)
+      .map((d) => d.name);
+  }, [modelData, editDiagram]);
+
   const handleSelectElement = useCallback(
     (elementId: string) => {
       selectElement(elementId);
@@ -289,6 +304,7 @@ export function ExplorerPanel({
           diagram={null}
           loading={isCreateDiagramPending}
           onSubmit={onSubmitDiagram}
+          takenNames={createDiagramTakenNames}
           layer={{
             value: diagramDialogModel.layer,
             label: getLayerInfo(diagramDialogModel.layer).label,
@@ -307,6 +323,7 @@ export function ExplorerPanel({
           }}
           loading={isUpdateDiagramPending}
           onSubmit={onSubmitEditDiagram}
+          takenNames={editDiagramTakenNames}
           layer={{
             value: editDiagram.model.layer,
             label: getLayerInfo(editDiagram.model.layer).label,

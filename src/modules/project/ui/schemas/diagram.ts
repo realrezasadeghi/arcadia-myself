@@ -37,3 +37,36 @@ export const diagramFormSchema = z.object({
 });
 
 export type DiagramFormValues = z.infer<typeof diagramFormSchema>;
+
+const SCENARIO_TYPE_VALUES = new Set(["OIS", "SS", "LS", "PS"]);
+
+function kindLabelFor(type: DiagramFormValues["type"]): string {
+  if (type === "CDB") return "class diagram";
+  if (SCENARIO_TYPE_VALUES.has(type)) return "scenario";
+  return "diagram";
+}
+
+/**
+ * Diagram/scenario/class-diagram names share one namespace per model, so the
+ * schema rejects a name already taken by any sibling (`siblingNames` must
+ * exclude the entity being edited). Mirrors the server-side
+ * `duplicateNameMessage` wording; the server remains the authoritative check.
+ */
+export function createDiagramFormSchema(siblingNames: readonly string[] = []) {
+  const taken = new Set(
+    siblingNames.map((name) => name.trim().toLowerCase()).filter(Boolean),
+  );
+
+  return diagramFormSchema.superRefine((values, ctx) => {
+    const trimmed = values.name.trim();
+    if (!trimmed || taken.size === 0) return;
+
+    if (taken.has(trimmed.toLowerCase())) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["name"],
+        message: `The name "${trimmed}" is already used by another ${kindLabelFor(values.type)} in this model`,
+      });
+    }
+  });
+}

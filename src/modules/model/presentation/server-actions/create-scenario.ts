@@ -1,11 +1,14 @@
 "use server";
 
 import { withAuth } from "@/modules/auth/presentation/with-auth";
+import { DiagramKindNameService } from "../../application/services/diagram-kind-names";
 import {
   type CreateScenarioResponse,
   CreateScenarioUseCase,
 } from "../../application/use-cases/create-scenario";
 import {
+  classDiagramRepository,
+  diagramRepository,
   modelRepository,
   scenarioRepository,
 } from "../../infrastructure/persistence/drizzle/repositories";
@@ -24,6 +27,11 @@ export const createScenario = withAuth(
     const createScenarioUseCase = new CreateScenarioUseCase(
       scenarioRepository,
       modelRepository,
+      new DiagramKindNameService(
+        diagramRepository,
+        scenarioRepository,
+        classDiagramRepository,
+      ),
     );
 
     const response = await createScenarioUseCase.execute({

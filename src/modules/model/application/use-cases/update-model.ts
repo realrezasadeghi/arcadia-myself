@@ -1,4 +1,8 @@
 import { resolveErrorMessage } from "@/modules/shared/utils/resolve-error-message";
+import {
+  duplicateNameMessage,
+  isDuplicateName,
+} from "../../domain/policies/uniqueness";
 import type { IModelRepository } from "../ports/model";
 
 export type UpdateModelPayload = {
@@ -37,6 +41,18 @@ export class UpdateModelUseCase {
       const model = await this.modelRepository.findModelById(payload.modelId);
 
       if (!model) throw new Error(`Model id not found : ${payload.modelId}`);
+
+      if (payload.name !== undefined) {
+        const siblings = await this.modelRepository.findModelsByProjectId(
+          model.projectId,
+        );
+
+        if (isDuplicateName(payload.name, siblings, model.id)) {
+          throw new Error(
+            duplicateNameMessage("model", payload.name, "this project"),
+          );
+        }
+      }
 
       model.rename(payload.name);
 

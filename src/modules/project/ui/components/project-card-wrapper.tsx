@@ -13,6 +13,10 @@ const RemoveProjectDialog = dynamic(() =>
   import("./remove-project-dialog").then((mod) => mod.RemoveProjectDialog),
 );
 
+const MembersSheet = dynamic(() =>
+  import("./members-sheet").then((mod) => mod.MembersSheet),
+);
+
 type ProjectCardWrapperProps = {
   project: Project;
 };
@@ -20,6 +24,7 @@ type ProjectCardWrapperProps = {
 export function ProjectCardWrapper({ project }: ProjectCardWrapperProps) {
   const [formDialogOpen, setFormDialogOpen] = useState(false);
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+  const [membersOpen, setMembersOpen] = useState(false);
 
   const handleEdit = useCallback(() => {
     setFormDialogOpen(true);
@@ -35,6 +40,7 @@ export function ProjectCardWrapper({ project }: ProjectCardWrapperProps) {
         project={project}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onMembers={() => setMembersOpen(true)}
       />
 
       <ProjectFormDialog
@@ -47,6 +53,14 @@ export function ProjectCardWrapper({ project }: ProjectCardWrapperProps) {
         open={removeDialogOpen}
         project={project}
         onOpenChange={setRemoveDialogOpen}
+      />
+
+      <MembersSheet
+        open={membersOpen}
+        onOpenChange={setMembersOpen}
+        projectId={project.id}
+        projectName={project.name}
+        permissions={project.permissions}
       />
     </>
   );

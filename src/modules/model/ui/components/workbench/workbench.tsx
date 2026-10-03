@@ -11,6 +11,7 @@ import {
   Users,
   Workflow,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -64,6 +65,12 @@ import { PropertiesPanel } from "./properties-panel";
 import { SemanticBrowserPanel } from "./semantic-browser-panel";
 import { TransitionWizard } from "./transition-wizard";
 import { ValidationPanel } from "./validation-panel";
+
+const MembersSheet = dynamic(() =>
+  import("@/modules/project/ui/components/members-sheet").then(
+    (mod) => mod.MembersSheet,
+  ),
+);
 
 export type WorkbenchModelData = {
   model: Model;
@@ -411,6 +418,7 @@ function WorkbenchMenuBar({ projectName }: { projectName: string }) {
   );
   const currentLayer = useWorkbenchStore((s) => s.currentLayer);
   const layer = getLayerInfo(activeTab?.layer ?? currentLayer);
+  const [membersOpen, setMembersOpen] = useState(false);
 
   // RBAC: the Members page is only reachable with a member-management grant.
   const canOpenMembers =
@@ -484,18 +492,28 @@ function WorkbenchMenuBar({ projectName }: { projectName: string }) {
           <TooltipContent>Traceability Matrix</TooltipContent>
         </Tooltip>
         {canOpenMembers && projectId && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link
-                href={`/dashboard/project/${projectId}/members`}
-                className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted"
-                aria-label="Members"
-              >
-                <Users className="size-4" />
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent>Members</TooltipContent>
-          </Tooltip>
+          <>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => setMembersOpen(true)}
+                  className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted"
+                  aria-label="Members"
+                >
+                  <Users className="size-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>Members</TooltipContent>
+            </Tooltip>
+            <MembersSheet
+              open={membersOpen}
+              onOpenChange={setMembersOpen}
+              projectId={Number(projectId)}
+              projectName={projectName}
+              permissions={projectPermissions}
+            />
+          </>
         )}
         <div className="w-px h-4 bg-border mx-1" />
         {toggles.map(({ key, label, icon: Icon }) => (

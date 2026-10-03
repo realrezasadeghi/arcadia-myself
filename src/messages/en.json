@@ -489,7 +489,9 @@
       "lastAdmin": "Last administrator",
       "backToProject": "Back to project",
       "empty": "No members yet",
-      "emptyHint": "Add a member to give someone access to this project."
+      "emptyHint": "Add a member to give someone access to this project.",
+      "loadError": "Could not load members.",
+      "retry": "Try again"
     }
   }
 }

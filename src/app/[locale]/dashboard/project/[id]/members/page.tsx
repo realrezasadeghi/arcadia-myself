@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { getProjectById } from "@/modules/project/presentation/server-actions/get-by-id";
 import { getProjectMembers } from "@/modules/project/presentation/server-actions/get-members";
 import { getProjectRoles } from "@/modules/project/presentation/server-actions/get-roles";
-import { MembersView } from "@/modules/project/ui/views/members";
+import { MembersPanel } from "@/modules/project/ui/components/members-panel";
 import { cookiesStorageService } from "@/modules/shared/infrastructure/services";
 import { extractUserIdFromJwt } from "@/modules/shared/libs/extract-jwt";
 import { Skeleton } from "@/modules/shared/ui/components/ui/skeleton";
@@ -77,12 +77,14 @@ async function MembersSection({ params }: { params: Promise<{ id: string }> }) {
   }
 
   return (
-    <MembersView
+    <MembersPanel
+      variant="page"
       projectId={projectId}
-      project={projectResult.data}
-      members={membersResult.data ?? []}
-      roles={rolesResult.data ?? []}
+      projectName={projectResult.data.name}
+      permissions={projectResult.data.permissions}
       currentUserId={currentUserId}
+      initialMembers={membersResult.data ?? []}
+      initialRoles={rolesResult.data ?? []}
     />
   );
 }

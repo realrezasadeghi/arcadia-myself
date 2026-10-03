@@ -115,9 +115,11 @@ single role and adapts at the boundary:
 - `ui/components/project-member-role.tsx` — new role labels (i18n).
 - `ui/components/project-card.tsx` — role badge; Edit/Delete hidden without
   `editProject` / `deleteProject`.
-- New members management: page `dashboard/project/[id]/members`, view
-  `ui/views/members.tsx`, components `member-list`, `add-member-dialog`,
-  `edit-member-role-dialog`, `remove-member-dialog` (gated by `addMembers` /
+- Members management: page `dashboard/project/[id]/members` (deep link) backed
+  by `ui/components/members-panel.tsx`, which also renders inside
+  `ui/components/members-sheet.tsx` — opened in place from the project card
+  menu and the workbench toolbar (components `add-member-dialog`,
+  `edit-member-role-dialog`, `remove-member-dialog`, gated by `addMembers` /
   `manageMembers`, inviter ceiling applied to the role pickers).
 - New ui clients + zod schemas (`ui/schemas/member.ts`).
 

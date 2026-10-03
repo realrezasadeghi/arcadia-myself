@@ -448,6 +448,7 @@
     "open": "باز کردن",
     "editProject": "ویرایش پروژه",
     "actions": "عملیات پروژه",
+    "moreRoles": "+{count} مورد دیگر",
     "roles": {
       "project_viewer": "بیننده پروژه",
       "oa_viewer": "بیننده OA",

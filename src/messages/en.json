@@ -448,6 +448,7 @@
     "open": "Open",
     "editProject": "Edit project",
     "actions": "Project actions",
+    "moreRoles": "+{count} more",
     "roles": {
       "project_viewer": "Project Viewer",
       "oa_viewer": "OA Viewer",

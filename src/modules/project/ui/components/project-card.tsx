@@ -21,8 +21,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/modules/shared/ui/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/modules/shared/ui/components/ui/tooltip";
 import { cn } from "@/modules/shared/ui/libs/cn";
 import type { Project } from "../types/project";
+
+const MAX_VISIBLE_ROLES = 2;
 
 const LAYER_COLORS: Record<string, { dot: string; badge: string }> = {
   OA: {
@@ -51,9 +58,15 @@ interface ProjectCardProps {
   project: Project;
   onEdit: (project: Project) => void;
   onDelete: (project: Project) => void;
+  onMembers: (project: Project) => void;
 }
 
-export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
+export function ProjectCard({
+  project,
+  onEdit,
+  onDelete,
+  onMembers,
+}: ProjectCardProps) {
   const t = useTranslations("project");
   const tc = useTranslations("common");
   const locale = useLocale();
@@ -66,12 +79,15 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
     month: "short",
     day: "numeric",
   }).format(new Date(project.updatedAt));
+  const visibleRoles = project.roles.slice(0, MAX_VISIBLE_ROLES);
+  const hiddenRoles = project.roles.slice(MAX_VISIBLE_ROLES);
+  const hiddenRoleLabels = hiddenRoles.map((role) => t(`roles.${role}`));
 
   return (
-    <div className="group relative transition-transform duration-200 hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+    <div className="group relative h-full transition-transform duration-200 hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
       <Link
         href={`/dashboard/project/${project.id}`}
-        className="block rounded-xl border bg-card p-5 touch-manipulation transition-[box-shadow,border-color] duration-200 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+        className="flex h-full flex-col rounded-xl border bg-card p-5 touch-manipulation transition-[box-shadow,border-color] duration-200 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
       >
         {/* Icon */}
         <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-linear-to-br from-primary/10 to-primary/5 border border-primary/10">
@@ -111,26 +127,44 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-start justify-between gap-3 pt-3 border-t border-border/50">
-          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1.5 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <User className="h-3.5 w-3.5" />
+        <div className="mt-auto pt-3 border-t border-border/50">
+          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1.5 text-xs text-muted-foreground">
+            <span className="flex shrink-0 items-center gap-1.5">
+              <User className="h-3.5 w-3.5" aria-hidden="true" />
               {t("role")}:
             </span>
-            {project.roles.map((role) => (
+            {visibleRoles.map((role) => (
               <Badge key={role} variant="secondary" className="text-[11px]">
                 {t(`roles.${role}`)}
               </Badge>
             ))}
-            <span className="flex items-center gap-1.5">
-              <Calendar className="h-3.5 w-3.5" />
-              {date}
-            </span>
+            {hiddenRoles.length > 0 && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge
+                    variant="outline"
+                    aria-label={`${t("moreRoles", {
+                      count: hiddenRoles.length,
+                    })}: ${hiddenRoleLabels.join(", ")}`}
+                    className="cursor-default text-[11px]"
+                  >
+                    +{hiddenRoles.length}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>{hiddenRoleLabels.join(", ")}</TooltipContent>
+              </Tooltip>
+            )}
           </div>
 
-          <div className="flex shrink-0 items-center gap-1 text-xs font-medium text-primary opacity-0 transition-opacity any-pointer-coarse:opacity-100 group-hover:opacity-100">
-            {t("open")}
-            <ArrowRight className="h-3.5 w-3.5" />
+          <div className="mt-2 flex items-center justify-between gap-2 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
+              {date}
+            </span>
+            <div className="flex shrink-0 items-center gap-1 font-medium text-primary opacity-0 transition-opacity any-pointer-coarse:opacity-100 group-hover:opacity-100">
+              {t("open")}
+              <ArrowRight className="h-3.5 w-3.5" />
+            </div>
           </div>
         </div>
       </Link>
@@ -152,10 +186,8 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
               {canManageMembers && (
-                <DropdownMenuItem asChild>
-                  <Link href={`/dashboard/project/${project.id}/members`}>
-                    {t("membersLink")}
-                  </Link>
+                <DropdownMenuItem onSelect={() => onMembers(project)}>
+                  {t("membersLink")}
                 </DropdownMenuItem>
               )}
               {canManageMembers && (canEditProject || canDeleteProject) && (
